@@ -9,8 +9,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
     headers = {'Content-Type': 'application/json'}
 
-    if 'HTTP_ORIGIN' in req.headers:
-        headers['Access-Control-Allow-Origin'] = req.headers['HTTP_ORIGIN']
+    if 'Origin' in req.headers:
+        headers['Access-Control-Allow-Origin'] = req.headers['Origin']
     
     name = req.params.get('name')
 
