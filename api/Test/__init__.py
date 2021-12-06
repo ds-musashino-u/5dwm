@@ -11,8 +11,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if 'HTTP_ORIGIN' in req.headers:
         headers['Access-Control-Allow-Origin'] = req.headers['HTTP_ORIGIN']
-    else:
-        headers['Access-Control-Allow-Origin'] = '*'
     
     name = req.params.get('name')
 
