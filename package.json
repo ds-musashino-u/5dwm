@@ -1,11 +1,14 @@
 {
   "name": "5dwm",
   "version": "1.0.0",
+  "description": "5D World Map",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "serve": "vite preview"
   },
+  "author": "5D World Map",
+  "license": "ISC",
   "dependencies": {
     "vue": "^3.2.16"
   },
