@@ -1,7 +1,18 @@
-# Vue 3 + Vite
+# 5dwm
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
-
-## Recommended IDE Setup
-
-- [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar)
+## コミットプレフィックス
+- 🎉  `:tada:` 初めてのコミット（Initial Commit）
+- 🔖  `:bookmark:` バージョンタグ（Version Tag）
+- ✨  `:sparkles:` 新機能（New Feature）
+- 🐛  `:bug:` バグ修正（Bugfix）
+- ♻️  `:recycle:` リファクタリング(Refactoring)
+- 📚  `:books:` ドキュメント（Documentation）
+- 🎨  `:art:` デザインUI/UX(Accessibility)
+- 🚀  `:rocket:` パフォーマンス（Performance）
+- 🔧  `:wrench:` ツール（Tooling）
+- 🚨  `:rotating_light:` テスト（Tests）
+- 💩  `:hankey:` 非推奨追加（Deprecation）
+- 🗑️  `:wastebasket:` 削除（Removal）
+- 🚧  `:construction:` WIP(Work In Progress)
+- 👮  `:cop:` セキュリティ関連の改善
+- ⚙  `:gear:` config変更
