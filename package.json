@@ -7,8 +7,16 @@
     "build": "vite build",
     "serve": "vite preview"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ds-musashino-u/5dwm.git"
+  },
   "author": "5D World Map",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ds-musashino-u/5dwm/issues"
+  },
+  "homepage": "https://github.com/ds-musashino-u/5dwm",
   "dependencies": {
     "vue": "^3.2.16"
   },
