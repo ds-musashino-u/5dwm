@@ -33,8 +33,6 @@ const count = ref(0)
   </p>
 </template>
 
-<style scoped>
-a {
-  color: #42b983;
-}
+<style lang="sass" scoped>
+
 </style>
