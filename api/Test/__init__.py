@@ -27,7 +27,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         try:
             return func.HttpResponse(json.dumps({
                     'text': name,
-                    'key': os.environ["ACCESS_KEY2"],
+                    'key': os.environ.get("AZURE_STORAGE_CONNECTION_STRING"),
                     'timestamp': int(time.time())
                 }),
                 status_code=200,
