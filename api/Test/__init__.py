@@ -24,14 +24,25 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             name = req_body.get('name')
 
     if name:
-        return func.HttpResponse(json.dumps({
-                'text': name,
-                'key': os.environ["ACCESS_KEY"],
-                'timestamp': int(time.time())
-            }),
-            status_code=200,
-            headers=headers,
-            charset='utf-8')
+        try:
+            return func.HttpResponse(json.dumps({
+                    'text': name,
+                    'key': os.environ["ACCESS_KEY"],
+                    'timestamp': int(time.time())
+                }),
+                status_code=200,
+                headers=headers,
+                charset='utf-8')
+        except Exception as e:
+            return func.HttpResponse(json.dumps({
+                    'error': {
+                        'message': e.message,
+                        'type': type(e).__name__ }
+                }),
+                status_code=200,
+                headers=headers,
+                charset='utf-8')
+
     else:
         return func.HttpResponse(
             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
