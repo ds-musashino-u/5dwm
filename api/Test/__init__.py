@@ -1,6 +1,7 @@
 import logging
 import time
 import json
+import sys
 import os
 
 import azure.functions as func
@@ -37,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             return func.HttpResponse(json.dumps({
                     'error': {
-                        'message': str(e),
+                        'message': e.with_traceback(sys.exc_info()[2]),
                         'type': type(e).__name__ }
                 }),
                 status_code=200,
