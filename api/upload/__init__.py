@@ -1,31 +1,48 @@
 import logging
+import time
+import json
+import os
+import uuid
 
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    logging.info('Python HTTP trigger function processed a request.')
+    headers = {'Content-Type': 'application/json'}
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
+    if 'Origin' in req.headers:
+        headers['Access-Control-Allow-Origin'] = req.headers['Origin']
 
-    #blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
-    #container_client = blob_service_client.get_container_client("uploads")
-    #blob_client = container_client.get_blob_client("myblockblob")
-    #blob_client.upload_blob(data, blob_type="BlockBlob")
-    #download_stream = blob_client.download_blob()
-    #download_stream.readall()
+    #logging.info('/api/upload')
+    try:
+        req_body = req.get_json()
+        image = req_body.get("image")
+        
+        blob_service_client = BlobServiceClient.from_connection_string(os.environ.get("AZURE_STORAGE_CONNECTION_STRING"))
+        container_client = blob_service_client.get_container_client("images")
+    
+        blob = str(uuid.uuid4())
+        blob_client = container_client.get_blob_client(blob)
+        #blob_client.upload_blob(data, blob_type="BlockBlob")
+        #download_stream = blob_client.download_blob()
+        #download_stream.readall()
 
-    if name:
-        return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+        return func.HttpResponse(json.dumps({
+                'blob': blob,
+                'timestamp': int(time.time())
+            }),
+            status_code=200,
+            headers=headers,
+            charset='utf-8')
+
+    except Exception as e:
+        logging.error(f'{e}')
+
+        return func.HttpResponse(json.dumps({
+                'error': {
+                    'message': str(e),
+                    'type': type(e).__name__ }
+            }),
+            status_code=400,
+            headers=headers,
+            charset='utf-8')
