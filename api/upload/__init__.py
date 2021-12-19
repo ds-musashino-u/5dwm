@@ -1,7 +1,7 @@
 import logging
 
 import azure.functions as func
-
+from azure.storage.blob import BlobServiceClient
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
@@ -14,6 +14,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             pass
         else:
             name = req_body.get('name')
+
+    #blob_service_client = BlobServiceClient.from_connection_string(self.connection_string)
+    #container_client = blob_service_client.get_container_client("uploads")
+    #blob_client = container_client.get_blob_client("myblockblob")
+    #blob_client.upload_blob(data, blob_type="BlockBlob")
+    #download_stream = blob_client.download_blob()
+    #download_stream.readall()
 
     if name:
         return func.HttpResponse(f"Hello, {name}. This HTTP triggered function executed successfully.")
