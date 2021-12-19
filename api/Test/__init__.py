@@ -37,7 +37,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             return func.HttpResponse(json.dumps({
                     'error': {
-                        'message': e.args,
+                        'message': str(e),
                         'type': type(e).__name__ }
                 }),
                 status_code=400,
