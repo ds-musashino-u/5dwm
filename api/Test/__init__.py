@@ -38,7 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         except Exception as e:
             return func.HttpResponse(json.dumps({
                     'error': {
-                        'message': e.with_traceback(sys.exc_info()[2]),
+                        'message': sys.exc_info()[1],
                         'type': type(e).__name__ }
                 }),
                 status_code=200,
