@@ -27,16 +27,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         try:
             return func.HttpResponse(json.dumps({
                     'text': name,
-                    'key': os.environ.get("ACCESS_KEY"),
+                    'key': os.environ["ACCESS_KEY2"],
                     'timestamp': int(time.time())
                 }),
                 status_code=200,
                 headers=headers,
                 charset='utf-8')
-        
+
         except Exception as e:
             return func.HttpResponse(json.dumps({
-                    'error': str(e)
+                    'error': {
+                        'message': str(e),
+                        'type': type(e).__name__ }
                 }),
                 status_code=200,
                 headers=headers,
