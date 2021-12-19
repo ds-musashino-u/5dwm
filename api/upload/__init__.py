@@ -1,8 +1,8 @@
-import logging
 import time
 import json
-import os
 import uuid
+import logging
+import os
 
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
@@ -13,7 +13,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if 'Origin' in req.headers:
         headers['Access-Control-Allow-Origin'] = req.headers['Origin']
 
-    #logging.info('/api/upload')
     try:
         req_body = req.get_json()
         image = req_body.get("image")
