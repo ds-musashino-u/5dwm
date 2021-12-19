@@ -35,6 +35,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 charset='utf-8')
 
         except Exception as e:
+            logging.error(f'{e}')
+
             return func.HttpResponse(json.dumps({
                     'error': {
                         'message': str(e),
