@@ -33,11 +33,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 status_code=200,
                 headers=headers,
                 charset='utf-8')
+        
         except Exception as e:
             return func.HttpResponse(json.dumps({
-                    'error': {
-                        'message': e.message,
-                        'type': type(e).__name__ }
+                    'error': str(e)
                 }),
                 status_code=200,
                 headers=headers,
