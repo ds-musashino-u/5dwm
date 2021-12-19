@@ -26,7 +26,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if name:
         return func.HttpResponse(json.dumps({
                 'text': name,
-                #'key': os.environ["KEY"],
+                'key': os.environ("KEY"),
                 'timestamp': int(time.time())
             }),
             status_code=200,
