@@ -1,6 +1,7 @@
 import logging
 import time
 import json
+import os
 
 import azure.functions as func
 
@@ -25,6 +26,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     if name:
         return func.HttpResponse(json.dumps({
                 'text': name,
+                'key': os.environ["KEY"],
                 'timestamp': int(time.time())
             }),
             status_code=200,
