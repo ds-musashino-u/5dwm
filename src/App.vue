@@ -39,35 +39,4 @@ export default {
 </template>
 
 <style lang="scss">
-#app {
-  position: absolute;
-  display: flex;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  flex-direction: row;
-  align-items: flex-start;
-  justify-content: flex-start;
-
-  > .wrap {
-    position: relative;
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    max-width: 100% !important;
-    height: 100%;
-
-    > .content {
-      position: absolute;
-      margin: 0;
-      padding: 16px;
-      width: 100%;
-      height: 100%;
-      min-height: 100%;
-      overflow: hidden;
-    }
-  }
-}
 </style>
