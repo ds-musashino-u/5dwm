@@ -1,22 +1,23 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref } from "vue";
+import { ref, toRef, watchEffect } from "vue";
 
 const props = defineProps({
   items: Array,
   index: { type: Number, required: false, default: 0 },
 });
 const emit = defineEmits(["reveal", "select"]);
-
+const propsIndexRef = toRef(props, "index");
 const selectedIndex = ref(props.index);
 const reveal = () => {
   emit("reveal");
 };
 const select = (event) => {
   emit("select", event.target.dataset);
-  selectedIndex.value = parseInt(event.target.dataset.index);
 };
+
+watchEffect(() => selectedIndex.value = propsIndexRef.value);
 </script>
 
 <template>
