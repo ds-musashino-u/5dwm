@@ -14,21 +14,23 @@ export default {
     };
   },
   methods: {
-    reveal: () => {
-    },
+    reveal: () => {},
     select: (data) => {
       //console.log(data.index);
       //console.log(data.name);
     },
   },
-  mounted: () => {
-  }
+  mounted: () => {},
 };
 </script>
 
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
-  <Sidebar v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }]" @reveal="reveal" @select="select" />
+  <Sidebar
+    v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }]"
+    @reveal="reveal"
+    @select="select"
+  />
   <div class="wrap">
     <div class="content">
       <span>Content is here.</span>
@@ -48,24 +50,24 @@ export default {
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-}
 
-#app > .wrap {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  max-width: 100% !important;
-  height: 100%;
-}
+  > .wrap {
+    position: relative;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100% !important;
+    height: 100%;
 
-#app > .wrap > .content {
-  position: absolute;
-  margin: 0;
-  padding: 16px;
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
-  overflow: hidden;
+    > .content {
+      position: absolute;
+      margin: 0;
+      padding: 16px;
+      width: 100%;
+      height: 100%;
+      min-height: 100%;
+      overflow: hidden;
+    }
+  }
 }
 </style>
