@@ -1,6 +1,12 @@
 @charset "UTF-8";
 @import "bulma/bulma";
 
+$primary: #68e6ff;
+
+:root {
+    --accent-color: #{$primary};
+}
+
 html {
     margin: 0;
     padding: 0;
@@ -68,6 +74,36 @@ button {
     }
 }
 
+.left {
+    z-index: 1;
+    position: absolute;
+    left: 0;
+    top: 0;
+    margin: 16px 0px 0px 0px;
+    padding: calc(env(safe-area-inset-top, 0px) + 16px) 0px 0px calc(env(safe-area-inset-left, 0px) + 32px);
+    touch-action: none;
+
+    button {
+        margin: 0px;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 290486px;
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.75) !important;
+        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        background-clip: padding-box;
+        height: initial;
+        /*color: var(--accent-color) !important;*/
+
+        > span.icon {
+            margin: 0 !important;
+            width: 1rem !important;
+            height: 1rem !important;
+        }
+    }
+}
+
 #sidebar {
     position: relative;
     padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px)
@@ -114,6 +150,15 @@ button {
                 > .level-item:first-child {
                     margin: 0;
                     padding: 0;
+
+                    button,
+                    .button {
+                        > span.icon {
+                            margin: 0 !important;
+                            width: 1rem !important;
+                            height: 1rem !important;
+                        }
+                    }
                 }
 
                 > .level-item:not(:first-child) {
@@ -149,4 +194,96 @@ button {
             padding: 0px 0px 32px 0px;
         }
     }
+}
+
+#menu {
+    z-index: 1;
+    position: absolute;
+    display: flex;
+    top: 0;
+    justify-content: center;
+    align-items: center;
+    padding: env(safe-area-inset-top, 0px) 0px 0px 0px;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    > .columns {
+        display: flex;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        justify-content: center;
+        align-items: center;
+        overflow-x: hidden;
+        overflow-y: auto;
+
+        > .column {
+            flex: none;
+            margin: auto !important;
+            overflow-x: hidden;
+            overflow-y: auto;
+            width: 100%;
+
+            > .control {
+                margin: 0;
+                padding: 0px 16px 0px 16px;
+
+                > .level:first-child {
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+
+                    > .level-item:nth-child(1) {
+                        padding: 16px 16px 16px 16px;
+                    }
+
+                    > .level-item:not(:nth-child(1)) {
+                        margin: 0;
+                        padding: 0px 16px 16px 16px;
+                    }
+
+                    > .level-item > .level {
+                        margin: -8px -8px -8px -8px;
+                        flex-direction: column;
+
+                        > .level-item {
+                            margin: 0;
+                            padding: 8px 8px 8px 8px;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.5s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.reveal-enter-active,
+.reveal-leave-active {
+    transition: all 0.5s ease;
+}
+
+.reveal-enter-from,
+.reveal-leave-to {
+    opacity: 0;
+    transform: translate3d(0, -50%, 0);
+}
+
+.reveal-enter-to,
+.reveal-leave-from {
+    opacity: 1;
+    transform: translate3d(0, 0%, 0);
 }
