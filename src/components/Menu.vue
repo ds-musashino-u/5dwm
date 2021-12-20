@@ -4,18 +4,11 @@
 import { ref } from "vue";
 
 const props = defineProps({
-  items: Array,
-  index: { type: Number, required: false, default: 0 },
+  items: Array
 });
 const emit = defineEmits(["reveal", "select"]);
-
-const selectedIndex = ref(props.index);
-const reveal = () => {
-  emit("reveal");
-};
 const select = (event) => {
   emit("select", event.target.dataset);
-  selectedIndex.value = parseInt(event.target.dataset.index);
 };
 </script>
 
@@ -31,18 +24,21 @@ const select = (event) => {
             v-on:before-leave="$refs.menu.scroll(0, 0)"
           >
             <nav class="level" key="main">
-              <div class="level-item">
+              <div class="level-item" v-for="(item, index) in items" v-bind:key="item">
                 <article class="media">
                   <div class="media-content">
                     <div class="content">
                       <button
                         class="button is-rounded is-size-6 is-primary"
                         type="button"
+                        v-bind:data-index="index"
+                        v-bind:data-name="item.name"
+                        @click="select"
                       >
                         <span class="icon">
-                          <i class="fas fa-search"></i>
+                          <i v-bind:class="item.icon"></i>
                         </span>
-                        <span class="has-text-weight-bold">Search</span>
+                        <span class="has-text-weight-bold">{{ item.name }}</span>
                       </button>
                     </div>
                   </div>
