@@ -12,16 +12,16 @@ export default {
   data() {
     return {
       isRevealed: false,
-      page: null,
+      pageIndex: 0,
     };
   },
   methods: {
     reveal() {
       this.isRevealed = !this.isRevealed;
     },
-    select: (data) => {
-      //console.log(data.index);
-      //console.log(data.name);
+    select(data) {
+      this.pageIndex = parseInt(data.index);
+      this.isRevealed = false;
     },
   },
   mounted() {},
@@ -31,7 +31,8 @@ export default {
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
   <Sidebar
-    v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }]"
+    v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }, { icon: 'fas fa-search', name: 'Search2' }]"
+    v-bind:index="pageIndex"
     @reveal="reveal"
     @select="select"
   />
@@ -40,7 +41,7 @@ export default {
       <span>Content is here.</span>
     </div>
     <transition name="reveal">
-      <Menu v-if="isRevealed" />
+      <Menu v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }, { icon: 'fas fa-search', name: 'Search2' }]" @select="select" v-if="isRevealed" />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
