@@ -12,7 +12,6 @@ const emit = defineEmits(["reveal", "select"]);
 const selectedIndex = ref(props.index);
 const reveal = () => {
   emit("reveal");
-  //selectedIndex.value = -1;
 };
 const select = (event) => {
   emit("select", event.target.dataset);
