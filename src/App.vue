@@ -3,16 +3,22 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
+import Search from "./components/Search.vue";
 
 export default {
   components: {
     Sidebar,
     Menu,
+    Search,
   },
   data() {
     return {
       isRevealed: false,
-      pageIndex: 0,
+      contentIndex: 0,
+      contents: [
+        { icon: "fas fa-search", name: "Search", component: "Search" },
+        { icon: "fas fa-search", name: "Search2", component: "Search" },
+      ],
     };
   },
   methods: {
@@ -20,7 +26,7 @@ export default {
       this.isRevealed = !this.isRevealed;
     },
     select(data) {
-      this.pageIndex = parseInt(data.index);
+      this.contentIndex = parseInt(data.index);
       this.isRevealed = false;
     },
   },
@@ -31,17 +37,23 @@ export default {
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
   <Sidebar
-    v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }, { icon: 'fas fa-search', name: 'Search2' }]"
-    v-bind:index="pageIndex"
+    :items="contents"
+    :index="contentIndex"
     @reveal="reveal"
     @select="select"
   />
   <div class="wrap">
     <div class="content">
-      <span>Content is here.</span>
+      <keep-alive>
+        <component :is="contents[contentIndex].component" v-bind="{ text: contents[contentIndex].name }"></component>
+      </keep-alive>
     </div>
     <transition name="reveal">
-      <Menu v-bind:items="[{ icon: 'fas fa-search', name: 'Search' }, { icon: 'fas fa-search', name: 'Search2' }]" @select="select" v-if="isRevealed" />
+      <Menu
+        v-bind:items="contents"
+        @select="select"
+        v-if="isRevealed"
+      />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
