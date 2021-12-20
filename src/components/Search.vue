@@ -3,10 +3,10 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref } from "vue";
 
-/*const props = defineProps({
-  items: Array
+const props = defineProps({
+  text: String
 });
-const emit = defineEmits(["reveal", "select"]);
+/*const emit = defineEmits(["reveal", "select"]);
 const select = (event) => {
   emit("select", event.target.dataset);
 };*/
@@ -14,7 +14,7 @@ const select = (event) => {
 
 <template>
   <div id="search">
-    <span>Search</span>
+    <span>{{ text }}</span>
   </div>
 </template>
 
