@@ -4,6 +4,7 @@ import json
 import logging
 import os
 from uuid import uuid4
+from base64 import b64decode
 
 import azure.functions as func
 from azure.storage.blob import BlobServiceClient
@@ -39,7 +40,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 container_client = blob_service_client.get_container_client(container_name)
             
                 blob_client = container_client.get_blob_client(path)
-                blob_client.upload_blob(data, blob_type="BlockBlob")
+                blob_client.upload_blob(b64decode(data), blob_type="BlockBlob")
                 #download_stream = blob_client.download_blob()
                 #download_stream.readall()
 
