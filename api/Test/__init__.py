@@ -28,6 +28,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             return func.HttpResponse(json.dumps({
                     'text': name,
                     'key': os.environ.get("AZURE_STORAGE_CONNECTION_STRING"),
+                    'auth': req.headers['Authorization'] if 'Authorization' in req.headers else None,
                     'timestamp': int(time.time())
                 }),
                 status_code=200,
