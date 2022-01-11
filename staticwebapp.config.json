@@ -1,0 +1,17 @@
+{
+    "navigationFallback": {
+        "rewrite": "index.html",
+        "exclude": [
+            "/assets/*",
+            "/images/*.{png,jpg,gif}"
+        ]
+    },
+    "responseOverrides": {
+        "404": {
+            "rewrite": "/404.html"
+        }
+    },
+    "mimeTypes": {
+        ".json": "text/json"
+    }
+}
