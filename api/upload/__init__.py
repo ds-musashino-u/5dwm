@@ -12,6 +12,7 @@ import azure.functions as func
 from azure.storage.blob import BlobServiceClient
 from azure.cosmos.cosmos_client import CosmosClient
 
+
 def main(req: func.HttpRequest) -> func.HttpResponse:
     headers = {'Content-Type': 'application/json'}
 
