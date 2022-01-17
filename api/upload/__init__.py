@@ -9,7 +9,7 @@ from base64 import b64decode
 from urllib.request import urlopen, Request
 
 import azure.functions as func
-from azure.storage.blob import BlobServiceClient
+from azure.storage.blob import BlobServiceClient, ContentSettings
 from azure.cosmos.cosmos_client import CosmosClient
 
 
@@ -55,7 +55,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     container_client = blob_service_client.get_container_client(container_name)
                 
                     blob_client = container_client.get_blob_client(path)
-                    blob_client.upload_blob(b64decode(data), blob_type="BlockBlob")
+                    blob_client.upload_blob(b64decode(data), blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
                     
                     item = {'id': id, 'pk': id, 'url': '', 'type': mime_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                     
