@@ -44,6 +44,11 @@ button {
     font-family: #{$family-sans-serif};
 }
 
+.button:focus:not(:active),
+.button.is-focused:not(:active) {
+    box-shadow: none;
+}
+
 #app {
     position: absolute;
     display: flex;
