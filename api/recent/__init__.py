@@ -47,7 +47,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         database = client.get_database_client('5DWM')
         container = database.get_container_client('Uploads')
         items = list(container.query_items(
-            query='SELECT u.id, u.url, u.type, w.timestamp FROM Uploads u ORDER BY u.timestamp DESC OFFSET @offset LIMIT @limit',
+            query='SELECT u.id, u.url, u.type, u.timestamp FROM Uploads u ORDER BY u.timestamp DESC OFFSET @offset LIMIT @limit',
             parameters=[
                 { "name":"@offset", "value": 0 if offset is None else offset },
                 { "name":"@limit", "value": 100 if limit is None else limit }
