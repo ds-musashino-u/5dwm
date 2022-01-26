@@ -6,10 +6,13 @@ import { ref } from "vue";
 const props = defineProps({
   text: String,
 });
+const emit = defineEmits(["completed", "updated"]);
 const isUploading = ref(false);
+const isUpdating = ref(false);
+const pictures = ref([]);
 const upload = async (event) => {
   isUploading.value = true;
-  
+
   for (const file of event.currentTarget.files) {
     try {
       const dataURL = await new Promise(function (resolve, reject) {
@@ -27,14 +30,17 @@ const upload = async (event) => {
         }
       });
 
-      const response = await fetch("https://www.5dworldmap.com//api/v1/upload", {
-        mode: "cors",
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ image: dataURL }),
-      });
+      const response = await fetch(
+        "https://www.5dworldmap.com//api/v1/upload",
+        {
+          mode: "cors",
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ image: dataURL }),
+        }
+      );
 
       if (response.ok) {
         console.log(await response.json());
@@ -47,7 +53,38 @@ const upload = async (event) => {
   }
 
   isUploading.value = false;
+
+  emit("completed");
+  update();
 };
+const update = async () => {
+  isUpdating.value = true;
+
+  try {
+    const response = await fetch("https://www.5dworldmap.com//api/v1/recent", {
+      mode: "cors",
+      method: "GET",
+    });
+
+    if (response.ok) {
+      pictures.value.splice(0);
+
+      for (const item of await response.json()) {
+        pictures.value.push(item);
+      }
+    } else {
+      throw new Error(response.statusText);
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  isUpdating.value = false;
+
+  emit("updated");
+};
+
+update();
 </script>
 
 <template>
@@ -81,6 +118,41 @@ const upload = async (event) => {
             </div>
           </label>
         </span>
+      </div>
+      <div class="level-item">
+        <button
+          class="button is-rounded is-size-7 has-text-weight-bold"
+          type="button"
+          v-bind:disabled="isUpdating"
+          @click="update()"
+        >
+          <span class="icon is-small">
+            <i class="fas fa-sync" v-bind:class="{ loading: isUpdating }"></i>
+          </span>
+          <span>Update</span>
+        </button>
+      </div>
+      <div class="level-item">
+        <transition-group
+          name="picture-list"
+          class="gallery"
+          tag="div"
+          v-cloak
+        >
+          <article
+            class="media picture-list-item"
+            v-for="picture in pictures"
+            v-bind:key="picture.id"
+          >
+            <div class="media-content">
+              <figure>
+                <p class="image is-128x128">
+                  <img v-bind:src="picture.url" alt="Picture" />
+                </p>
+              </figure>
+            </div>
+          </article>
+        </transition-group>
       </div>
     </div>
   </div>
