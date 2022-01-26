@@ -2,7 +2,9 @@
 @import "@fortawesome/fontawesome-free/css/all.css";
 
 $primary: #68e6ff;
-$family-sans-serif: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+$family-sans-serif: "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", BlinkMacSystemFont, -apple-system,
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica",
+    "Arial", sans-serif;
 
 @import "bulma/bulma";
 
@@ -49,6 +51,35 @@ button {
     box-shadow: none;
 }
 
+.button:hover,
+.button.is-hovered {
+    border: 0px solid transparent;
+}
+
+.file-input,
+.file-cta {
+    background-color: transparent !important;
+    border: 0px solid transparent !important;
+    padding: 0;
+    height: initial;
+}
+
+.file-cta_ {
+    display: flex;
+    flex-direction: row;
+}
+
+.is-primary,
+.is-primary:active,
+.is-primary:focus,
+.is-primary:hover {
+    background-color: transparent !important;
+    color: var(--accent-color) !important;
+    border: 0px solid transparent !important;
+    box-shadow: none !important;
+    transition: 0.5s;
+}
+
 #app {
     position: absolute;
     display: flex;
@@ -78,6 +109,90 @@ button {
             height: 100%;
             min-height: 100%;
             overflow: hidden;
+
+            button,
+            .button {
+                display: flex;
+                align-items: center;
+                margin: 0;
+                padding: 16px 32px 16px 32px;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 290486px;
+                background: rgba(255, 255, 255, 0.75) !important;
+                background-clip: padding-box;
+                height: fit-content;
+                line-height: calc(0.75rem * 1.5);
+                backface-visibility: hidden;
+                color: #000000;
+                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
+                backdrop-filter: blur(4px) !important;
+                -webkit-backdrop-filter: blur(4px) !important;
+
+                .icon {
+                    color: var(--accent-color);
+                    transition: 0.5s;
+                }
+
+                span + .icon:last-of-type {
+                    color: var(--accent-color);
+                    transition: 0.5s;
+                }
+
+                .icon:first-child:not(:last-child) {
+                    margin: 0;
+                }
+
+                span:not(:first-child) {
+                    margin: 0px 0px 0px 8px;
+                }
+
+                span {
+                    pointer-events: none;
+                }
+            }
+
+            button.is-primary,
+            .button.is-primary {
+                background-color: var(--accent-color) !important;
+                transition: 0.5s;
+
+                span,
+                .icon {
+                    color: #ffffff !important;
+                }
+            }
+
+            button.icon-only,
+            .button.icon-only {
+                margin: 0px;
+                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border-radius: 290486px;
+                padding: 16px;
+                background: rgba(255, 255, 255, 0.75) !important;
+                background-clip: padding-box;
+                height: initial;
+                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
+
+                span {
+                    margin: 0 !important;
+                    width: 1rem !important;
+                    height: 1rem !important;
+                    color: var(--accent-color);
+                }
+            }
+
+            button.is-primary.icon-only,
+            .button.is-primary.icon-only {
+                background-color: var(--primary-background-color) !important;
+                transition: 0.5s;
+
+                span.wrap,
+                .icon {
+                    color: #ffffff !important;
+                }
+            }
         }
     }
 }
@@ -219,10 +334,53 @@ button {
 
     button,
     .button {
-        border: 0px solid transparent;
+        display: flex;
+        align-items: center;
+        margin: 0;
+        padding: 16px 32px 16px 32px;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 290486px;
+        background: rgba(255, 255, 255, 0.75) !important;
+        background-clip: padding-box;
+        height: fit-content;
+        line-height: calc(0.75rem * 1.5);
+        backface-visibility: hidden;
+        color: #000000;
+        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
+        backdrop-filter: blur(4px) !important;
+        -webkit-backdrop-filter: blur(4px) !important;
+
+        .icon {
+            color: var(--accent-color);
+            transition: 0.5s;
+        }
+
+        span + .icon:last-of-type {
+            color: var(--accent-color);
+            transition: 0.5s;
+        }
+
+        .icon:first-child:not(:last-child) {
+            margin: 0;
+        }
+
+        span:not(:first-child) {
+            margin: 0px 0px 0px 8px;
+        }
 
         span {
             pointer-events: none;
+        }
+    }
+
+    button.is-primary,
+    .button.is-primary {
+        background-color: var(--accent-color) !important;
+        transition: 0.5s;
+
+        span,
+        .icon {
+            color: #ffffff !important;
         }
     }
 
@@ -275,6 +433,32 @@ button {
     }
 }
 
+#upload {
+    padding: 16px;
+
+    > .level {
+        display: flex;
+        margin: -8px -8px -8px -8px;
+        padding: 0;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        > .level-item {
+            margin: 8px 8px 8px 8px;
+            padding: 0;
+        }
+    }
+}
+
+.loading {
+    animation: loading 1s linear infinite;
+}
+
+.updating {
+    animation: updating 1s linear infinite;
+}
+
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.25s;
@@ -300,4 +484,24 @@ button {
 .reveal-leave-from {
     opacity: 1;
     transform: translate3d(0, 0%, 0);
+}
+
+@keyframes loading {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes updating {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(-360deg);
+    }
 }
