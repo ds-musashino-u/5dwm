@@ -30,7 +30,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         raise Exception
 
                 except Exception:
-                    return func.HttpResponse(status_code=403, headers=headers)
+                    return func.HttpResponse(status_code=403, mimetype='', charset='')
             '''
             pass
         
@@ -54,7 +54,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             ],
             enable_cross_partition_query=True))
 
-        return func.HttpResponse(json.dumps(items), status_code=200, headers=headers, charset='utf-8')
+        return func.HttpResponse(json.dumps(items), status_code=200, mimetype='application/json', charset='utf-8')
 
     except Exception as e:
         logging.error(f'{e}')
@@ -65,5 +65,5 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'type': type(e).__name__ }
             }),
             status_code=400,
-            headers=headers,
+            mimetype='application/json',
             charset='utf-8')
