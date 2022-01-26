@@ -24,10 +24,7 @@ const upload = async (event) => {
         reader.onerror = () => {
           reject(reader.error);
         };
-
-        if (file) {
-          reader.readAsDataURL(file);
-        }
+        reader.readAsDataURL(file);
       });
 
       const response = await fetch(
