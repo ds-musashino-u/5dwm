@@ -4,12 +4,14 @@
 import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
+import Upload from "./components/Upload.vue";
 
 export default {
   components: {
     Sidebar,
     Menu,
     Search,
+    Upload,
   },
   data() {
     return {
@@ -17,7 +19,7 @@ export default {
       contentIndex: 0,
       contents: [
         { icon: "fas fa-search", name: "Search", component: "Search" },
-        { icon: "fas fa-search", name: "Search2", component: "Search" },
+        { icon: "fas fa-cloud-upload-alt", name: "Upload", component: "Upload" },
       ],
     };
   },
