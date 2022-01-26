@@ -91,30 +91,36 @@ update();
         <span>{{ text }}</span>
       </div>
       <div class="level-item">
-        <span class="file button is-rounded is-size-7 has-text-weight-bold">
-          <label class="file-label">
-            <input
-              class="file-input"
-              type="file"
-              name="upload"
-              accept="image/apng, image/png, image/jpeg, image/webp"
-              style="pointer-events: none"
-              v-bind:disabled="isUploading"
-              @change="upload($event)"
-            />
-            <div class="file-cta_">
-              <transition name="fade" mode="out-in">
-                <span class="icon" v-if="isUploading" key="uploading">
-                  <i class="fas fa-spinner updating"></i>
-                </span>
-                <span class="icon" v-else key="ready">
-                  <i class="fas fa-cloud-upload-alt"></i>
-                </span>
-              </transition>
-              <span>Upload</span>
-            </div>
-          </label>
-        </span>
+        <label
+          class="
+            file
+            button
+            is-rounded is-size-7
+            has-text-weight-bold
+            file-label
+          "
+        >
+          <input
+            class="file-input"
+            type="file"
+            name="upload"
+            accept="image/apng, image/png, image/jpeg, image/webp"
+            style="pointer-events: none"
+            v-bind:disabled="isUploading"
+            @change="upload($event)"
+          />
+          <div class="file-cta_">
+            <transition name="fade" mode="out-in">
+              <span class="icon" v-if="isUploading" key="uploading">
+                <i class="fas fa-spinner updating"></i>
+              </span>
+              <span class="icon" v-else key="ready">
+                <i class="fas fa-cloud-upload-alt"></i>
+              </span>
+            </transition>
+            <span>Upload</span>
+          </div>
+        </label>
       </div>
       <div class="level-item">
         <button
@@ -130,12 +136,7 @@ update();
         </button>
       </div>
       <div class="level-item">
-        <transition-group
-          name="picture-list"
-          class="gallery"
-          tag="div"
-          v-cloak
-        >
+        <transition-group name="picture-list" class="gallery" tag="div" v-cloak>
           <article
             class="media picture-list-item"
             v-for="picture in pictures"
