@@ -35,10 +35,10 @@ const select = (event) => {
                         v-bind:data-name="item.name"
                         @click="select"
                       >
-                        <span class="icon has-text-white">
+                        <span class="icon">
                           <i v-bind:class="item.icon"></i>
                         </span>
-                        <span class="has-text-weight-bold has-text-white">{{ item.name }}</span>
+                        <span class="has-text-weight-bold">{{ item.name }}</span>
                       </button>
                     </div>
                   </div>
