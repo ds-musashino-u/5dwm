@@ -52,7 +52,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     blob_client = container_client.get_blob_client(path)
                     blob_client.upload_blob(b64decode(data), blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
                     
-                    item = {'id': id, 'pk': id, 'url': f'https://5dwm.blob.core.windows.net/{container_name}/{path}', 'type': mime_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
+                    item = {'id': id, 'pk': id, 'url': f'https://5dwm.blob.core.windows.net/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                     
                     client = CosmosClient.from_connection_string(os.environ.get('AZURE_COSMOS_DB_CONNECTION_STRING'))
                     database = client.get_database_client('5DWM')
