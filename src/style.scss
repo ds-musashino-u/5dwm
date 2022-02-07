@@ -81,6 +81,13 @@ button {
     transition: 0.5s;
 }
 
+#map button {
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
 #app {
     position: absolute;
     display: flex;
@@ -117,17 +124,17 @@ button {
                 align-items: center;
                 margin: 0;
                 padding: 16px 32px 16px 32px;
-                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 290486px;
-                background: rgba(255, 255, 255, 0.75) !important;
+                background: rgba(255, 255, 255, 0.75);
                 background-clip: padding-box;
                 height: fit-content;
                 line-height: calc(0.75rem * 1.5);
                 backface-visibility: hidden;
                 color: #000000;
-                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
-                backdrop-filter: blur(4px) !important;
-                -webkit-backdrop-filter: blur(4px) !important;
+                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+                backdrop-filter: blur(4px);
+                -webkit-backdrop-filter: blur(4px);
 
                 .icon {
                     color: var(--accent-color);
@@ -470,10 +477,10 @@ button {
                 figure {
                     margin: 0;
                     padding: 0;
-    
+
                     .image {
                         overflow: hidden;
-        
+
                         img {
                             object-fit: cover;
                             width: 100%;
