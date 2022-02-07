@@ -29,7 +29,7 @@ const select = (event) => {
                   <div class="media-content">
                     <div class="content">
                       <button
-                        class="button is-rounded is-size-6 is-primary"
+                        class="button is-rounded is-size-7 is-primary"
                         type="button"
                         v-bind:data-index="index"
                         v-bind:data-name="item.name"
