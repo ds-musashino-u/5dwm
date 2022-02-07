@@ -9,11 +9,6 @@ from azure.cosmos.cosmos_client import CosmosClient
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
-    headers = {'Content-Type': 'application/json'}
-
-    if 'Origin' in req.headers:
-        headers['Access-Control-Allow-Origin'] = req.headers['Origin']
-
     try:
         if 'Authorization' in req.headers:
             '''
