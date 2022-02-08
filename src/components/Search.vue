@@ -17,22 +17,35 @@ onActivated(async () => {
   const loader = new Loader({
     apiKey: "AIzaSyB-cMc1l64QCZqJ6NeNrXUIimQmkiqCXZk",
     version: "weekly",
+    language: "en",
   });
 
   await loader.load();
 
-  const _map = new google.maps.Map(map.value, {
+  const googleMap = new google.maps.Map(map.value, {
     center: { lat: -34.397, lng: 150.644 },
     zoom: 8,
   });
 });
-onDeactivated(() => {});
+onDeactivated(() => { });
+
+// https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
+
 </script>
 
 <template>
   <div id="search">
     <div id="map" ref="map"></div>
-    <span>{{ text }}</span>
+    <div class="center">
+      <div class="field has-addons">
+        <div class="control">
+          <input class="input" type="text" placeholder="Keywords" />
+        </div>
+        <div class="control">
+          <a class="button is-primary">Search</a>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -43,13 +56,50 @@ onDeactivated(() => {});
   height: 100%;
 
   #map {
-    position: relative;
+    position: absolute;
     width: 100%;
     height: 100%;
 
     button {
       border-radius: 0 !important;
     }
-  }  
+  }
+
+  .center {
+    z-index: 1;
+    position: relative;
+    display: block;
+    top: 10px;
+    margin: 0 auto;
+    width: fit-content;
+    background: #ffffff;
+    border-radius: 290486px;
+    overflow: hidden;
+
+    .field {
+      margin: 0px -8px 0px -8px;
+      padding: 8px;
+
+      .control {
+        margin: 0px 8px 0px 8px;
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+
+        input {
+          margin: 0px 0px 0px 8px;
+          border: 0px none transparent;
+          background-color: transparent;
+          box-shadow: none;
+          backface-visibility: hidden;
+        }
+
+        input::placeholder {
+          color: rgba(0, 0, 0, 0.5);
+          text-shadow: none;
+        }
+      }
+    }
+  }
 }
 </style>
