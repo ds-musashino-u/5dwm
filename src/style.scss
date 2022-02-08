@@ -123,7 +123,7 @@ button {
                 display: flex;
                 align-items: center;
                 margin: 0;
-                padding: 16px 32px 16px 32px;
+                padding: 12px 24px 12px 24px;
                 border: 1px solid rgba(255, 255, 255, 0.1);
                 border-radius: 290486px;
                 background: rgba(255, 255, 255, 0.75);
@@ -162,12 +162,8 @@ button {
             button.is-primary,
             .button.is-primary {
                 background-color: var(--accent-color) !important;
+                color: #ffffff !important;
                 transition: 0.5s;
-
-                span,
-                .icon {
-                    color: #ffffff !important;
-                }
             }
 
             button.icon-only,
@@ -194,12 +190,8 @@ button {
             button.is-primary.icon-only,
             .button.is-primary.icon-only {
                 background-color: var(--primary-background-color) !important;
+                color: #ffffff !important;
                 transition: 0.5s;
-
-                span.wrap,
-                .icon {
-                    color: #ffffff !important;
-                }
             }
         }
     }
@@ -245,7 +237,7 @@ button {
 
     button,
     .button {
-        border: 0px solid transparent;
+        border: 0px none transparent;
 
         span {
             pointer-events: none;
@@ -349,7 +341,7 @@ button {
         display: flex;
         align-items: center;
         margin: 0;
-        padding: 16px 32px 16px 32px;
+        padding: 12px 24px 12px 24px;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 290486px;
         background: rgba(255, 255, 255, 0.75) !important;
