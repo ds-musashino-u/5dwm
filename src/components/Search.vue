@@ -16,7 +16,7 @@ const select = (event) => {
 
 onActivated(async () => {
   const loader = new Loader({
-    apiKey: "AIzaSyB-cMc1l64QCZqJ6NeNrXUIimQmkiqCXZk",
+    apiKey: "AIzaSyCJfuPZn56-CDI74WPsUPGrQ3bI6hm7H9c",
     version: "weekly",
     language: "en",
   });
