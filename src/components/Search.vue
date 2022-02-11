@@ -3,6 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
+import { Endpoints } from "../Endpoints";
 
 const mapRef = ref(null);
 const props = defineProps({
@@ -31,6 +32,7 @@ onDeactivated(() => { });
 
 const search = (event) => {
   //emit("search", event);
+  //Endpoints.SEARCH_URL
 };
 
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
