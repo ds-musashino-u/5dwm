@@ -18,8 +18,8 @@ export default {
       isRevealed: false,
       contentIndex: 0,
       contents: [
-        { icon: "fas fa-search", name: "Search", component: "Search" },
-        { icon: "fas fa-cloud-upload-alt", name: "Upload", component: "Upload" },
+        { icon: "fa-solid fa-magnifying-glass", name: "Search", component: "Search" },
+        { icon: "fa-solid fa-cloud-arrow-up", name: "Upload", component: "Upload" },
       ],
     };
   },
@@ -60,7 +60,7 @@ export default {
   </div>
   <div class="left is-hidden-tablet" v-cloak>
     <transition name="fade" mode="out-in">
-      <button class="button" type="button" @click="reveal" key="menu">
+      <button class="button is-rounded" type="button" @click="reveal" key="menu">
         <span class="icon is-small">
           <i class="fas fa-bars"></i>
         </span>
