@@ -511,11 +511,13 @@ button {
 .reveal-enter-from,
 .reveal-leave-to {
     opacity: 0;
+    transform: translate3d(-25%, 0, 0);
 }
 
 .reveal-enter-to,
 .reveal-leave-from {
     opacity: 1;
+    transform: translate3d(0%, 0, 0);
 }
 
 .picture-list-item {
