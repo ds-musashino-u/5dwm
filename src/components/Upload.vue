@@ -119,7 +119,7 @@ onDeactivated(() => {
                 <i class="fas fa-spinner updating"></i>
               </span>
               <span class="icon" v-else key="ready">
-                <i class="fas fa-cloud-upload-alt"></i>
+                <i class="fa-solid fa-cloud-arrow-up"></i>
               </span>
             </transition>
             <span>Upload</span>
@@ -134,7 +134,7 @@ onDeactivated(() => {
           @click="update()"
         >
           <span class="icon is-small">
-            <i class="fas fa-sync" v-bind:class="{ loading: isUpdating }"></i>
+            <i class="fa-solid fa-arrows-rotate" v-bind:class="{ loading: isUpdating }"></i>
           </span>
           <span>Update</span>
         </button>
