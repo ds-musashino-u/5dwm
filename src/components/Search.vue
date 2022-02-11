@@ -37,6 +37,7 @@ const search = (event) => {
 
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
 // var data = "imgurl=" + imageUrl + "&keyword=" + keywords + "&ctg=" + categories + "&kind=" + kinds + "&db=" + databases;
+// imgurl=&keyword=&ctg={"air pollution"}&kind=&db=
 
 </script>
 
