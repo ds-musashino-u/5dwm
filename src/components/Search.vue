@@ -4,7 +4,7 @@
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
 
-const map = ref(null);
+const mapRef = ref(null);
 const props = defineProps({
   text: String,
 });
@@ -22,27 +22,37 @@ onActivated(async () => {
 
   await loader.load();
 
-  const googleMap = new google.maps.Map(map.value, {
+  const map = new google.maps.Map(mapRef.value, {
     center: { lat: -34.397, lng: 150.644 },
     zoom: 8,
   });
 });
 onDeactivated(() => { });
 
+const search = (event) => {
+  //emit("search", event);
+};
+
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
+// var data = "imgurl=" + imageUrl + "&keyword=" + keywords + "&ctg=" + categories + "&kind=" + kinds + "&db=" + databases;
 
 </script>
 
 <template>
   <div id="search">
-    <div id="map" ref="map"></div>
+    <div id="map" ref="mapRef"></div>
     <div class="center">
       <div class="field has-addons">
         <div class="control">
-          <input class="input" type="text" placeholder="Keywords" />
+          <input class="input is-size-7" type="text" placeholder="Keywords" />
         </div>
         <div class="control">
-          <a class="button is-primary">Search</a>
+          <button class="button is-rounded is-size-7 is-primary" type="button" @click="search($event)">
+            <span class="icon">
+              <i class="fa-solid fa-magnifying-glass"></i>
+            </span>
+            <span class="has-text-weight-bold">Search</span>
+          </button>
         </div>
       </div>
     </div>
@@ -97,6 +107,10 @@ onDeactivated(() => { });
         input::placeholder {
           color: rgba(0, 0, 0, 0.5);
           text-shadow: none;
+        }
+
+        button.is-rounded {
+          border-radius: 9999px !important;
         }
       }
     }
