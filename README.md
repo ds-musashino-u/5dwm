@@ -1,4 +1,18 @@
-# 5dwm
+# 5D World Map
+
+## Installation
+
+```sh
+$ npm install
+```
+
+### 
+
+## Build
+
+```sh
+$ npm run build
+```
 
 ## コミットプレフィックス
 - 🎉  `:tada:` 初めてのコミット（Initial Commit）
