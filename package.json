@@ -19,13 +19,13 @@
   "homepage": "https://github.com/ds-musashino-u/5dwm",
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.0.0",
-    "@googlemaps/js-api-loader": "^1.13.5",
+    "@googlemaps/js-api-loader": "^1.13.6",
     "bulma": "^0.9.3",
-    "vue": "^3.2.30"
+    "vue": "^3.2.31"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.10.2",
-    "sass": "^1.49.7",
-    "vite": "^2.8.0"
+    "sass": "^1.49.8",
+    "vite": "^2.8.4"
   }
 }
