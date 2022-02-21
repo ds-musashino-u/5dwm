@@ -1,19 +1,14 @@
-import random
-import re
 import json
 import logging
-import os
-import hmac
-from datetime import datetime, timezone
-from base64 import b64encode, b64decode
-from hashlib import sha1, md5
-from urllib.parse import quote
+import ssl
 from urllib.request import urlopen, Request
 
 import azure.functions as func
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    ssl._create_default_https_context = ssl._create_unverified_context
+
     try:
         if req.headers['Content-Type'] == 'application/json':
             data = req.get_json()            
