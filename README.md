@@ -1,4 +1,30 @@
-# 5dwm
+# 5D World Map
+
+## Installation
+
+```sh
+$ npm install
+```
+
+### 
+
+## Build
+
+```sh
+$ npm run build
+```
+
+## Build
+
+```sh
+$ npm run dev
+```
+
+## See also
+
+* https://vitejs.dev/
+* https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Cazurecli-linux%2Capplication-level
+
 
 ## コミットプレフィックス
 - 🎉  `:tada:` 初めてのコミット（Initial Commit）
