@@ -14,15 +14,10 @@ const select = (event) => {
 
 <template>
   <div id="menu" ref="menu">
-    <div
-      class="columns is-centered">
+    <div class="columns is-centered">
       <div class="column is-half is-mobile">
         <div class="control" v-cloak>
-          <transition
-            name="fade"
-            mode="out-in"
-            v-on:before-leave="$refs.menu.scroll(0, 0)"
-          >
+          <transition name="fade" mode="out-in">
             <nav class="level" key="main">
               <div class="level-item" v-for="(item, index) in items" v-bind:key="item">
                 <article class="media">
