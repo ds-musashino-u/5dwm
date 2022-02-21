@@ -6,6 +6,7 @@ import { ref, onActivated, onDeactivated } from "vue";
 import { Endpoints } from "../Endpoints";
 
 const mapRef = ref(null);
+const queryRef = ref("");
 const props = defineProps({
   text: String,
 });
@@ -30,9 +31,36 @@ onActivated(async () => {
 });
 onDeactivated(() => { });
 
-const search = (event) => {
+const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
+  //https://5dworldmap.com/api/v1/echo
+  const imageUrl = "";
+  const keywords = "air pollution";
+  const categories = "";
+  const kinds = "";
+  const databases = "";
+
+  console.log(query);
+
+  try {
+    const response = await fetch("https://5dworldmap.com/api/v1/echo", {
+      mode: "cors",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ url: encodeURI(`https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl=${imageUrl}&keyword=${keywords}&ctg=${categories}&kind=${kinds}&db=${databases}`) })
+    });
+
+    if (response.ok) {
+      console.log(await response.json());
+    } else {
+      throw new Error(response.statusText);
+    }
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
@@ -45,19 +73,25 @@ const search = (event) => {
   <div id="search">
     <div id="map" ref="mapRef"></div>
     <div class="center">
-      <div class="field has-addons">
-        <div class="control">
-          <input class="input is-size-7" type="text" placeholder="Keywords" />
+      <form onsubmit="return false;">
+        <div class="field has-addons">
+          <div class="control">
+            <input class="input is-size-7" type="text" placeholder="Keywords" v-model="queryRef" />
+          </div>
+          <div class="control">
+            <button
+              class="button is-rounded is-size-7 is-primary"
+              type="submit"
+              @click="search($event, queryRef)"
+            >
+              <span class="icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+              <span class="has-text-weight-bold">Search</span>
+            </button>
+          </div>
         </div>
-        <div class="control">
-          <button class="button is-rounded is-size-7 is-primary" type="button" @click="search($event)">
-            <span class="icon">
-              <i class="fa-solid fa-magnifying-glass"></i>
-            </span>
-            <span class="has-text-weight-bold">Search</span>
-          </button>
-        </div>
-      </div>
+      </form>
     </div>
   </div>
 </template>
