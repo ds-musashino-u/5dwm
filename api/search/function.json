@@ -8,7 +8,8 @@
       "name": "req",
       "route": "v1/search",
       "methods": [
-        "get"
+        "get",
+        "post"
       ]
     },
     {
