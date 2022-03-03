@@ -2,6 +2,7 @@ import json
 import logging
 import os
 from urllib.request import urlopen, Request
+import psycopg2
 
 import azure.functions as func
 
@@ -27,7 +28,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             '''
             pass
 
-        return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
+        with psycopg2.connect(os.environ.get('POSTGRESQL_DSN')) as connection:
+            with connection.cursor() as cursol:
+                return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
+
+        #return func.HttpResponse(status_code=400, mimetype='', charset='')
 
     except Exception as e:
         logging.error(f'{e}')
