@@ -5,7 +5,7 @@ from urllib.request import urlopen, Request
 import psycopg2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from shared import models, User
+from shared import User
 
 import azure.functions as func
 
