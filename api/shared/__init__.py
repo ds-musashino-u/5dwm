@@ -1,1 +1,1 @@
-from shared.models import Base, User
+from shared.models import User
