@@ -2,7 +2,8 @@ import json
 import logging
 import os
 from urllib.request import urlopen, Request
-import sqlalchemy
+import psycopg2
+from sqlalchemy import create_engine
 
 import azure.functions as func
 
@@ -30,6 +31,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         #with psycopg2.connect(os.environ.get('POSTGRESQL_DSN')) as connection:
         #    with connection.cursor() as cursol:
+
+        
         return func.HttpResponse(json.dumps({
                     'timestamp': int(0)
                 }),
