@@ -2,7 +2,7 @@ import json
 import logging
 import os
 from urllib.request import urlopen, Request
-#import psycopg2
+import sqlalchemy
 
 import azure.functions as func
 
