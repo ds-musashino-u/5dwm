@@ -51,7 +51,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'user_cns': user.user_cns,
                     'first_name': user.firstname,
                     'last_name': user.lastname,
-                    'email': user.email
+                    'email': user.email,
+                    'updated_at': user.update_time.strftime('%Y-%m-%dT%H:%M:%SZ')
                 })
 
             return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
