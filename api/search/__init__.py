@@ -36,7 +36,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
             with connection.cursor() as cursol:
-                return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
+                cursol.execute('SELECT * FROM users')
+                
+                return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
 
         
         return func.HttpResponse(json.dumps({
