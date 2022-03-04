@@ -2,7 +2,6 @@ import json
 import logging
 import os
 from urllib.request import urlopen, Request
-import psycopg2
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from shared.models import User
@@ -39,8 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 cursol.execute('SELECT * FROM users')
                 
                 return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
-        '''
-        
+        '''        
         
         Session = sessionmaker(bind=engine)
         session = Session()
@@ -49,20 +47,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             users = []
 
             for user in session.query(User).all():
-                users.append({'user_cns': user.user_cns})
+                users.append({
+                    'user_cns': user.user_cns,
+                    'first_name': user.firstname,
+                    'last_name': user.lastname,
+                    'email': user.email
+                })
 
             return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
 
         finally:
             session.close()
-
-
-        #with engine.connect() as connection:
-        
-        
-        #return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
-
-        #return func.HttpResponse(status_code=400, mimetype='', charset='')
 
     except Exception as e:
         logging.error(f'{e}')
