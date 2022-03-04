@@ -3,7 +3,7 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'verify-full'}, pool_recycle=60)
+engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
 Base = declarative_base()
 
 class User(Base):
