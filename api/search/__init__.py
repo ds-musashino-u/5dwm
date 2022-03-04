@@ -48,11 +48,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             for user in session.query(User).all():
                 users.append({
-                    'user_cns': user.user_cns,
-                    'first_name': user.firstname,
-                    'last_name': user.lastname,
+                    'username': user.username,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
                     'email': user.email,
-                    'updated_at': user.update_time.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    'updated_at': user.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 })
 
             return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
