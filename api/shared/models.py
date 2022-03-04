@@ -3,10 +3,11 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
-Base = declarative_base()
+#meta = Metadata(engine)
+#meta.reflect()
+#Base = declarative_base(metadata=meta)
 
-class User(Base):
+class User():
     __tablename__ = 'users'
     __table_args__ = {'autoload': True}
     #id = Column(Integer, primary_key=True)
