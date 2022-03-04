@@ -4,7 +4,9 @@ import os
 from urllib.request import urlopen, Request
 import psycopg2
 from sqlalchemy import create_engine
+from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 #from shared.models import engine, Base, User
 
 import azure.functions as func
@@ -12,6 +14,17 @@ import azure.functions as func
 
 engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
 #Base.metadata.bind = engine
+
+
+#meta = Metadata(engine)
+#meta.reflect()
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    user_cns = Column(String(20))
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
@@ -49,8 +62,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         try:
             users = []
 
-            #for user in session.query(User).all():
-            #    users.append({'user_cns': user.user_cns})
+            for user in session.query(User).all():
+                users.append({'user_cns': user.user_cns})
 
             return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
 
