@@ -4,20 +4,11 @@ import os
 from urllib.request import urlopen, Request
 import psycopg2
 from sqlalchemy import create_engine
-from sqlalchemy import Column, Integer, String, DateTime
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
-#from shared.models import engine, Base, User
+from shared.models import User
 
 import azure.functions as func
 
-
-Base = declarative_base()
-
-class User(Base):
-    __tablename__ = 'users'
-    id = Column(Integer, primary_key=True)
-    user_cns = Column(String(20))
 
 engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
 
