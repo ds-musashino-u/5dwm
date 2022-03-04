@@ -4,15 +4,13 @@ import os
 from urllib.request import urlopen, Request
 import psycopg2
 from psycopg2.extras import DictCursor
-from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-#from shared.models import User
+from shared.models import engine, Base, User
 
 import azure.functions as func
 
 
-#engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'verify-full'}, pool_recycle=60)
-#Base.metadata.bind = engine
+Base.metadata.bind = engine
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
@@ -35,30 +33,27 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             '''
             pass
 
+        '''
         with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
             with connection.cursor(cursor_factory=DictCursor) as cursol:
                 cursol.execute('SELECT * FROM users')
                 
                 return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
-
-        
-        return func.HttpResponse(json.dumps({
-                    'timestamp': int(0)
-                }),
-                status_code=200,
-                mimetype='application/json',
-                charset='utf-8')
+        '''
         
         
-        #Session = sessionmaker(bind=engine)
-        #session = Session()
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
-        #try:
-            #session.query(User).all()
+        try:
+            users = []
 
+            for user in session.query(User).all():
+                users.append({'user_cns': user.user_cns})
 
-        #finally:
-            #session.close()
+            return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
+        finally:
+            session.close()
 
 
         #with engine.connect() as connection:
