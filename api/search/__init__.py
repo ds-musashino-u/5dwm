@@ -12,12 +12,6 @@ from sqlalchemy.ext.declarative import declarative_base
 import azure.functions as func
 
 
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
-#Base.metadata.bind = engine
-
-
-#meta = Metadata(engine)
-#meta.reflect()
 Base = declarative_base()
 
 class User(Base):
@@ -25,6 +19,7 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     user_cns = Column(String(20))
 
+engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
