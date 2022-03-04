@@ -9,7 +9,9 @@ from shared.models import User
 import azure.functions as func
 
 
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
+engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={
+                       'sslmode': 'disable'}, pool_recycle=60)
+
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
@@ -38,8 +40,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 cursol.execute('SELECT * FROM users')
                 
                 return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
-        '''        
-        
+        '''
+
         Session = sessionmaker(bind=engine)
         session = Session()
 
