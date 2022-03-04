@@ -34,14 +34,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             '''
             pass
 
-        '''
-        with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
-            with connection.cursor(cursor_factory=DictCursor) as cursol:
-                cursol.execute('SELECT * FROM users')
-                
-                return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
-        '''
-
         if req.headers.get('Content-Type') == 'application/json':
             data = req.get_json()
             offset = data.get('offset')
