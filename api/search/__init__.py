@@ -10,7 +10,7 @@ from shared.models import engine, Base, User
 import azure.functions as func
 
 
-Base.metadata.bind = engine
+#Base.metadata.bind = engine
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
@@ -42,19 +42,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         '''
         
         
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        #Session = sessionmaker(bind=engine)
+        #session = Session()
 
         try:
             users = []
 
-            for user in session.query(User).all():
-                users.append({'user_cns': user.user_cns})
+            #for user in session.query(User).all():
+            #    users.append({'user_cns': user.user_cns})
 
             return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
-            
+
         finally:
-            session.close()
+            #session.close()
+            pass
 
 
         #with engine.connect() as connection:
