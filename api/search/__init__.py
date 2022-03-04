@@ -34,7 +34,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             '''
             pass
 
-        with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection:
+        with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
             with connection.cursor() as cursol:
                 return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
 
