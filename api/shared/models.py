@@ -10,4 +10,4 @@ class User(Base):
     first_name = Column('firstname', String(20))
     last_name = Column('lastname', String(20))
     updated_at = Column('update_time', DateTime)
-    email = Column(String(128))
+    email = Column(String(128), default=None, nullable=True)
