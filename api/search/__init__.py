@@ -65,7 +65,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             for user in session.query(User).all():
                 users.append({'user_cns': user.user_cns})
 
-            return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
+            return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
 
         finally:
             session.close()
