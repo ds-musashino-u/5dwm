@@ -3,13 +3,14 @@ import logging
 import os
 from urllib.request import urlopen, Request
 import psycopg2
-from psycopg2.extras import DictCursor
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from shared.models import engine, Base, User
+#from shared.models import engine, Base, User
 
 import azure.functions as func
 
 
+engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={'sslmode':'disable'}, pool_recycle=60)
 #Base.metadata.bind = engine
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -42,8 +43,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         '''
         
         
-        #Session = sessionmaker(bind=engine)
-        #session = Session()
+        Session = sessionmaker(bind=engine)
+        session = Session()
 
         try:
             users = []
@@ -51,11 +52,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             #for user in session.query(User).all():
             #    users.append({'user_cns': user.user_cns})
 
-            return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
+            return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
 
         finally:
-            #session.close()
-            pass
+            session.close()
 
 
         #with engine.connect() as connection:
