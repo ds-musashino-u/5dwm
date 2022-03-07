@@ -27,6 +27,13 @@ onActivated(async () => {
   const map = new google.maps.Map(mapRef.value, {
     center: { lat: -34.397, lng: 150.644 },
     zoom: 8,
+    mapTypeId: "terrain",
+    zoomControl: true,
+    mapTypeControl: false,
+    scaleControl: true,
+    streetViewControl: false,
+    rotateControl: true,
+    fullscreenControl: false
   });
 
   const users = await getUsers();
