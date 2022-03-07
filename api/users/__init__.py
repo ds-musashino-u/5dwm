@@ -10,7 +10,7 @@ import azure.functions as func
 
 
 engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={
-                       'sslmode': 'require'}, pool_recycle=60)
+                       'sslmode': 'verify-full'}, pool_recycle=60)
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
