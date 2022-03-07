@@ -25,8 +25,8 @@ onActivated(async () => {
   await loader.load();
 
   const map = new google.maps.Map(mapRef.value, {
-    center: { lat: -34.397, lng: 150.644 },
-    zoom: 8,
+    center: { lat: 21.028344772352863, lng: 105.85271637244875 },
+    zoom: 4,
     mapTypeId: "terrain",
     zoomControl: true,
     mapTypeControl: false,
