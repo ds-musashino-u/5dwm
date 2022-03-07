@@ -3,6 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
+import { getCategories } from "../presenters/categories.mjs"
 import { getUsers } from "../presenters/users.mjs"
 
 const mapRef = ref(null);
@@ -35,6 +36,10 @@ onActivated(async () => {
     rotateControl: true,
     fullscreenControl: false
   });
+
+  const categories = await getCategories();
+
+  console.log(categories);
 
   const users = await getUsers();
 
