@@ -17,7 +17,7 @@ describe("users", function () {
         fetchStub.restore();
     });
     it("getUsers", async function () {
-        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve([{ email: "foobar@example.com" }]) }));
+        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve([{ username: "foobar", email: "foobar@example.com", updated_at: "1970-01-01T09:00:00Z" }]) }));
 
         assert.equal(true, Array.isArray(await getUsers()));
     });
