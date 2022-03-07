@@ -3,7 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
-import { Endpoints } from "../endpoints.mjs";
+import { getUsers } from "../presenters/users.mjs"
 
 const mapRef = ref(null);
 const queryRef = ref("");
@@ -28,6 +28,10 @@ onActivated(async () => {
     center: { lat: -34.397, lng: 150.644 },
     zoom: 8,
   });
+
+  const users = await getUsers();
+
+  console.log(users);
 });
 onDeactivated(() => { });
 
