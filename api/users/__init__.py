@@ -57,7 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if offset is not None:
                 query = query.offset(offset)
 
-            for user in query.all():
+            for user in query.order_by(User.id).all():
                 users.append({
                     'username': user.username,
                     'first_name': user.first_name,
