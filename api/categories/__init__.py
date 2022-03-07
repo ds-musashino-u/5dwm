@@ -57,7 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if offset is not None:
                 query = query.offset(offset)
 
-            for category in query.all():
+            for category in query.order_by(Category.id).all():
                 categories.append({
                     'id': category.id,
                     'name': category.name,
