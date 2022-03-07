@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "vite preview"
+    "serve": "vite preview",
+    "test": "mocha test/ --reporter spec"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,8 @@
     "@fortawesome/fontawesome-free": "^6.0.0",
     "@googlemaps/js-api-loader": "^1.13.7",
     "bulma": "^0.9.3",
+    "mocha": "^9.2.1",
+    "sinon": "^13.0.1",
     "vue": "^3.2.31"
   },
   "devDependencies": {
