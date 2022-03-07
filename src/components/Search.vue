@@ -3,7 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
-import { Endpoints } from "../Endpoints";
+import { Endpoints } from "../endpoints.mjs";
 
 const mapRef = ref(null);
 const queryRef = ref("");
