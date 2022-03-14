@@ -22,12 +22,12 @@
     "@fortawesome/fontawesome-free": "^6.0.0",
     "@googlemaps/js-api-loader": "^1.13.8",
     "bulma": "^0.9.3",
-    "mocha": "^9.2.1",
+    "mocha": "^9.2.2",
     "sinon": "^13.0.1",
     "vue": "^3.2.31"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.10.2",
+    "@vitejs/plugin-vue": "^2.2.4",
     "sass": "^1.49.9",
     "vite": "^2.8.6"
   }
