@@ -5,6 +5,7 @@ import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
 import { getUsers } from "../presenters/users.mjs";
+import { search as searchWorldMap } from "../presenters/search.mjs";
 
 const mapRef = ref(null);
 const queryRef = ref("");
@@ -59,33 +60,12 @@ const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
-  const imageUrl = "";
-  const keywords = "air pollution";
-  const categories = "";
-  const kinds = "";
-  const databases = "";
-
   console.log(query);
 
   try {
-    const response = await fetch("https://5dworldmap.com/api/v1/echo", {
-      mode: "cors",
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        url: encodeURI(
-          `https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl=${imageUrl}&keyword=${keywords}&ctg=${categories}&kind=${kinds}&db=${databases}`
-        ),
-      }),
-    });
-
-    if (response.ok) {
-      console.log(await response.json());
-    } else {
-      throw new Error(response.statusText);
-    }
+    const searchItems = await searchWorldMap(["air pollution"])
+    
+    console.log(searchItems);
   } catch (error) {
     console.error(error);
   }
