@@ -70,8 +70,7 @@ const markerClick = (event) => {
       break;
     }
   }*/
-
-  //};
+};
 
 const search = async (event, query) => {
   //emit("search", event);
