@@ -1,15 +1,19 @@
 /**
  * @classdesc Media
  */
- export class Media {
+export class Media {
     /**
      * @param {!string} url - Media URL
      * @param {!string} type - MIME type of Media
-     * @param {?string} preview_image_url - Preview image URL
+     * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(url, type, preview_image_url = null) {
+    constructor(url, type, previewImageUrl = null) {
         this.url = url;
         this.type = type;
-        this.preview_image_url = preview_image_url;
+        this.previewImageUrl = previewImageUrl;
+    }
+
+    get hasPreviewImageUrl() {
+        return this.hasPreviewImageUrl !== null;
     }
 }
