@@ -49,7 +49,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         try:
             users = []
-            query = session.query(User)
+            query = session.query(User).order_by(User.id)
 
             if limit is not None:
                 query = query.limit(limit)
@@ -57,7 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if offset is not None:
                 query = query.offset(offset)
 
-            for user in query.order_by(User.id).all():
+            for user in query.all():
                 users.append({
                     'username': user.username,
                     'first_name': user.first_name,
