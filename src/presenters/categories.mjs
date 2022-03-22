@@ -24,7 +24,6 @@ export class Category {
  * @return {Array<Category>} - Array of category
  */
 export async function getCategories(offset = 0, limit = null) {
-    const categories = [];
     let url = `${Endpoints.CATEGORIES_URL}?offset=${offset}`;
 
     if (limit !== null) {
@@ -40,12 +39,14 @@ export async function getCategories(offset = 0, limit = null) {
     });
 
     if (response.ok) {
+        const categories = [];
+    
         for (const category of await response.json()) {
             categories.push(new Category(category.id, category.name, category.updated_at));
         }
+
+        return categories;
     } else {
         throw new Error(response.statusText);
     }
-
-    return categories;
 }
