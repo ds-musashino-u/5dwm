@@ -24,7 +24,6 @@ export class User {
  * @return {Array<User>} - Array of user
  */
 export async function getUsers(offset = 0, limit = null) {
-    const users = [];
     let url = `${Endpoints.USERS_URL}?offset=${offset}`;
 
     if (limit !== null) {
@@ -40,12 +39,14 @@ export async function getUsers(offset = 0, limit = null) {
     });
 
     if (response.ok) {
+        const users = [];
+
         for (const user of await response.json()) {
             users.push(new User(user.username, user.email, user.updated_at));
         }
+
+        return users;
     } else {
         throw new Error(response.statusText);
     }
-
-    return users;
 }
