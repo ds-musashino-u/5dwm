@@ -31,24 +31,20 @@ export async function getCategories(offset = 0, limit = null) {
         url += `&limit=${limit}`
     }
 
-    try {
-        const response = await fetch(encodeURI(url), {
-            mode: "cors",
-            method: "GET",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        });
-
-        if (response.ok) {
-            for (const category of await response.json()) {
-                categories.push(new Category(category.id, category.name, category.updated_at));
-            }
-        } else {
-            throw new Error(response.statusText);
+    const response = await fetch(encodeURI(url), {
+        mode: "cors",
+        method: "GET",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
         }
-    } catch (error) {
-        console.error(error);
+    });
+
+    if (response.ok) {
+        for (const category of await response.json()) {
+            categories.push(new Category(category.id, category.name, category.updated_at));
+        }
+    } else {
+        throw new Error(response.statusText);
     }
 
     return categories;
