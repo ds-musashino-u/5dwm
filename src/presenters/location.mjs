@@ -10,6 +10,10 @@ export class Location {
     constructor(longitude, latitude, address = null) {
         this.longitude = longitude;
         this.latitude = latitude;
-        this.updatedAt = new Date(updatedAt);
+        this.address = address;
+    }
+
+    get hasAddress() {
+        return this.address !== null && this.address.length > 0;
     }
 }
