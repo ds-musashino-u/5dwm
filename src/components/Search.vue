@@ -59,7 +59,11 @@ onActivated(async () => {
 onDeactivated(() => {});
 
 const markerClick = (event) => {
-  const element = results.find(x => event.latLng.lat === x.marker.position.lat && event.latLng.lng === x.marker.position.lng);
+  const element = results.find(
+    (x) =>
+      event.latLng.lat === x.marker.position.lat &&
+      event.latLng.lng === x.marker.position.lng
+  );
 
   if (element !== undefined) {
     console.log(element);
@@ -78,10 +82,9 @@ const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
-  console.log(query);
+  console.log(query);  
 
   for (const result of results) {
-    result.marker.removeEventListener("click", markerClick);
     result.marker.setMap(null);
   }
 
@@ -89,7 +92,10 @@ const search = async (event, query) => {
 
   if (map !== null) {
     try {
-      for (const searchItem of await searchWorldMap(["air pollution"])) {
+      const searchItems = await searchWorldMap(["air pollution"]);
+      const bounds = new google.maps.LatLngBounds();
+
+      for (const searchItem of searchItems) {
         const marker = new google.maps.Marker({
           position: {
             lat: searchItem.location.latitude,
@@ -101,9 +107,12 @@ const search = async (event, query) => {
         });
 
         marker.addListener("click", markerClick);
+        bounds.extend(new google.maps.LatLng(searchItem.location.latitude, searchItem.location.longitude));
 
         results.push({ marker: marker, item: searchItem });
       }
+
+      map.fitBounds(bounds);
     } catch (error) {
       console.error(error);
     }
