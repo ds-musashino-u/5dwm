@@ -16,6 +16,8 @@ const props = defineProps({
 const select = (event) => {
   emit("select", event.target.dataset);
 };*/
+let map = null;
+const results = [];
 
 onActivated(async () => {
   const loader = new Loader({
@@ -26,7 +28,7 @@ onActivated(async () => {
 
   await loader.load();
 
-  const map = new google.maps.Map(mapRef.value, {
+  map = new google.maps.Map(mapRef.value, {
     center: { lat: 21.028344772352863, lng: 105.85271637244875 },
     zoom: 4,
     mapTypeId: "terrain",
@@ -56,18 +58,54 @@ onActivated(async () => {
 });
 onDeactivated(() => {});
 
+const markerClick = (event) => {
+  console.log(event);
+  console.log(markers);
+
+  /*for (const marker of markers) {
+    if (marker.latLng === event.latLng) {
+      console.log("find");
+      map.setCenter(marker.getPosition());
+
+      break;
+    }
+  }*/
+
+  //};
+
 const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
   console.log(query);
 
-  try {
-    const searchItems = await searchWorldMap(["air pollution"])
-    
-    console.log(searchItems);
-  } catch (error) {
-    console.error(error);
+  for (const result of results) {
+    result.marker.removeEventListener("click", markerClick);
+    result.marker.setMap(null);
+  }
+
+  results.splice(0);
+
+  if (map !== null) {
+    try {
+      for (const searchItem of await searchWorldMap(["air pollution"])) {
+        const marker = new google.maps.Marker({
+          position: {
+            lat: searchItem.location.latitude,
+            lng: searchItem.location.longitude,
+          },
+          map,
+          title: searchItem.description,
+          animation: google.maps.Animation.DROP,
+        });
+
+        marker.addListener("click", markerClick);
+
+        results.push({ marker: marker, item: searchItem });
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 };
 
@@ -79,7 +117,7 @@ const search = async (event, query) => {
 <template>
   <div id="search">
     <div id="map" ref="mapRef"></div>
-    <div class="center">
+    <div class="wrap">
       <form onsubmit="return false;">
         <div class="field has-addons">
           <div class="control">
@@ -124,12 +162,12 @@ const search = async (event, query) => {
     }
   }
 
-  .center {
+  .wrap {
     z-index: 1;
     position: relative;
     display: block;
     top: 10px;
-    margin: 0 auto;
+    margin: 0px 16px 0px 16px;
     width: fit-content;
     background: #ffffff;
     border-radius: 290486px;
