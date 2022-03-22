@@ -60,7 +60,9 @@ onDeactivated(() => {});
 
 const markerClick = (event) => {
   console.log(event);
-  console.log(markers);
+  console.log(results);
+
+  console.log(results.find(x => event.latLng.lat === x.marker.position.lat && event.latLng.lng === x.marker.position.lng));
 
   /*for (const marker of markers) {
     if (marker.latLng === event.latLng) {
