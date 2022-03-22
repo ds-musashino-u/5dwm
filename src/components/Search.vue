@@ -3,8 +3,8 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
-import { getCategories } from "../presenters/categories.mjs"
-import { getUsers } from "../presenters/users.mjs"
+import { getCategories } from "../presenters/categories.mjs";
+import { getUsers } from "../presenters/users.mjs";
 
 const mapRef = ref(null);
 const queryRef = ref("");
@@ -34,18 +34,26 @@ onActivated(async () => {
     scaleControl: true,
     streetViewControl: false,
     rotateControl: true,
-    fullscreenControl: false
+    fullscreenControl: false,
   });
 
-  const categories = await getCategories();
+  try {
+    const categories = await getCategories();
 
-  console.log(categories);
+    console.log(categories);
+  } catch (error) {
+    console.error(error);
+  }
 
-  const users = await getUsers();
+  try {
+    const users = await getUsers();
 
-  console.log(users);
+    console.log(users);
+  } catch (error) {
+    console.error(error);
+  }
 });
-onDeactivated(() => { });
+onDeactivated(() => {});
 
 const search = async (event, query) => {
   //emit("search", event);
@@ -64,9 +72,13 @@ const search = async (event, query) => {
       mode: "cors",
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({ url: encodeURI(`https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl=${imageUrl}&keyword=${keywords}&ctg=${categories}&kind=${kinds}&db=${databases}`) })
+      body: JSON.stringify({
+        url: encodeURI(
+          `https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl=${imageUrl}&keyword=${keywords}&ctg=${categories}&kind=${kinds}&db=${databases}`
+        ),
+      }),
     });
 
     if (response.ok) {
@@ -82,7 +94,6 @@ const search = async (event, query) => {
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
 // var data = "imgurl=" + imageUrl + "&keyword=" + keywords + "&ctg=" + categories + "&kind=" + kinds + "&db=" + databases;
 // imgurl=&keyword=&ctg={"air pollution"}&kind=&db=
-
 </script>
 
 <template>
@@ -92,7 +103,12 @@ const search = async (event, query) => {
       <form onsubmit="return false;">
         <div class="field has-addons">
           <div class="control">
-            <input class="input is-size-7" type="text" placeholder="Keywords" v-model="queryRef" />
+            <input
+              class="input is-size-7"
+              type="text"
+              placeholder="Keywords"
+              v-model="queryRef"
+            />
           </div>
           <div class="control">
             <button
