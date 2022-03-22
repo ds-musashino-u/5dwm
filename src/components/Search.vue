@@ -59,11 +59,11 @@ onActivated(async () => {
 onDeactivated(() => {});
 
 const markerClick = (event) => {
-  console.log(event);
-  console.log(results);
+  const element = results.find(x => event.latLng.lat === x.marker.position.lat && event.latLng.lng === x.marker.position.lng);
 
-  console.log(results.find(x => event.latLng.lat === x.marker.position.lat && event.latLng.lng === x.marker.position.lng));
-
+  if (element !== undefined) {
+    console.log(element);
+  }
   /*for (const marker of markers) {
     if (marker.latLng === event.latLng) {
       console.log("find");
