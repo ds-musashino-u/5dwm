@@ -49,7 +49,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         try:
             categories = []
-            query = session.query(Category)
+            query = session.query(Category).order_by(Category.id)
 
             if limit is not None:
                 query = query.limit(limit)
@@ -57,7 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if offset is not None:
                 query = query.offset(offset)
 
-            for category in query.order_by(Category.id).all():
+            for category in query.all():
                 categories.append({
                     'id': category.id,
                     'name': category.name,
