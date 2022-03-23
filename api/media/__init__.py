@@ -43,7 +43,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             limit = data.get('limit')
 
         else:
-            mime_type = int(req.params['type']) if 'type' in req.params else None
+            mime_type = int(req.params['type']
+                            ) if 'type' in req.params else None
             sort = req.params['sort'] if 'sort' in req.params else 'created_at'
             order = req.params['order'] if 'order' in req.params else 'desc'
             offset = int(req.params['offset']
@@ -63,7 +64,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if sort == 'created_at':
                 if order is None:
                     query = query.order_by(desc(Media.created_at))
-                    
+
                 else:
                     if order == 'asc':
                         query = query.order_by(Media.created_at)
@@ -83,10 +84,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             for item in query.all():
                 media.append({
+                    'url': item.url,
+                    'type': item.type,
+                    'categories': item.categories,
+                    'address': item.address,
+                    'description': item.description,
                     'username': item.username,
-                    'first_name': item.first_name,
-                    'last_name': item.last_name,
-                    'email': item.email,
+                    'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]},
                     'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 })
 
