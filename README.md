@@ -10,6 +10,8 @@ $ npm install
 
 ## Build
 
+Build for production.
+
 ```sh
 $ npm run build
 ```
