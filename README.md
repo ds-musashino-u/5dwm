@@ -14,7 +14,9 @@ $ npm install
 $ npm run build
 ```
 
-## Build
+## Run
+
+Start dev server.
 
 ```sh
 $ npm run dev
