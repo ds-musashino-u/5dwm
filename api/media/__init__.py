@@ -43,8 +43,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             limit = data.get('limit')
 
         else:
-            mime_type = int(req.params['type']
-                            ) if 'type' in req.params else None
+            mime_type = req.params['type'] if 'type' in req.params else None
             sort = req.params['sort'] if 'sort' in req.params else 'created_at'
             order = req.params['order'] if 'order' in req.params else 'desc'
             offset = int(req.params['offset']
@@ -56,7 +55,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         try:
             media = []
-            query = session.query(User)
+            query = session.query(Media)
 
             if mime_type is not None:
                 query = query.filter(Media.type.like(mime_type))
