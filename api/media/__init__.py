@@ -58,7 +58,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             query = session.query(Media)
 
             if mime_type is not None:
-                query = query.filter(Media.type.like(mime_type))
+                query = query.filter(Media.type.like(mime_type.replace('*', '%')))
 
             if sort == 'created_at':
                 if order is None:
