@@ -9,12 +9,92 @@ servers:
       version:
         default: v1
 paths:
+  /categories:
+    get:
+      tags:
+        - Categories
+      summary: Get categories
+      description: Get categories.
+      parameters:
+      - name: offset
+        in: query
+        description: Offset
+        required: false
+        schema:
+          type: integer
+          example: 0
+      - name: limit
+        in: query
+        description: Limit
+        required: false
+        schema:
+          type: integer
+          example: 10
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /media:
+    get:
+      tags:
+        - Media
+      summary: Get media
+      description: Get media.
+      parameters:
+      - name: type
+        in: query
+        description: Mime type
+        required: false
+        schema:
+          type: string
+      - name: sort
+        in: query
+        description: Sort
+        required: false
+        schema:
+          type: string
+          enum: [created_at]
+      - name: order
+        in: query
+        description: Order
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
+      - name: offset
+        in: query
+        description: Offset
+        required: false
+        schema:
+          type: integer
+          example: 0
+      - name: limit
+        in: query
+        description: Limit
+        required: false
+        schema:
+          type: integer
+          example: 10
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Media'
   /users:
     get:
       tags:
         - Users
       summary: Get users
-      description: Get user by user name.
+      description: Get users.
       parameters:
       - name: offset
         in: query
