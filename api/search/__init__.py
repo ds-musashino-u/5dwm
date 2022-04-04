@@ -4,7 +4,6 @@ import os
 import ssl
 from urllib.request import urlopen, Request
 from urllib.parse import quote
-from dateutil.parser import parse
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from shared.models import Media
@@ -81,10 +80,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'username': item['user_cns'],
                             'latitude': item['lat'],
                             'longitude': item['lng'],
-                            'created_at': parse(item['datetaken']).strftime('%Y-%m-%dT%H:%M:%SZ')
+                            'created_at': item['datetaken']#.strftime('%Y-%m-%dT%H:%M:%SZ')
                         })
             
-                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+            return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
         finally:
             session.close()
