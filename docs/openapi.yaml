@@ -173,7 +173,7 @@ paths:
     get:
       tags:
         - Users
-      summary: Get a user
+      summary: Get user
       description: Get user by user name.
       parameters:
       - name: username
