@@ -98,7 +98,26 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
-  /media:
+  /media:    
+    post:
+      tags:
+        - Media
+      summary: Add media
+      description: Add media.
+      requestBody:
+        description: Search query
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
     get:
       tags:
         - Media
@@ -148,6 +167,45 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Media'
+  /media/{id}:
+    get:
+      tags:
+        - Media
+      summary: Get media
+      description: Get media by identifier.
+      parameters:
+      - name: id
+        in: path
+        description: Media identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
+    delete:
+      tags:
+        - Media
+      summary: Remove media
+      description: Remove media by identifier.
+      parameters:
+      - name: id
+        in: path
+        description: Media identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
   /users:
     get:
       tags:
@@ -243,6 +301,7 @@ components:
           type: number
         created_at:
           type: string
+          readOnly: true
       required:
         - id
         - url
