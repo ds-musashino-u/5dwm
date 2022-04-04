@@ -1,7 +1,9 @@
 import json
 import logging
 import os
+import ssl
 from urllib.request import urlopen, Request
+from urllib.parse import quote
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from shared.models import Media
@@ -9,6 +11,7 @@ from shared.models import Media
 import azure.functions as func
 
 
+ssl._create_default_https_context = ssl._create_unverified_context
 engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={
                        'sslmode': 'disable'}, pool_recycle=60)
 
@@ -60,7 +63,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             #try:
             media = []
-            response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={image_url}&keyword={",".join(keywords)}&ctg={categories}&kind={kinds}&db={databases}', method='GET'))
+            response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(categories)}&kind={quote(kinds)}&db={quote(databases)}', method='GET'))
 
             if response.getcode() == 200:
                 for item in json.loads(response.read()):
