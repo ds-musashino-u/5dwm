@@ -24,6 +24,11 @@ Start dev server.
 $ npm run dev
 ```
 
+## Specification
+
+API documention
+https://docs.5dworldmap.com/
+
 ## See also
 
 * https://vitejs.dev/
