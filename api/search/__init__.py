@@ -48,23 +48,45 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if req.headers.get('Content-Type') == 'application/json':
             data = req.get_json()
             keywords = data.get('keywords', [])
+            categories = data.get('categories', [])
+            types = data.get('types', [])
+            usernames = data.get('usernames', [])
+            image_url = data.get('image_url', '')
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
             limit = data.get('limit')
-
-            image_url = ""
-            categories = ""
-            kinds = ""
-            databases = ""
 
             Session = sessionmaker(bind=engine)
             session = Session()
 
             try:
                 media = []
+                query = session.query(Media)
+
+                if sort == 'created_at':
+                    if order is None:
+                        query = query.order_by(desc(Media.created_at))
+
+                    else:
+                        if order == 'asc':
+                            query = query.order_by(Media.created_at)
+                        elif order == 'desc':
+                            query = query.order_by(desc(Media.created_at))
+                        else:
+                            return func.HttpResponse(status_code=400, mimetype='', charset='')
+
+                else:
+                    return func.HttpResponse(status_code=400, mimetype='', charset='')
+
+                if limit is not None:
+                    query = query.limit(limit)
+
+                if offset is not None:
+                    query = query.offset(offset)
+
                 response = urlopen(Request(
-                    f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(categories)}&kind={quote(kinds)}&db={quote(databases)}', method='GET'))
+                    f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(",".join(categories))}&kind={quote(",".join(types))}&db={quote(",".join(usernames))}', method='GET'))
 
                 if response.getcode() == 200:
                     for item in json.loads(response.read()):
