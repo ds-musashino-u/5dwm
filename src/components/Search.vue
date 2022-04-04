@@ -95,21 +95,21 @@ const search = async (event, query) => {
       const searchItems = await searchWorldMap(["air pollution"]);
       const bounds = new google.maps.LatLngBounds();
 
-      for (const searchItem of searchItems) {
+      for (const media of searchItems) {
         const marker = new google.maps.Marker({
           position: {
-            lat: searchItem.location.latitude,
-            lng: searchItem.location.longitude,
+            lat: media.location.latitude,
+            lng: media.location.longitude,
           },
           map,
-          title: searchItem.description,
+          title: media.description,
           animation: google.maps.Animation.DROP,
         });
 
         marker.addListener("click", markerClick);
-        bounds.extend(new google.maps.LatLng(searchItem.location.latitude, searchItem.location.longitude));
+        bounds.extend(new google.maps.LatLng(media.location.latitude, media.location.longitude));
 
-        results.push({ marker: marker, item: searchItem });
+        results.push({ marker: marker, media: media });
       }
 
       map.fitBounds(bounds);
