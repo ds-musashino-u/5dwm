@@ -31,8 +31,8 @@ https://docs.5dworldmap.com/
 
 ## See also
 
-* https://vitejs.dev/
-* https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Cazurecli-linux%2Capplication-level
+* Vite: https://vitejs.dev/
+* Azure Functions Python developer guide: https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Cazurecli-linux%2Capplication-level
 
 
 ## コミットプレフィックス
