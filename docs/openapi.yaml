@@ -263,11 +263,13 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
         name:
           type: string
           maxLength: 50
         updated_at:
           type: string
+          readOnly: true
       required:
         - id
         - name
@@ -327,13 +329,13 @@ components:
           maxLength: 20
         updated_at:
           type: string
+          readOnly: true
         email:
           type: string
           format: email
           nullable: true
           maxLength: 128
       required:
-        - id
         - username
         - first_name
         - last_name
