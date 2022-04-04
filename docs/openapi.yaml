@@ -41,6 +41,7 @@ paths:
                     type: string
                 image_url:
                   type: string
+                  format: uri
                 sort:
                   type: string
                   enum: [created_at]
@@ -218,8 +219,10 @@ components:
       properties:
         id:
           type: integer
+          readOnly: true
         url:
           type: string
+          format: uri
         type:
           type: string
           maxLength: 10
