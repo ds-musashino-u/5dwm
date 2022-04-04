@@ -60,7 +60,7 @@ paths:
                 - types
                 - usernames
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -90,7 +90,7 @@ paths:
           type: integer
           example: 10
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -112,7 +112,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Media'
       responses:
-        '200':
+        201:
           description: Successful operation
           content:
             application/json:
@@ -159,7 +159,7 @@ paths:
           type: integer
           example: 10
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -181,7 +181,7 @@ paths:
         schema:
           type: string
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -200,7 +200,7 @@ paths:
         schema:
           type: string
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -228,7 +228,7 @@ paths:
           type: integer
           example: 10
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
@@ -250,7 +250,7 @@ paths:
         schema:
           type: string
       responses:
-        '200':
+        200:
           description: Successful operation
           content:
             application/json:
