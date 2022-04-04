@@ -10,11 +10,18 @@ import { Location } from "./location.mjs";
  * @param {?number} limit - Limit
  * @return {Array<SearchItem>} - Array of search items
  */
-export async function search(keywords, offset = 0, limit = null) {
-    const imageUrl = "";
-    const categories = "";
-    const kinds = "";
-    const databases = "";
+export async function search(keywords, categories, types, imageUrl = null, offset = 0, limit = null) {
+    const data = {
+        keywords: keywords,
+        categories: categories,
+        types: types,
+        offset: offset,
+        limit: limit
+    };
+
+    if (imageUrl !== null) {
+        data["image_url"] = imageUrl;
+    }
 
     const response = await fetch(Endpoints.SEARCH_URL, {
         mode: "cors",
@@ -22,11 +29,7 @@ export async function search(keywords, offset = 0, limit = null) {
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            keywords: keywords,
-            offset: offset,
-            limit: limit
-        }),
+        body: JSON.stringify(data),
     });
 
     if (response.ok) {
