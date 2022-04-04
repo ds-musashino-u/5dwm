@@ -4,7 +4,7 @@ import os
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from shared.models import User
+from shared.models import Media
 
 import azure.functions as func
 
@@ -42,25 +42,48 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
         '''
 
-        Session = sessionmaker(bind=engine)
-        session = Session()
+        if req.headers.get('Content-Type') == 'application/json':
+            data = req.get_json()
+            keywords = data.get('keywords', [])
+            sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
+            order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
+            offset = data.get('offset')
+            limit = data.get('limit')
 
-        try:
-            users = []
+            image_url = ""
+            categories = "";
+            kinds = ""
+            databases = ""
 
-            for user in session.query(User).all():
-                users.append({
-                    'username': user.username,
-                    'first_name': user.first_name,
-                    'last_name': user.last_name,
-                    'email': user.email,
-                    'updated_at': user.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                })
+            Session = sessionmaker(bind=engine)
+            session = Session()
 
-            return func.HttpResponse(json.dumps(users), status_code=200, mimetype='application/json', charset='utf-8')
+            try:
+                media = []
+                response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={image_url}&keyword={",".join(keywords)}&ctg={categories}&kind={kinds}&db={databases}', method='POST'))
 
-        finally:
-            session.close()
+                if response.getcode() == 200:
+                    for item in json.loads(response.read()):
+                        if 'id' in item:
+                            media.append({
+                                'id': item.id,
+                                'url': item.file_name,
+                                'type': item.kind,
+                                'categories': [item.category],
+                                'address': item.place,
+                                'description': item.description,
+                                'username': item.cns_name,
+                                'latitude': item.lat,
+                                'longitude': item.lng,
+                                'created_at': item.datetaken.strftime('%Y-%m-%dT%H:%M:%SZ')
+                            })
+
+                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+
+            finally:
+                session.close()
+
+        return func.HttpResponse(status_code=400, mimetype='', charset='')
 
     except Exception as e:
         logging.error(f'{e}')
