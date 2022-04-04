@@ -55,33 +55,33 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             kinds = ""
             databases = ""
 
-            Session = sessionmaker(bind=engine)
-            session = Session()
+            #Session = sessionmaker(bind=engine)
+            #session = Session()
 
-            try:
-                media = []
-                response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={image_url}&keyword={",".join(keywords)}&ctg={categories}&kind={kinds}&db={databases}', method='POST'))
+            #try:
+            media = []
+            response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={image_url}&keyword={",".join(keywords)}&ctg={categories}&kind={kinds}&db={databases}', method='GET'))
 
-                if response.getcode() == 200:
-                    for item in json.loads(response.read()):
-                        if 'id' in item:
-                            media.append({
-                                'id': item.id,
-                                'url': item.file_name,
-                                'type': item.kind,
-                                'categories': [item.category],
-                                'address': item.place,
-                                'description': item.description,
-                                'username': item.cns_name,
-                                'latitude': item.lat,
-                                'longitude': item.lng,
-                                'created_at': item.datetaken.strftime('%Y-%m-%dT%H:%M:%SZ')
-                            })
+            if response.getcode() == 200:
+                for item in json.loads(response.read()):
+                    if 'id' in item:
+                        media.append({
+                            'id': item.id,
+                            'url': item.file_name,
+                            'type': item.kind,
+                            'categories': [item.category],
+                            'address': item.place,
+                            'description': item.description,
+                            'username': item.cns_name,
+                            'latitude': item.lat,
+                            'longitude': item.lng,
+                            'created_at': item.datetaken.strftime('%Y-%m-%dT%H:%M:%SZ')
+                        })
 
-                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+            return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
-            finally:
-                session.close()
+            #finally:
+            #    session.close()
 
         return func.HttpResponse(status_code=400, mimetype='', charset='')
 
