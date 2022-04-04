@@ -100,6 +100,33 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             finally:
                 session.close()
 
+        elif req.method == 'POST':
+            pass
+
+        elif req.method == 'DELETE':
+            if req.headers.get('Content-Type') == 'application/json':
+                id = int(req.get_json().get('id'))
+                
+            else:
+                id = int(req.params['id'])
+
+            if id is None:
+                return func.HttpResponse(status_code=400, mimetype='', charset='')
+
+            Session = sessionmaker(bind=engine)
+            session = Session()
+
+            try:
+                media = session.query(Media).filter(Media.id==id).one()
+                session.delete(media)
+                session.commit()
+
+                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+
+            finally:
+                session.rollback()
+                session.close()
+
     except Exception as e:
         logging.error(f'{e}')
 
