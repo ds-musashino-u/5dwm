@@ -9,6 +9,56 @@ servers:
       version:
         default: v1
 paths:
+  /search:
+    post:
+      tags:
+        - Search
+      summary: Search media
+      description: Search media.
+      requestBody:
+        description: Search query
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                keywords:
+                  type: array
+                  items:
+                    type: string
+                categories:
+                  type: array
+                  items:
+                    type: string
+                types:
+                  type: array
+                  items:
+                    type: string
+                usernames:
+                  type: array
+                  items:
+                    type: string
+                offset:
+                  type: integer
+                  example: 0
+                limit:
+                  type: integer
+                  example: 10
+              required:
+                - keywords
+                - categories
+                - types
+                - usernames
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Media'
   /categories:
     get:
       tags:
@@ -209,6 +259,7 @@ components:
           type: string
         email:
           type: string
+          format: email
           nullable: true
           maxLength: 128
       required:
