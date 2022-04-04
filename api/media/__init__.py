@@ -83,6 +83,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             for item in query.all():
                 media.append({
+                    'id': item.id,
                     'url': item.url,
                     'type': item.type,
                     'categories': item.categories,
