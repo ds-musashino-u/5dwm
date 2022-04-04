@@ -3,28 +3,6 @@ import { Media } from "./media.mjs";
 import { Location } from "./location.mjs";
 
 /**
- * @classdesc SearchItem
- */
-export class SearchItem {
-    /**
-     * @param {!number} id - Identifier
-     * @param {?string} description - Description
-     * @param {!Array<string>} categories - Categories
-     * @param {!Media} media - Media
-     * @param {!Location} location - Location
-     * @param {!string} createdAt - Created date time (ISO 8601)
-     */
-    constructor(id, description, categories, media, location, createdAt) {
-        this.id = id;
-        this.description = description;
-        this.categories = categories;
-        this.media = media;
-        this.location = location;
-        this.createdAt = new Date(createdAt);
-    }
-}
-
-/**
  * /api/v1/categories
  * @module search
  * @param {!Array<string>} - Keywords
@@ -38,29 +16,28 @@ export async function search(keywords, offset = 0, limit = null) {
     const kinds = "";
     const databases = "";
 
-    const response = await fetch("https://5dworldmap.com/api/v1/echo", {
+    const response = await fetch(Endpoints.SEARCH_URL, {
         mode: "cors",
         method: "POST",
         headers: {
             "Content-Type": "application/json",
         },
         body: JSON.stringify({
-            url: encodeURI(
-                `${Endpoints.SEARCH_URL}?imgurl=${imageUrl}&keyword=${keywords.join(",")}&ctg=${categories}&kind=${kinds}&db=${databases}`
-            ),
+            keywords: keywords,
+            offset: offset,
+            limit: limit
         }),
     });
 
     if (response.ok) {
-        const searchItems = [];
-    
-        for (const item of await response.json()) {
-            if ("id" in item) {
-                searchItems.push(new SearchItem(item.id, item.description, [item.category], new Media(item.file_name, item.kind), new Location(item.lng, item.lat, item.place), item.datetaken));
-            }
+        const media = [];
+        const json = await response.json();
+
+        for (const item of json) {
+            media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.longitude, item.latitude, item.address), item.created_at));
         }
 
-        return searchItems;
+        return media;
     } else {
         throw new Error(response.statusText);
     }
