@@ -68,6 +68,7 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Media'
+  
   /categories:
     get:
       tags:
@@ -98,26 +99,47 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
-  /media:    
+  /category:
     post:
       tags:
-        - Media
-      summary: Add media
-      description: Add media.
+        - Categories
+      summary: Add category
+      description: Add category.      
       requestBody:
-        description: Search query
+        description: category data
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Media'
+              $ref: '#/components/schemas/Category'
       responses:
-        201:
+        200:
           description: Successful operation
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Media'
+                $ref: '#/components/schemas/Category'
+  /category/{id}:
+    delete:
+      tags:
+        - Categories
+      summary: Remove category
+      description: Remove category by identifier.
+      parameters:
+      - name: id
+        in: path
+        description: Category identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+  /media:
     get:
       tags:
         - Media
@@ -167,6 +189,25 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Media'
+    post:
+      tags:
+        - Media
+      summary: Add media
+      description: Add media.
+      requestBody:
+        description: Media data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        201:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
   /media/{id}:
     get:
       tags:
