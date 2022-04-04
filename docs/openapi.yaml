@@ -9,7 +9,7 @@ servers:
       version:
         default: v1
 paths:
-  /users?offset={offset}&limit={limit}:
+  /users:
     get:
       tags:
         - Users
