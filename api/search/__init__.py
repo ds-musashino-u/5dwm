@@ -64,15 +64,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         session = Session()
 
         try:
-            media = []
-            
+            media = []            
             response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(categories)}&kind={quote(kinds)}&db={quote(databases)}', method='GET'))
 
             if response.getcode() == 200:
                 for item in json.loads(response.read()):
                     if 'id' in item:
                         media.append({
-                            'id': item.id,
+                            'id': item['id'],
                             #'url': item.file_name,
                             #'type': item.kind,
                             #'categories': [item.category],
