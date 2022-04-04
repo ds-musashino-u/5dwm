@@ -7,7 +7,7 @@ export class User {
     /**
      * @param {!number} username - User identifier
      * @param {?string} email - Email address
-     * @param {!string} updated - Updated date time (ISO 8601)
+     * @param {!string} updatedAt - Updated date time (ISO 8601)
      */
     constructor(username, email, updatedAt) {
         this.username = username;
