@@ -72,15 +72,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if 'id' in item:
                         media.append({
                             'id': item['id'],
-                            #'url': item.file_name,
-                            #'type': item.kind,
-                            #'categories': [item.category],
-                            #'address': item.place,
-                            #'description': item.description,
-                            #'username': item.cns_name,
-                            #'latitude': item.lat,
-                            #'longitude': item.lng,
-                            #'created_at': item.datetaken.strftime('%Y-%m-%dT%H:%M:%SZ')
+                            'url': item['file_name'],
+                            'type': item['kind'],
+                            'categories': [item['category']],
+                            'address': item['place'],
+                            'description': item['description'],
+                            'username': item['cns_name'],
+                            'latitude': item['lat'],
+                            'longitude': item['lng'],
+                            'created_at': item['datetaken'].strftime('%Y-%m-%dT%H:%M:%SZ')
                         })
             
             return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
