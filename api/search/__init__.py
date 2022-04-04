@@ -77,7 +77,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'categories': [item['category']],
                             'address': item['place'],
                             'description': item['description'],
-                            'username': item['cns_name'],
+                            'username': item['user_cns'],
                             'latitude': item['lat'],
                             'longitude': item['lng'],
                             'created_at': item['datetaken'].strftime('%Y-%m-%dT%H:%M:%SZ')
