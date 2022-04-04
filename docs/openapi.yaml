@@ -61,11 +61,61 @@ paths:
                 $ref: '#/components/schemas/User'
 components:
   schemas:
-    User:
+    Category:
       type: object
       properties:
         id:
           type: integer
+        name:
+          type: string
+          maxLength: 50
+        updated_at:
+          type: string
+      required:
+        - id
+        - name
+        - updated_at
+    Media:
+      type: object
+      properties:
+        id:
+          type: integer
+        url:
+          type: string
+        type:
+          type: string
+          maxLength: 10
+        categories:
+          type: array
+          items:
+            type: string
+        address:
+          type: string
+        description:
+          type: string
+        username:
+          type: string
+          maxLength: 20
+        latitude:
+          type: number
+        longitude:
+          type: number
+        created_at:
+          type: string
+      required:
+        - id
+        - url
+        - type
+        - categories
+        - address
+        - description
+        - username
+        - latitude
+        - longitude
+        - created_at
+    User:
+      type: object
+      properties:
         username:
           type: string
           maxLength: 20
@@ -89,5 +139,6 @@ components:
         - updated_at
         - email
 tags:
+  - name: Categories
+  - name: Media
   - name: Users
-    description: User API
