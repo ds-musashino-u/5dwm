@@ -92,7 +92,7 @@ const search = async (event, query) => {
 
   if (map !== null) {
     try {
-      const searchItems = await searchWorldMap(["air pollution"]);
+      const searchItems = await searchWorldMap(["air pollution"], [], []);
       const bounds = new google.maps.LatLngBounds();
 
       for (const media of searchItems) {
