@@ -4,7 +4,7 @@ import os
 import ssl
 from urllib.request import urlopen, Request
 from urllib.parse import quote
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.models import Media
 
@@ -52,9 +52,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
             limit = data.get('limit')
-        
+
             image_url = ""
-            categories = "";
+            categories = ""
             kinds = ""
             databases = ""
 
@@ -62,8 +62,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             session = Session()
 
             try:
-                media = []            
-                response = urlopen(Request(f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(categories)}&kind={quote(kinds)}&db={quote(databases)}', method='GET'))
+                media = []
+                response = urlopen(Request(
+                    f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(categories)}&kind={quote(kinds)}&db={quote(databases)}', method='GET'))
 
                 if response.getcode() == 200:
                     for item in json.loads(response.read()):
@@ -78,9 +79,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 'username': item['user_cns'],
                                 'latitude': item['lat'],
                                 'longitude': item['lng'],
-                                'created_at': item['datetaken']#.strftime('%Y-%m-%dT%H:%M:%SZ')
+                                # .strftime('%Y-%m-%dT%H:%M:%SZ')
+                                'created_at': item['datetaken']
                             })
-                
+
                     return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
