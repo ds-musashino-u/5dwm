@@ -1,6 +1,6 @@
 openapi: 3.0.0
 info:
-  title: 5D World Map
+  title: 5D World Map API
   description: 5D World Map API Specification
   version: 1.0.0
 servers:
