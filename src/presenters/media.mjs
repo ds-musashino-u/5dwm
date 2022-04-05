@@ -43,7 +43,7 @@ export class Media {
  * @param {?number} limit - Limit
  * @return {Array<Media>} - Array of media items
  */
- export async function getMedia(type = null, sort = null, order = null, offset = 0, limit = null) {
+export async function getMedia(type = null, sort = null, order = null, offset = 0, limit = null) {
     let url = `${Endpoints.MEDIA_URL}?offset=${offset}`;
 
     if (limit !== null) {
@@ -74,7 +74,9 @@ export class Media {
         const media = [];
 
         for (const item of await response.json()) {
-            media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.longitude, item.latitude, item.address), item.created_at));
+            if (item.location.type === "Point") {
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
+            }
         }
 
         return media;
