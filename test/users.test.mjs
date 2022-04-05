@@ -1,6 +1,6 @@
 import assert from "assert";
 import sinon from "sinon";
-import { getUsers } from "../src/presenters/users.mjs"
+import { User, getUsers, getUser } from "../src/presenters/users.mjs"
 
 global.fetch = () => { };
 global.window = {
@@ -20,5 +20,10 @@ describe("users", function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve([{ username: "foobar", email: "foobar@example.com", updated_at: "1970-01-01T09:00:00Z" }]) }));
 
         assert.equal(true, Array.isArray(await getUsers()));
+    });
+    it("getUser", async function () {
+        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ username: "foobar", email: "foobar@example.com", updated_at: "1970-01-01T09:00:00Z" }) }));
+
+        assert.equal(true, await getUser("foobar") instanceof User);
     });
 });
