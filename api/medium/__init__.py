@@ -41,7 +41,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if req.method == 'DELETE':
             try:
                 media = session.query(Media).filter(Media.id == id).one()
-                
+
                 session.delete(media)
                 session.commit()
 
@@ -63,19 +63,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         else:
             try:
-                media = session.query(Media).filter(Media.id == id).one()
+                media = session.query(Media).filter(
+                    Media.id == id).one_or_none()
 
-                return func.HttpResponse(json.dumps({
-                    'id': media.id,
-                    'url': media.url,
-                    'type': media.type,
-                    'categories': media.categories,
-                    'address': media.address,
-                    'description': media.description,
-                    'username': media.username,
-                    'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
-                    'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=200, mimetype='application/json', charset='utf-8')
+                if media is not None:
+                    media = {
+                        'id': media.id,
+                        'url': media.url,
+                        'type': media.type,
+                        'categories': media.categories,
+                        'address': media.address,
+                        'description': media.description,
+                        'username': media.username,
+                        'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                        'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
+
+                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
