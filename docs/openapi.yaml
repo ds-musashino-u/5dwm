@@ -368,6 +368,7 @@ components:
               items:
                 type: number
                 format: double
+              example: [105.85271637244875, 21.028344772352863]
         created_at:
           type: string
           format: date-time
