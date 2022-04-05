@@ -42,7 +42,7 @@ export async function search(keywords, categories, types, imageUrl = null, sort 
         headers: {
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
     });
 
     if (response.ok) {
