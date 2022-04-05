@@ -40,9 +40,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         session = Session()
 
         try:
-            query = session.query(User).filter(User.username==username)
-            user = query.one_or_none()
-
+            user = session.query(User).filter(User.username==username).one_or_none()
+            
             if user is not None:
                 user = {
                     'username': user.username,
