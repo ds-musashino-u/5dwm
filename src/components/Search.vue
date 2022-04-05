@@ -4,8 +4,8 @@
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
-import { getMedia } from "../presenters/media.mjs";
-import { getUsers } from "../presenters/users.mjs";
+import { getMedia, getMedium } from "../presenters/media.mjs";
+import { getUsers, getUser } from "../presenters/users.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
 
 const mapRef = ref(null);
@@ -53,6 +53,8 @@ onActivated(async () => {
     const media = await getMedia("image*", "created_at", "desc", 0, 10);
 
     console.log(media);
+
+    console.log(await getMedium(media[0].id));
   } catch (error) {
     console.error(error);
   }
