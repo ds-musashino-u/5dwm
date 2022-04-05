@@ -8,7 +8,8 @@
       "name": "req",
       "route": "v1/categories",
       "methods": [
-        "get"
+        "get",
+        "post"
       ]
     },
     {
