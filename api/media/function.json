@@ -9,8 +9,7 @@
       "route": "v1/media",
       "methods": [
         "get",
-        "post",
-        "delete"
+        "post"
       ]
     },
     {
