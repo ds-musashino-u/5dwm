@@ -93,7 +93,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'id': category.id,
                     'name': category.name,
                     'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=200, mimetype='application/json', charset='utf-8')
+                }), status_code=201, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.rollback()
