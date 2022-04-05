@@ -146,7 +146,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=200, mimetype='application/json', charset='utf-8')
+                }), status_code=201, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.rollback()
