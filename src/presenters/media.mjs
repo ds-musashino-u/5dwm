@@ -115,7 +115,7 @@ export async function getMedium(id) {
 
 /**
  * /api/v1/media
- * @module addMedium
+ * @module insertMedium
  * @param {!string} url - URL 
  * @param {!string} type - MIME type
  * @param {!Array<string>} categories - Categories
@@ -124,7 +124,7 @@ export async function getMedium(id) {
  * @param {!Location} location - Location
  * @return {?Media} - Media item
  */
- export async function addMedium(url, type, categories, description, username, location) {
+ export async function insertMedium(url, type, categories, description, username, location) {
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
         mode: "cors",
         method: "POST",
@@ -160,11 +160,11 @@ export async function getMedium(id) {
 
 /**
  * /api/v1/media/{id}
- * @module removeMedium
+ * @module deleteMedium
  * @param {!number} id - Media identifier
  * @return {?Media} - Media item
  */
-export async function removeMedium(id) {
+export async function deleteMedium(id) {
     const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
         mode: "cors",
         method: "DELETE",
