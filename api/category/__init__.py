@@ -52,9 +52,43 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }), status_code=200, mimetype='application/json', charset='utf-8')
 
-            finally:
+            except Exception as e:
                 session.rollback()
+
+                raise e
+
+            finally:
                 session.close()
+
+        elif req.method == 'PUT':
+            if req.headers.get('Content-Type') == 'application/json':
+                name = req.get_json()['name']
+
+                try:
+                    category = session.query(Category).filter(
+                        Category.id == id).one_or_none()
+
+                    if category is not None:
+                        category.name = name
+
+                        category = {
+                            'id': category.id,
+                            'name': category.name,
+                            'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                        }
+
+                    return func.HttpResponse(json.dumps(category), status_code=200, mimetype='application/json', charset='utf-8')
+
+                except Exception as e:
+                    session.rollback()
+
+                    raise e
+
+                finally:
+                    session.close()
+
+            else:
+                return func.HttpResponse(status_code=400, mimetype='', charset='')
 
         else:
             try:
