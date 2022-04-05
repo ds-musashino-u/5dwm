@@ -66,20 +66,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 try:
                     category = session.query(Category).filter(
-                        Category.id == id).one_or_none()
+                        Category.id == id).one()
+                    category.name = name
 
-                    if category is not None:
-                        category.name = name
+                    session.commit()
 
-                        session.commit()
-
-                        category = {
-                            'id': category.id,
-                            'name': category.name,
-                            'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                        }
-
-                    return func.HttpResponse(json.dumps(category), status_code=200, mimetype='application/json', charset='utf-8')
+                    return func.HttpResponse(json.dumps({
+                        'id': category.id,
+                        'name': category.name,
+                        'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }), status_code=200, mimetype='application/json', charset='utf-8')
 
                 except Exception as e:
                     session.rollback()
