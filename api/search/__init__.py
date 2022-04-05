@@ -99,8 +99,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 'address': item['place'],
                                 'description': item['description'],
                                 'username': item['user_cns'],
-                                'latitude': item['lat'],
-                                'longitude': item['lng'],
+                                'location': {'type': 'Point', 'coordinates': [item['lng'], item['lat']]},
                                 # .strftime('%Y-%m-%dT%H:%M:%SZ')
                                 'created_at': item['datetaken']
                             })
