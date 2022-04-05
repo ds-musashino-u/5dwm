@@ -1,7 +1,7 @@
 openapi: 3.0.0
 info:
   title: 5D World Map API
-  description: 5D World Map API Specification
+  description: 5D World Map API specification
   version: 1.0.0
 servers:
   - url: https://5dworldmap.com/api/{version}
@@ -310,6 +310,7 @@ components:
           maxLength: 50
         updated_at:
           type: string
+          format: date-time
           readOnly: true
       required:
         - id
@@ -338,12 +339,20 @@ components:
         username:
           type: string
           maxLength: 20
-        latitude:
-          type: number
-        longitude:
-          type: number
+        location:
+          type: object
+          properties:
+            type:
+              type: string
+              example: Point
+            coordinates:
+              type: array
+              items:
+                type: number
+                format: double
         created_at:
           type: string
+          format: date-time
           readOnly: true
       required:
         - id
@@ -353,8 +362,7 @@ components:
         - address
         - description
         - username
-        - latitude
-        - longitude
+        - location
         - created_at
     User:
       type: object
@@ -370,6 +378,7 @@ components:
           maxLength: 20
         updated_at:
           type: string
+          format: date-time
           readOnly: true
         email:
           type: string
