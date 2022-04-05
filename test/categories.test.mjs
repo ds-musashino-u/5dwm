@@ -1,6 +1,6 @@
 import assert from "assert";
 import sinon from "sinon";
-import { Category, getCategories, getCategory, addCategory, removeCategory } from "../src/presenters/categories.mjs"
+import { Category, getCategories, getCategory, insertCategory, updateCategory, deleteCategory } from "../src/presenters/categories.mjs"
 
 global.fetch = () => { };
 global.window = {
@@ -26,14 +26,19 @@ describe("users", function () {
 
         assert.equal(true, await getCategory(1) instanceof Category);
     });
-    it("addCategory", async function () {
+    it("insertCategory", async function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
 
-        assert.equal(true, await addCategory("foobar") instanceof Category);
+        assert.equal(true, await insertCategory("foobar") instanceof Category);
     });
-    it("removeCategory", async function () {
+    it("updateCategory", async function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
 
-        assert.equal(true, await removeCategory(1) instanceof Category);
+        assert.equal(true, await updateCategory(1, "foobar") instanceof Category);
+    });
+    it("deleteCategory", async function () {
+        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
+
+        assert.equal(true, await deleteCategory(1) instanceof Category);
     });
 });
