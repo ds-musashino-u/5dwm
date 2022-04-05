@@ -9,6 +9,7 @@
       "route": "v1/categories/{id}",
       "methods": [
         "get",
+        "put",
         "delete"
       ]
     },
