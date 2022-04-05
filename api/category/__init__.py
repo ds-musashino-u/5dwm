@@ -71,6 +71,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if category is not None:
                         category.name = name
 
+                        session.commit()
+
                         category = {
                             'id': category.id,
                             'name': category.name,
