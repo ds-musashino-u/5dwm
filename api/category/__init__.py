@@ -40,8 +40,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         if req.method == 'DELETE':
             try:
-                category = session.query(Category).filter(Category.id == id).one()
-                
+                category = session.query(Category).filter(
+                    Category.id == id).one()
+
                 session.delete(category)
                 session.commit()
 
@@ -57,13 +58,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         else:
             try:
-                category = session.query(Category).filter(Category.id == id).one()
+                category = session.query(Category).filter(
+                    Category.id == id).one_or_none()
 
-                return func.HttpResponse(json.dumps({
-                    'id': category.id,
-                    'name': category.name,
-                    'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=200, mimetype='application/json', charset='utf-8')
+                if category is not None:
+                    category = {
+                        'id': category.id,
+                        'name': category.name,
+                        'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
+
+                return func.HttpResponse(json.dumps(category), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
