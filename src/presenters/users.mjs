@@ -60,7 +60,7 @@ export async function getUsers(offset = 0, limit = null) {
 export async function getUser(username) {
     const response = await fetch(encodeURI(`${Endpoints.USERS_URL}/${username}`), {
         mode: "cors",
-        method: "DELETE",
+        method: "GET",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded"
         }
