@@ -99,7 +99,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Category'
-  /category:
     post:
       tags:
         - Categories
@@ -119,7 +118,26 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
-  /category/{id}:
+  /categories/{id}:
+    get:
+      tags:
+        - Categories
+      summary: Get category
+      description: Get category by identifier.
+      parameters:
+      - name: id
+        in: path
+        description: Category identifier
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
     delete:
       tags:
         - Categories
