@@ -19,9 +19,9 @@ export class User {
 /**
  * /api/v1/users
  * @module getUsers
- * @param {number} offset - Offset
- * @param {number} limit - Limit
- * @return {Array<User>} - Array of user
+ * @param {!number} offset - Offset
+ * @param {?number} limit - Limit
+ * @return {!Array<User>} - Array of user
  */
 export async function getUsers(offset = 0, limit = null) {
     let url = `${Endpoints.USERS_URL}?offset=${offset}`;
@@ -46,6 +46,34 @@ export async function getUsers(offset = 0, limit = null) {
         }
 
         return users;
+    } else {
+        throw new Error(response.statusText);
+    }
+}
+
+/**
+ * /api/v1/users/{username}
+ * @module getUser
+ * @param {!number} id - User name
+ * @return {?User} - User item
+ */
+export async function getUser(username) {
+    const response = await fetch(encodeURI(`${Endpoints.USERS_URL}/${username}`), {
+        mode: "cors",
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    });
+
+    if (response.ok) {
+        const user = await response.json();
+
+        if (user === null) {
+            return null;
+        }
+
+        return new User(user.username, user.email, user.updated_at);
     } else {
         throw new Error(response.statusText);
     }
