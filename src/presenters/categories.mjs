@@ -115,7 +115,7 @@ export async function insertCategory(name) {
  * @param {!string} name - Name
  * @return {?Category} - Category item
  */
- export async function updateCategory(id, name) {
+export async function updateCategory(id, name) {
     const response = await fetch(encodeURI(`${Endpoints.CATEGORIES_URL}/${id}`), {
         mode: "cors",
         method: "PUT",
