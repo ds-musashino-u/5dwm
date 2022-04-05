@@ -81,11 +81,11 @@ export async function getCategory(id) {
 
 /**
  * /api/v1/categories
- * @module addCategory
- * @param {!number} name - Category identifier
+ * @module insertCategory
+ * @param {!string} name - Name
  * @return {?Category} - Category item
  */
-export async function addCategory(name) {
+export async function insertCategory(name) {
     const response = await fetch(encodeURI(Endpoints.CATEGORIES_URL), {
         mode: "cors",
         method: "POST",
@@ -110,11 +110,41 @@ export async function addCategory(name) {
 
 /**
  * /api/v1/categories/{id}
- * @module removeCategory
+ * @module updateCategory
+ * @param {!number} id - Category identifier
+ * @param {!string} name - Name
+ * @return {?Category} - Category item
+ */
+ export async function updateCategory(id, name) {
+    const response = await fetch(encodeURI(`${Endpoints.CATEGORIES_URL}/${id}`), {
+        mode: "cors",
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: name })
+    });
+
+    if (response.ok) {
+        const category = await response.json()
+
+        if (category === null) {
+            return null;
+        }
+
+        return new Category(category.id, category.name, category.updated_at);
+    } else {
+        throw new Error(response.statusText);
+    }
+}
+
+/**
+ * /api/v1/categories/{id}
+ * @module deleteCategory
  * @param {!number} id - Category identifier
  * @return {?Category} - Category item
  */
-export async function removeCategory(id) {
+export async function deleteCategory(id) {
     const response = await fetch(encodeURI(`${Endpoints.CATEGORIES_URL}/${id}`), {
         mode: "cors",
         method: "DELETE",
