@@ -112,7 +112,7 @@ paths:
             schema:
               $ref: '#/components/schemas/Category'
       responses:
-        200:
+        201:
           description: Successful operation
           content:
             application/json:
