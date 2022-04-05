@@ -41,7 +41,7 @@ export class Media {
  * @param {?string} order - Order (asc or desc)
  * @param {!number} offset - Offset
  * @param {?number} limit - Limit
- * @return {Array<Media>} - Array of media items
+ * @return {Array<Media>} - Array of media
  */
 export async function getMedia(type = null, sort = null, order = null, offset = 0, limit = null) {
     let url = `${Endpoints.MEDIA_URL}?offset=${offset}`;
@@ -80,6 +80,34 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
         }
 
         return media;
+    } else {
+        throw new Error(response.statusText);
+    }
+}
+
+/**
+ * /api/v1/media/{id}
+ * @module getMedium
+ * @param {!number} id - Media identifier
+ * @return {?Media} - Media item
+ */
+export async function getMedium(id) {
+    const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
+        mode: "cors",
+        method: "GET",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        }
+    });
+
+    if (response.ok) {
+        const item = await response.json()
+
+        if (item === null) {
+            return null;
+        }
+
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
     } else {
         throw new Error(response.statusText);
     }
