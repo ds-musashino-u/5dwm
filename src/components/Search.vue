@@ -3,7 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
-import { getCategories } from "../presenters/categories.mjs";
+import { getCategories, getCategory, insertCategory, Category, updateCategory, deleteCategory } from "../presenters/categories.mjs";
 import { getMedia, getMedium } from "../presenters/media.mjs";
 import { getUsers, getUser } from "../presenters/users.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
@@ -45,6 +45,26 @@ onActivated(async () => {
     const categories = await getCategories();
 
     console.log(categories);
+    console.log("insert");
+    const cat = await insertCategory("foobarbaz");
+
+    console.log(cat);
+
+    consle.log(await getCategory(cat.id));
+
+    console.log("update");
+    const cat2 = await updateCategory(cat.id, "Hogehogehoge");
+
+    console.log(cat2);
+
+    consle.log(await getCategory(cat2.id));
+
+    console.log("delete");
+
+    console.log(await deleteCategory(cat2.id));
+
+    consle.log(await getCategory(cat2.id));
+
   } catch (error) {
     console.error(error);
   }
