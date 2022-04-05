@@ -3,9 +3,10 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
-import { getCategories, getCategory, insertCategory, Category, updateCategory, deleteCategory } from "../presenters/categories.mjs";
-import { getMedia, getMedium } from "../presenters/media.mjs";
-import { getUsers, getUser } from "../presenters/users.mjs";
+import { getCategories } from "../presenters/categories.mjs";
+import { Location } from "../presenters/location.mjs";
+import { getMedia, getMedium, insertMedium, deleteMedium } from "../presenters/media.mjs";
+import { getUsers } from "../presenters/users.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
 
 const mapRef = ref(null);
@@ -45,25 +46,25 @@ onActivated(async () => {
     const categories = await getCategories();
 
     console.log(categories);
-    console.log("insert");
+    /*console.log("insert");
     const cat = await insertCategory("foobarbaz");
 
     console.log(cat);
 
-    consle.log(await getCategory(cat.id));
+    console.log(await getCategory(cat.id));
 
     console.log("update");
     const cat2 = await updateCategory(cat.id, "Hogehogehoge");
 
     console.log(cat2);
 
-    consle.log(await getCategory(cat2.id));
+    console.log(await getCategory(cat2.id));
 
     console.log("delete");
 
     console.log(await deleteCategory(cat2.id));
 
-    consle.log(await getCategory(cat2.id));
+    console.log(await getCategory(cat2.id));*/
 
   } catch (error) {
     console.error(error);
@@ -74,7 +75,19 @@ onActivated(async () => {
 
     console.log(media);
 
-    console.log(await getMedium(media[0].id));
+    /*console.log(await getMedium(media[0].id));
+
+    console.log("insert");
+    const m = await insertMedium("https://5dworldmap.com/foobar.png", "image/png", ["foo", "bar"], "foo bar baz", "foobar", new Location(105.85271637244875, 21.028344772352863, "foo"));
+
+    console.log(m);
+    console.log(await getMedium(m.id));
+
+    console.log("delete");
+
+    console.log(await deleteMedium(m.id));
+    console.log(await getMedium(m.id));*/
+
   } catch (error) {
     console.error(error);
   }
@@ -83,6 +96,8 @@ onActivated(async () => {
     const users = await getUsers();
 
     console.log(users);
+
+    //console.log(await getUser(users[0].username));
   } catch (error) {
     console.error(error);
   }
