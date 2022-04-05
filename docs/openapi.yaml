@@ -102,8 +102,8 @@ paths:
     post:
       tags:
         - Categories
-      summary: Add category
-      description: Add category.      
+      summary: Insert category
+      description: Insert category.      
       requestBody:
         description: category data
         required: true
@@ -138,11 +138,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+    put:
+      tags:
+        - Categories
+      summary: Update category
+      description: Update category by identifier.
+      parameters:
+      - name: id
+        in: path
+        description: Category identifier
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: Update data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
     delete:
       tags:
         - Categories
-      summary: Remove category
-      description: Remove category by identifier.
+      summary: Delete category
+      description: Delete category by identifier.
       parameters:
       - name: id
         in: path
@@ -210,8 +241,8 @@ paths:
     post:
       tags:
         - Media
-      summary: Add media
-      description: Add media.
+      summary: Insert media
+      description: Insert media.
       requestBody:
         description: Media data
         required: true
@@ -249,8 +280,8 @@ paths:
     delete:
       tags:
         - Media
-      summary: Remove media
-      description: Remove media by identifier.
+      summary: Delete media
+      description: Delete media by identifier.
       parameters:
       - name: id
         in: path
