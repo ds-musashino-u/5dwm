@@ -103,6 +103,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             finally:
                 session.close()
 
+        return func.HttpResponse(status_code=400, mimetype='', charset='')
+
     except Exception as e:
         logging.error(f'{e}')
 
