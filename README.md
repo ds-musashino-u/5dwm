@@ -24,9 +24,9 @@ Start dev server.
 $ npm run dev
 ```
 
-## Specification
+## Documentation
 
-API documention  
+API specification  
 https://docs.5dworldmap.com/
 
 ## See also
