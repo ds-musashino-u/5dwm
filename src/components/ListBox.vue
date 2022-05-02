@@ -5,29 +5,45 @@ import { ref } from "vue";
 
 const props = defineProps({
   name: { type: String, required: false, default: null },
-  items: Array,
+  items: { type: Array, required: false, default: [] },
 });
 const emit = defineEmits(["select"]);
-const select = (event) => {
-  emit("select", event.target.dataset);
+const select = (event, index) => {
+  props.items[index].checked = !props.items[index].checked;
+
+  emit("select", event.target.dataset, index);
 };
 </script>
 
 <template>
   <div class="panel-block">
-    <h3 class="panel-heading is-uppercase has-text-weight-bold" v-text="name" v-if="name !== null"></h3>
-    <label class="control">
-      <input type="checkbox" @change="select" v-bind:checked="true" />
+    <h3
+      class="panel-heading is-uppercase has-text-weight-bold"
+      v-text="name"
+      v-if="name !== null"
+    ></h3>
+    <label class="control" v-for="(item, index) in items" v-bind:key="item">
+      <input
+        type="checkbox"
+        @change="select($event, index)"
+        v-bind:checked="item.checked"
+      />
       <span class="custom"></span>
-      <span class="is-size-6 has-text-weight-bold">Test</span>
-    </label>
-    <label class="control">
-      <input type="checkbox" @change="select" v-bind:checked="true" />
-      <span class="custom"></span>
-      <span class="is-size-6 has-text-weight-bold">Sample</span>
+      <span class="is-size-6 has-text-weight-bold" v-text="item.name"></span>
     </label>
     <div class="control">
-      <button class="button is-link is-outlined is-fullwidth">Next</button>
+      <nav class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <button class="button is-link is-outlined">Previous</button>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <button class="button is-link is-outlined">Next</button>
+          </div>
+        </div>
+      </nav>
     </div>
   </div>
 </template>
@@ -43,10 +59,14 @@ const select = (event) => {
     background: transparent;
   }
 
+  .control .level {
+    padding: 0.5em 0.75em;
+  }
+
   label {
     padding: 0.5em 0.75em;
     background-color: transparent;
-    transition: background-color .5s;
+    transition: background-color 0.5s;
   }
 
   label:hover {
