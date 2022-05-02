@@ -18,7 +18,12 @@ const select = (event) => {
     <label class="control">
       <input type="checkbox" @change="select" v-bind:checked="true" />
       <span class="custom"></span>
-      <span class="is-size-7 has-text-weight-bold"> Test </span>
+      <span class="is-size-6 has-text-weight-bold">Test</span>
+    </label>
+    <label class="control">
+      <input type="checkbox" @change="select" v-bind:checked="true" />
+      <span class="custom"></span>
+      <span class="is-size-6 has-text-weight-bold">Sample</span>
     </label>
     <div class="control">
       <button class="button is-link is-outlined is-fullwidth">Next</button>
@@ -32,8 +37,12 @@ const select = (event) => {
   align-items: flex-start;
 
   .panel-heading {
-    padding: 0px 0px 12px 6px;
+    padding: 0px 0px 6px 6px;
     background: transparent;
+  }
+
+  label {
+    padding: 6px 6px 6px 6px;
   }
 
   label > span {
@@ -41,7 +50,7 @@ const select = (event) => {
   }
 
   label > span:not(:first-of-type) {
-    margin: 0px 0px 0px 16px;
+    margin: 0px 0px 0px 12px;
   }
 
   label input[type="checkbox"],
