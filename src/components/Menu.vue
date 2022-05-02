@@ -33,7 +33,7 @@ const select = (event) => {
                         <span class="icon">
                           <i v-bind:class="item.icon"></i>
                         </span>
-                        <span class="has-text-weight-bold">{{ item.name }}</span>
+                        <span class="is-uppercase has-text-weight-bold">{{ item.name }}</span>
                       </button>
                     </div>
                   </div>
