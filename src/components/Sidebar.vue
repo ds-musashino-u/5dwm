@@ -50,7 +50,7 @@ watchEffect(() => selectedIndex.value = propsIndexRef.value);
               <span class="icon is-large">
                 <i v-bind:class="item.icon"></i>
               </span>
-              <span class="is-size-7 has-text-weight-bold">{{
+              <span class="is-size-7 is-uppercase has-text-weight-bold">{{
                 item.name
               }}</span>
             </button>
