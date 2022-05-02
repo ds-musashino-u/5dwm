@@ -7,6 +7,7 @@ import { getCategories } from "../presenters/categories.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
+import ListBox from "./ListBox.vue";
 
 const mapRef = ref(null);
 const queryRef = ref("");
@@ -64,7 +65,6 @@ onActivated(async () => {
     console.log(await deleteCategory(cat2.id));
 
     console.log(await getCategory(cat2.id));*/
-
   } catch (error) {
     console.error(error);
   }
@@ -86,7 +86,6 @@ onActivated(async () => {
 
     console.log(await deleteMedium(m.id));
     console.log(await getMedium(m.id));*/
-
   } catch (error) {
     console.error(error);
   }
@@ -127,7 +126,7 @@ const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
-  console.log(query);  
+  console.log(query);
 
   for (const result of results) {
     result.marker.setMap(null);
@@ -152,7 +151,12 @@ const search = async (event, query) => {
         });
 
         marker.addListener("click", markerClick);
-        bounds.extend(new google.maps.LatLng(media.location.latitude, media.location.longitude));
+        bounds.extend(
+          new google.maps.LatLng(
+            media.location.latitude,
+            media.location.longitude
+          )
+        );
 
         results.push({ marker: marker, media: media });
       }
@@ -173,30 +177,44 @@ const search = async (event, query) => {
   <div id="search">
     <div id="map" ref="mapRef"></div>
     <div class="wrap">
-      <form onsubmit="return false;">
-        <div class="field has-addons">
-          <div class="control">
-            <input
-              class="input is-size-7"
-              type="text"
-              placeholder="Keywords"
-              v-model="queryRef"
-            />
+      <div class="block">
+        <nav class="panel">
+          <div class="panel-block">
+            <form @submit.prevent>
+              <div class="control">
+                <input
+                  class="
+                    input is-uppercase is-outlined
+                    has-text-weight-bold
+                  "
+                  type="text"
+                  placeholder="Keywords"
+                  v-model="queryRef"
+                />
+              </div>
+            </form>
           </div>
-          <div class="control">
-            <button
-              class="button is-rounded is-size-7 is-primary"
-              type="submit"
-              @click="search($event, queryRef)"
-            >
-              <span class="icon">
-                <i class="fa-solid fa-magnifying-glass"></i>
-              </span>
-              <span class="has-text-weight-bold">Search</span>
-            </button>
+          <ListBox />
+          <div class="panel-block">
+            <div class="control">
+              <button
+                class="
+                  button
+                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
+                "
+                type="submit"
+                @click="search($event, queryRef)"
+              >
+                <span class="icon">
+                  <i class="fa-solid fa-magnifying-glass"></i>
+                </span>
+                <span class="is-uppercase has-text-weight-bold">Search</span>
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </nav>
+      </div>
+      <div class="block"></div>
     </div>
   </div>
 </template>
@@ -220,30 +238,51 @@ const search = async (event, query) => {
   .wrap {
     z-index: 1;
     position: relative;
+    box-sizing: border-box;
     display: block;
-    top: 10px;
-    margin: 0px 16px 0px 16px;
+    top: 0px;
+    margin: 0;
+    padding: 16px;
     width: fit-content;
-    background: #ffffff;
-    border-radius: 290486px;
-    overflow: hidden;
+    max-height: 100%;
+    background: transparent;
+    /*border-radius: 290486px;*/
+    /*overflow: hidden;*/
+    overflow-x: hidden;
+    overflow-y: auto;
 
-    .field {
-      margin: 0px -8px 0px -8px;
-      padding: 8px;
+    > .block {
+      .panel {
+        background: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+          0 0px 0 1px rgb(10 10 10 / 2%);
+      }
 
+      button {
+        border-radius: 8px;
+        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+          0 0px 0 1px rgb(10 10 10 / 2%) !important;
+      }
+    }
+
+    form {
+      
       .control {
-        margin: 0px 8px 0px 8px;
+        margin: 0;
         display: flex;
         justify-content: flex-start;
         align-items: center;
+        width: 100%;
 
         input {
-          margin: 0px 0px 0px 8px;
+          margin: 0;
           border: 0px none transparent;
+          padding: 16px 8px 16px 8px;
           background-color: transparent;
           box-shadow: none;
           backface-visibility: hidden;
+          border: 1px solid hsl(0deg, 0%, 93%);
         }
 
         input::placeholder {
