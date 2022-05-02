@@ -35,12 +35,20 @@ const select = (event, index) => {
       <nav class="level">
         <div class="level-left">
           <div class="level-item">
-            <button class="button is-link is-outlined">Previous</button>
+            <button class="button">
+              <span class="icon is-small">
+                <i class="fa-solid fa-chevron-left"></i>
+              </span>
+            </button>
           </div>
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button is-link is-outlined">Next</button>
+            <button class="button">
+              <span class="icon is-small">
+                <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            </button>
           </div>
         </div>
       </nav>
