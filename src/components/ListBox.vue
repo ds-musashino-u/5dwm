@@ -4,8 +4,10 @@
 import { ref } from "vue";
 
 const props = defineProps({
+  name: { type: String, required: false, default: null },
   items: Array,
 });
+const name = ref(props.name);
 const emit = defineEmits(["select"]);
 const select = (event) => {
   emit("select", event.target.dataset);
@@ -14,7 +16,7 @@ const select = (event) => {
 
 <template>
   <div class="panel-block">
-    <h3 class="panel-heading is-uppercase has-text-weight-bold">Categories</h3>
+    <h3 class="panel-heading is-uppercase has-text-weight-bold" v-text="name" v-if="name !== null"></h3>
     <label class="control">
       <input type="checkbox" @change="select" v-bind:checked="true" />
       <span class="custom"></span>
