@@ -266,8 +266,7 @@ const search = async (event, query) => {
       }
     }
 
-    form {
-      
+    form {      
       .control {
         margin: 0;
         display: flex;
@@ -278,7 +277,7 @@ const search = async (event, query) => {
         input {
           margin: 0;
           border: 0px none transparent;
-          padding: 16px 8px 16px 8px;
+          padding: 24px 12px 24px 12px;
           background-color: transparent;
           box-shadow: none;
           backface-visibility: hidden;
