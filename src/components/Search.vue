@@ -194,7 +194,7 @@ const search = async (event, query) => {
               </div>
             </form>
           </div>
-          <ListBox />
+          <ListBox name="Categories" />
           <div class="panel-block">
             <div class="control">
               <button
