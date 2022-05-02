@@ -200,7 +200,7 @@ const search = async (event, query) => {
               <button
                 class="
                   button
-                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
+                  is-rounded is-outlined is-fullwidth is-size-6 is-primary
                 "
                 type="submit"
                 @click="search($event, queryRef)"
