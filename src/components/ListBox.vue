@@ -7,7 +7,6 @@ const props = defineProps({
   name: { type: String, required: false, default: null },
   items: Array,
 });
-const name = ref(props.name);
 const emit = defineEmits(["select"]);
 const select = (event) => {
   emit("select", event.target.dataset);
@@ -37,14 +36,21 @@ const select = (event) => {
 .panel-block {
   flex-direction: column;
   align-items: flex-start;
+  padding: 0;
 
   .panel-heading {
-    padding: 0px 0px 6px 6px;
+    padding: 0.5em 0.75em;
     background: transparent;
   }
 
   label {
-    padding: 6px 6px 6px 6px;
+    padding: 0.5em 0.75em;
+    background-color: transparent;
+    transition: background-color .5s;
+  }
+
+  label:hover {
+    background-color: hsl(0deg, 0%, 93%);
   }
 
   label > span {
