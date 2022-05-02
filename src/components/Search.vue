@@ -183,10 +183,7 @@ const search = async (event, query) => {
             <form @submit.prevent>
               <div class="control">
                 <input
-                  class="
-                    input is-uppercase is-outlined
-                    has-text-weight-bold
-                  "
+                  class="input is-uppercase is-outlined has-text-weight-bold"
                   type="text"
                   placeholder="Keywords"
                   v-model="queryRef"
@@ -194,7 +191,10 @@ const search = async (event, query) => {
               </div>
             </form>
           </div>
-          <ListBox name="Categories" />
+          <ListBox
+            name="Categories"
+            :items="[{ name: 'Test', checked: false }]"
+          />
           <div class="panel-block">
             <div class="control">
               <button
@@ -266,7 +266,7 @@ const search = async (event, query) => {
       }
     }
 
-    form {      
+    form {
       .control {
         margin: 0;
         display: flex;
