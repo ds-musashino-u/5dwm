@@ -198,6 +198,7 @@ const search = async (event, query) => {
           </div>
           <ListBox
             name="Categories"
+            :max-length="10"
             :items="[{ name: 'Test', checked: false }]"
           />
           <div class="panel-block">
