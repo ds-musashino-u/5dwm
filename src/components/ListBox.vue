@@ -7,6 +7,7 @@ const props = defineProps({
   name: { type: String, required: false, default: null },
   maxLength: { type: Number, required: false, default: 10 },
   items: { type: Array, required: false, default: null },
+  isCollapsed: { type: Boolean, required: false, default: false },
 });
 const emit = defineEmits(["select"]);
 const select = (event, index) => {
@@ -24,13 +25,32 @@ const previous = (event) => {
 
 <template>
   <div class="panel-block">
-    <h3
-      class="panel-heading is-uppercase has-text-weight-bold"
-      v-text="name"
-      v-if="name !== null"
-    ></h3>
+    <nav class="level">
+      <div class="level-left" v-if="name !== null">
+        <div class="level-item">
+          <h3
+            class="panel-heading is-uppercase has-text-weight-bold"
+            v-text="name"
+          ></h3>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <button class="button is-rounded" @click="isCollapsed = !isCollapsed">
+            <transition name="fade" mode="out-in">
+              <span class="icon is-small" v-if="isCollapsed" key="collapsed">
+                <i class="fa-solid fa-plus"></i>
+              </span>
+              <span class="icon is-small" v-else key="visible">
+                <i class="fa-solid fa-minus"></i>
+              </span>
+            </transition>
+          </button>
+        </div>
+      </div>
+    </nav>
     <transition name="fade" mode="out-in">
-      <div class="control" v-if="items === null" key="loading">
+      <div class="control" v-if="!isCollapsed && items === null" key="loading">
         <nav class="level">
           <div class="level-item">
             <span class="icon">
@@ -39,7 +59,7 @@ const previous = (event) => {
           </div>
         </nav>
       </div>
-      <div class="control" v-else key="default">
+      <div class="control" v-else-if="!isCollapsed" key="default">
         <label v-for="(item, index) in items" v-bind:key="item">
           <input
             type="checkbox"
@@ -54,28 +74,30 @@ const previous = (event) => {
         </label>
       </div>
     </transition>
-    <div class="control">
-      <nav class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <button class="button" @click="previous($event)">
-              <span class="icon is-small">
-                <i class="fa-solid fa-chevron-left"></i>
-              </span>
-            </button>
+    <transition name="fade">
+      <div class="control" v-show="!isCollapsed">
+        <nav class="level">
+          <div class="level-left">
+            <div class="level-item">
+              <button class="button" @click="previous($event)">
+                <span class="icon is-small">
+                  <i class="fa-solid fa-chevron-left"></i>
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <button class="button" @click="next($event)">
-              <span class="icon is-small">
-                <i class="fa-solid fa-chevron-right"></i>
-              </span>
-            </button>
+          <div class="level-right">
+            <div class="level-item">
+              <button class="button" @click="next($event)">
+                <span class="icon is-small">
+                  <i class="fa-solid fa-chevron-right"></i>
+                </span>
+              </button>
+            </div>
           </div>
-        </div>
-      </nav>
-    </div>
+        </nav>
+      </div>
+    </transition>
   </div>
 </template>
 
@@ -85,9 +107,33 @@ const previous = (event) => {
   align-items: flex-start;
   padding: 0;
 
-  .panel-heading {
+  .level {
+    margin: 0;
     padding: 0.5em 0.75em;
-    background: transparent;
+    width: 100%;
+
+    .panel-heading {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    > .level-right > .level-item {
+      button {
+        box-shadow: none !important;
+      }
+
+      button.is-rounded {
+        border-radius: 9999px !important;
+        padding: 12px !important;
+
+        > span.icon {
+          margin: 0 !important;
+          width: 1rem !important;
+          height: 1rem !important;
+        }
+      }
+    }
   }
 
   .control {
