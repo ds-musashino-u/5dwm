@@ -11,6 +11,7 @@ import ListBox from "./ListBox.vue";
 
 const mapRef = ref(null);
 const queryRef = ref("");
+const isSearching = ref(false);
 const props = defineProps({
   text: String,
 });
@@ -126,6 +127,8 @@ const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
+  isSearching.value = true;
+
   console.log(query);
 
   for (const result of results) {
@@ -166,6 +169,8 @@ const search = async (event, query) => {
       console.error(error);
     }
   }
+
+  isSearching.value = false;
 };
 
 // https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
@@ -203,11 +208,17 @@ const search = async (event, query) => {
                   is-rounded is-outlined is-fullwidth is-size-6 is-primary
                 "
                 type="submit"
+                v-bind:disabled="isSearching"
                 @click="search($event, queryRef)"
               >
-                <span class="icon">
-                  <i class="fa-solid fa-magnifying-glass"></i>
-                </span>
+                <transition name="fade" mode="out-in">
+                  <span class="icon" v-if="isSearching" key="searching">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                  <span class="icon" v-else key="ready">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                </transition>
                 <span class="is-uppercase has-text-weight-bold">Search</span>
               </button>
             </div>
