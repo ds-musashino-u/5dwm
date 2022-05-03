@@ -143,5 +143,9 @@ const previous = (event) => {
       transition: 0.5s;
     }
   }
+
+  .control:last-child {
+    padding: 12px 0px 0px 0px;
+  }
 }
 </style>
