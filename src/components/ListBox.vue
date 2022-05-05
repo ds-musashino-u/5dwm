@@ -119,13 +119,10 @@ const previous = (event) => {
     }
 
     > .level-right > .level-item {
-      button {
-        box-shadow: none !important;
-      }
-
       button.is-rounded {
         border-radius: 9999px !important;
         padding: 12px !important;
+        box-shadow: none !important;
 
         > span.icon {
           margin: 0 !important;
