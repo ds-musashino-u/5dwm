@@ -28,7 +28,7 @@ class Media(Base):
 
 class ImageVector(Base):
     __tablename__ = 'img_vector'
-    __table_args__ = (UniqueConstraint('img_id', 'feature', name='img_vector_pkey'))
+    __table_args__ = UniqueConstraint('img_id', 'feature', name='img_vector_pkey')
     id = Column('img_id', Integer())
     feature = Column('feature', String(20))
     value = Column('val', Float())
