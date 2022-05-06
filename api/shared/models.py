@@ -30,7 +30,7 @@ class ImageVector(Base):
     __tablename__ = 'img_vector'
     id = Column('img_id', Integer())
     feature = Column('feature', String(20))
-    value = Column('val', Float())
+    element = Column('val', Float())
     #__table_args__ = (UniqueConstraint('img_id', 'feature', name='img_vector_pkey'))
 
 
