@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref } from "vue";
+import { ref, toRef, watch, watchEffect } from "vue";
 
 const props = defineProps({
   name: { type: String, required: false, default: null },
@@ -9,18 +9,70 @@ const props = defineProps({
   items: { type: Array, required: false, default: null },
   isCollapsed: { type: Boolean, required: false, default: false },
 });
-const emit = defineEmits(["select"]);
+const emit = defineEmits(["select", "fetch"]);
+const propsItemsRef = toRef(props, "items");
+const itemsRef = ref(props.items);
+const pageIndexRef = ref(0);
+const nextResultRef = ref([]);
+const hasNextRef = ref(false);
 const select = (event, index) => {
-  props.items[index].checked = !props.items[index].checked;
+  itemsRef.value[index].checked = !itemsRef.value[index].checked;
 
   emit("select", event.target.dataset, index);
 };
 const next = (event) => {
   console.log("next");
+
+  pageIndexRef.value++;
+  emit(
+    "fetch",
+    pageIndexRef.value * props.maxLength,
+    props.maxLength + 1,
+    nextResultRef
+  );
 };
 const previous = (event) => {
   console.log("previous");
+
+  if (pageIndexRef.value > 0) {
+    pageIndexRef.value--;
+  }
 };
+
+watch(
+  nextResultRef,
+  (result) => {
+    console.log("ok");
+
+    if (result.length > 0) {
+      let length;
+
+      if (result.length === props.maxLength + 1) {
+        length = props.maxLength;
+        hasNextRef.value = true;
+      } else {
+        length = result.length;
+        hasNextRef.value = false;
+      }
+
+      itemsRef.value = [];
+
+      for (let i = 0; i < length; i++) {
+        itemsRef.value.push({ checked: false, name: result[i].item });
+      }
+
+      result.splice(0);
+    }
+  },
+  { deep: true }
+);
+watchEffect(() => (itemsRef.value = propsItemsRef.value));
+emit(
+  "fetch",
+  pageIndexRef.value * props.maxLength,
+  props.maxLength + 1,
+  nextResultRef
+);
 </script>
 
 <template>
@@ -50,7 +102,11 @@ const previous = (event) => {
       </div>
     </nav>
     <transition name="fade" mode="out-in">
-      <div class="control" v-if="!isCollapsed && items === null" key="loading">
+      <div
+        class="control"
+        v-if="!isCollapsed && itemsRef === null"
+        key="loading"
+      >
         <nav class="level">
           <div class="level-item">
             <span class="icon">
@@ -60,7 +116,7 @@ const previous = (event) => {
         </nav>
       </div>
       <div class="control" v-else-if="!isCollapsed" key="default">
-        <label v-for="(item, index) in items" v-bind:key="item">
+        <label v-for="(item, index) in itemsRef" v-bind:key="item">
           <input
             type="checkbox"
             @change="select($event, index)"
@@ -79,7 +135,11 @@ const previous = (event) => {
         <nav class="level">
           <div class="level-left">
             <div class="level-item">
-              <button class="button" @click="previous($event)">
+              <button
+                class="button"
+                v-bind:disabled="pageIndexRef === 0"
+                @click="previous($event)"
+              >
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-left"></i>
                 </span>
@@ -88,7 +148,11 @@ const previous = (event) => {
           </div>
           <div class="level-right">
             <div class="level-item">
-              <button class="button" @click="next($event)">
+              <button
+                class="button"
+                v-bind:disabled="!hasNextRef"
+                @click="next($event)"
+              >
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-right"></i>
                 </span>
@@ -135,6 +199,9 @@ const previous = (event) => {
 
   .control {
     display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
 
     .level {
       padding: 0.5em 0.75em;
