@@ -27,7 +27,17 @@ class Media(Base):
 
 
 class ImageVector(Base):
-    __tablename__ = 'img_vector'
+    __tablename__ = 'media'
+    id = Column(Integer(), primary_key=True)
+    url = Column('file_name', Text())
+    type = Column('kind', String(10))
+    categories = Column('category', ARRAY(Text()))
+    address = Column('place', Text())
+    description = Column('description', Text())
+    username = Column('user_cns', String(20))
+    latitude = Column('lat', Float())
+    longitude = Column('lng', Float())
+    created_at = Column('datetaken', DateTime())
     #id = Column('img_id', Integer())
     #feature = Column('feature', String(20))
     #element = Column('val', Float())
