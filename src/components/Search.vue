@@ -123,6 +123,21 @@ const markerClick = (event) => {
   }*/
 };
 
+const fetchCategories = async (offset, length, itemsRef) => {
+  console.log("fetchCategories");
+
+  try {
+    let index = 0;
+
+    for (const item of await getCategories(offset, length)) {
+      itemsRef.value.push({ index: offset + index, item: item.name });
+      index++;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 const search = async (event, query) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
@@ -199,7 +214,8 @@ const search = async (event, query) => {
           <ListBox
             name="Categories"
             :max-length="10"
-            :items="[{ name: 'Test', checked: false }]"
+            :items="null"
+            @fetch="fetchCategories"
           />
           <div class="panel-block">
             <div class="control">
