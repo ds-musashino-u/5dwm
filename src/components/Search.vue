@@ -151,13 +151,11 @@ const fetchCategories = async (offset, length, itemsRef, isFetchingRef) => {
   isFetchingRef.value = false;
 };
 
-const search = async (event, query) => {
+const search = async (event, keywords) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
   isSearching.value = true;
-
-  console.log(query);
   
   for (const result of results) {
     result.marker.setMap(null);
@@ -167,7 +165,7 @@ const search = async (event, query) => {
 
   if (map !== null) {
     try {
-      const searchItems = await searchWorldMap(["air pollution"], Object.values(selectedCategories), []);
+      const searchItems = await searchWorldMap(keywords.split(/\s/), Object.values(selectedCategories), []);
       const bounds = new google.maps.LatLngBounds();
 
       for (const media of searchItems) {
@@ -216,7 +214,7 @@ const search = async (event, query) => {
             <form @submit.prevent>
               <div class="control">
                 <input
-                  class="input is-uppercase is-outlined has-text-weight-bold"
+                  class="input is-outlined has-text-weight-bold"
                   type="text"
                   placeholder="Keywords"
                   v-model="queryRef"
@@ -327,6 +325,7 @@ const search = async (event, query) => {
 
         input::placeholder {
           color: rgba(0, 0, 0, 0.5);
+          text-transform: uppercase;
           text-shadow: none;
         }
 
