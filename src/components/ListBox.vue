@@ -15,35 +15,40 @@ const itemsRef = ref(props.items);
 const pageIndexRef = ref(0);
 const nextResultRef = ref([]);
 const hasNextRef = ref(false);
+const isFetchingRef = ref(false);
+const cachedItems = {};
 const select = (event, index) => {
   itemsRef.value[index].checked = !itemsRef.value[index].checked;
 
-  emit("select", event.target.dataset, index);
+  emit("select", (pageIndexRef.value * props.maxLength) + index, itemsRef.value[index]);
 };
 const next = (event) => {
-  console.log("next");
-
   pageIndexRef.value++;
+
   emit(
     "fetch",
     pageIndexRef.value * props.maxLength,
     props.maxLength + 1,
-    nextResultRef
+    nextResultRef,
+    isFetchingRef
   );
 };
 const previous = (event) => {
-  console.log("previous");
-
   if (pageIndexRef.value > 0) {
     pageIndexRef.value--;
+    itemsRef.value = [];
+
+    for (let i = 0; i < props.maxLength; i++) {
+      itemsRef.value.push(
+        cachedItems[pageIndexRef.value * props.maxLength + i]
+      );
+    }
   }
 };
 
 watch(
   nextResultRef,
   (result) => {
-    console.log("ok");
-
     if (result.length > 0) {
       let length;
 
@@ -58,7 +63,17 @@ watch(
       itemsRef.value = [];
 
       for (let i = 0; i < length; i++) {
-        itemsRef.value.push({ checked: false, name: result[i].item });
+        if (
+          result[i].index in cachedItems &&
+          cachedItems[result[i].index].name === result[i].name
+        ) {
+          itemsRef.value.push(cachedItems[result[i].index]);
+        } else {
+          const item = { checked: false, name: result[i].name };
+
+          itemsRef.value.push(item);
+          cachedItems[result[i].index] = item;
+        }
       }
 
       result.splice(0);
@@ -71,7 +86,8 @@ emit(
   "fetch",
   pageIndexRef.value * props.maxLength,
   props.maxLength + 1,
-  nextResultRef
+  nextResultRef,
+  isFetchingRef,
 );
 </script>
 
@@ -137,7 +153,7 @@ emit(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="pageIndexRef === 0"
+                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
                 @click="previous($event)"
               >
                 <span class="icon is-small">
@@ -150,7 +166,7 @@ emit(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="!hasNextRef"
+                v-bind:disabled="!hasNextRef || isFetchingRef"
                 @click="next($event)"
               >
                 <span class="icon is-small">
