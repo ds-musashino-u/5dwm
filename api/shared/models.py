@@ -1,5 +1,4 @@
-from sqlalchemy import Column, Integer, Float, String, Text, DateTime
-from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy import Column, UniqueConstraint, Integer, Float, String, Text, DateTime
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 
