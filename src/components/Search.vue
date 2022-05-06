@@ -225,6 +225,7 @@ const search = async (event, keywords) => {
           <ListBox
             name="Categories"
             :max-length="10"
+            :is-collapsed="true"
             @select="selectCategory"
             @fetch="fetchCategories"
           />
