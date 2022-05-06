@@ -21,6 +21,7 @@ const select = (event) => {
 };*/
 let map = null;
 const results = [];
+const selectedCategories = {};
 
 onActivated(async () => {
   const loader = new Loader({
@@ -123,19 +124,31 @@ const markerClick = (event) => {
   }*/
 };
 
-const fetchCategories = async (offset, length, itemsRef) => {
-  console.log("fetchCategories");
+const selectCategory = (index, item) => {
+  if (index in selectedCategories) {
+    if (!item.checked) {
+      delete selectedCategories[index];
+    }
+  } else if (item.checked) {
+    selectedCategories[index] = item.name;
+  }
+};
+
+const fetchCategories = async (offset, length, itemsRef, isFetchingRef) => {
+  isFetchingRef.value = true;
 
   try {
     let index = 0;
 
     for (const item of await getCategories(offset, length)) {
-      itemsRef.value.push({ index: offset + index, item: item.name });
+      itemsRef.value.push({ index: offset + index, name: item.name });
       index++;
     }
   } catch (error) {
     console.error(error);
   }
+
+  isFetchingRef.value = false;
 };
 
 const search = async (event, query) => {
@@ -145,7 +158,7 @@ const search = async (event, query) => {
   isSearching.value = true;
 
   console.log(query);
-
+  
   for (const result of results) {
     result.marker.setMap(null);
   }
@@ -154,7 +167,7 @@ const search = async (event, query) => {
 
   if (map !== null) {
     try {
-      const searchItems = await searchWorldMap(["air pollution"], [], []);
+      const searchItems = await searchWorldMap(["air pollution"], Object.values(selectedCategories), []);
       const bounds = new google.maps.LatLngBounds();
 
       for (const media of searchItems) {
@@ -214,7 +227,7 @@ const search = async (event, query) => {
           <ListBox
             name="Categories"
             :max-length="10"
-            :items="null"
+            @select="selectCategory"
             @fetch="fetchCategories"
           />
           <div class="panel-block">
