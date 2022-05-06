@@ -28,10 +28,10 @@ class Media(Base):
 
 class ImageVector(Base):
     __tablename__ = 'img_vector'
-    img_id = Column('img_id', Integer())
+    id = Column('img_id', Integer())
     feature = Column('feature', String(20))
-    val = Column('val', Float())
-    __table_args__ = (PrimaryKeyConstraint('img_id', 'feature', name='img_vector_pkey'),)
+    value = Column('val', Float())
+    __table_args__ = (PrimaryKeyConstraint('id', 'feature', name='id_feature_pk'),)
 
 
 class User(Base):
