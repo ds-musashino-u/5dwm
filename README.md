@@ -33,6 +33,7 @@ https://docs.5dworldmap.com/
 
 * Vite: https://vitejs.dev/
 * Azure Functions Python developer guide: https://docs.microsoft.com/en-us/azure/azure-functions/functions-reference-python?tabs=asgi%2Cazurecli-linux%2Capplication-level
+* Auth0 Single Page App SDK: https://auth0.com/docs/libraries/auth0-single-page-app-sdk
 
 
 ## コミットプレフィックス
