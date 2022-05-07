@@ -5,6 +5,12 @@ import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
 import Upload from "./components/Upload.vue";
+import createAuth0Client from "@auth0/auth0-spa-js";
+
+const auth0 = await createAuth0Client({
+  domain: '5dwm.jp.auth0.com',
+  client_id: 'rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA'
+});
 
 export default {
   components: {
