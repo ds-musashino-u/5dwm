@@ -7,11 +7,6 @@ import Search from "./components/Search.vue";
 import Upload from "./components/Upload.vue";
 import createAuth0Client from "@auth0/auth0-spa-js";
 
-const auth0 = await createAuth0Client({
-  domain: '5dwm.jp.auth0.com',
-  client_id: 'rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA'
-});
-
 export default {
   components: {
     Sidebar,
@@ -21,11 +16,20 @@ export default {
   },
   data() {
     return {
+      auth0: null,
       isRevealed: false,
       contentIndex: 0,
       contents: [
-        { icon: "fa-solid fa-magnifying-glass", name: "Search", component: "Search" },
-        { icon: "fa-solid fa-cloud-arrow-up", name: "Upload", component: "Upload" },
+        {
+          icon: "fa-solid fa-magnifying-glass",
+          name: "Search",
+          component: "Search",
+        },
+        {
+          icon: "fa-solid fa-cloud-arrow-up",
+          name: "Upload",
+          component: "Upload",
+        },
       ],
     };
   },
@@ -38,7 +42,12 @@ export default {
       this.isRevealed = false;
     },
   },
-  mounted() {},
+  async mounted() {
+    this.auth0 = await createAuth0Client({
+      domain: "5dwm.jp.auth0.com",
+      client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
+    });
+  },
 };
 </script>
 
@@ -53,20 +62,24 @@ export default {
   <div class="wrap">
     <div class="content">
       <keep-alive>
-        <component :is="contents[contentIndex].component" v-bind="{ text: contents[contentIndex].name }"></component>
+        <component
+          :is="contents[contentIndex].component"
+          v-bind="{ text: contents[contentIndex].name }"
+        ></component>
       </keep-alive>
     </div>
     <transition name="reveal">
-      <Menu
-        v-bind:items="contents"
-        @select="select"
-        v-if="isRevealed"
-      />
+      <Menu v-bind:items="contents" @select="select" v-if="isRevealed" />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
     <transition name="fade" mode="out-in">
-      <button class="button is-rounded" type="button" @click="reveal" key="menu">
+      <button
+        class="button is-rounded"
+        type="button"
+        @click="reveal"
+        key="menu"
+      >
         <span class="icon is-small">
           <i class="fas fa-bars"></i>
         </span>
