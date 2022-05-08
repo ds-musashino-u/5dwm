@@ -46,6 +46,7 @@ export default {
     this.auth0 = await createAuth0Client({
       domain: "5dwm.jp.auth0.com",
       client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
+      cacheLocation: "localstorage"
     });
   },
 };
