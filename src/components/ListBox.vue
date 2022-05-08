@@ -20,7 +20,11 @@ const cachedItems = {};
 const select = (event, index) => {
   itemsRef.value[index].checked = !itemsRef.value[index].checked;
 
-  emit("select", (pageIndexRef.value * props.maxLength) + index, itemsRef.value[index]);
+  emit(
+    "select",
+    pageIndexRef.value * props.maxLength + index,
+    itemsRef.value[index]
+  );
 };
 const next = (event) => {
   pageIndexRef.value++;
@@ -87,7 +91,7 @@ emit(
   pageIndexRef.value * props.maxLength,
   props.maxLength + 1,
   nextResultRef,
-  isFetchingRef,
+  isFetchingRef
 );
 </script>
 
@@ -104,15 +108,16 @@ emit(
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button class="button is-rounded" @click="isCollapsed = !isCollapsed">
-            <transition name="fade" mode="out-in">
-              <span class="icon is-small" v-if="isCollapsed" key="collapsed">
-                <i class="fa-solid fa-plus"></i>
-              </span>
-              <span class="icon is-small" v-else key="visible">
-                <i class="fa-solid fa-minus"></i>
-              </span>
-            </transition>
+          <button
+            class="button toggle is-rounded"
+            @click="isCollapsed = !isCollapsed"
+          >
+            <span
+              class="icon is-small"
+              v-bind:class="{ collapsed: isCollapsed }"
+            >
+              <i class="fa-solid fa-chevron-up"></i>
+            </span>
           </button>
         </div>
       </div>
@@ -204,10 +209,19 @@ emit(
         padding: 12px !important;
         box-shadow: none !important;
 
+        >span {
+          transform: rotate(180deg);
+        }
+
         > span.icon {
           margin: 0 !important;
           width: 1rem !important;
           height: 1rem !important;
+        }
+
+        >span.collapsed {
+          transition: transform 0.5s ease;
+          transform: rotate(0deg);
         }
       }
     }
