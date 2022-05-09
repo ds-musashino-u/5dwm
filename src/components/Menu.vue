@@ -6,7 +6,7 @@ import { ref } from "vue";
 const props = defineProps({
   isLoading: { type: Boolean, required: false, default: false },
   user: { type: Object, required: false, default: null },
-  items: Array
+  items: Array,
 });
 const emit = defineEmits(["reveal", "select", "signIn", "signOut"]);
 const select = (event) => {
@@ -32,15 +32,25 @@ const signOut = (event) => {
                   <div class="media-content">
                     <div class="content">
                       <button
-                        class="button is-rounded is-size-6 is-primary"
+                        class="
+                          button
+                          is-rounded is-outlined is-size-6 is-primary
+                        "
                         type="button"
                         v-bind:disabled="isLoading"
                         @click="signIn"
                       >
-                        <span class="icon">
-                          <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                        </span>
-                        <span class="is-uppercase has-text-weight-bold">Sign In</span>
+                        <transition name="fade" mode="out-in">
+                          <span class="icon" v-if="isLoading" key="loading">
+                            <i class="fas fa-spinner updating"></i>
+                          </span>
+                          <span class="icon" v-else key="loaded">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                          </span>
+                        </transition>
+                        <span class="is-uppercase has-text-weight-bold"
+                          >Sign In</span
+                        >
                       </button>
                     </div>
                   </div>
@@ -48,12 +58,19 @@ const signOut = (event) => {
               </div>
             </nav>
             <nav class="level" v-else key="main">
-              <div class="level-item" v-for="(item, index) in items" v-bind:key="item">
+              <div
+                class="level-item"
+                v-for="(item, index) in items"
+                v-bind:key="item"
+              >
                 <article class="media">
                   <div class="media-content">
                     <div class="content">
                       <button
-                        class="button is-rounded is-size-6 is-primary"
+                        class="
+                          button
+                          is-rounded is-outlined is-size-6 is-primary
+                        "
                         type="button"
                         v-bind:data-index="index"
                         v-bind:data-name="item.name"
@@ -62,7 +79,9 @@ const signOut = (event) => {
                         <span class="icon">
                           <i v-bind:class="item.icon"></i>
                         </span>
-                        <span class="is-uppercase has-text-weight-bold">{{ item.name }}</span>
+                        <span class="is-uppercase has-text-weight-bold">{{
+                          item.name
+                        }}</span>
                       </button>
                     </div>
                   </div>
@@ -73,15 +92,25 @@ const signOut = (event) => {
                   <div class="media-content">
                     <div class="content">
                       <button
-                        class="button is-rounded is-size-6 is-primary"
+                        class="
+                          button
+                          is-rounded is-outlined is-size-6 is-primary
+                        "
                         type="button"
                         v-bind:disabled="isLoading"
                         @click="signOut"
                       >
-                        <span class="icon">
-                          <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </span>
-                        <span class="is-uppercase has-text-weight-bold">Sign Out</span>
+                        <transition name="fade" mode="out-in">
+                          <span class="icon" v-if="isLoading" key="loading">
+                            <i class="fas fa-spinner updating"></i>
+                          </span>
+                          <span class="icon" v-else key="loaded">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                          </span>
+                        </transition>
+                        <span class="is-uppercase has-text-weight-bold"
+                          >Sign Out</span
+                        >
                       </button>
                     </div>
                   </div>
@@ -96,4 +125,19 @@ const signOut = (event) => {
 </template>
 
 <style lang="scss" scoped>
+#menu > .columns > .column > .control > .level:first-child {
+  margin: -6px !important;
+
+  > .level-item {
+    margin: 0;
+    padding: 6px !important;
+
+    .media > .media-content > .content > button {
+      border: 0px solid transparent !important;
+      border-radius: 8px !important;
+      box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+        0 0px 0 1px rgb(10 10 10 / 2%) !important;
+    }
+  }
+}
 </style>
