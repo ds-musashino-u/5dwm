@@ -4,6 +4,7 @@
 import { ref, toRef, watchEffect } from "vue";
 
 const props = defineProps({
+  user: { type: Object, required: false, default: null },
   items: Array,
   index: { type: Number, required: false, default: 0 },
 });
@@ -17,7 +18,7 @@ const select = (event) => {
   emit("select", event.target.dataset);
 };
 
-watchEffect(() => selectedIndex.value = propsIndexRef.value);
+watchEffect(() => (selectedIndex.value = propsIndexRef.value));
 </script>
 
 <template>
@@ -27,7 +28,13 @@ watchEffect(() => selectedIndex.value = propsIndexRef.value);
         <div class="level">
           <div class="level-item">
             <transition name="fade" mode="out-in">
-              <button class="button" type="button" @click="reveal" key="reveal">
+              <button
+                class="button"
+                type="button"
+                v-bind:disabled="user === null"
+                @click="reveal"
+                key="reveal"
+              >
                 <span class="icon is-small">
                   <i class="fas fa-bars"></i>
                 </span>
@@ -43,6 +50,7 @@ watchEffect(() => selectedIndex.value = propsIndexRef.value);
               class="button"
               type="button"
               v-bind:class="{ 'has-text-primary': selectedIndex === index }"
+              v-bind:disabled="user === null"
               v-bind:data-index="index"
               v-bind:data-name="item.name"
               @click="select"
