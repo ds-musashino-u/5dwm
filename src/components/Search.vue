@@ -134,14 +134,14 @@ const selectCategory = (index, item) => {
   }
 };
 
-const fetchCategories = async (offset, length, itemsRef, isFetchingRef) => {
+const fetchCategories = async (offset, length, items, isFetchingRef) => {
   isFetchingRef.value = true;
 
   try {
     let index = 0;
 
     for (const item of await getCategories(offset, length)) {
-      itemsRef.value.push({ index: offset + index, name: item.name });
+      items.push({ index: offset + index, name: item.name });
       index++;
     }
   } catch (error) {
