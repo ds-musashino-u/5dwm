@@ -45,11 +45,12 @@ export default {
   setup(props) {
     const auth0 = ref(null);
     const user = ref(null);
-    const isAuthenticating = ref(false);
+    const isSigningIn = ref(false);
+    const isSigningOut = ref(false);
 
     onMounted(async () => {
       try {
-        isAuthenticating.value = true;
+        isSigningIn.value = true;
         auth0.value = await createAuth0Client({
           domain: "5dwm.jp.auth0.com",
           client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
@@ -83,35 +84,35 @@ export default {
       } catch (error) {
         console.error(error);
       } finally {
-        isAuthenticating.value = false;
+        isSigningIn.value = false;
       }
     });
 
     const signIn = async () => {
       try {
-        isAuthenticating.value = true;
+        isSigningIn.value = true;
         await auth0.value.loginWithRedirect({
           redirect_uri: window.location.origin,
         });
       } catch (error) {
         console.error(error);
       } finally {
-        isAuthenticating.value = false;
+        isSigningIn.value = false;
       }
     };
     const signOut = async () => {
       try {
-        isAuthenticating.value = true;
+        isSigningOut.value = true;
         await auth0.value.logout();
         user.value = null;
       } catch (error) {
         console.error(error);
       } finally {
-        isAuthenticating.value = false;
+        isSigningOut.value = false;
       }
     };
 
-    return { auth0, user, isAuthenticating, signIn, signOut };
+    return { auth0, user, isSigningIn, isSigningOut, signIn, signOut };
   },
   mounted() {},
 };
@@ -120,6 +121,7 @@ export default {
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
   <Sidebar
+    :user="user"
     :items="contents"
     :index="contentIndex"
     @reveal="reveal"
@@ -136,7 +138,9 @@ export default {
     </div>
     <transition name="reveal">
       <Menu
-        v-bind:is-loading="isAuthenticating"
+        title="5D World Map"
+        subtitle="5dworldmap.com"
+        v-bind:is-loading="isSigningIn || isSigningOut"
         v-bind:user="user"
         v-bind:items="contents"
         @select="select"
