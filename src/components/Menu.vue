@@ -4,11 +4,19 @@
 import { ref } from "vue";
 
 const props = defineProps({
+  isLoading: { type: Boolean, required: false, default: false },
+  user: { type: Object, required: false, default: null },
   items: Array
 });
-const emit = defineEmits(["reveal", "select"]);
+const emit = defineEmits(["reveal", "select", "signIn", "signOut"]);
 const select = (event) => {
   emit("select", event.target.dataset);
+};
+const signIn = (event) => {
+  emit("signIn");
+};
+const signOut = (event) => {
+  emit("signOut");
 };
 </script>
 
@@ -18,13 +26,34 @@ const select = (event) => {
       <div class="column is-half is-mobile">
         <div class="control" v-cloak>
           <transition name="fade" mode="out-in">
-            <nav class="level" key="main">
+            <nav class="level" v-if="user === null" key="signin">
+              <div class="level-item">
+                <article class="media">
+                  <div class="media-content">
+                    <div class="content">
+                      <button
+                        class="button is-rounded is-size-6 is-primary"
+                        type="button"
+                        v-bind:disabled="isLoading"
+                        @click="signIn"
+                      >
+                        <span class="icon">
+                          <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        </span>
+                        <span class="is-uppercase has-text-weight-bold">Sign In</span>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+            </nav>
+            <nav class="level" v-else key="main">
               <div class="level-item" v-for="(item, index) in items" v-bind:key="item">
                 <article class="media">
                   <div class="media-content">
                     <div class="content">
                       <button
-                        class="button is-rounded is-size-7 is-primary"
+                        class="button is-rounded is-size-6 is-primary"
                         type="button"
                         v-bind:data-index="index"
                         v-bind:data-name="item.name"
@@ -34,6 +63,25 @@ const select = (event) => {
                           <i v-bind:class="item.icon"></i>
                         </span>
                         <span class="is-uppercase has-text-weight-bold">{{ item.name }}</span>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </div>
+              <div class="level-item">
+                <article class="media">
+                  <div class="media-content">
+                    <div class="content">
+                      <button
+                        class="button is-rounded is-size-6 is-primary"
+                        type="button"
+                        v-bind:disabled="isLoading"
+                        @click="signOut"
+                      >
+                        <span class="icon">
+                          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        </span>
+                        <span class="is-uppercase has-text-weight-bold">Sign Out</span>
                       </button>
                     </div>
                   </div>
