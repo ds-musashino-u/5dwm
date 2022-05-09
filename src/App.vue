@@ -45,51 +45,73 @@ export default {
   setup(props) {
     const auth0 = ref(null);
     const user = ref(null);
+    const isAuthenticating = ref(false);
 
     onMounted(async () => {
-      auth0.value = await createAuth0Client({
-        domain: "5dwm.jp.auth0.com",
-        client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
-        cacheLocation: "localstorage",
-      });
+      try {
+        isAuthenticating.value = true;
+        auth0.value = await createAuth0Client({
+          domain: "5dwm.jp.auth0.com",
+          client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
+          cacheLocation: "localstorage",
+        });
 
-      if (await auth0.value.isAuthenticated()) {
-        user.value = await auth0.value.getUser();
-        const accessToken = await auth0.value.getTokenSilently();
+        if (await auth0.value.isAuthenticated()) {
+          user.value = await auth0.value.getUser();
+          const accessToken = await auth0.value.getTokenSilently();
 
-        console.log(accessToken);
-      } else {
-        let code = null;
-        let state = null;
+          console.log(accessToken);
+        } else {
+          let code = null;
+          let state = null;
 
-        for (const [key, value] of new URLSearchParams(
-          window.location.search
-        ).entries()) {
-          if (key === "code") {
-            code = value;
-          } else if (key === "state") {
-            state = value;
+          for (const [key, value] of new URLSearchParams(
+            window.location.search
+          ).entries()) {
+            if (key === "code") {
+              code = value;
+            } else if (key === "state") {
+              state = value;
+            }
+          }
+
+          if (code !== null && state !== null) {
+            await auth0.value.handleRedirectCallback();
+            user.value = await auth0.value.getUser();
           }
         }
-
-        if (code !== null && state !== null) {
-          await auth0.value.handleRedirectCallback();
-          user.value = await auth0.value.getUser();
-        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        isAuthenticating.value = false;
       }
     });
 
     const signIn = async () => {
-      await auth0.value.loginWithRedirect({
-        redirect_uri: window.location.origin,
-      });
+      try {
+        isAuthenticating.value = true;
+        await auth0.value.loginWithRedirect({
+          redirect_uri: window.location.origin,
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        isAuthenticating.value = false;
+      }
     };
     const signOut = async () => {
-      await auth0.value.logout();
-      user.value = null;
+      try {
+        isAuthenticating.value = true;
+        await auth0.value.logout();
+        user.value = null;
+      } catch (error) {
+        console.error(error);
+      } finally {
+        isAuthenticating.value = false;
+      }
     };
 
-    return { auth0, user, signIn, signOut };
+    return { auth0, user, isAuthenticating, signIn, signOut };
   },
   mounted() {},
 };
@@ -114,6 +136,7 @@ export default {
     </div>
     <transition name="reveal">
       <Menu
+        v-bind:is-loading="isAuthenticating"
         v-bind:user="user"
         v-bind:items="contents"
         @select="select"
