@@ -1,6 +1,7 @@
 <script>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
+import { ref, reactive } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
@@ -16,7 +17,6 @@ export default {
   },
   data() {
     return {
-      auth0: null,
       isRevealed: false,
       contentIndex: 0,
       contents: [
@@ -42,13 +42,18 @@ export default {
       this.isRevealed = false;
     },
   },
-  async mounted() {
-    this.auth0 = await createAuth0Client({
-      domain: "5dwm.jp.auth0.com",
-      client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
-      cacheLocation: "localstorage"
-    });
+  async setup(props) {
+    const auth0 = reactive(
+      await createAuth0Client({
+        domain: "5dwm.jp.auth0.com",
+        client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
+        cacheLocation: "localstorage",
+      })
+    );
+
+    return { auth0 };
   },
+  mounted() {},
 };
 </script>
 
