@@ -44,6 +44,7 @@ export default {
   },
   setup(props) {
     const auth0 = ref(null);
+    const user = ref(null);
 
     onMounted(async () => {
       auth0.value = await createAuth0Client({
@@ -51,9 +52,44 @@ export default {
         client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
         cacheLocation: "localstorage",
       });
+
+      if (await auth0.value.isAuthenticated()) {
+        user.value = await auth0.value.getUser();
+        const accessToken = await auth0.value.getTokenSilently();
+
+        console.log(accessToken);
+      } else {
+        let code = null;
+        let state = null;
+
+        for (const [key, value] of new URLSearchParams(
+          window.location.search
+        ).entries()) {
+          if (key === "code") {
+            code = value;
+          } else if (key === "state") {
+            state = value;
+          }
+        }
+
+        if (code !== null && state !== null) {
+          await auth0.value.handleRedirectCallback();
+          user.value = await auth0.value.getUser();
+        }
+      }
     });
 
-    return { auth0 };
+    const signIn = async () => {
+      await auth0.value.loginWithRedirect({
+        redirect_uri: window.location.origin,
+      });
+    };
+    const signOut = async () => {
+      await auth0.value.logout();
+      user.value = null;
+    };
+
+    return { auth0, user, signIn, signOut };
   },
   mounted() {},
 };
@@ -77,7 +113,14 @@ export default {
       </keep-alive>
     </div>
     <transition name="reveal">
-      <Menu v-bind:items="contents" @select="select" v-if="isRevealed" />
+      <Menu
+        v-bind:user="user"
+        v-bind:items="contents"
+        @select="select"
+        @sign-in="signIn"
+        @sign-out="signOut"
+        v-if="user === null || isRevealed"
+      />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
