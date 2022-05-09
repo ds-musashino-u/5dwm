@@ -4,6 +4,8 @@
 import { ref } from "vue";
 
 const props = defineProps({
+  title: { type: String, required: false, default: null },
+  subtitle: { type: String, required: false, default: null },
   isLoading: { type: Boolean, required: false, default: false },
   user: { type: Object, required: false, default: null },
   items: Array,
@@ -28,93 +30,141 @@ const signOut = (event) => {
           <transition name="fade" mode="out-in">
             <nav class="level" v-if="user === null" key="signin">
               <div class="level-item">
-                <article class="media">
-                  <div class="media-content">
-                    <div class="content">
-                      <button
-                        class="
-                          button
-                          is-rounded is-outlined is-size-6 is-primary
-                        "
-                        type="button"
-                        v-bind:disabled="isLoading"
-                        @click="signIn"
+                <div class="block">
+                  <nav class="panel">
+                    <div
+                      class="panel-heading"
+                      v-if="title !== null || subtitle !== null"
+                    >
+                      <h1
+                        class="is-uppercase is-size-4 has-text-weight-bold"
+                        v-if="title !== null"
                       >
-                        <transition name="fade" mode="out-in">
-                          <span class="icon" v-if="isLoading" key="loading">
-                            <i class="fas fa-spinner updating"></i>
-                          </span>
-                          <span class="icon" v-else key="loaded">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                          </span>
-                        </transition>
-                        <span class="is-uppercase has-text-weight-bold"
-                          >Sign In</span
-                        >
-                      </button>
+                        {{ title }}
+                      </h1>
+                      <h2
+                        class="is-size-7 has-text-weight-bold"
+                        v-if="subtitle !== null"
+                      >
+                        {{ subtitle }}
+                      </h2>
                     </div>
-                  </div>
-                </article>
+                    <div class="panel-block">
+                      <div class="control">
+                        <button
+                          class="
+                            button
+                            is-rounded
+                            is-outlined
+                            is-fullwidth
+                            is-size-6
+                            is-primary
+                          "
+                          type="button"
+                          v-bind:disabled="isLoading"
+                          @click="signIn"
+                        >
+                          <transition name="fade" mode="out-in">
+                            <span class="icon" v-if="isLoading" key="loading">
+                              <i class="fas fa-spinner updating"></i>
+                            </span>
+                            <span class="icon" v-else key="loaded">
+                              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            </span>
+                          </transition>
+                          <span class="is-uppercase has-text-weight-bold"
+                            >Sign In</span
+                          >
+                        </button>
+                      </div>
+                    </div>
+                  </nav>
+                </div>
               </div>
             </nav>
             <nav class="level" v-else key="main">
-              <div
-                class="level-item"
-                v-for="(item, index) in items"
-                v-bind:key="item"
-              >
-                <article class="media">
-                  <div class="media-content">
-                    <div class="content">
-                      <button
-                        class="
-                          button
-                          is-rounded is-outlined is-size-6 is-primary
-                        "
-                        type="button"
-                        v-bind:data-index="index"
-                        v-bind:data-name="item.name"
-                        @click="select"
-                      >
-                        <span class="icon">
-                          <i v-bind:class="item.icon"></i>
-                        </span>
-                        <span class="is-uppercase has-text-weight-bold">{{
-                          item.name
-                        }}</span>
-                      </button>
-                    </div>
-                  </div>
-                </article>
-              </div>
               <div class="level-item">
-                <article class="media">
-                  <div class="media-content">
-                    <div class="content">
-                      <button
-                        class="
-                          button
-                          is-rounded is-outlined is-size-6 is-primary
-                        "
-                        type="button"
-                        v-bind:disabled="isLoading"
-                        @click="signOut"
+                <div class="block">
+                  <nav class="panel">
+                    <div
+                      class="panel-heading"
+                      v-if="title !== null || subtitle !== null"
+                    >
+                      <h1
+                        class="is-uppercase is-size-4 has-text-weight-bold"
+                        v-if="title !== null"
                       >
-                        <transition name="fade" mode="out-in">
-                          <span class="icon" v-if="isLoading" key="loading">
-                            <i class="fas fa-spinner updating"></i>
-                          </span>
-                          <span class="icon" v-else key="loaded">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                          </span>
-                        </transition>
-                        <span class="is-uppercase has-text-weight-bold"
-                          >Sign Out</span
-                        >
-                      </button>
+                        {{ title }}
+                      </h1>
+                      <h2
+                        class="is-size-7 has-text-weight-bold"
+                        v-if="subtitle !== null"
+                      >
+                        {{ subtitle }}
+                      </h2>
                     </div>
-                  </div>
-                </article>
+                    <div
+                      class="panel-block"
+                      v-for="(item, index) in items"
+                      v-bind:key="item"
+                    >
+                      <div class="control">
+                        <button
+                          class="
+                            button
+                            is-rounded
+                            is-outlined
+                            is-fullwidth
+                            is-size-6
+                            is-primary
+                          "
+                          type="button"
+                          v-bind:disabled="isLoading"
+                          v-bind:data-index="index"
+                          v-bind:data-name="item.name"
+                          @click="select"
+                        >
+                          <span class="icon">
+                            <i v-bind:class="item.icon"></i>
+                          </span>
+                          <span class="is-uppercase has-text-weight-bold">{{
+                            item.name
+                          }}</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="panel-block">
+                      <div class="control">
+                        <button
+                          class="
+                            button
+                            is-rounded
+                            is-outlined
+                            is-fullwidth
+                            is-size-6
+                          "
+                          type="button"
+                          v-bind:disabled="isLoading"
+                          @click="signOut"
+                        >
+                          <transition name="fade" mode="out-in">
+                            <span class="icon" v-if="isLoading" key="loading">
+                              <i class="fas fa-spinner updating"></i>
+                            </span>
+                            <span class="icon" v-else key="loaded">
+                              <i
+                                class="fa-solid fa-arrow-right-from-bracket"
+                              ></i>
+                            </span>
+                          </transition>
+                          <span class="is-uppercase has-text-weight-bold"
+                            >Sign Out</span
+                          >
+                        </button>
+                      </div>
+                    </div>
+                  </nav>
+                </div>
               </div>
             </nav>
           </transition>
@@ -125,18 +175,49 @@ const signOut = (event) => {
 </template>
 
 <style lang="scss" scoped>
-#menu > .columns > .column > .control > .level:first-child {
-  margin: -6px !important;
+#menu > .columns > .column {
+  padding: 0;
 
-  > .level-item {
-    margin: 0;
-    padding: 6px !important;
+  > .control {
+    padding: 16px;
 
-    .media > .media-content > .content > button {
-      border: 0px solid transparent !important;
-      border-radius: 8px !important;
-      box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
-        0 0px 0 1px rgb(10 10 10 / 2%) !important;
+    > .level:first-child {
+      margin: -8px !important;
+
+      > .level-item {
+        margin: 0;
+        padding: 8px !important;
+
+        > .block {
+          .panel {
+            background: #ffffff !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+              0 0px 0 1px rgb(10 10 10 / 2%) !important;
+
+            .panel-heading {
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+              margin: 0;
+              padding: 24px 24px 24px 24px;
+              background: transparent;
+
+              h1 + h2 {
+                margin: 6px 0px 0px 0px;
+              }
+            }
+          }
+
+          button {
+            border: 0px solid transparent !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+              0 0px 0 1px rgb(10 10 10 / 2%) !important;
+          }
+        }
+      }
     }
   }
 }
