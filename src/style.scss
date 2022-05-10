@@ -126,17 +126,15 @@ button {
                 align-items: center;
                 margin: 0;
                 padding: 12px 24px 12px 24px;
-                border: 1px solid rgba(255, 255, 255, 0.1);
-                background: rgba(255, 255, 255, 0.75);
+                border: 0px none transparent;
+                background: #ffffff;
                 background-clip: padding-box;
                 height: fit-content;
                 line-height: calc(0.75rem * 1.5);
                 backface-visibility: hidden;
                 color: #000000;
                 box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-                backdrop-filter: blur(4px);
-                -webkit-backdrop-filter: blur(4px);
-
+                
                 .icon {
                     color: var(--accent-color);
                     transition: 0.5s;
@@ -210,13 +208,11 @@ button {
 
     button {
         margin: 0px;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 290486px;
+        border: 0px none transparent !important;
+        
         padding: 16px;
-        background: rgba(255, 255, 255, 0.75) !important;
-        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-        backdrop-filter: blur(4px);
-        -webkit-backdrop-filter: blur(4px);
+        background: #ffffff !important;
+        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
         background-clip: padding-box;
         height: initial;
 
@@ -225,6 +221,11 @@ button {
             width: 1rem !important;
             height: 1rem !important;
         }
+    }
+
+    button.is-rounded {
+        border-radius: 290486px;
+        padding: 16px;
     }
 }
 
