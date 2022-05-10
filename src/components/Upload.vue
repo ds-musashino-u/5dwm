@@ -4,6 +4,8 @@
 import { ref, onActivated, onDeactivated } from "vue";
 
 const props = defineProps({
+  auth0: Object,
+  user: Object,
   text: String,
 });
 const emit = defineEmits(["completed", "updated"]);
