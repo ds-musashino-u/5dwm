@@ -150,7 +150,7 @@ export default {
       />
     </transition>
   </div>
-  <div class="left is-hidden-tablet" v-cloak>
+  <div class="left is-hidden-tablet is-hidden" v-cloak>
     <transition name="fade" mode="out-in">
       <button
         class="button is-rounded"
