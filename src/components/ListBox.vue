@@ -95,7 +95,7 @@ emit(
 
 <template>
   <div class="panel-block">
-    <nav class="level">
+    <nav class="level is-mobile">
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
           <h3
