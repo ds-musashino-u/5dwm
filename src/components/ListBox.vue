@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, toRef, watch, watchEffect } from "vue";
+import { ref, reactive, watch } from "vue";
 
 const props = defineProps({
   name: { type: String, required: false, default: null },
