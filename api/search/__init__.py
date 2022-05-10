@@ -19,7 +19,7 @@ engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if 'Authorization' in req.headers and req.headers['Authorization'].startswith('Bearer '):
+        if req.method == 'POST' and 'Authorization' in req.headers and req.headers['Authorization'].startswith('Bearer '):
             if not verify(req.headers['Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
                 # return func.HttpResponse(json.dumps({""}), status_code=403, mimetype='', charset='')
                 return func.HttpResponse(json.dumps({'a': req.headers['Authorization'].split(' ')[1],
