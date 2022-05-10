@@ -15,6 +15,7 @@ const queryRef = ref("");
 const isSearching = ref(false);
 const props = defineProps({
   auth0: Object,
+  user: Object,
   text: String,
 });
 /*const emit = defineEmits(["reveal", "select"]);
@@ -29,7 +30,7 @@ onActivated(async () => {
   const loader = new Loader({
     apiKey: "AIzaSyCJfuPZn56-CDI74WPsUPGrQ3bI6hm7H9c",
     version: "weekly",
-    language: "en",
+    language: navigator.language,
   });
 
   await loader.load();
@@ -274,7 +275,7 @@ const search = async (event, keywords) => {
                   is-rounded is-outlined is-fullwidth is-size-6 is-primary
                 "
                 type="submit"
-                v-bind:disabled="isSearching"
+                v-bind:disabled="user === null || isSearching"
                 @click="search($event, queryRef)"
               >
                 <transition name="fade" mode="out-in">
