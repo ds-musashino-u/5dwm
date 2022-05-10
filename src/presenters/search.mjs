@@ -5,6 +5,7 @@ import { Location } from "./location.mjs";
 /**
  * /api/v1/search
  * @module search
+ * @param {!string} token - Bearer token
  * @param {!Array<string>} keywords - Keywords
  * @param {!Array<string>} categories - Categories
  * @param {!Array<string>} types - Types
@@ -15,7 +16,7 @@ import { Location } from "./location.mjs";
  * @param {?number} limit - Limit
  * @return {Array<Media>} - Array of media items
  */
-export async function search(keywords, categories, types, imageUrl = null, sort = null, order = null, offset = 0, limit = null) {
+export async function search(token, keywords, categories, types, imageUrl = null, sort = null, order = null, offset = 0, limit = null) {
     const data = {
         keywords: keywords,
         categories: categories,
@@ -40,6 +41,7 @@ export async function search(keywords, categories, types, imageUrl = null, sort 
         mode: "cors",
         method: "POST",
         headers: {
+            "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify(data)
