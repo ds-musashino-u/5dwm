@@ -10,7 +10,7 @@ def verify(token, jwks_url, audience, issuer, algorithms=['RS256']):
             algorithms=algorithms,
             audience=audience,
             issuer=issuer,
-            options={"verify_signature": True}
+            options={'verify_signature': True}
         )
         '''
 
