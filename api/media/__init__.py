@@ -11,7 +11,7 @@ from shared.models import Media
 import azure.functions as func
 
 
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={
+engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
                        'sslmode': 'require'}, pool_recycle=60)
 
 

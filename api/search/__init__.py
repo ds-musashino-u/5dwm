@@ -13,7 +13,7 @@ import azure.functions as func
 
 
 ssl._create_default_https_context = ssl._create_unverified_context
-engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args={
+engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
                        'sslmode': 'disable'}, pool_recycle=60)
 
 

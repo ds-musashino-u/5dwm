@@ -30,7 +30,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         raise Exception
 
                 except Exception:
-                    return func.HttpResponse(status_code=403, mimetype='', charset='')
+                    return func.HttpResponse(status_code=401, mimetype='', charset='')
             '''
             pass
         
@@ -46,7 +46,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     id = str(uuid4())
                     path = f'images/{id}'
                     
-                    blob_service_client = BlobServiceClient.from_connection_string(os.environ.get('AZURE_STORAGE_CONNECTION_STRING'))
+                    blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
                     container_client = blob_service_client.get_container_client(container_name)
                 
                     blob_client = container_client.get_blob_client(path)
@@ -54,7 +54,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     item = {'id': id, 'pk': id, 'url': f'https://5dwm.blob.core.windows.net/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                     
-                    client = CosmosClient.from_connection_string(os.environ.get('AZURE_COSMOS_DB_CONNECTION_STRING'))
+                    client = CosmosClient.from_connection_string(os.environ['AZURE_COSMOS_DB_CONNECTION_STRING'])
                     database = client.get_database_client('5DWM')
                     container = database.get_container_client('Uploads')
                     container.upsert_item(item)
