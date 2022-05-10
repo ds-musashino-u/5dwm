@@ -59,9 +59,9 @@ export default {
 
         if (await auth0.value.isAuthenticated()) {
           user.value = await auth0.value.getUser();
-          const accessToken = await auth0.value.getTokenSilently();
+          const idToken = await auth0.value.getIdTokenClaims();
 
-          console.log(accessToken);
+          console.log(idToken.__raw);
         } else {
           let code = null;
           let state = null;
