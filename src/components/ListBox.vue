@@ -14,15 +14,18 @@ const pageIndexRef = ref(0);
 const nextResult = reactive([]);
 const hasNextRef = ref(false);
 const isFetchingRef = ref(false);
+const selectionCountRef = ref(0);
 const cachedItems = {};
 const select = (event, index) => {
   items[index].checked = !items[index].checked;
 
-  emit(
-    "select",
-    pageIndexRef.value * props.maxLength + index,
-    items[index]
-  );
+  if (items[index].checked) {
+    selectionCountRef.value++;
+  } else {
+    selectionCountRef.value--;
+  }
+
+  emit("select", pageIndexRef.value * props.maxLength + index, items[index]);
 };
 const next = (event) => {
   pageIndexRef.value++;
@@ -41,9 +44,7 @@ const previous = (event) => {
     items.splice(0);
 
     for (let i = 0; i < props.maxLength; i++) {
-      items.push(
-        cachedItems[pageIndexRef.value * props.maxLength + i]
-      );
+      items.push(cachedItems[pageIndexRef.value * props.maxLength + i]);
     }
   }
 };
@@ -63,7 +64,7 @@ watch(
       }
 
       items.splice(0);
-      
+
       for (let i = 0; i < length; i++) {
         if (
           result[i].index in cachedItems &&
@@ -102,6 +103,12 @@ emit(
             v-text="name"
           ></h3>
         </div>
+        <div class="level-item">
+          <span
+            class="badge has-text-weight-bold"
+            v-text="selectionCountRef"
+          ></span>
+        </div>
       </div>
       <div class="level-right">
         <div class="level-item">
@@ -120,11 +127,7 @@ emit(
       </div>
     </nav>
     <transition name="fade" mode="out-in">
-      <div
-        class="control"
-        v-if="!isCollapsed && items === null"
-        key="loading"
-      >
+      <div class="control" v-if="!isCollapsed && items === null" key="loading">
         <nav class="level">
           <div class="level-item">
             <span class="icon">
@@ -200,13 +203,22 @@ emit(
       background: transparent;
     }
 
+    .badge {
+      padding: 6px 12px 6px 12px !important;
+      border-radius: 290486px;
+      background: var(--accent-color);
+      color: #ffffff !important;
+      font-size: 1.0rem;
+      line-height: 1.0rem;
+    }
+
     > .level-right > .level-item {
       button.is-rounded {
         border-radius: 9999px !important;
         padding: 12px !important;
         box-shadow: none !important;
 
-        >span {
+        > span {
           transform: rotate(180deg);
         }
 
@@ -216,7 +228,7 @@ emit(
           height: 1rem !important;
         }
 
-        >span.collapsed {
+        > span.collapsed {
           transition: transform 0.5s ease;
           transform: rotate(0deg);
         }
