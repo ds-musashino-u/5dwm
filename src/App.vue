@@ -132,7 +132,7 @@ export default {
       <keep-alive>
         <component
           :is="contents[contentIndex].component"
-          v-bind="{ auth0: auth0, text: contents[contentIndex].name }"
+          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name }"
         ></component>
       </keep-alive>
     </div>
