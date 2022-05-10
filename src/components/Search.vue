@@ -10,9 +10,11 @@ import { search as searchWorldMap } from "../presenters/search.mjs";
 import ListBox from "./ListBox.vue";
 
 const mapRef = ref(null);
+const searchPanelRef = ref(null);
 const queryRef = ref("");
 const isSearching = ref(false);
 const props = defineProps({
+  auth0: Object,
   text: String,
 });
 /*const emit = defineEmits(["reveal", "select"]);
@@ -151,21 +153,55 @@ const fetchCategories = async (offset, length, items, isFetchingRef) => {
   isFetchingRef.value = false;
 };
 
+const shake = (element) => {
+  element.animate(
+    [
+      { transform: "translate3d(0, 0, 0)" },
+      { transform: "translate3d(8px, 0, 0)" },
+      { transform: "translate3d(-8px, 0, 0)" },
+      { transform: "translate3d(7px, 0, 0)" },
+      { transform: "translate3d(-7px, 0, 0)" },
+      { transform: "translate3d(6px, 0, 0)" },
+      { transform: "translate3d(-6px, 0, 0)" },
+      { transform: "translate3d(5px, 0, 0)" },
+      { transform: "translate3d(-5px, 0, 0)" },
+      { transform: "translate3d(4px, 0, 0)" },
+      { transform: "translate3d(-4px, 0, 0)" },
+      { transform: "translate3d(3px, 0, 0)" },
+      { transform: "translate3d(-3px, 0, 0)" },
+      { transform: "translate3d(2px, 0, 0)" },
+      { transform: "translate3d(-2px, 0, 0)" },
+      { transform: "translate3d(1px, 0, 0)" },
+      { transform: "translate3d(-1px, 0, 0)" },
+      { transform: "translate3d(0, 0, 0)" },
+    ],
+    { duration: 1000, iterations: 1 }
+  );
+};
+
 const search = async (event, keywords) => {
   //emit("search", event);
   //Endpoints.SEARCH_URL
   //https://5dworldmap.com/api/v1/echo
   isSearching.value = true;
-  
+
   for (const result of results) {
     result.marker.setMap(null);
   }
 
   results.splice(0);
 
-  if (map !== null) {
+  if (map === null) {
+    shake(searchPanelRef.value);
+  } else {
     try {
-      const searchItems = await searchWorldMap(keywords.split(/\s/), Object.values(selectedCategories), []);
+      const idToken = await props.auth0.getIdTokenClaims();
+      const searchItems = await searchWorldMap(
+        idToken.__raw,
+        keywords.split(/\s/),
+        Object.values(selectedCategories),
+        []
+      );
       const bounds = new google.maps.LatLngBounds();
 
       for (const media of searchItems) {
@@ -192,6 +228,7 @@ const search = async (event, keywords) => {
 
       map.fitBounds(bounds);
     } catch (error) {
+      shake(searchPanelRef.value);
       console.error(error);
     }
   }
@@ -209,7 +246,7 @@ const search = async (event, keywords) => {
     <div id="map" ref="mapRef"></div>
     <div class="wrap">
       <div class="block">
-        <nav class="panel">
+        <nav class="panel" ref="searchPanelRef">
           <div class="panel-block">
             <form @submit.prevent>
               <div class="control">
