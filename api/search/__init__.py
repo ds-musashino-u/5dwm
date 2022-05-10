@@ -19,14 +19,9 @@ engine = create_engine(os.environ.get('POSTGRESQL_CONNECTION_URL'), connect_args
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if req.method == 'POST' and 'Authorization' in req.headers and req.headers['X-Authorization'].startswith('Bearer '):
-            if not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
-                # return func.HttpResponse(json.dumps({""}), status_code=403, mimetype='', charset='')
-                return func.HttpResponse(json.dumps({'a': req.headers['X-Authorization'].split(' ')[1],
-                                                     'jwks': os.environ['AUTH0_JWKS_URL'],
-                                                     'aud': os.environ['AUTH0_AUDIENCE'],
-                                                     'iss': os.environ['AUTH0_ISSUER'],
-                                                     'alg': os.environ['AUTH0_ALGORITHM']}), status_code=200, mimetype='application/json', charset='utf-8')
+        if 'Authorization' in req.headers and req.headers['Authorization'].startswith('Bearer '):
+            if not verify(req.headers['Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
+                return func.HttpResponse(status_code=403, mimetype='', charset='')
 
         '''
         with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
