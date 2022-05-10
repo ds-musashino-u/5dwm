@@ -28,7 +28,7 @@ const upload = async (event) => {
       });
 
       const response = await fetch(
-        "https://www.5dworldmap.com//api/v1/upload",
+        "https://www.5dworldmap.com/api/v1/upload",
         {
           mode: "cors",
           method: "POST",
@@ -58,7 +58,7 @@ const update = async () => {
   isUpdating.value = true;
 
   try {
-    const response = await fetch("https://www.5dworldmap.com//api/v1/recent", {
+    const response = await fetch("https://www.5dworldmap.com/api/v1/recent", {
       mode: "cors",
       method: "GET",
     });
