@@ -208,8 +208,8 @@ emit(
       border-radius: 290486px;
       background: var(--accent-color);
       color: #ffffff !important;
-      font-size: 1.0rem;
-      line-height: 1.0rem;
+      font-size: 0.75rem;
+      line-height: 100%;
     }
 
     > .level-right > .level-item {
