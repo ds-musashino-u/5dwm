@@ -72,6 +72,10 @@ paths:
                   count:
                     type: integer
                     example: 1
+                  took:
+                    type: number
+                    format: double
+                    example: 0.123
                   items:
                     type: array
                     items:
