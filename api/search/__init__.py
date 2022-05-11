@@ -4,7 +4,7 @@ import os
 import ssl
 from urllib.request import urlopen, Request
 from urllib.parse import quote
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.models import Media
@@ -71,24 +71,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if offset is not None:
                     query = query.offset(offset)
 
-                response = urlopen(Request(
-                    f'https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch?imgurl={quote(image_url)}&keyword={quote(",".join(keywords))}&ctg={quote(",".join(categories))}&kind={quote(",".join(types))}&db={quote(",".join(usernames))}', method='GET'))
+                for keyword in keywords:
+                    query = query.filter(Media.description.like(f'%{keyword}%'))
 
-                if response.getcode() == 200:
-                    for item in json.loads(response.read()):
-                        if 'id' in item:
-                            media.append({
-                                'id': item['id'],
-                                'url': item['file_name'],
-                                'type': item['kind'],
-                                'categories': [item['category']],
-                                'address': item['place'],
-                                'description': item['description'],
-                                'username': item['user_cns'],
-                                'location': {'type': 'Point', 'coordinates': [item['lng'], item['lat']]},
-                                # .strftime('%Y-%m-%dT%H:%M:%SZ')
-                                'created_at': item['datetaken']
-                            })
+                if len(categories) > 0:
+                    query = query.filter(Media.categories.contains(categories))
+
+                if len(types) > 0:
+                    query = query.filter(or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
+
+                if len(usernames) > 0:
+                    query = query.filter(or_(*list(map(lambda username: Media.username == username, usernames))))
+
+                for item in query.all():
+                    media.append({
+                        'id': item.id,
+                        'url': item.url,
+                        'type': item.type,
+                        'categories': item.categories,
+                        'address': item.address,
+                        'description': item.description,
+                        'username': item.username,
+                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]},
+                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    })
 
                     return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
