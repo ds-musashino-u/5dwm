@@ -51,13 +51,13 @@ export async function search(token, keywords, categories, types, imageUrl = null
         const media = [];
         const json = await response.json();
 
-        for (const item of json) {
+        for (const item of json.items) {
             if (item.location.type === "Point") {
                 media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
             }
         }
 
-        return media;
+        return [media, json.count];
     } else {
         throw new Error(response.statusText);
     }
