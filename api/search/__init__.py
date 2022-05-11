@@ -63,13 +63,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 else:
-                    return func.HttpResponse(status_code=400, mimetype='', charset='')
-
-                if limit is not None:
-                    query = query.limit(limit)
-
-                if offset is not None:
-                    query = query.offset(offset)
+                    return func.HttpResponse(status_code=400, mimetype='', charset='')                
 
                 for keyword in keywords:
                     query = query.filter(Media.description.like(f'%{keyword}%'))
@@ -82,6 +76,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if len(usernames) > 0:
                     query = query.filter(or_(*list(map(lambda username: Media.username == username, usernames))))
+
+                if limit is not None:
+                    query = query.limit(limit)
+
+                if offset is not None:
+                    query = query.offset(offset)
 
                 for item in query.all():
                     media.append({
