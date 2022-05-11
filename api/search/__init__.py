@@ -96,7 +96,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                    return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
