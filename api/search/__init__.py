@@ -2,8 +2,7 @@ import json
 import logging
 import os
 import ssl
-from urllib.request import urlopen, Request
-from urllib.parse import quote
+from datetime import datetime, timezone
 from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
@@ -33,15 +32,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         if req.headers.get('Content-Type') == 'application/json':
             data = req.get_json()
-            keywords = data.get('keywords', [])
-            categories = data.get('categories', [])
-            types = data.get('types', [])
-            usernames = data.get('usernames', [])
-            image_url = data.get('image_url', '')
+            keywords = data.get('keywords', None)
+            categories = data.get('categories', None)
+            types = data.get('types', None)
+            usernames = data.get('usernames', None)
+            image_url = data.get('image_url', None)
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
             limit = data.get('limit')
+            start_time = datetime.now(timezone.utc).timestamp()
 
             Session = sessionmaker(bind=engine)
             session = Session()
@@ -65,18 +65,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                for keyword in keywords:
-                    query = query.filter(
-                        Media.description.like(f'%{keyword}%'))
+                if keywords is not None:
+                    for keyword in keywords:
+                        query = query.filter(
+                            Media.description.like(f'%{keyword}%'))
 
-                if len(categories) > 0:
+                if categories is not None and len(categories) > 0:
                     query = query.filter(Media.categories.contains(categories))
 
-                if len(types) > 0:
+                if types is not None and len(types) > 0:
                     query = query.filter(
                         or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
 
-                if len(usernames) > 0:
+                if usernames is not None and len(usernames) > 0:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
 
@@ -99,7 +100,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps({'count': query.count(), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': query.count(), 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
