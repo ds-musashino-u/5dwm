@@ -63,25 +63,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 else:
-                    return func.HttpResponse(status_code=400, mimetype='', charset='')                
+                    return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 for keyword in keywords:
-                    query = query.filter(Media.description.like(f'%{keyword}%'))
+                    query = query.filter(
+                        Media.description.like(f'%{keyword}%'))
 
                 if len(categories) > 0:
                     query = query.filter(Media.categories.contains(categories))
 
                 if len(types) > 0:
-                    query = query.filter(or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
+                    query = query.filter(
+                        or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
 
                 if len(usernames) > 0:
-                    query = query.filter(or_(*list(map(lambda username: Media.username == username, usernames))))
+                    query = query.filter(
+                        or_(*list(map(lambda username: Media.username == username, usernames))))
 
                 if limit is not None:
                     query = query.limit(limit)
 
                 if offset is not None:
                     query = query.offset(offset)
+
+                count = query.count()
 
                 for item in query.all():
                     media.append({
@@ -96,7 +101,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': count, 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
