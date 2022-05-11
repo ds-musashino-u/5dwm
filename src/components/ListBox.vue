@@ -204,7 +204,7 @@ emit(
     }
 
     .badge {
-      padding: 6px 12px 6px 12px !important;
+      padding: 4px 8px 4px 8px !important;
       border-radius: 290486px;
       background: var(--accent-color);
       color: #ffffff !important;
