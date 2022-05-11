@@ -62,6 +62,7 @@ export default {
           const idToken = await auth0.value.getIdTokenClaims();
 
           console.log(idToken.__raw);
+          console.log(user.value);
         } else {
           let code = null;
           let state = null;
