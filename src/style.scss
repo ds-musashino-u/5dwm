@@ -83,6 +83,21 @@ button {
     transition: 0.5s;
 }
 
+.is-superellips {
+    transform: rotate(-19deg);
+
+    >figure {
+        z-index: 1;
+        position: relative;
+        border-radius: 43% 57% 43% 57% / 57% 43% 57% 43% !important;
+        overflow: hidden !important;
+
+        >picture {
+            transform: rotate(19deg);
+        }
+    }
+}
+
 #map button {
     border-radius: 0 !important;
     box-shadow: none !important;
