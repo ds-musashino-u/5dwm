@@ -86,8 +86,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if offset is not None:
                     query = query.offset(offset)
 
-                count = query.count()
-
                 for item in query.all():
                     media.append({
                         'id': item.id,
@@ -101,7 +99,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps({'count': count, 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': query.count(), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
