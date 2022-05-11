@@ -246,7 +246,7 @@ const search = async (event, keywords) => {
   <div id="search">
     <div id="map" ref="mapRef"></div>
     <div class="wrap">
-      <div class="block">
+      <div class="block is-hidden-mobile">
         <nav class="panel" ref="searchPanelRef">
           <div class="panel-block">
             <form @submit.prevent>
@@ -335,6 +335,11 @@ const search = async (event, keywords) => {
         border-radius: 8px;
         box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
+
+        .panel-tabs:not(:last-child),
+        .panel-block:not(:last-child) {
+          border-bottom: 1px solid hsl(0deg, 0%, 93%);
+        }
       }
 
       button {
