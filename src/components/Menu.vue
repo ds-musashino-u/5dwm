@@ -25,7 +25,7 @@ const signOut = (event) => {
 <template>
   <div id="menu" ref="menu">
     <div class="columns is-centered">
-      <div class="column is-half is-mobile">
+      <div class="column is-half-tablet">
         <div class="control" v-cloak>
           <transition name="fade" mode="out-in">
             <nav class="level" v-if="user === null" key="signin">
@@ -226,6 +226,7 @@ const signOut = (event) => {
               justify-content: center;
               align-items: center;
               margin: 0;
+              border-bottom: 1px solid hsl(0deg, 0%, 93%);
               padding: 24px 24px 24px 24px;
               background: transparent;
 
@@ -254,6 +255,11 @@ const signOut = (event) => {
               h2 + h3 {
                 margin: 6px 0px 0px 0px;
               }
+            }
+
+            .panel-tabs:not(:last-child),
+            .panel-block:not(:last-child) {
+              border-bottom: 1px solid hsl(0deg, 0%, 93%);
             }
           }
 
