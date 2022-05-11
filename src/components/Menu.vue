@@ -104,7 +104,7 @@ const signOut = (event) => {
                       </h2>
                     </div>
                     <div
-                      class="panel-block"
+                      class="panel-block is-hidden-tablet"
                       v-for="(item, index) in items"
                       v-bind:key="item"
                     >
@@ -138,10 +138,7 @@ const signOut = (event) => {
                         <button
                           class="
                             button
-                            is-rounded
-                            is-outlined
-                            is-fullwidth
-                            is-size-6
+                            is-rounded is-outlined is-fullwidth is-size-6
                           "
                           type="button"
                           v-bind:disabled="isLoading"
