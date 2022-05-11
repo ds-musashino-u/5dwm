@@ -81,6 +81,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
 
+                total_count = query.count()
+
                 if limit is not None:
                     query = query.limit(limit)
 
@@ -100,7 +102,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps({'count': query.count(), 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': total_count, 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
