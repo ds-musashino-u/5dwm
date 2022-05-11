@@ -102,6 +102,34 @@ const signOut = (event) => {
                       >
                         {{ subtitle }}
                       </h2>
+                      <div class="block">
+                        <div class="is-superellips" v-if="'picture' in user">
+                          <figure>
+                            <picture class="image is-64x64">
+                              <img
+                                v-bind:src="user.picture"
+                                width="64"
+                                height="64"
+                                v-bind:alt="user.name"
+                              />
+                            </picture>
+                          </figure>
+                        </div>
+                      </div>
+                      <div class="block">
+                        <h2
+                          class="is-size-5 has-text-weight-bold"
+                          v-if="'nickname' in user"
+                        >
+                          {{ user.nickname }}
+                        </h2>
+                        <h3
+                          class="is-size-7 has-text-weight-bold"
+                          v-if="'name' in user"
+                        >
+                          {{ user.name }}
+                        </h3>
+                      </div>
                     </div>
                     <div
                       class="panel-block is-hidden-tablet"
@@ -201,7 +229,29 @@ const signOut = (event) => {
               padding: 24px 24px 24px 24px;
               background: transparent;
 
+              .block {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: 12px 0px 0px 0px;
+                padding: 0;
+              }
+
+              .block:first-of-type {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: 24px 0px 0px 0px;
+                padding: 0;
+              }
+
               h1 + h2 {
+                margin: 6px 0px 0px 0px;
+              }
+
+              h2 + h3 {
                 margin: 6px 0px 0px 0px;
               }
             }
