@@ -102,8 +102,10 @@ const signOut = (event) => {
                       >
                         {{ subtitle }}
                       </h2>
-                      <div class="block">
-                        <div class="is-superellips" v-if="'picture' in user">
+                    </div>
+                    <div class="panel-block">
+                      <div class="block" v-if="'picture' in user">
+                        <div class="is-superellips">
                           <figure>
                             <picture class="image is-64x64">
                               <img
@@ -123,10 +125,7 @@ const signOut = (event) => {
                         >
                           {{ user.nickname }}
                         </h2>
-                        <h3
-                          class="is-size-7 has-text-weight-bold"
-                          v-if="'name' in user"
-                        >
+                        <h3 class="is-size-7 has-text-weight-bold">
                           {{ user.name }}
                         </h3>
                       </div>
@@ -260,6 +259,32 @@ const signOut = (event) => {
             .panel-tabs:not(:last-child),
             .panel-block:not(:last-child) {
               border-bottom: 1px solid hsl(0deg, 0%, 93%);
+            }
+
+            > .panel-block:nth-of-type(2) {
+              display: flex !important;
+              flex-direction: column !important;
+              justify-content: center !important;
+              align-items: center !important;
+              padding: 24px 24px 24px 24px;
+
+              .block:first-child {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: 0;
+                padding: 0;
+              }
+
+              .block:not(:first-child) {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                margin: 6px 0px 0px 0px;
+                padding: 0;
+              }
             }
           }
 
