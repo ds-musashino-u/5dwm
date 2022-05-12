@@ -1,14 +1,16 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, toRef, watch } from "vue";
 
 const props = defineProps({
   name: { type: String, required: false, default: null },
   maxLength: { type: Number, required: false, default: 10 },
+  isEnabled: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
 });
 const emit = defineEmits(["select", "fetch"]);
+const isEnabledRef = toRef(props, "isEnabled");
 const items = reactive([]);
 const pageIndexRef = ref(0);
 const nextResult = reactive([]);
@@ -49,6 +51,17 @@ const previous = (event) => {
   }
 };
 
+watch(isEnabledRef, async (newValue, oldValue) => {
+  if (newValue !== oldValue && oldValue === false) {
+    emit(
+      "fetch",
+      pageIndexRef.value * props.maxLength,
+      props.maxLength + 1,
+      nextResult,
+      isFetchingRef
+    );
+  }
+});
 watch(
   nextResult,
   (result) => {
@@ -83,13 +96,6 @@ watch(
     }
   },
   { deep: true }
-);
-emit(
-  "fetch",
-  pageIndexRef.value * props.maxLength,
-  props.maxLength + 1,
-  nextResult,
-  isFetchingRef
 );
 </script>
 
@@ -140,6 +146,7 @@ emit(
         <label v-for="(item, index) in items" v-bind:key="item">
           <input
             type="checkbox"
+            v-bind:disabled="!isEnabled"
             @change="select($event, index)"
             v-bind:checked="item.checked"
           />
@@ -158,7 +165,9 @@ emit(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
+                v-bind:disabled="
+                  !isEnabled || pageIndexRef === 0 || isFetchingRef
+                "
                 @click="previous($event)"
               >
                 <span class="icon is-small">
@@ -171,7 +180,7 @@ emit(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="!hasNextRef || isFetchingRef"
+                v-bind:disabled="!isEnabled || !hasNextRef || isFetchingRef"
                 @click="next($event)"
               >
                 <span class="icon is-small">
