@@ -7,7 +7,7 @@ global.window = {
     btoa: value => value
 };
 
-describe("users", function () {
+describe("categories", function () {
     let fetchStub;
 
     beforeEach(() => {
