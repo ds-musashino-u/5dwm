@@ -6,6 +6,7 @@ import { ref, onActivated, onDeactivated } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
+import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
 import ListBox from "./ListBox.vue";
 
@@ -28,7 +29,7 @@ const selectedCategories = {};
 
 onActivated(async () => {
   const loader = new Loader({
-    apiKey: "AIzaSyCJfuPZn56-CDI74WPsUPGrQ3bI6hm7H9c",
+    apiKey: GoogleMapsConfig.API_KEY,
     version: "weekly",
     language: navigator.language,
   });
@@ -263,6 +264,7 @@ const search = async (event, keywords) => {
           <ListBox
             name="Categories"
             :max-length="10"
+            :is-enabled="user !== null"
             :is-collapsed="true"
             @select="selectCategory"
             @fetch="fetchCategories"
