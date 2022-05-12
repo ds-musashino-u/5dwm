@@ -6,6 +6,7 @@ import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
 import Upload from "./components/Upload.vue";
+import { Auth0Config } from "./presenters/auth0-config.mjs";
 import createAuth0Client from "@auth0/auth0-spa-js";
 
 export default {
@@ -52,8 +53,8 @@ export default {
       try {
         isSigningIn.value = true;
         auth0.value = await createAuth0Client({
-          domain: "5dwm.jp.auth0.com",
-          client_id: "rat15Zt97ZCoo4QjzHKJKyqIMWJJF3AA",
+          domain: Auth0Config.DOMAIN,
+          client_id: Auth0Config.CLIENT_ID,
           cacheLocation: "localstorage",
         });
 
