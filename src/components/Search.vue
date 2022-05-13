@@ -26,6 +26,8 @@ const select = (event) => {
 let map = null;
 const results = [];
 const selectedCategories = {};
+const selectedTypes = {};
+const selectedUsers = {};
 
 onActivated(async () => {
   const loader = new Loader({
@@ -137,7 +139,24 @@ const selectCategory = (index, item) => {
     selectedCategories[index] = item.name;
   }
 };
-
+const selectType = (index, item) => {
+  if (index in selectedTypes) {
+    if (!item.checked) {
+      delete selectedTypes[index];
+    }
+  } else if (item.checked) {
+    selectedTypes[index] = item.name;
+  }
+};
+const selectUser = (index, item) => {
+  if (index in selectedUsers) {
+    if (!item.checked) {
+      delete selectedUsers[index];
+    }
+  } else if (item.checked) {
+    selectedUsers[index] = item.name;
+  }
+};
 const fetchCategories = async (offset, length, items, isFetchingRef) => {
   isFetchingRef.value = true;
 
@@ -146,6 +165,38 @@ const fetchCategories = async (offset, length, items, isFetchingRef) => {
 
     for (const item of await getCategories(offset, length)) {
       items.push({ index: offset + index, name: item.name });
+      index++;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+
+  isFetchingRef.value = false;
+};
+const fetchTypes = async (offset, length, items, isFetchingRef) => {
+  isFetchingRef.value = true;
+
+  try {
+    let index = 0;
+
+    /*for (const item of await getTypes(offset, length)) {
+      items.push({ index: offset + index, name: item.username });
+      index++;
+    }*/
+  } catch (error) {
+    console.error(error);
+  }
+
+  isFetchingRef.value = false;
+};
+const fetchUsers = async (offset, length, items, isFetchingRef) => {
+  isFetchingRef.value = true;
+
+  try {
+    let index = 0;
+
+    for (const item of await getUsers(offset, length)) {
+      items.push({ index: offset + index, name: item.username });
       index++;
     }
   } catch (error) {
@@ -268,6 +319,22 @@ const search = async (event, keywords) => {
             :is-collapsed="true"
             @select="selectCategory"
             @fetch="fetchCategories"
+          />
+          <ListBox
+            name="Types"
+            :max-length="10"
+            :is-enabled="user !== null"
+            :is-collapsed="true"
+            @select="selectType"
+            @fetch="fetchTypes"
+          />
+          <ListBox
+            name="Users"
+            :max-length="10"
+            :is-enabled="user !== null"
+            :is-collapsed="true"
+            @select="selectUser"
+            @fetch="fetchUsers"
           />
           <div class="panel-block">
             <div class="control">
