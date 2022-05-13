@@ -159,7 +159,7 @@ watch(
       </div>
     </transition>
     <transition name="fade">
-      <div class="control" v-show="!isCollapsed">
+      <div class="control" v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)">
         <nav class="level">
           <div class="level-left">
             <div class="level-item">
