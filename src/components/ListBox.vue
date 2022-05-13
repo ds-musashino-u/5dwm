@@ -213,12 +213,17 @@ watch(
     }
 
     .badge {
-      padding: 4px 8px 4px 8px !important;
+      padding: 4px !important;
       border-radius: 290486px;
+      width: 0.75rem !important;
+      height: 0.75rem !important;
       background: var(--accent-color);
       color: #ffffff !important;
       font-size: 0.75rem;
       line-height: 100%;
+      overflow: hidden;
+      box-sizing: content-box;
+      text-align: center;
     }
 
     > .level-right > .level-item {
