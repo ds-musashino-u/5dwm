@@ -200,6 +200,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Category'
+  /types:
+    get:
+      tags:
+        - Types
+      summary: Get types
+      description: Get types.
+      parameters:
+      - name: sort
+        in: query
+        description: Sort
+        required: false
+        schema:
+          type: string
+          enum: [created_at]
+      - name: order
+        in: query
+        description: Order
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
+      - name: offset
+        in: query
+        description: Offset
+        required: false
+        schema:
+          type: integer
+          example: 0
+      - name: limit
+        in: query
+        description: Limit
+        required: false
+        schema:
+          type: integer
+          example: 10
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
   /media:
     get:
       tags:
@@ -463,5 +507,6 @@ security:
 tags:
   - name: Search
   - name: Categories
+  - name: Types
   - name: Media
   - name: Users
