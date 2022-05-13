@@ -4,7 +4,7 @@ import logging
 import os
 from datetime import datetime, timezone
 from urllib.request import urlopen, Request
-from sqlalchemy import create_engine, distinct, desc
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.models import Media
 
@@ -57,7 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(distinct(Media.type))
+                query = session.query(Media).distinct(Media.type)
 
                 if sort == 'type':
                     if order is None:
