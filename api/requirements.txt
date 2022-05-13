@@ -5,7 +5,7 @@
 numpy
 pyjwt
 pyjwt[crypto]
-psycopg2-binary==2.8.6
+psycopg2-binary==2.9.3
 SQLAlchemy
 azure-functions
 azure-storage-blob
