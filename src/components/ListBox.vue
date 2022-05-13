@@ -133,7 +133,7 @@ watch(
       </div>
     </nav>
     <transition name="fade" mode="out-in">
-      <div class="control" v-if="!isCollapsed && items === null" key="loading">
+      <div class="control" v-if="!isCollapsed && isFetchingRef && items.length === 0" key="loading">
         <nav class="level">
           <div class="level-item">
             <span class="icon">
