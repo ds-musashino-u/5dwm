@@ -4,6 +4,7 @@
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
+import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
@@ -113,6 +114,7 @@ onDeactivated(() => {});
 const markerClick = (event) => {
   const element = results.find(
     (x) =>
+      x.marker !== null &&
       event.latLng.lat === x.marker.position.lat &&
       event.latLng.lng === x.marker.position.lng
   );
@@ -179,10 +181,10 @@ const fetchTypes = async (offset, length, items, isFetchingRef) => {
   try {
     let index = 0;
 
-    /*for (const item of await getTypes(offset, length)) {
-      items.push({ index: offset + index, name: item.username });
+    for (const item of await getTypes(null, null, offset, length)) {
+      items.push({ index: offset + index, name: item });
       index++;
-    }*/
+    }
   } catch (error) {
     console.error(error);
   }
@@ -249,34 +251,39 @@ const search = async (event, keywords) => {
   } else {
     try {
       const idToken = await props.auth0.getIdTokenClaims();
-      const searchItems = await searchWorldMap(
+      const [searchItems, totalCount] = await searchWorldMap(
         idToken.__raw,
         keywords.split(/\s/),
         Object.values(selectedCategories),
-        []
+        Object.values(selectedTypes),
+        Object.values(selectedUsers)
       );
       const bounds = new google.maps.LatLngBounds();
 
       for (const media of searchItems) {
-        const marker = new google.maps.Marker({
-          position: {
-            lat: media.location.latitude,
-            lng: media.location.longitude,
-          },
-          map,
-          title: media.description,
-          animation: google.maps.Animation.DROP,
-        });
+        if (media.location === null) {
+          results.push({ marker: null, media: media });
+        } else {
+          const marker = new google.maps.Marker({
+            position: {
+              lat: media.location.latitude,
+              lng: media.location.longitude,
+            },
+            map,
+            title: media.description,
+            animation: google.maps.Animation.DROP,
+          });
 
-        marker.addListener("click", markerClick);
-        bounds.extend(
-          new google.maps.LatLng(
-            media.location.latitude,
-            media.location.longitude
-          )
-        );
+          marker.addListener("click", markerClick);
+          bounds.extend(
+            new google.maps.LatLng(
+              media.location.latitude,
+              media.location.longitude
+            )
+          );
 
-        results.push({ marker: marker, media: media });
+          results.push({ marker: marker, media: media });
+        }
       }
 
       map.fitBounds(bounds);
@@ -322,7 +329,7 @@ const search = async (event, keywords) => {
           />
           <ListBox
             name="Types"
-            :max-length="10"
+            :max-length="25"
             :is-enabled="user !== null"
             :is-collapsed="true"
             @select="selectType"
