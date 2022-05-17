@@ -20,6 +20,8 @@ const isLoading = ref(false);
 const imageDataUrlRef = ref(null);
 const isSearching = ref(false);
 const searchOffsetRef = ref(0);
+const searchTotalCountRef = ref(0);
+const searchResultsRef = ref([]);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -292,7 +294,7 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
-const search = async (event) => {
+const search = async () => {
   if (map === null) {
     shake(searchPanelRef.value);
   } else {
@@ -300,8 +302,7 @@ const search = async (event) => {
     const categories = Object.values(selectedCategories);
     const types = Object.values(selectedTypes);
     const users = Object.values(selectedUsers);
-
-    console.log(queryRef.value.length);
+    const searchResults = searchResultsRef.value;
 
     if (
       keywords.every((x) => x.length === 0) &&
@@ -315,6 +316,8 @@ const search = async (event) => {
     }
 
     isSearching.value = true;
+    searchTotalCountRef.value = 0;
+    searchResultsRef.value = null;
 
     for (const result of results) {
       result.marker.setMap(null);
@@ -331,16 +334,22 @@ const search = async (event) => {
         types,
         users,
         null,
-        "desc",
         "created_at",
+        "desc",
         searchOffsetRef.value * searchLimit,
         searchLimit
       );
       const bounds = new google.maps.LatLngBounds();
 
+      searchTotalCountRef.value = totalCount;
+      searchResults.splice(0);
+
       for (const media of searchItems) {
         if (media.location === null) {
-          results.push({ marker: null, media: media });
+          const item = { marker: null, media: media };
+          
+          searchResults.push(item);
+          results.push(item);
         } else {
           const marker = new google.maps.Marker({
             position: {
@@ -351,6 +360,7 @@ const search = async (event) => {
             title: media.description,
             animation: google.maps.Animation.DROP,
           });
+          const item = { marker: marker, media: media };
 
           marker.addListener("click", markerClick);
           bounds.extend(
@@ -360,7 +370,8 @@ const search = async (event) => {
             )
           );
 
-          results.push({ marker: marker, media: media });
+          searchResults.push(item);
+          results.push(item);
         }
       }
 
@@ -370,6 +381,7 @@ const search = async (event) => {
       console.error(error);
     }
 
+    searchResultsRef.value = searchResults;
     isSearching.value = false;
   }
 };
@@ -504,7 +516,7 @@ const back = (event) => {};
                 "
                 type="submit"
                 v-bind:disabled="user === null || isSearching"
-                @click="search($event)"
+                @click="search"
               >
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearching" key="searching">
@@ -533,18 +545,9 @@ const back = (event) => {};
                   </button>
                 </div>
               </div>
-              <div class="level-right is-hidden">
-                <div class="level-item">
-                  <button class="button is-rounded" @click="back($event)">
-                    <span class="icon is-small has-text-danger">
-                      <i class="fa-solid fa-xmark"></i>
-                    </span>
-                  </button>
-                </div>
-              </div>
             </nav>
           </div>
-          <Results />
+          <Results :items="searchResultsRef" :count="searchTotalCountRef" />
         </nav>
       </div>
     </div>
