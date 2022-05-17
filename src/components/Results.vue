@@ -8,6 +8,8 @@ const props = defineProps({
   maxLength: { type: Number, required: false, default: 10 },
   isEnabled: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
+  items: { type: Array, required: false, default: null },
+  count: { type: Number, required: false, default: 0 },
 });
 const emit = defineEmits(["select", "fetch"]);
 const isEnabledRef = toRef(props, "isEnabled");
@@ -102,18 +104,12 @@ watch(
 <template>
   <div class="panel-block">
     <nav class="level is-mobile">
-      <div class="level-left" v-if="name !== null">
+      <div class="level-left">
         <div class="level-item">
           <h3
             class="panel-heading is-uppercase has-text-weight-bold"
-            v-text="name"
+            v-text="count"
           ></h3>
-        </div>
-        <div class="level-item">
-          <span
-            class="badge has-text-weight-bold"
-            v-text="selectionCountRef"
-          ></span>
         </div>
       </div>
       <div class="level-right">
@@ -142,24 +138,32 @@ watch(
           </div>
         </nav>
       </div>
-      <div class="control" v-else-if="!isCollapsed" key="default">
-        <label v-for="(item, index) in items" v-bind:key="item">
-          <input
-            type="checkbox"
-            v-bind:disabled="!isEnabled"
-            @change="select($event, index)"
-            v-bind:checked="item.checked"
-          />
-          <span class="custom"></span>
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="item.name"
-          ></span>
-        </label>
+      <div class="control" v-else-if="!isCollapsed" key="loaded">
+        <transition-group name="picture-list" class="gallery" tag="div" v-cloak>
+          <article
+            class="media picture-list-item"
+            v-for="(item, index) in items"
+            v-bind:key="item"
+          >
+            <div class="media-content">
+              <button
+                class="button image is-64x64"
+                type="button"
+                @click="select($event, index)"
+              ></button>
+              <picture class="image is-128x128">
+                <img v-bind:src="item.url" v-bind:alt="String(index)" />
+              </picture>
+            </div>
+          </article>
+        </transition-group>
       </div>
     </transition>
     <transition name="fade">
-      <div class="control" v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)">
+      <div
+        class="control"
+        v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)"
+      >
         <nav class="level">
           <div class="level-left">
             <div class="level-item">
