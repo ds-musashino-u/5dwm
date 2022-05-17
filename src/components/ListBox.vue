@@ -26,7 +26,11 @@ const clear = (event) => {
       item.checked = false;
       selectionCountRef.value--;
 
-      emit("select", pageIndexRef.value * props.maxLength + index, items[index]);
+      emit(
+        "select",
+        pageIndexRef.value * props.maxLength + index,
+        items[index]
+      );
     }
 
     index++;
@@ -141,7 +145,11 @@ watch(
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button class="button is-rounded" v-bind:disabled="selectionCountRef === 0" @click="clear($event)">
+          <button
+            class="button is-rounded"
+            v-bind:disabled="selectionCountRef === 0"
+            @click="clear($event)"
+          >
             <span class="icon is-small">
               <i class="fa-solid fa-arrow-rotate-left"></i>
             </span>
@@ -265,6 +273,7 @@ watch(
 
     > .level-right > .level-item {
       margin: 0px 0px 0px 12px;
+
       button.is-rounded {
         border-radius: 9999px !important;
         padding: 12px !important;
