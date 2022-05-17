@@ -13,7 +13,6 @@ const props = defineProps({
 });
 const emit = defineEmits(["select", "fetch"]);
 const isEnabledRef = toRef(props, "isEnabled");
-const items = reactive([]);
 const pageIndexRef = ref(0);
 const nextResult = reactive([]);
 const hasNextRef = ref(false);
@@ -139,9 +138,9 @@ watch(
         </nav>
       </div>
       <div class="control" v-else-if="!isCollapsed" key="loaded">
-        <transition-group name="picture-list" class="gallery" tag="div" v-cloak>
+        <transition-group name="gallery-list" class="gallery" tag="div" v-cloak>
           <article
-            class="media picture-list-item"
+            class="media gallery-list-item"
             v-for="(item, index) in items"
             v-bind:key="item"
           >
