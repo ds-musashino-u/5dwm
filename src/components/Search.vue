@@ -19,6 +19,7 @@ const isDragging = ref(false);
 const isLoading = ref(false);
 const imageDataUrlRef = ref(null);
 const isSearching = ref(false);
+const searchOffsetRef = ref(0);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -29,6 +30,7 @@ const select = (event) => {
   emit("select", event.target.dataset);
 };*/
 let map = null;
+const searchLimit = 16;
 const results = [];
 const selectedCategories = {};
 const selectedTypes = {};
@@ -265,7 +267,6 @@ const fetchUsers = async (offset, length, items, isFetchingRef) => {
 
   isFetchingRef.value = false;
 };
-
 const shake = (element) => {
   element.animate(
     [
@@ -291,29 +292,49 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
-
-const search = async (event, keywords) => {
-  isSearching.value = true;
-
-  for (const result of results) {
-    result.marker.setMap(null);
-  }
-
-  results.splice(0);
-
+const search = async (event) => {
   if (map === null) {
-    if (searchPanelRef.value !== null) {
-      shake(searchPanelRef.value);
-    }
+    shake(searchPanelRef.value);
   } else {
+    const keywords = queryRef.value.split(/\s/);
+    const categories = Object.values(selectedCategories);
+    const types = Object.values(selectedTypes);
+    const users = Object.values(selectedUsers);
+
+    console.log(queryRef.value.length);
+
+    if (
+      keywords.every((x) => x.length === 0) &&
+      categories.length === 0 &&
+      types.length === 0 &&
+      users.length === 0
+    ) {
+      shake(searchPanelRef.value);
+
+      return;
+    }
+
+    isSearching.value = true;
+
+    for (const result of results) {
+      result.marker.setMap(null);
+    }
+
+    results.splice(0);
+
     try {
       const idToken = await props.auth0.getIdTokenClaims();
       const [searchItems, totalCount] = await searchWorldMap(
         idToken.__raw,
-        keywords.split(/\s/),
-        Object.values(selectedCategories),
-        Object.values(selectedTypes),
-        Object.values(selectedUsers)
+        keywords,
+        categories,
+        types,
+        users,
+        null,
+        "desc",
+        "created_at",
+        searchOffsetRef.value * searchLimit,
+        searchLimit
       );
       const bounds = new google.maps.LatLngBounds();
 
@@ -345,16 +366,14 @@ const search = async (event, keywords) => {
 
       map.fitBounds(bounds);
     } catch (error) {
-      if (searchPanelRef.value !== null) {
-        shake(searchPanelRef.value);
-      }
-
+      shake(searchPanelRef.value);
       console.error(error);
     }
-  }
 
-  isSearching.value = false;
+    isSearching.value = false;
+  }
 };
+const back = (event) => {};
 </script>
 
 <template>
@@ -485,7 +504,7 @@ const search = async (event, keywords) => {
                 "
                 type="submit"
                 v-bind:disabled="user === null || isSearching"
-                @click="search($event, queryRef)"
+                @click="search($event)"
               >
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearching" key="searching">
@@ -504,7 +523,26 @@ const search = async (event, keywords) => {
       <div class="block is-hidden-mobile">
         <nav class="panel">
           <div class="panel-block">
-            
+            <nav class="level is-mobile">
+              <div class="level-left">
+                <div class="level-item">
+                  <button class="button is-rounded" @click="back($event)">
+                    <span class="icon is-small">
+                      <i class="fa-solid fa-arrow-left"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+              <div class="level-right is-hidden">
+                <div class="level-item">
+                  <button class="button is-rounded" @click="back($event)">
+                    <span class="icon is-small has-text-danger">
+                      <i class="fa-solid fa-xmark"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </nav>
           </div>
           <Results />
         </nav>
@@ -551,6 +589,10 @@ const search = async (event, keywords) => {
         border-radius: 8px;
         box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
+
+        .panel-block > .level {
+          width: 100%;
+        }
 
         .panel-tabs:not(:last-child),
         .panel-block:not(:last-child) {
@@ -634,7 +676,7 @@ const search = async (event, keywords) => {
 
     form {
       width: 100%;
-      
+
       .control {
         margin: 0;
         display: flex;
