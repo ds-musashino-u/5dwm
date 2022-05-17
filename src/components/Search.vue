@@ -10,6 +10,7 @@ import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
 import ListBox from "./ListBox.vue";
+import Results from "./Results.vue";
 
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
@@ -292,9 +293,6 @@ const shake = (element) => {
 };
 
 const search = async (event, keywords) => {
-  //emit("search", event);
-  //Endpoints.SEARCH_URL
-  //https://5dworldmap.com/api/v1/echo
   isSearching.value = true;
 
   for (const result of results) {
@@ -304,7 +302,9 @@ const search = async (event, keywords) => {
   results.splice(0);
 
   if (map === null) {
-    shake(searchPanelRef.value);
+    if (searchPanelRef.value !== null) {
+      shake(searchPanelRef.value);
+    }
   } else {
     try {
       const idToken = await props.auth0.getIdTokenClaims();
@@ -345,17 +345,16 @@ const search = async (event, keywords) => {
 
       map.fitBounds(bounds);
     } catch (error) {
-      shake(searchPanelRef.value);
+      if (searchPanelRef.value !== null) {
+        shake(searchPanelRef.value);
+      }
+
       console.error(error);
     }
   }
 
   isSearching.value = false;
 };
-
-// https://www.5dwm.mydns.jp:8181/5dtest/QuerySearch
-// var data = "imgurl=" + imageUrl + "&keyword=" + keywords + "&ctg=" + categories + "&kind=" + kinds + "&db=" + databases;
-// imgurl=&keyword=&ctg={"air pollution"}&kind=&db=
 </script>
 
 <template>
@@ -502,7 +501,14 @@ const search = async (event, keywords) => {
           </div>
         </nav>
       </div>
-      <div class="block"></div>
+      <div class="block is-hidden-mobile">
+        <nav class="panel">
+          <div class="panel-block">
+            
+          </div>
+          <Results />
+        </nav>
+      </div>
     </div>
   </div>
 </template>
@@ -627,6 +633,8 @@ const search = async (event, keywords) => {
     }
 
     form {
+      width: 100%;
+      
       .control {
         margin: 0;
         display: flex;
