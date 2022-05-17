@@ -142,9 +142,9 @@ onDeactivated(() => {
         </button>
       </div>
       <div class="level-item">
-        <transition-group name="picture-list" class="gallery" tag="div" v-cloak>
+        <transition-group name="gallery-list" class="gallery" tag="div" v-cloak>
           <article
-            class="media picture-list-item"
+            class="media gallery-list-item"
             v-for="picture in pictures"
             v-bind:key="picture.id"
           >
