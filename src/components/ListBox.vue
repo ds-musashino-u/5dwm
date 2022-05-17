@@ -133,7 +133,11 @@ watch(
       </div>
     </nav>
     <transition name="fade" mode="out-in">
-      <div class="control" v-if="!isCollapsed && isFetchingRef && items.length === 0" key="loading">
+      <div
+        class="control"
+        v-if="!isCollapsed && isFetchingRef && items.length === 0"
+        key="loading"
+      >
         <nav class="level">
           <div class="level-item">
             <span class="icon">
@@ -159,7 +163,10 @@ watch(
       </div>
     </transition>
     <transition name="fade">
-      <div class="control" v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)">
+      <div
+        class="control"
+        v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)"
+      >
         <nav class="level">
           <div class="level-left">
             <div class="level-item">

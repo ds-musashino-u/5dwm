@@ -14,6 +14,9 @@ import ListBox from "./ListBox.vue";
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
 const queryRef = ref("");
+const isDragging = ref(false);
+const isLoading = ref(false);
+const imageDataUrlRef = ref(null);
 const isSearching = ref(false);
 const props = defineProps({
   auth0: Object,
@@ -131,7 +134,61 @@ const markerClick = (event) => {
     }
   }*/
 };
+const dragover = (event) => {
+  isDragging.value = true;
+  event.dataTransfer.dropEffect = "copy";
+};
+const drop = (event) => {
+  isDragging.value = false;
 
+  for (const file of event.dataTransfer.files) {
+    const name = file.name.toLowerCase();
+
+    if (
+      name.endsWith(".apng") ||
+      name.endsWith(".png") ||
+      name.endsWith(".jpg") ||
+      name.endsWith(".jpeg") ||
+      name.endsWith(".webp")
+    ) {
+      const reader = new FileReader();
+
+      reader.addEventListener("load", (e) => {
+        imageDataUrlRef.value = e.target.result;
+      });
+      reader.readAsDataURL(file);
+    }
+  }
+};
+const browse = async (event) => {
+  for (const file of event.currentTarget.files) {
+    isLoading.value = true;
+    console.log(file);
+
+    try {
+      imageDataUrlRef.value = await new Promise(function (resolve, reject) {
+        const reader = new FileReader();
+
+        reader.onload = () => {
+          resolve(reader.result);
+        };
+        reader.onerror = () => {
+          reject(reader.error);
+        };
+        reader.readAsDataURL(file);
+      });
+    } catch (error) {
+      console.error(error);
+    }
+
+    isLoading.value = false;
+
+    return;
+  }
+};
+const reset = (event) => {
+  imageDataUrlRef.value = null;
+};
 const selectCategory = (index, item) => {
   if (index in selectedCategories) {
     if (!item.checked) {
@@ -319,6 +376,83 @@ const search = async (event, keywords) => {
               </div>
             </form>
           </div>
+          <div class="panel-block">
+            <div class="control">
+              <div
+                class="drop"
+                v-bind:style="{
+                  animationPlayState: isDragging ? 'running' : 'paused',
+                }"
+                @dragover.prevent="dragover($event)"
+                @dragleave.prevent="isDragging = false"
+                @drop.stop.prevent="drop($event)"
+              >
+                <transition name="fade" mode="out-in">
+                  <div
+                    class="image"
+                    v-if="imageDataUrlRef === null"
+                    v-bind:key="imageDataUrlRef"
+                  >
+                    <div class="level">
+                      <div class="level-item">
+                        <label
+                          class="
+                            file
+                            button
+                            is-circle
+                            has-text-weight-bold
+                            file-label
+                          "
+                        >
+                          <input
+                            class="file-input"
+                            type="file"
+                            name="upload"
+                            accept="image/apng, image/png, image/jpeg, image/webp"
+                            style="pointer-events: none"
+                            v-bind:disabled="isLoading"
+                            @change="browse($event)"
+                          />
+                          <div class="file-cta_">
+                            <span class="icon">
+                              <i class="fa-solid fa-file-image"></i>
+                            </span>
+                          </div>
+                        </label>
+                      </div>
+                      <div class="level-item">
+                        <span
+                          class="is-size-7 is-uppercase has-text-weight-bold"
+                          >Image</span
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="image" v-else key="empty">
+                    <div
+                      class="image"
+                      v-bind:style="{
+                        backgroundImage: 'url(' + imageDataUrlRef + ')',
+                      }"
+                    >
+                      <div class="control">
+                        <button
+                          class="button is-circle"
+                          type="button"
+                          @click="reset($event)"
+                          key="menu"
+                        >
+                          <span class="icon is-small has-text-danger">
+                            <i class="fa-solid fa-xmark"></i>
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </transition>
+              </div>
+            </div>
+          </div>
           <ListBox
             name="Categories"
             :max-length="10"
@@ -415,6 +549,73 @@ const search = async (event, keywords) => {
         .panel-tabs:not(:last-child),
         .panel-block:not(:last-child) {
           border-bottom: 1px solid hsl(0deg, 0%, 93%);
+
+          .drop {
+            display: flex;
+            margin: 0;
+            padding: 4px;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            border-radius: 8px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(
+                90deg,
+                hsl(0deg, 0%, 93%) 50%,
+                transparent 50%
+              ),
+              linear-gradient(90deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
+              linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
+              linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%);
+            background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+            background-size: 16px 4px, 16px 4px, 4px 16px, 4px 16px;
+            background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0px;
+            animation: selecting 10s linear infinite;
+            animation-play-state: paused;
+            overflow: hidden;
+
+            div.image {
+              display: flex;
+              margin: 0;
+              border-radius: 8px;
+              padding: 0;
+              width: 100%;
+              height: 100%;
+              background-position: 50% 50%;
+              background-size: contain;
+              background-repeat: no-repeat;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              image-rendering: -webkit-optimize-contrast;
+
+              .control {
+                position: absolute;
+                top: 0;
+                right: 0;
+                margin: 4px 4px 0px 0px;
+              }
+
+              .level {
+                display: flex;
+                padding: 0.5em 0.75em;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+
+                .level-item:not(:last-child) {
+                  margin: 0px 0px 6px 0px;
+                  padding: 0;
+                }
+              }
+            }
+
+            .button {
+              box-shadow: none !important;
+            }
+          }
         }
       }
 
@@ -454,6 +655,12 @@ const search = async (event, keywords) => {
         }
       }
     }
+  }
+}
+
+@keyframes selecting {
+  to {
+    background-position: 100% 0%, 0% 100%, 0% 0%, 100% 100%;
   }
 }
 </style>

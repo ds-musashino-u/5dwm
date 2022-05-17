@@ -189,6 +189,7 @@ button {
                 margin: 0px;
                 padding: 16px !important;
                 height: initial;
+                border-radius: 290486px;
                 
                 span {
                     margin: 0 !important;
@@ -200,6 +201,8 @@ button {
 
             button.is-primary.is-circle,
             .button.is-primary.is-circle {
+                border-radius: 290486px;
+                overflow: hidden;
                 background-color: var(--primary-background-color) !important;
                 color: #ffffff !important;
                 transition: 0.5s;
@@ -224,7 +227,6 @@ button {
     button {
         margin: 0px;
         border: 0px none transparent !important;
-        
         padding: 16px;
         background: #ffffff !important;
         box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
@@ -239,7 +241,6 @@ button {
     }
 
     button.is-rounded {
-        border-radius: 290486px;
         padding: 16px;
     }
 }

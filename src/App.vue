@@ -155,7 +155,7 @@ export default {
   <div class="left is-hidden-tablet" v-cloak>
     <transition name="fade" mode="out-in">
       <button
-        class="button is-rounded"
+        class="button is-circle"
         type="button"
         @click="reveal"
         key="menu"
