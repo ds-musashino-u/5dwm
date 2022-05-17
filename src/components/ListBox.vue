@@ -18,6 +18,29 @@ const hasNextRef = ref(false);
 const isFetchingRef = ref(false);
 const selectionCountRef = ref(0);
 const cachedItems = {};
+const clear = (event) => {
+  let index = 0;
+
+  for (const item of items) {
+    if (item.checked) {
+      item.checked = false;
+      selectionCountRef.value--;
+
+      emit("select", pageIndexRef.value * props.maxLength + index, items[index]);
+    }
+
+    index++;
+  }
+
+  for (const key in cachedItems) {
+    if (cachedItems[key].checked) {
+      cachedItems[key].checked = false;
+      selectionCountRef.value--;
+
+      emit("select", key, cachedItems[key]);
+    }
+  }
+};
 const select = (event, index) => {
   items[index].checked = !items[index].checked;
 
@@ -117,6 +140,13 @@ watch(
         </div>
       </div>
       <div class="level-right">
+        <div class="level-item">
+          <button class="button is-rounded" v-bind:disabled="selectionCountRef === 0" @click="clear($event)">
+            <span class="icon is-small">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+            </span>
+          </button>
+        </div>
         <div class="level-item">
           <button
             class="button toggle is-rounded"
@@ -234,19 +264,22 @@ watch(
     }
 
     > .level-right > .level-item {
+      margin: 0px 0px 0px 12px;
       button.is-rounded {
         border-radius: 9999px !important;
         padding: 12px !important;
         box-shadow: none !important;
 
-        > span {
-          transform: rotate(180deg);
-        }
-
         > span.icon {
           margin: 0 !important;
           width: 1rem !important;
           height: 1rem !important;
+        }
+      }
+
+      button.toggle {
+        > span {
+          transform: rotate(180deg);
         }
 
         > span.collapsed {
