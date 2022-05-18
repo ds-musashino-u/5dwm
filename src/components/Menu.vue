@@ -37,7 +37,7 @@ const signOut = (event) => {
                       v-if="title !== null || subtitle !== null"
                     >
                       <h1
-                        class="is-uppercase is-size-4 has-text-weight-bold"
+                        class="is-primary is-uppercase is-size-4 has-text-weight-bold"
                         v-if="title !== null"
                       >
                         {{ title }}
@@ -91,7 +91,7 @@ const signOut = (event) => {
                       v-if="title !== null || subtitle !== null"
                     >
                       <h1
-                        class="is-uppercase is-size-4 has-text-weight-bold"
+                        class="is-primary is-uppercase is-size-4 has-text-weight-bold"
                         v-if="title !== null"
                       >
                         {{ title }}
