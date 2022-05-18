@@ -17,18 +17,9 @@ const pageIndexRef = ref(0);
 const nextResult = reactive([]);
 const hasNextRef = ref(false);
 const isFetchingRef = ref(false);
-const selectionCountRef = ref(0);
 const cachedItems = {};
-const select = (event, index) => {
-  items[index].checked = !items[index].checked;
-
-  if (items[index].checked) {
-    selectionCountRef.value++;
-  } else {
-    selectionCountRef.value--;
-  }
-
-  emit("select", pageIndexRef.value * props.maxLength + index, items[index]);
+const select = (event, item) => {
+  emit("select", item);
 };
 const next = (event) => {
   pageIndexRef.value++;
@@ -107,7 +98,13 @@ watch(
         <div class="level-item">
           <h3
             class="panel-heading is-uppercase has-text-weight-bold"
-            v-text="count"
+            v-text="String(count) + ' Items'"
+            v-if="count > 0 || count === 0"
+          ></h3>
+          <h3
+            class="panel-heading is-uppercase has-text-weight-bold"
+            v-text="String(count) + ' Item'"
+            v-else
           ></h3>
         </div>
       </div>
@@ -148,11 +145,42 @@ watch(
               <button
                 class="button image is-64x64"
                 type="button"
-                @click="select($event, index)"
-              ></button>
-              <picture class="image is-128x128">
-                <img v-bind:src="item.url" v-bind:alt="String(index)" />
-              </picture>
+                @click="select($event, item)"
+              >
+                <picture
+                  class="image"
+                  v-if="item.media.type.startsWith('image')"
+                >
+                  <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
+                </picture>
+                <span
+                  class="icon is-small"
+                  v-if="item.media.type.startsWith('image')"
+                >
+                  <i class="fa-solid fa-file-image"></i>
+                </span>
+                <span
+                  class="icon is-small"
+                  v-else-if="item.media.type.startsWith('video')"
+                >
+                  <i class="fa-solid fa-file-video"></i>
+                </span>
+                <span
+                  class="icon is-small"
+                  v-else-if="item.media.type.startsWith('audio')"
+                >
+                  <i class="fa-solid fa-file-audio"></i>
+                </span>
+                <span
+                  class="icon is-small"
+                  v-else-if="item.media.type.startsWith('text')"
+                >
+                  <i class="fa-solid fa-file-lines"></i>
+                </span>
+                <span class="icon is-small" v-else>
+                  <i class="fa-solid fa-file"></i>
+                </span>
+              </button>
             </div>
           </article>
         </transition-group>
@@ -258,10 +286,84 @@ watch(
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    width: 320px;
 
     .level {
       padding: 0.5em 0.75em;
       width: 100%;
+    }
+
+    .gallery {
+      display: flex;
+      margin: -2px -2px -2px -2px;
+      flex-direction: row;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      width: calc(100% + 4px);
+
+      .media {
+        display: inline-block;
+        margin: 2px 2px 2px 2px;
+        border: 0px none transparent !important;
+        padding: 0;
+        width: calc(25% - 4px);
+
+        .media-content {
+          width: 100%;
+
+          button {
+            z-index: 1;
+            position: relative;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            border-radius: 8px;
+            box-shadow: none !important;
+            overflow: hidden;
+            background: transparent !important;
+
+            picture {
+              margin: 0;
+              padding: 0;
+              width: 100%;
+              height: 100%;
+
+              img {
+                object-fit: cover;
+                width: 100%;
+                height: 100%;
+              }
+            }
+
+            .icon {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              margin: 0 !important;
+              width: 1rem !important;
+              height: 1rem !important;
+              transform: translate(-50%, -50%);
+            }
+          }
+        }
+
+        figure {
+          margin: 0;
+          padding: 0;
+
+          .image {
+            overflow: hidden;
+
+            img {
+              object-fit: cover;
+              width: 100%;
+              height: 100%;
+            }
+          }
+        }
+      }
     }
 
     label {
