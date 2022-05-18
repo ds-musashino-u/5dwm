@@ -5,125 +5,54 @@ import { ref, reactive, toRef, watch } from "vue";
 
 const props = defineProps({
   name: { type: String, required: false, default: null },
-  maxLength: { type: Number, required: false, default: 10 },
   isEnabled: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
+  isContinuous: { type: Boolean, required: false, default: false },
+  items: { type: Array, required: false, default: [] },
+  pageIndex: { type: Number, required: false, default: 0 },
+  pageLength: { type: Number, required: false, default: 10 },
 });
-const emit = defineEmits(["select", "fetch"]);
+const emit = defineEmits(["collapse", "clear", "select", "next", "previous"]);
 const isEnabledRef = toRef(props, "isEnabled");
-const items = reactive([]);
-const pageIndexRef = ref(0);
-const nextResult = reactive([]);
-const hasNextRef = ref(false);
+const pageIndexRef = toRef(props, "pageIndex");
 const isFetchingRef = ref(false);
-const selectionCountRef = ref(0);
-const cachedItems = {};
 const clear = (event) => {
-  let index = 0;
-
-  for (const item of items) {
-    if (item.checked) {
-      item.checked = false;
-      selectionCountRef.value--;
-
-      emit(
-        "select",
-        pageIndexRef.value * props.maxLength + index,
-        items[index]
-      );
-    }
-
-    index++;
-  }
-
-  for (const key in cachedItems) {
-    if (cachedItems[key].checked) {
-      cachedItems[key].checked = false;
-      selectionCountRef.value--;
-
-      emit("select", key, cachedItems[key]);
-    }
-  }
+  emit("clear");
 };
+const collapse = (event) => {
+  emit("collapse");
+}
 const select = (event, index) => {
-  items[index].checked = !items[index].checked;
-
-  if (items[index].checked) {
-    selectionCountRef.value++;
-  } else {
-    selectionCountRef.value--;
-  }
-
-  emit("select", pageIndexRef.value * props.maxLength + index, items[index]);
+  emit(
+    "select",
+    pageIndexRef.value * props.pageLength + index
+  );
 };
 const next = (event) => {
-  pageIndexRef.value++;
-
   emit(
-    "fetch",
-    pageIndexRef.value * props.maxLength,
-    props.maxLength + 1,
-    nextResult,
+    "next",
+    pageIndexRef.value + 1,
+    props.pageLength + 1,
     isFetchingRef
   );
 };
 const previous = (event) => {
-  if (pageIndexRef.value > 0) {
-    pageIndexRef.value--;
-    items.splice(0);
-
-    for (let i = 0; i < props.maxLength; i++) {
-      items.push(cachedItems[pageIndexRef.value * props.maxLength + i]);
-    }
-  }
+  emit(
+    "previous",
+    pageIndexRef.value - 1
+  );
 };
 
 watch(isEnabledRef, async (newValue, oldValue) => {
   if (newValue !== oldValue && oldValue === false) {
     emit(
-      "fetch",
-      pageIndexRef.value * props.maxLength,
-      props.maxLength + 1,
-      nextResult,
+      "next",
+      pageIndexRef.value,
+      props.pageLength + 1,
       isFetchingRef
     );
   }
 });
-watch(
-  nextResult,
-  (result) => {
-    if (result.length > 0) {
-      let length;
-
-      if (result.length === props.maxLength + 1) {
-        length = props.maxLength;
-        hasNextRef.value = true;
-      } else {
-        length = result.length;
-        hasNextRef.value = false;
-      }
-
-      items.splice(0);
-
-      for (let i = 0; i < length; i++) {
-        if (
-          result[i].index in cachedItems &&
-          cachedItems[result[i].index].name === result[i].name
-        ) {
-          items.push(cachedItems[result[i].index]);
-        } else {
-          const item = { checked: false, name: result[i].name };
-
-          items.push(item);
-          cachedItems[result[i].index] = item;
-        }
-      }
-
-      result.splice(0);
-    }
-  },
-  { deep: true }
-);
 </script>
 
 <template>
@@ -139,7 +68,7 @@ watch(
         <div class="level-item">
           <span
             class="badge has-text-weight-bold"
-            v-text="selectionCountRef"
+            v-text="items.reduce((x, y) => y.checked ? x + 1 : x, 0)"
           ></span>
         </div>
       </div>
@@ -147,7 +76,7 @@ watch(
         <div class="level-item">
           <button
             class="button is-rounded"
-            v-bind:disabled="selectionCountRef === 0"
+            v-bind:disabled="items.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0"
             @click="clear($event)"
           >
             <span class="icon is-small">
@@ -158,7 +87,7 @@ watch(
         <div class="level-item">
           <button
             class="button toggle is-rounded"
-            @click="isCollapsed = !isCollapsed"
+            @click="collapse"
           >
             <span
               class="icon is-small"
@@ -185,7 +114,12 @@ watch(
         </nav>
       </div>
       <div class="control" v-else-if="!isCollapsed" key="default">
-        <label v-for="(item, index) in items" v-bind:key="item">
+        <label
+          v-for="(item, index) in [...Array(pageLength).keys()].map(
+            (x) => pageIndex * pageLength + x < items.length ? items[pageIndex * pageLength + x] : null
+          ).filter(x => x !== null)"
+          v-bind:key="item"
+        >
           <input
             type="checkbox"
             v-bind:disabled="!isEnabled"
@@ -203,7 +137,7 @@ watch(
     <transition name="fade">
       <div
         class="control"
-        v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)"
+        v-show="!isCollapsed && (pageIndexRef > 0 || isContinuous)"
       >
         <nav class="level">
           <div class="level-left">
@@ -225,7 +159,7 @@ watch(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="!isEnabled || !hasNextRef || isFetchingRef"
+                v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef"
                 @click="next($event)"
               >
                 <span class="icon is-small">
