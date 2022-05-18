@@ -11,6 +11,7 @@ import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap } from "../presenters/search.mjs";
 import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
+import Preview from "./Preview.vue";
 
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
@@ -18,10 +19,26 @@ const queryRef = ref("");
 const isDragging = ref(false);
 const isLoading = ref(false);
 const imageDataUrlRef = ref(null);
+const maxCategoriesLength = 10;
+const categoriesIsCollapsedRef = ref(true);
+const categoriesIsContinuousRef = ref(false);
+const categoriesItemsRef = ref([]);
+const categoriesPageIndexRef = ref(0);
+const maxTypesLength = 25;
+const typesIsCollapsedRef = ref(true);
+const typesIsContinuousRef = ref(false);
+const typesItemsRef = ref([]);
+const typesPageIndexRef = ref(0);
+const maxUsersLength = 10;
+const usersIsCollapsedRef = ref(true);
+const usersIsContinuousRef = ref(false);
+const usersItemsRef = ref([]);
+const usersPageIndexRef = ref(0);
 const isSearching = ref(false);
 const searchOffsetRef = ref(0);
-const searchTotalCountRef = ref(0);
+const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
+const selectedMediaRef = ref(null);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -34,9 +51,6 @@ const select = (event) => {
 let map = null;
 const searchLimit = 16;
 const results = [];
-const selectedCategories = {};
-const selectedTypes = {};
-const selectedUsers = {};
 
 onActivated(async () => {
   const loader = new Loader({
@@ -194,80 +208,137 @@ const browse = async (event) => {
 const reset = (event) => {
   imageDataUrlRef.value = null;
 };
-const selectCategory = (index, item) => {
-  if (index in selectedCategories) {
-    if (!item.checked) {
-      delete selectedCategories[index];
-    }
-  } else if (item.checked) {
-    selectedCategories[index] = item.name;
-  }
+const collapseCategories = () => {
+  categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
 };
-const selectType = (index, item) => {
-  if (index in selectedTypes) {
-    if (!item.checked) {
-      delete selectedTypes[index];
-    }
-  } else if (item.checked) {
-    selectedTypes[index] = item.name;
-  }
+const collapseTypes = () => {
+  typesIsCollapsedRef.value = !typesIsCollapsedRef.value;
 };
-const selectUser = (index, item) => {
-  if (index in selectedUsers) {
-    if (!item.checked) {
-      delete selectedUsers[index];
-    }
-  } else if (item.checked) {
-    selectedUsers[index] = item.name;
-  }
+const collapseUsers = () => {
+  usersIsCollapsedRef.value = !usersIsCollapsedRef.value;
 };
-const fetchCategories = async (offset, length, items, isFetchingRef) => {
-  isFetchingRef.value = true;
-
-  try {
-    let index = 0;
-
-    for (const item of await getCategories(offset, length)) {
-      items.push({ index: offset + index, name: item.name });
-      index++;
+const clearCategories = () => {
+  for (const item of categoriesItemsRef.value) {
+    if (item.checked) {
+      item.checked = false;
     }
-  } catch (error) {
-    console.error(error);
   }
-
-  isFetchingRef.value = false;
+}
+const clearTypes = () => {
+  for (const item of typesItemsRef.value) {
+    if (item.checked) {
+      item.checked = false;
+    }
+  }
+}
+const clearUsers = () => {
+  for (const item of usersItemsRef.value) {
+    if (item.checked) {
+      item.checked = false;
+    }
+  }
+}
+const selectCategory = (index) => {
+  categoriesItemsRef.value[index].checked = !categoriesItemsRef.value[index].checked;
 };
-const fetchTypes = async (offset, length, items, isFetchingRef) => {
-  isFetchingRef.value = true;
-
-  try {
-    let index = 0;
-
-    for (const item of await getTypes(null, null, offset, length)) {
-      items.push({ index: offset + index, name: item });
-      index++;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-
-  isFetchingRef.value = false;
+const selectType = (index) => {
+  typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
 };
-const fetchUsers = async (offset, length, items, isFetchingRef) => {
-  isFetchingRef.value = true;
+const selectUser = (index) => {
+  usersItemsRef.value[index].checked = !usersItemsRef.value[index].checked;
+};
+const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
+  if (categoriesItemsRef.value.length <= pageIndex * maxCategoriesLength) {
+    isFetchingRef.value = true;
 
-  try {
-    let index = 0;
+    try {
+      const items = await getCategories(pageIndex * maxCategoriesLength, pageLength);
+      let length;
 
-    for (const item of await getUsers(offset, length)) {
-      items.push({ index: offset + index, name: item.username });
-      index++;
+      if (items.length > maxCategoriesLength) {
+        categoriesIsContinuousRef.value = true;
+        length = maxCategoriesLength;
+      } else {
+        categoriesIsContinuousRef.value = false;
+        length = items.length;
+      }
+
+      for (let i = 0; i < length; i++) {
+        categoriesItemsRef.value.push({ checked: false, name: items[i].name });
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
+
+    isFetchingRef.value = false;
   }
 
-  isFetchingRef.value = false;
+  categoriesPageIndexRef.value = pageIndex;
+};
+const previousCategories = async (pageIndex) => {
+  categoriesPageIndexRef.value = pageIndex;
+};
+const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
+  if (typesItemsRef.value.length <= pageIndex * maxTypesLength) {
+    isFetchingRef.value = true;
+
+    try {
+      const items = await getTypes(null, null, pageIndex * maxTypesLength, pageLength);
+      let length;
+
+      if (items.length > maxTypesLength) {
+        typesIsContinuousRef.value = true;
+        length = maxTypesLength;
+      } else {
+        typesIsContinuousRef.value = false;
+        length = items.length;
+      }
+
+      for (let i = 0; i < length; i++) {
+        typesItemsRef.value.push({ checked: false, name: items[i] });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    isFetchingRef.value = false;
+  }
+
+  typesPageIndexRef.value = pageIndex;
+};
+const previousTypes = async (pageIndex) => {
+  typesPageIndexRef.value = pageIndex;
+};
+const nextUsers = async (pageIndex, pageLength, isFetchingRef) => {
+  if (usersItemsRef.value.length <= pageIndex * maxUsersLength) {
+    isFetchingRef.value = true;
+
+    try {
+      const items = await getUsers(pageIndex * maxUsersLength, pageLength);
+      let length;
+
+      if (items.length > maxUsersLength) {
+        usersIsContinuousRef.value = true;
+        length = maxUsersLength;
+      } else {
+        usersIsContinuousRef.value = false;
+        length = items.length;
+      }
+
+      for (let i = 0; i < length; i++) {
+        usersItemsRef.value.push({ checked: false, name: items[i].username });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+
+    isFetchingRef.value = false;
+  }
+
+  usersPageIndexRef.value = pageIndex;
+};
+const previousUsers = async (pageIndex) => {
+  usersPageIndexRef.value = pageIndex;
 };
 const shake = (element) => {
   element.animate(
@@ -299,9 +370,9 @@ const search = async () => {
     shake(searchPanelRef.value);
   } else {
     const keywords = queryRef.value.split(/\s/);
-    const categories = Object.values(selectedCategories);
-    const types = Object.values(selectedTypes);
-    const users = Object.values(selectedUsers);
+    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
+    const types = typesItemsRef.value.filter(x => x.checked).map(x => x.name);
+    const users = usersItemsRef.value.filter(x => x.checked).map(x => x.name);
     const searchResults = searchResultsRef.value;
 
     if (
@@ -347,7 +418,7 @@ const search = async () => {
       for (const media of searchItems) {
         if (media.location === null) {
           const item = { marker: null, media: media };
-          
+
           searchResults.push(item);
           results.push(item);
         } else {
@@ -385,7 +456,16 @@ const search = async () => {
     isSearching.value = false;
   }
 };
-const back = (event) => {};
+const back = (event) => {
+  if (selectedMediaRef.value !== null) {
+    selectedMediaRef.value = null;
+  } else if (searchTotalCountRef.value !== null) {
+    searchTotalCountRef.value = null;
+  }
+};
+const selectMedia = (item) => {
+  selectedMediaRef.value = item.media;
+};
 </script>
 
 <template>
@@ -393,162 +473,193 @@ const back = (event) => {};
     <div id="map" ref="mapRef"></div>
     <div class="wrap">
       <div class="block is-hidden-mobile" ref="searchPanelRef">
-        <nav class="panel">
-          <div class="panel-block">
-            <form @submit.prevent>
-              <div class="control">
-                <input
-                  class="input is-outlined has-text-weight-bold"
-                  type="text"
-                  placeholder="Keywords"
-                  v-model="queryRef"
-                />
-              </div>
-            </form>
-          </div>
-          <div class="panel-block">
-            <div class="control">
-              <div
-                class="drop"
-                v-bind:style="{
-                  animationPlayState: isDragging ? 'running' : 'paused',
-                }"
-                @dragover.prevent="dragover($event)"
-                @dragleave.prevent="isDragging = false"
-                @drop.stop.prevent="drop($event)"
-              >
-                <transition name="fade" mode="out-in">
-                  <div
-                    class="image"
-                    v-if="imageDataUrlRef === null"
-                    v-bind:key="imageDataUrlRef"
-                  >
-                    <div class="level">
-                      <div class="level-item">
-                        <label
-                          class="
-                            file
-                            button
-                            is-circle
-                            has-text-weight-bold
-                            file-label
-                          "
-                        >
-                          <input
-                            class="file-input"
-                            type="file"
-                            name="upload"
-                            accept="image/apng, image/png, image/jpeg, image/webp"
-                            style="pointer-events: none"
-                            v-bind:disabled="isLoading"
-                            @change="browse($event)"
-                          />
-                          <div class="file-cta_">
-                            <span class="icon">
-                              <i class="fa-solid fa-file-image"></i>
-                            </span>
-                          </div>
-                        </label>
-                      </div>
-                      <div class="level-item">
-                        <span
-                          class="is-size-7 is-uppercase has-text-weight-bold"
-                          >Image</span
-                        >
-                      </div>
-                    </div>
+        <transition name="slide" mode="out-in">
+          <nav
+            class="panel"
+            v-if="searchTotalCountRef !== null || selectedMediaRef !== null"
+            key="selectedMediaRef"
+          >
+            <div class="panel-block">
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <div class="level-item">
+                    <button class="button is-rounded" @click="back($event)">
+                      <span class="icon is-small">
+                        <i class="fa-solid fa-arrow-left"></i>
+                      </span>
+                    </button>
                   </div>
-                  <div class="image" v-else key="empty">
+                </div>
+              </nav>
+            </div>
+            <transition name="slide" mode="out-in">
+              <Results
+                :items="searchResultsRef"
+                :count="searchTotalCountRef"
+                @select="selectMedia"
+                v-if="selectedMediaRef === null"
+                key="results"
+              />
+              <Preview :item="selectedMediaRef" v-else key="selectedMediaRef" />
+            </transition>
+          </nav>
+          <nav class="panel" v-else key="search">
+            <div class="panel-block">
+              <form @submit.prevent>
+                <div class="control">
+                  <input
+                    class="input is-outlined has-text-weight-bold"
+                    type="text"
+                    placeholder="Keywords"
+                    v-model="queryRef"
+                  />
+                </div>
+              </form>
+            </div>
+            <div class="panel-block">
+              <div class="control">
+                <div
+                  class="drop"
+                  v-bind:style="{
+                    animationPlayState: isDragging ? 'running' : 'paused',
+                  }"
+                  @dragover.prevent="dragover($event)"
+                  @dragleave.prevent="isDragging = false"
+                  @drop.stop.prevent="drop($event)"
+                >
+                  <transition name="fade" mode="out-in">
                     <div
                       class="image"
-                      v-bind:style="{
-                        backgroundImage: 'url(' + imageDataUrlRef + ')',
-                      }"
+                      v-if="imageDataUrlRef === null"
+                      v-bind:key="imageDataUrlRef"
                     >
-                      <div class="control">
-                        <button
-                          class="button is-circle"
-                          type="button"
-                          @click="reset($event)"
-                          key="menu"
-                        >
-                          <span class="icon is-small has-text-danger">
-                            <i class="fa-solid fa-xmark"></i>
-                          </span>
-                        </button>
+                      <div class="level">
+                        <div class="level-item">
+                          <label
+                            class="
+                              file
+                              button
+                              is-circle
+                              has-text-weight-bold
+                              file-label
+                            "
+                          >
+                            <input
+                              class="file-input"
+                              type="file"
+                              name="upload"
+                              accept="image/apng, image/png, image/jpeg, image/webp"
+                              style="pointer-events: none"
+                              v-bind:disabled="isLoading"
+                              @change="browse($event)"
+                            />
+                            <div class="file-cta_">
+                              <span class="icon">
+                                <i class="fa-solid fa-file-image"></i>
+                              </span>
+                            </div>
+                          </label>
+                        </div>
+                        <div class="level-item">
+                          <span
+                            class="is-size-7 is-uppercase has-text-weight-bold"
+                            >Image</span
+                          >
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </transition>
-              </div>
-            </div>
-          </div>
-          <ListBox
-            name="Categories"
-            :max-length="10"
-            :is-enabled="user !== null"
-            :is-collapsed="true"
-            @select="selectCategory"
-            @fetch="fetchCategories"
-          />
-          <ListBox
-            name="Types"
-            :max-length="25"
-            :is-enabled="user !== null"
-            :is-collapsed="true"
-            @select="selectType"
-            @fetch="fetchTypes"
-          />
-          <ListBox
-            name="Users"
-            :max-length="10"
-            :is-enabled="user !== null"
-            :is-collapsed="true"
-            @select="selectUser"
-            @fetch="fetchUsers"
-          />
-          <div class="panel-block">
-            <div class="control">
-              <button
-                class="
-                  button
-                  is-rounded is-outlined is-fullwidth is-size-6 is-primary
-                "
-                type="submit"
-                v-bind:disabled="user === null || isSearching"
-                @click="search"
-              >
-                <transition name="fade" mode="out-in">
-                  <span class="icon" v-if="isSearching" key="searching">
-                    <i class="fas fa-spinner updating"></i>
-                  </span>
-                  <span class="icon" v-else key="ready">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                  </span>
-                </transition>
-                <span class="is-uppercase has-text-weight-bold">Search</span>
-              </button>
-            </div>
-          </div>
-        </nav>
-      </div>
-      <div class="block is-hidden-mobile">
-        <nav class="panel">
-          <div class="panel-block">
-            <nav class="level is-mobile">
-              <div class="level-left">
-                <div class="level-item">
-                  <button class="button is-rounded" @click="back($event)">
-                    <span class="icon is-small">
-                      <i class="fa-solid fa-arrow-left"></i>
-                    </span>
-                  </button>
+                    <div class="image" v-else key="empty">
+                      <div
+                        class="image"
+                        v-bind:style="{
+                          backgroundImage: 'url(' + imageDataUrlRef + ')',
+                        }"
+                      >
+                        <div class="control">
+                          <button
+                            class="button is-circle"
+                            type="button"
+                            @click="reset($event)"
+                            key="menu"
+                          >
+                            <span class="icon is-small has-text-danger">
+                              <i class="fa-solid fa-xmark"></i>
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
                 </div>
               </div>
-            </nav>
-          </div>
-          <Results :items="searchResultsRef" :count="searchTotalCountRef" />
-        </nav>
+            </div>
+            <ListBox
+              name="Categories"
+              :max-length="maxCategoriesLength"
+              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-collapsed="categoriesIsCollapsedRef"
+              :is-continuous="categoriesIsContinuousRef"
+              :items="categoriesItemsRef"
+              :page-index="categoriesPageIndexRef"
+              @collapse="collapseCategories"
+              @clear="clearCategories"
+              @select="selectCategory"
+              @next="nextCategories"
+              @previous="previousCategories"
+            />
+            <ListBox
+              name="Types"
+              :max-length="maxTypesLength"
+              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-collapsed="typesIsCollapsedRef"
+              :is-continuous="typesIsContinuousRef"
+              :items="typesItemsRef"
+              :page-index="typesPageIndexRef"
+              @collapse="collapseTypes"
+              @clear="clearTypes"
+              @select="selectType"
+              @next="nextTypes"
+              @previous="previousTypes"
+            />
+            <ListBox
+              name="Users"
+              :max-length="maxUsersLength"
+              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-collapsed="usersIsCollapsedRef"
+              :is-continuous="usersIsContinuousRef"
+              :items="usersItemsRef"
+              :page-index="usersPageIndexRef"
+              @collapse="collapseUsers"
+              @clear="clearUsers"
+              @select="selectUser"
+              @next="nextUsers"
+              @previous="previousUsers"
+            />
+            <div class="panel-block">
+              <div class="control">
+                <button
+                  class="
+                    button
+                    is-rounded is-outlined is-fullwidth is-size-6 is-primary
+                  "
+                  type="submit"
+                  v-bind:disabled="user === null || isSearching"
+                  @click="search"
+                >
+                  <transition name="fade" mode="out-in">
+                    <span class="icon" v-if="isSearching" key="searching">
+                      <i class="fas fa-spinner updating"></i>
+                    </span>
+                    <span class="icon" v-else key="ready">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                  </transition>
+                  <span class="is-uppercase has-text-weight-bold">Search</span>
+                </button>
+              </div>
+            </div>
+          </nav>
+        </transition>
       </div>
     </div>
   </div>
@@ -587,11 +698,14 @@ const back = (event) => {};
     overflow-y: auto;
 
     > .block {
+      width: 320px;
+
       .panel {
         background: #ffffff;
         border-radius: 8px;
         box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
+        overflow: hidden;
 
         .panel-block > .level {
           width: 100%;
