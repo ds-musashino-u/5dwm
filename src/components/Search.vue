@@ -392,8 +392,8 @@ const back = (event) => {};
   <div id="search">
     <div id="map" ref="mapRef"></div>
     <div class="wrap">
-      <div class="block is-hidden-mobile">
-        <nav class="panel" ref="searchPanelRef">
+      <div class="block is-hidden-mobile" ref="searchPanelRef">
+        <nav class="panel">
           <div class="panel-block">
             <form @submit.prevent>
               <div class="control">
