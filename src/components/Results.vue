@@ -86,7 +86,7 @@ const previous = (event) => {
               >
                 <picture
                   class="image"
-                  v-if="item.media.type.startsWith('image')"
+                  v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')"
                 >
                   <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                 </picture>
