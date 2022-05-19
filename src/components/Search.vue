@@ -18,6 +18,7 @@ const searchPanelRef = ref(null);
 const queryRef = ref("");
 const isDragging = ref(false);
 const isLoading = ref(false);
+const imageIsCollapsedRef = ref(true);
 const imageDataUrlRef = ref(null);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(true);
@@ -541,81 +542,121 @@ const selectMedia = (item) => {
               </form>
             </div>
             <div class="panel-block">
-              <div class="control">
-                <div
-                  class="drop"
-                  v-bind:style="{
-                    animationPlayState: isDragging ? 'running' : 'paused',
-                  }"
-                  @dragover.prevent="dragover($event)"
-                  @dragleave.prevent="isDragging = false"
-                  @drop.stop.prevent="drop($event)"
-                >
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <div class="level-item">
+                    <h3 class="panel-heading is-uppercase has-text-weight-bold">
+                      Image
+                    </h3>
+                  </div>
                   <transition name="fade" mode="out-in">
-                    <div
-                      class="image"
-                      v-if="imageDataUrlRef === null"
-                      v-bind:key="imageDataUrlRef"
-                    >
-                      <div class="level">
-                        <div class="level-item">
-                          <label
-                            class="
-                              file
-                              button
-                              is-circle
-                              has-text-weight-bold
-                              file-label
-                            "
-                          >
-                            <input
-                              class="file-input"
-                              type="file"
-                              name="upload"
-                              accept="image/apng, image/png, image/jpeg, image/webp"
-                              style="pointer-events: none"
-                              v-bind:disabled="isLoading"
-                              @change="browse($event)"
-                            />
-                            <div class="file-cta_">
-                              <span class="icon">
-                                <i class="fa-solid fa-file-image"></i>
-                              </span>
-                            </div>
-                          </label>
-                        </div>
-                        <div class="level-item">
-                          <span
-                            class="is-size-7 is-uppercase has-text-weight-bold"
-                            >Image</span
-                          >
-                        </div>
-                      </div>
-                    </div>
-                    <div class="image" v-else key="empty">
-                      <div
-                        class="image"
-                        v-bind:style="{
-                          backgroundImage: 'url(' + imageDataUrlRef + ')',
-                        }"
-                      >
-                        <div class="control">
-                          <button
-                            class="button is-circle"
-                            type="button"
-                            @click="reset($event)"
-                            key="menu"
-                          >
-                            <span class="icon is-small has-text-danger">
-                              <i class="fa-solid fa-xmark"></i>
-                            </span>
-                          </button>
-                        </div>
-                      </div>
+                    <div class="level-item" v-show="imageDataUrlRef !== null" key="attaced">
+                      <span class="icon is-primary">
+                        <i class="fa-solid fa-check"></i>
+                      </span>
                     </div>
                   </transition>
                 </div>
-              </div>
+                <div class="level-right">
+                  <div class="level-item">
+                    <button
+                      class="button toggle is-rounded"
+                      @click="imageIsCollapsedRef = !imageIsCollapsedRef"
+                    >
+                      <span
+                        class="icon is-small"
+                        v-bind:class="{ collapsed: imageIsCollapsedRef }"
+                      >
+                        <i class="fa-solid fa-chevron-up"></i>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </nav>
+              <transition name="fade" mode="out-in">
+                <div
+                  class="control"
+                  v-show="!imageIsCollapsedRef"
+                  key="collapse"
+                >
+                  <div
+                    class="drop"
+                    v-bind:style="{
+                      animationPlayState: isDragging ? 'running' : 'paused',
+                    }"
+                    @dragover.prevent="dragover($event)"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.stop.prevent="drop($event)"
+                  >
+                    <transition name="fade" mode="out-in">
+                      <div
+                        class="image"
+                        v-if="imageDataUrlRef === null"
+                        v-bind:key="imageDataUrlRef"
+                      >
+                        <div class="level">
+                          <div class="level-item">
+                            <label
+                              class="
+                                file
+                                button
+                                is-circle
+                                has-text-weight-bold
+                                file-label
+                              "
+                            >
+                              <input
+                                class="file-input"
+                                type="file"
+                                name="upload"
+                                accept="image/apng, image/png, image/jpeg, image/webp"
+                                style="pointer-events: none"
+                                v-bind:disabled="isLoading"
+                                @change="browse($event)"
+                              />
+                              <div class="file-cta_">
+                                <span class="icon">
+                                  <i class="fa-solid fa-file-image"></i>
+                                </span>
+                              </div>
+                            </label>
+                          </div>
+                          <div class="level-item">
+                            <span
+                              class="
+                                is-size-7 is-uppercase
+                                has-text-weight-bold
+                              "
+                              >Image</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="image" v-else key="empty">
+                        <div
+                          class="image"
+                          v-bind:style="{
+                            backgroundImage: 'url(' + imageDataUrlRef + ')',
+                          }"
+                        >
+                          <div class="control">
+                            <button
+                              class="button is-circle"
+                              type="button"
+                              @click="reset($event)"
+                              key="menu"
+                            >
+                              <span class="icon is-small has-text-danger">
+                                <i class="fa-solid fa-xmark"></i>
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </transition>
+                  </div>
+                </div>
+              </transition>
             </div>
             <ListBox
               name="Categories"
@@ -731,8 +772,47 @@ const selectMedia = (item) => {
           0 0px 0 1px rgb(10 10 10 / 2%);
         overflow: hidden;
 
-        .panel-block > .level {
-          width: 100%;
+        .panel-block {
+          flex-direction: column;
+
+          > .level {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+
+            > .level-left > .level-item > .panel-heading {
+              margin: 0 !important;
+              padding: 0;
+              background: transparent;
+            }
+
+            > .level-right {
+              margin: 0px 0px 0px 12px;
+
+              button.is-rounded {
+                border-radius: 9999px !important;
+                padding: 12px !important;
+                box-shadow: none !important;
+
+                > span.icon {
+                  margin: 0 !important;
+                  width: 1rem !important;
+                  height: 1rem !important;
+                }
+              }
+
+              button.toggle {
+                > span {
+                  transform: rotate(180deg);
+                }
+
+                > span.collapsed {
+                  transition: transform 0.5s ease;
+                  transform: rotate(0deg);
+                }
+              }
+            }
+          }
         }
 
         .panel-tabs:not(:last-child),
@@ -741,7 +821,7 @@ const selectMedia = (item) => {
 
           .drop {
             display: flex;
-            margin: 0;
+            margin: 0.5em 0px 0px 0px;
             padding: 4px;
             width: 100%;
             aspect-ratio: 16 / 9;
