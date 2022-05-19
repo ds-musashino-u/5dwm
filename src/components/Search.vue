@@ -142,16 +142,8 @@ const markerClick = (event) => {
   );
 
   if (element !== undefined) {
-    console.log(element);
+    selectedMediaRef.value = element.media;
   }
-  /*for (const marker of markers) {
-    if (marker.latLng === event.latLng) {
-      console.log("find");
-      map.setCenter(marker.getPosition());
-
-      break;
-    }
-  }*/
 };
 const dragover = (event) => {
   isDragging.value = true;
