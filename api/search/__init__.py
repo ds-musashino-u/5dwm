@@ -1,8 +1,10 @@
+import re
 import json
 import logging
 import os
 import ssl
 from datetime import datetime, timezone
+from base64 import b64decode
 from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
@@ -36,15 +38,26 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             categories = data.get('categories', None)
             types = data.get('types', None)
             usernames = data.get('usernames', None)
-            image_url = data.get('image_url', None)
+            image = data.get('image', None)
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
             limit = data.get('limit')
             start_time = datetime.now(timezone.utc).timestamp()
 
+            
+
             Session = sessionmaker(bind=engine)
             session = Session()
+
+            if image is not None:
+                match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", image)
+
+                if match:
+                    mime_type, encoding, data = match.groups()
+                
+                    if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
+                        data = b64decode(data)
 
             try:
                 media = []
