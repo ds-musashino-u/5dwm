@@ -34,8 +34,7 @@ const props = defineProps({
       <div class="level-right">
         <div class="level-item">
           <a class="button is-rounded" target="_blank" v-bind:href="item.url"
-            ><span class="icon is-small"
-              ><i class="fa-solid fa-link"></i></span
+            ><span class="icon is-small"><i class="fa-solid fa-link"></i></span
           ></a>
         </div>
         <div class="level-item">
@@ -64,7 +63,7 @@ const props = defineProps({
             <article class="media">
               <div class="media-content">
                 <picture class="image">
-                  <img v-bind:src="item.url" v-bind:alt="String(index)" />
+                  <img v-bind:src="item.url" alt="Picture" />
                 </picture>
               </div>
             </article>
@@ -77,7 +76,8 @@ const props = defineProps({
     <div class="level">
       <div class="level-left">
         <div class="level-item">
-          <span class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
             >Type</span
           >
         </div>
@@ -87,6 +87,109 @@ const props = defineProps({
           <span
             class="is-size-6 has-text-weight-bold"
             v-text="item.type"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-block">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+            >User</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <span
+            class="is-size-6 has-text-weight-bold"
+            v-text="item.username"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-block" v-if="item.location !== null">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+            >Longitude</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <span
+            class="is-size-6 has-text-weight-bold"
+            v-text="String(item.location.longitude)"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-block" v-if="item.location !== null">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+            >Latitude</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <span
+            class="is-size-6 has-text-weight-bold"
+            v-text="String(item.location.latitude)"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div
+    class="panel-block"
+    v-if="item.location !== null && item.location.hasAddress"
+  >
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey has-text-right"
+            >Address</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <p
+            class="is-size-6 has-text-weight-bold"
+            v-text="item.location.address"
+          ></p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="panel-block">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+            >Created</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <span
+            class="is-size-6 has-text-weight-bold"
+            v-text="item.createdAt.toLocaleString()"
           ></span>
         </div>
       </div>
@@ -104,6 +207,7 @@ const props = defineProps({
     margin: 0;
     padding: 0.5em 0.75em;
     width: 100%;
+    flex-direction: row;
 
     .panel-heading {
       margin: 0;
@@ -125,28 +229,46 @@ const props = defineProps({
       text-align: center;
     }
 
-    > .level-right > .level-item {
-      .button.is-rounded {
-        border-radius: 9999px !important;
-        padding: 12px !important;
-        box-shadow: none !important;
+    > .level-right {
+      margin: 0;
 
-        > span.icon {
-          margin: 0 !important;
-          width: 1rem !important;
-          height: 1rem !important;
+      > .level-item {
+        .button.is-rounded {
+          border-radius: 9999px !important;
+          padding: 12px !important;
+          box-shadow: none !important;
+
+          > span.icon {
+            margin: 0 !important;
+            width: 1rem !important;
+            height: 1rem !important;
+          }
+        }
+
+        .button.toggle {
+          > span {
+            transform: rotate(180deg);
+          }
+
+          > span.collapsed {
+            transition: transform 0.5s ease;
+            transform: rotate(0deg);
+          }
         }
       }
+    }
+  }
 
-      .button.toggle {
-        > span {
-          transform: rotate(180deg);
-        }
+  :not(nav).level {
+    align-items: flex-start;
+    
+    > .level-right {
+      margin: 0;
+      width: 50%;
 
-        > span.collapsed {
-          transition: transform 0.5s ease;
-          transform: rotate(0deg);
-        }
+      > .level-item {
+        width: 100%;
+        justify-content: flex-end;
       }
     }
   }
@@ -157,7 +279,7 @@ const props = defineProps({
     justify-content: flex-start;
     align-items: center;
     padding: 0 !important;
-    width: 320px;
+    width: 400px;
 
     .level {
       padding: 0;
@@ -187,51 +309,6 @@ const props = defineProps({
           }
         }
       }
-    }
-
-    label {
-      padding: 0.5em 0.75em;
-      width: 100%;
-      background-color: transparent;
-      transition: background-color 0.5s;
-    }
-
-    label:hover {
-      background-color: hsl(0deg, 0%, 93%);
-    }
-
-    label > span {
-      user-select: none;
-    }
-
-    label > span:not(:first-of-type) {
-      margin: 0px 0px 0px 12px;
-    }
-
-    label input[type="checkbox"],
-    label input[type="radio"] {
-      display: none;
-    }
-
-    label .custom {
-      position: relative;
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    label input[type="checkbox"] + .custom:before,
-    label input[type="radio"] + .custom:before {
-      font-weight: 900;
-      font-family: "Font Awesome 6 Free";
-      content: "\f00c";
-      color: transparent;
-      text-shadow: none;
-    }
-
-    label input[type="checkbox"]:checked + .custom:before,
-    label input[type="radio"]:checked + .custom:before {
-      color: var(--accent-color);
-      transition: 0.5s;
     }
   }
 
