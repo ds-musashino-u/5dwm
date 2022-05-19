@@ -408,8 +408,7 @@ const search = async (ignoreCache = true) => {
 
     if (range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
-      console.log("cached");
-
+      
       searchResults.splice(0);
       searchResultsRef.value.splice(0);
 
