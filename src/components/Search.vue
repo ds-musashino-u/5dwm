@@ -46,7 +46,7 @@ const props = defineProps({
   text: String,
 });
 let map = null;
-const searchPageLength = 16;
+const searchPageLength = 20;
 const searchResults = [];
 const cachedSearchResults = {};
 
