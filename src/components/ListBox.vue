@@ -291,7 +291,7 @@ watch(isEnabledRef, async (newValue, oldValue) => {
   }
 
   .control:last-child {
-    padding: 12px 0px 0px 0px;
+    padding: 0;
   }
 }
 </style>
