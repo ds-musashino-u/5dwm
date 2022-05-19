@@ -10,14 +10,14 @@ import { Location } from "./location.mjs";
  * @param {!Array<string>} categories - Categories
  * @param {!Array<string>} types - Types
  * @param {!Array<string>} usernames - Usernames
- * @param {?string} imageUrl - Image URL
+ * @param {?string} image - Data URL of Image
  * @param {?string} sort - Sort
  * @param {?string} order - Order (asc or desc)
  * @param {!number} offset - Offset
  * @param {?number} limit - Limit
  * @return {Array<Media>} - Array of media items
  */
-export async function search(token, keywords, categories, types, usernames, imageUrl = null, sort = null, order = null, offset = 0, limit = null) {
+export async function search(token, keywords, categories, types, usernames, image = null, sort = null, order = null, offset = 0, limit = null) {
     const data = {
         keywords: keywords,
         categories: categories,
@@ -27,8 +27,8 @@ export async function search(token, keywords, categories, types, usernames, imag
         limit: limit
     };
 
-    if (imageUrl !== null) {
-        data["image_url"] = imageUrl;
+    if (image !== null) {
+        data["image"] = image;
     }
 
     if (sort !== null) {
