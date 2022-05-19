@@ -35,7 +35,7 @@ const usersIsCollapsedRef = ref(true);
 const usersIsContinuousRef = ref(false);
 const usersItemsRef = ref([]);
 const usersPageIndexRef = ref(0);
-const isSearching = ref(false);
+const isSearchingRef = ref(false);
 const searchPageIndexRef = ref(0);
 const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
@@ -45,13 +45,10 @@ const props = defineProps({
   user: Object,
   text: String,
 });
-/*const emit = defineEmits(["reveal", "select"]);
-const select = (event) => {
-  emit("select", event.target.dataset);
-};*/
 let map = null;
 const searchPageLength = 16;
 const searchResults = [];
+const cachedSearchResults = {};
 
 onActivated(async () => {
   const loader = new Loader({
@@ -367,7 +364,13 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
-const search = async () => {
+const search = async (ignoreCache = true) => {
+  if (ignoreCache) {
+    Object.keys(cachedSearchResults).forEach((key) => {
+      delete cachedSearchResults[key];
+    });
+  }
+
   if (map === null) {
     shake(searchPanelRef.value);
   } else {
@@ -393,72 +396,124 @@ const search = async () => {
       return;
     }
 
-    isSearching.value = true;
-    searchTotalCountRef.value = 0;
+    const range = [...Array(searchPageLength).keys()].map(
+      (x) => searchPageIndexRef.value * searchPageLength + x
+    );
 
     for (const result of searchResults) {
-      result.marker.setMap(null);
+      if (result.marker !== null) {
+        result.marker.setMap(null);
+      }
     }
 
-    searchResults.splice(0);
-    searchResultsRef.value.splice(0);
-
-    try {
-      const idToken = await props.auth0.getIdTokenClaims();
-      const [searchItems, totalCount] = await searchWorldMap(
-        idToken.__raw,
-        keywords,
-        categories,
-        types,
-        users,
-        null,
-        "created_at",
-        "desc",
-        searchPageIndexRef.value * searchPageLength,
-        searchPageLength
-      );
+    if (range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
+      console.log("cached");
 
-      searchTotalCountRef.value = totalCount;
+      searchResults.splice(0);
+      searchResultsRef.value.splice(0);
 
-      for (const media of searchItems) {
-        if (media.location === null) {
-          const item = { marker: null, media: media };
+      for (const index of range) {
+        const item = cachedSearchResults[index];
 
-          searchResults.push(item);
-          searchResultsRef.value.push(item);
-        } else {
+        if (item.media.location !== null) {
           const marker = new google.maps.Marker({
             position: {
-              lat: media.location.latitude,
-              lng: media.location.longitude,
+              lat: item.media.location.latitude,
+              lng: item.media.location.longitude,
             },
             map,
-            title: media.description,
+            title: item.media.description,
             animation: google.maps.Animation.DROP,
           });
-          const item = { marker: marker, media: media };
 
           marker.addListener("click", markerClick);
           bounds.extend(
             new google.maps.LatLng(
-              media.location.latitude,
-              media.location.longitude
+              item.media.location.latitude,
+              item.media.location.longitude
             )
           );
 
-          searchResults.push(item);
-          searchResultsRef.value.push(item);
+          item.marker = marker;
         }
+
+        searchResults.push(item);
+        searchResultsRef.value.push(item);
       }
 
       map.fitBounds(bounds);
-    } catch (error) {
-      shake(searchPanelRef.value);
-      console.error(error);
-    }
+    } else {
+      isSearchingRef.value = true;
 
-    isSearching.value = false;
+      try {
+        const idToken = await props.auth0.getIdTokenClaims();
+        const [searchItems, totalCount] = await searchWorldMap(
+          idToken.__raw,
+          keywords,
+          categories,
+          types,
+          users,
+          imageDataUrlRef.value,
+          "created_at",
+          "desc",
+          searchPageIndexRef.value * searchPageLength,
+          searchPageLength
+        );
+        const bounds = new google.maps.LatLngBounds();
+        let index = 0;
+
+        searchResults.splice(0);
+        searchResultsRef.value.splice(0);
+        searchTotalCountRef.value = totalCount;
+
+        for (const media of searchItems) {
+          if (media.location === null) {
+            const item = { marker: null, media: media };
+
+            searchResults.push(item);
+            searchResultsRef.value.push(item);
+            cachedSearchResults[
+              searchPageIndexRef.value * searchPageLength + index
+            ] = item;
+          } else {
+            const marker = new google.maps.Marker({
+              position: {
+                lat: media.location.latitude,
+                lng: media.location.longitude,
+              },
+              map,
+              title: media.description,
+              animation: google.maps.Animation.DROP,
+            });
+            const item = { marker: marker, media: media };
+
+            marker.addListener("click", markerClick);
+            bounds.extend(
+              new google.maps.LatLng(
+                media.location.latitude,
+                media.location.longitude
+              )
+            );
+
+            searchResults.push(item);
+            searchResultsRef.value.push(item);
+            cachedSearchResults[
+              searchPageIndexRef.value * searchPageLength + index
+            ] = item;
+          }
+
+          index++;
+        }
+
+        map.fitBounds(bounds);
+      } catch (error) {
+        shake(searchPanelRef.value);
+        console.error(error);
+      }
+
+      isSearchingRef.value = false;
+    }
   }
 };
 const back = (event) => {
@@ -466,12 +521,18 @@ const back = (event) => {
     selectedMediaRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
     for (const result of searchResults) {
-      result.marker.setMap(null);
+      if (result.marker !== null) {
+        result.marker.setMap(null);
+      }
     }
 
     searchResults.splice(0);
     searchResultsRef.value.splice(0);
     searchTotalCountRef.value = null;
+
+    Object.keys(cachedSearchResults).forEach((key) => {
+      delete cachedSearchResults[key];
+    });
   }
 };
 const selectMedia = (item) => {
@@ -480,12 +541,12 @@ const selectMedia = (item) => {
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
 
-  search();
+  search(false);
 };
 const previousResults = (index) => {
   searchPageIndexRef.value = index;
 
-  search();
+  search(false);
 };
 </script>
 
@@ -517,35 +578,9 @@ const previousResults = (index) => {
           </nav>
           <nav
             class="panel"
-            v-else-if="!isSearching && searchTotalCountRef !== null"
-            key="results"
+            v-else-if="searchTotalCountRef === null"
+            key="search"
           >
-            <div class="panel-block">
-              <nav class="level is-mobile">
-                <div class="level-left">
-                  <div class="level-item">
-                    <button class="button is-rounded" @click="back($event)">
-                      <span class="icon is-small">
-                        <i class="fa-solid fa-arrow-left"></i>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </nav>
-            </div>
-            <Results
-              :items="searchResultsRef"
-              :count="searchTotalCountRef"
-              :page-index="searchPageIndexRef"
-              :page-length="searchPageLength"
-              @select="selectMedia"
-              @next="nextResults"
-              @previous="previousResults"
-              v-if="selectedMediaRef === null"
-              key="results"
-            />
-          </nav>
-          <nav class="panel" v-else key="search">
             <div class="panel-block">
               <form @submit.prevent>
                 <div class="control">
@@ -729,11 +764,11 @@ const previousResults = (index) => {
                     is-rounded is-outlined is-fullwidth is-size-6 is-primary
                   "
                   type="submit"
-                  v-bind:disabled="user === null || isSearching"
+                  v-bind:disabled="user === null || isSearchingRef"
                   @click="search"
                 >
                   <transition name="fade" mode="out-in">
-                    <span class="icon" v-if="isSearching" key="searching">
+                    <span class="icon" v-if="isSearchingRef" key="searching">
                       <i class="fas fa-spinner updating"></i>
                     </span>
                     <span class="icon" v-else key="ready">
@@ -744,6 +779,33 @@ const previousResults = (index) => {
                 </button>
               </div>
             </div>
+          </nav>
+          <nav class="panel" v-else key="results">
+            <div class="panel-block">
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <div class="level-item">
+                    <button class="button is-rounded" @click="back($event)">
+                      <span class="icon is-small">
+                        <i class="fa-solid fa-arrow-left"></i>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <Results
+              :is-fetching="isSearchingRef"
+              :items="searchResultsRef"
+              :count="searchTotalCountRef"
+              :page-index="searchPageIndexRef"
+              :page-length="searchPageLength"
+              @select="selectMedia"
+              @next="nextResults"
+              @previous="previousResults"
+              v-if="selectedMediaRef === null"
+              key="results"
+            />
           </nav>
         </transition>
       </div>
@@ -778,8 +840,6 @@ const previousResults = (index) => {
     width: fit-content;
     max-height: 100%;
     background: transparent;
-    /*border-radius: 290486px;*/
-    /*overflow: hidden;*/
     overflow-x: hidden;
     overflow-y: auto;
 
