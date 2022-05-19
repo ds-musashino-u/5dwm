@@ -18,7 +18,7 @@ export class Media {
      */
     constructor(id, url, type, categories, description, username, location, createdAt, previewImageUrl = null) {
         this.id = id;
-        this.url = url;
+        this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
         this.categories = categories;
         this.description = description;
