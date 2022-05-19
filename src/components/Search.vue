@@ -223,23 +223,24 @@ const clearCategories = () => {
       item.checked = false;
     }
   }
-}
+};
 const clearTypes = () => {
   for (const item of typesItemsRef.value) {
     if (item.checked) {
       item.checked = false;
     }
   }
-}
+};
 const clearUsers = () => {
   for (const item of usersItemsRef.value) {
     if (item.checked) {
       item.checked = false;
     }
   }
-}
+};
 const selectCategory = (index) => {
-  categoriesItemsRef.value[index].checked = !categoriesItemsRef.value[index].checked;
+  categoriesItemsRef.value[index].checked =
+    !categoriesItemsRef.value[index].checked;
 };
 const selectType = (index) => {
   typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
@@ -252,7 +253,10 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
     isFetchingRef.value = true;
 
     try {
-      const items = await getCategories(pageIndex * maxCategoriesLength, pageLength);
+      const items = await getCategories(
+        pageIndex * maxCategoriesLength,
+        pageLength
+      );
       let length;
 
       if (items.length > maxCategoriesLength) {
@@ -283,7 +287,12 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
     isFetchingRef.value = true;
 
     try {
-      const items = await getTypes(null, null, pageIndex * maxTypesLength, pageLength);
+      const items = await getTypes(
+        null,
+        null,
+        pageIndex * maxTypesLength,
+        pageLength
+      );
       let length;
 
       if (items.length > maxTypesLength) {
@@ -370,9 +379,15 @@ const search = async () => {
     shake(searchPanelRef.value);
   } else {
     const keywords = queryRef.value.split(/\s/);
-    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
-    const types = typesItemsRef.value.filter(x => x.checked).map(x => x.name);
-    const users = usersItemsRef.value.filter(x => x.checked).map(x => x.name);
+    const categories = categoriesItemsRef.value
+      .filter((x) => x.checked)
+      .map((x) => x.name);
+    const types = typesItemsRef.value
+      .filter((x) => x.checked)
+      .map((x) => x.name);
+    const users = usersItemsRef.value
+      .filter((x) => x.checked)
+      .map((x) => x.name);
     const searchResults = searchResultsRef.value;
 
     if (
@@ -476,7 +491,7 @@ const selectMedia = (item) => {
         <transition name="slide" mode="out-in">
           <nav
             class="panel"
-            v-if="searchTotalCountRef !== null || selectedMediaRef !== null"
+            v-if="selectedMediaRef !== null"
             key="selectedMediaRef"
           >
             <div class="panel-block">
@@ -492,16 +507,33 @@ const selectMedia = (item) => {
                 </div>
               </nav>
             </div>
-            <transition name="slide" mode="out-in">
-              <Results
-                :items="searchResultsRef"
-                :count="searchTotalCountRef"
-                @select="selectMedia"
-                v-if="selectedMediaRef === null"
-                key="results"
-              />
-              <Preview :item="selectedMediaRef" v-else key="selectedMediaRef" />
-            </transition>
+            <Preview :item="selectedMediaRef" />
+          </nav>
+          <nav
+            class="panel"
+            v-else-if="searchTotalCountRef !== null"
+            key="results"
+          >
+            <div class="panel-block">
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <div class="level-item">
+                    <button class="button is-rounded" @click="back($event)">
+                      <span class="icon is-small">
+                        <i class="fa-solid fa-arrow-left"></i>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </nav>
+            </div>
+            <Results
+              :items="searchResultsRef"
+              :count="searchTotalCountRef"
+              @select="selectMedia"
+              v-if="selectedMediaRef === null"
+              key="results"
+            />
           </nav>
           <nav class="panel" v-else key="search">
             <div class="panel-block">
@@ -698,7 +730,7 @@ const selectMedia = (item) => {
     overflow-y: auto;
 
     > .block {
-      width: 320px;
+      width: 400px;
 
       .panel {
         background: #ffffff;
