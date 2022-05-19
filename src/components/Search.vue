@@ -51,7 +51,7 @@ const select = (event) => {
 };*/
 let map = null;
 const searchLimit = 16;
-const results = [];
+const searchResults = [];
 
 onActivated(async () => {
   const loader = new Loader({
@@ -135,7 +135,7 @@ onActivated(async () => {
 onDeactivated(() => {});
 
 const markerClick = (event) => {
-  const element = results.find(
+  const element = searchResults.find(
     (x) =>
       x.marker !== null &&
       event.latLng.lat === x.marker.position.lat &&
@@ -381,8 +381,7 @@ const search = async () => {
     const users = usersItemsRef.value
       .filter((x) => x.checked)
       .map((x) => x.name);
-    const searchResults = searchResultsRef.value;
-
+    
     if (
       keywords.every((x) => x.length === 0) &&
       categories.length === 0 &&
@@ -396,13 +395,13 @@ const search = async () => {
 
     isSearching.value = true;
     searchTotalCountRef.value = 0;
-    searchResultsRef.value = null;
 
-    for (const result of results) {
+    for (const result of searchResults) {
       result.marker.setMap(null);
     }
 
-    results.splice(0);
+    searchResults.splice(0);
+    searchResultsRef.value.splice(0);
 
     try {
       const idToken = await props.auth0.getIdTokenClaims();
@@ -421,14 +420,13 @@ const search = async () => {
       const bounds = new google.maps.LatLngBounds();
 
       searchTotalCountRef.value = totalCount;
-      searchResults.splice(0);
-
+      
       for (const media of searchItems) {
         if (media.location === null) {
           const item = { marker: null, media: media };
 
           searchResults.push(item);
-          results.push(item);
+          searchResultsRef.value.push(item);
         } else {
           const marker = new google.maps.Marker({
             position: {
@@ -450,7 +448,7 @@ const search = async () => {
           );
 
           searchResults.push(item);
-          results.push(item);
+          searchResultsRef.value.push(item);
         }
       }
 
@@ -460,7 +458,6 @@ const search = async () => {
       console.error(error);
     }
 
-    searchResultsRef.value = searchResults;
     isSearching.value = false;
   }
 };
@@ -468,6 +465,12 @@ const back = (event) => {
   if (selectedMediaRef.value !== null) {
     selectedMediaRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
+    for (const result of searchResults) {
+      result.marker.setMap(null);
+    }
+
+    searchResults.splice(0);
+    searchResultsRef.value.splice(0);
     searchTotalCountRef.value = null;
   }
 };
