@@ -477,6 +477,12 @@ const back = (event) => {
 const selectMedia = (item) => {
   selectedMediaRef.value = item.media;
 };
+const nextResults = () => {
+  
+}
+const previousResults = () => {
+
+}
 </script>
 
 <template>
