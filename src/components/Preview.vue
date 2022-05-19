@@ -406,6 +406,7 @@ const props = defineProps({
     span + p,
     p {
       margin: 0.5em 0px 0px 0px;
+      overflow-wrap: break-word;
     }
   }
 }
