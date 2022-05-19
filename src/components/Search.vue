@@ -511,7 +511,7 @@ const selectMedia = (item) => {
           </nav>
           <nav
             class="panel"
-            v-else-if="searchTotalCountRef !== null"
+            v-else-if="!isSearching && searchTotalCountRef !== null"
             key="results"
           >
             <div class="panel-block">
