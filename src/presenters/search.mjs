@@ -55,9 +55,9 @@ export async function search(token, keywords, categories, types, usernames, imag
 
         for (const item of json.items) {
             if (item.location !== null && item.location.type === "Point" && typeof(item.location.coordinates[0]) === "number" && typeof(item.location.coordinates[1]) === "number") {
-                media.push(new Media(item.id, item.url.replace(/^http:\/\//, "https://"), item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
             } else {
-                media.push(new Media(item.id, item.url.replace(/^http:\/\//, "https://"), item.type, item.categories, item.description, item.username, null, item.created_at));
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at));
             }
         }
 
