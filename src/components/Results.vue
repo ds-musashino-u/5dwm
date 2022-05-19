@@ -1,23 +1,29 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, toRef, watch } from "vue";
+import { ref } from "vue";
 
 const props = defineProps({
   isCollapsed: { type: Boolean, required: false, default: false },
+  isFetching: { type: Boolean, required: false, default: false },
   items: { type: Array, required: false, default: null },
   count: { type: Number, required: false, default: 0 },
   pageIndex: { type: Number, required: false, default: 0 },
   pageLength: { type: Number, required: false, default: 10 },
 });
 const emit = defineEmits(["select", "next", "previous"]);
+const isForwardingRef = ref(true);
 const select = (event, item) => {
   emit("select", item);
 };
 const next = (event) => {
+  isForwardingRef.value = true;
+  
   emit("next", props.pageIndex + 1);
 };
 const previous = (event) => {
+  isForwardingRef.value = false;
+
   emit("previous", props.pageIndex - 1);
 };
 </script>
@@ -70,7 +76,7 @@ const previous = (event) => {
           <article
             class="media gallery-list-item"
             v-for="(item, index) in items"
-            v-bind:key="item"
+            v-bind:key="index"
           >
             <div class="media-content">
               <button
@@ -118,34 +124,49 @@ const previous = (event) => {
       </div>
     </transition>
     <transition name="fade">
-      <div
-        class="control"
-        v-show="!isCollapsed && (pageIndexRef > 0 || hasNextRef)"
-      >
+      <div class="control" v-show="!isCollapsed && count > pageLength">
         <nav class="level">
           <div class="level-left">
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
+                v-bind:disabled="pageIndex === 0 || isFetching"
                 @click="previous($event)"
               >
-                <span class="icon is-small">
-                  <i class="fa-solid fa-chevron-left"></i>
-                </span>
+                <transition name="fade" mode="out-in">
+                  <span class="icon is-small" v-if="!isForwardingRef && isFetching" key="fetching">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                  <span class="icon is-small" v-else key="fetched">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </span>
+                </transition>
               </button>
             </div>
+          </div>
+          <div class="level-item">
+            <span class="is-size-6 has-text-weight-bold"
+              >{{ pageIndex + 1 }}/{{ ~~Math.ceil(count / pageLength) }}</span
+            >
           </div>
           <div class="level-right">
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="!hasNextRef || isFetchingRef"
+                v-bind:disabled="
+                  pageIndex + 1 === ~~Math.ceil(count / pageLength) ||
+                  isFetching
+                "
                 @click="next($event)"
               >
-                <span class="icon is-small">
-                  <i class="fa-solid fa-chevron-right"></i>
-                </span>
+                <transition name="fade" mode="out-in">
+                  <span class="icon is-small" v-if="isForwardingRef && isFetching" key="fetching">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                  <span class="icon is-small" v-else key="fetched">
+                    <i class="fa-solid fa-chevron-right"></i>
+                  </span>
+                </transition>
               </button>
             </div>
           </div>
@@ -294,55 +315,10 @@ const previous = (event) => {
         }
       }
     }
-
-    label {
-      padding: 0.5em 0.75em;
-      width: 100%;
-      background-color: transparent;
-      transition: background-color 0.5s;
-    }
-
-    label:hover {
-      background-color: hsl(0deg, 0%, 93%);
-    }
-
-    label > span {
-      user-select: none;
-    }
-
-    label > span:not(:first-of-type) {
-      margin: 0px 0px 0px 12px;
-    }
-
-    label input[type="checkbox"],
-    label input[type="radio"] {
-      display: none;
-    }
-
-    label .custom {
-      position: relative;
-      margin: 0;
-      font-size: 1rem;
-    }
-
-    label input[type="checkbox"] + .custom:before,
-    label input[type="radio"] + .custom:before {
-      font-weight: 900;
-      font-family: "Font Awesome 6 Free";
-      content: "\f00c";
-      color: transparent;
-      text-shadow: none;
-    }
-
-    label input[type="checkbox"]:checked + .custom:before,
-    label input[type="radio"]:checked + .custom:before {
-      color: var(--accent-color);
-      transition: 0.5s;
-    }
   }
 
   .control:last-child {
-    padding: 12px 0px 0px 0px;
+    padding: 0;
   }
 }
 </style>
