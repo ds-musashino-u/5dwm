@@ -45,8 +45,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             limit = data.get('limit')
             start_time = datetime.now(timezone.utc).timestamp()
 
-            
-
             Session = sessionmaker(bind=engine)
             session = Session()
 
