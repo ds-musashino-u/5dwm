@@ -528,6 +528,7 @@ const back = (event) => {
 
     searchResults.splice(0);
     searchResultsRef.value.splice(0);
+    searchPageIndexRef.value = 0;
     searchTotalCountRef.value = null;
 
     Object.keys(cachedSearchResults).forEach((key) => {
