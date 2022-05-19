@@ -56,7 +56,7 @@ const props = defineProps({
       <div
         class="control"
         v-if="!isCollapsed && item.type.startsWith('image')"
-        key="image"
+        key="collapse"
       >
         <nav class="level">
           <div class="level-item">
@@ -72,149 +72,188 @@ const props = defineProps({
       </div>
     </transition>
   </div>
-  <div class="panel-block" v-if="item.categories.length > 0">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Categories</span
-          >
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed && item.categories.length > 0" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Categories</span
+            >
+          </div>
         </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item" v-for="category in item.categories" v-bind:key="category">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="category"
-          ></span>
+        <div class="level-right">
+          <div
+            class="level-item"
+            v-for="category in item.categories"
+            v-bind:key="category"
+          >
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="category"
+            ></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="panel-block">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Type</span
-          >
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Type</span
+            >
+          </div>
         </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="item.type"
-          ></span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="panel-block">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >User</span
-          >
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="item.username"
-          ></span>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.type"
+            ></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="panel-block" v-if="item.location !== null">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Longitude</span
-          >
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >User</span
+            >
+          </div>
         </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="String(item.location.longitude)"
-          ></span>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="panel-block" v-if="item.location !== null">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Latitude</span
-          >
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="String(item.location.latitude)"
-          ></span>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.username"
+            ></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div
-    class="panel-block"
-    v-if="item.location !== null && item.location.hasAddress"
-  >
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Address</span
-          >
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed && item.location !== null" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Longitude</span
+            >
+          </div>
         </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <p
-            class="is-size-6 has-text-weight-bold has-text-right"
-            v-text="item.location.address"
-          ></p>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="panel-block">
-    <div class="level">
-      <div class="level-left">
-        <div class="level-item">
-          <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-            >Created</span
-          >
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <span
-            class="is-size-6 has-text-weight-bold"
-            v-text="item.createdAt.toLocaleString()"
-          ></span>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="String(item.location.longitude)"
+            ></span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed && item.location !== null" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Latitude</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="String(item.location.latitude)"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div
+      class="panel-block"
+      v-if="!isCollapsed && item.location !== null && item.location.hasAddress" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Address</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <p
+              class="is-size-6 has-text-weight-bold has-text-right"
+              v-text="item.location.address"
+            ></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Created</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.createdAt.toLocaleString()"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div
+      class="panel-block"
+      v-if="!isCollapsed && item.description !== null && item.description.length > 0" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Description</span
+            >
+          </div>
+          <div class="level-item">
+            <p
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.description"
+            ></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <style lang="scss" scoped>
@@ -282,10 +321,19 @@ const props = defineProps({
   :not(nav).level {
     align-items: flex-start;
 
+    > .level-left {
+      margin: 0;
+      flex-direction: column;
+      align-items: flex-start;
+
+      .level-item:not(:last-child) {
+        margin: 0px 0px 0.5em 0px;
+      }
+    }
+
     > .level-right {
       margin: 0;
       width: 50%;
-
       flex-direction: column;
 
       > .level-item {
