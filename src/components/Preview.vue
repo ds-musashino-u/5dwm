@@ -55,7 +55,7 @@ const props = defineProps({
     <transition name="fade" mode="out-in">
       <div
         class="control"
-        v-if="!isCollapsed && item.type.startsWith('image')"
+        v-if="!isCollapsed && item.type.startsWith('image') && item.url.startsWith('https://')"
         key="collapse"
       >
         <nav class="level">
