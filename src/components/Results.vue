@@ -49,7 +49,6 @@ watch(isEnabledRef, async (newValue, oldValue) => {
       "fetch",
       pageIndexRef.value * props.maxLength,
       props.maxLength + 1,
-      nextResult,
       isFetchingRef
     );
   }
@@ -286,7 +285,7 @@ watch(
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
-    width: 320px;
+    width: 400px;
 
     .level {
       padding: 0.5em 0.75em;
