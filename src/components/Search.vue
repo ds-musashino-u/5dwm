@@ -381,7 +381,7 @@ const search = async () => {
     const users = usersItemsRef.value
       .filter((x) => x.checked)
       .map((x) => x.name);
-    
+
     if (
       keywords.every((x) => x.length === 0) &&
       categories.length === 0 &&
@@ -420,7 +420,7 @@ const search = async () => {
       const bounds = new google.maps.LatLngBounds();
 
       searchTotalCountRef.value = totalCount;
-      
+
       for (const media of searchItems) {
         if (media.location === null) {
           const item = { marker: null, media: media };
@@ -477,12 +477,16 @@ const back = (event) => {
 const selectMedia = (item) => {
   selectedMediaRef.value = item.media;
 };
-const nextResults = () => {
-  
-}
-const previousResults = () => {
+const nextResults = (index) => {
+  searchPageIndexRef.value = index;
 
-}
+  search();
+};
+const previousResults = (index) => {
+  searchPageIndexRef.value = index;
+
+  search();
+};
 </script>
 
 <template>
@@ -563,7 +567,11 @@ const previousResults = () => {
                     </h3>
                   </div>
                   <transition name="fade" mode="out-in">
-                    <div class="level-item" v-show="imageDataUrlRef !== null" key="attaced">
+                    <div
+                      class="level-item"
+                      v-show="imageDataUrlRef !== null"
+                      key="attaced"
+                    >
                       <span class="icon is-primary">
                         <i class="fa-solid fa-check"></i>
                       </span>
