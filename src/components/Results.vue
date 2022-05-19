@@ -4,15 +4,13 @@
 import { ref, reactive, toRef, watch } from "vue";
 
 const props = defineProps({
-  name: { type: String, required: false, default: null },
-  maxLength: { type: Number, required: false, default: 10 },
-  isEnabled: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
   items: { type: Array, required: false, default: null },
   count: { type: Number, required: false, default: 0 },
+  pageIndex: { type: Number, required: false, default: 0 },
+  pageLength: { type: Number, required: false, default: 10 },
 });
-const emit = defineEmits(["select", "fetch"]);
-const isEnabledRef = toRef(props, "isEnabled");
+const emit = defineEmits(["select", "next", "previous"]);
 const pageIndexRef = ref(0);
 const nextResult = reactive([]);
 const hasNextRef = ref(false);
@@ -42,52 +40,6 @@ const previous = (event) => {
     }
   }
 };
-
-watch(isEnabledRef, async (newValue, oldValue) => {
-  if (newValue !== oldValue && oldValue === false) {
-    emit(
-      "fetch",
-      pageIndexRef.value * props.maxLength,
-      props.maxLength + 1,
-      isFetchingRef
-    );
-  }
-});
-watch(
-  nextResult,
-  (result) => {
-    if (result.length > 0) {
-      let length;
-
-      if (result.length === props.maxLength + 1) {
-        length = props.maxLength;
-        hasNextRef.value = true;
-      } else {
-        length = result.length;
-        hasNextRef.value = false;
-      }
-
-      items.splice(0);
-
-      for (let i = 0; i < length; i++) {
-        if (
-          result[i].index in cachedItems &&
-          cachedItems[result[i].index].name === result[i].name
-        ) {
-          items.push(cachedItems[result[i].index]);
-        } else {
-          const item = { checked: false, name: result[i].name };
-
-          items.push(item);
-          cachedItems[result[i].index] = item;
-        }
-      }
-
-      result.splice(0);
-    }
-  },
-  { deep: true }
-);
 </script>
 
 <template>
@@ -196,7 +148,7 @@ watch(
               <button
                 class="button"
                 v-bind:disabled="
-                  !isEnabled || pageIndexRef === 0 || isFetchingRef
+                  pageIndexRef === 0 || isFetchingRef
                 "
                 @click="previous($event)"
               >
@@ -210,7 +162,7 @@ watch(
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="!isEnabled || !hasNextRef || isFetchingRef"
+                v-bind:disabled="!hasNextRef || isFetchingRef"
                 @click="next($event)"
               >
                 <span class="icon is-small">

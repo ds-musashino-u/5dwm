@@ -36,7 +36,7 @@ const usersIsContinuousRef = ref(false);
 const usersItemsRef = ref([]);
 const usersPageIndexRef = ref(0);
 const isSearching = ref(false);
-const searchOffsetRef = ref(0);
+const searchPageIndexRef = ref(0);
 const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
 const selectedMediaRef = ref(null);
@@ -50,7 +50,7 @@ const select = (event) => {
   emit("select", event.target.dataset);
 };*/
 let map = null;
-const searchLimit = 16;
+const searchPageLength = 16;
 const searchResults = [];
 
 onActivated(async () => {
@@ -414,8 +414,8 @@ const search = async () => {
         null,
         "created_at",
         "desc",
-        searchOffsetRef.value * searchLimit,
-        searchLimit
+        searchPageIndexRef.value * searchPageLength,
+        searchPageLength
       );
       const bounds = new google.maps.LatLngBounds();
 
@@ -526,7 +526,11 @@ const selectMedia = (item) => {
             <Results
               :items="searchResultsRef"
               :count="searchTotalCountRef"
+              :page-index="searchPageIndexRef"
+              :page-length="searchPageLength"
               @select="selectMedia"
+              @next="nextResults"
+              @previous="previousResults"
               v-if="selectedMediaRef === null"
               key="results"
             />
