@@ -63,7 +63,7 @@ const props = defineProps({
             <article class="media">
               <div class="media-content">
                 <picture class="image">
-                  <img v-bind:src="item.url" alt="Picture" />
+                  <img v-bind:src="item.url" v-bind:alt="item.id" />
                 </picture>
               </div>
             </article>
@@ -71,6 +71,26 @@ const props = defineProps({
         </nav>
       </div>
     </transition>
+  </div>
+  <div class="panel-block" v-if="item.categories.length > 0">
+    <div class="level">
+      <div class="level-left">
+        <div class="level-item">
+          <span
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+            >Categories</span
+          >
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item" v-for="category in item.categories" v-bind:key="category">
+          <span
+            class="is-size-6 has-text-weight-bold"
+            v-text="category"
+          ></span>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="panel-block">
     <div class="level">
@@ -160,7 +180,7 @@ const props = defineProps({
       <div class="level-left">
         <div class="level-item">
           <span
-            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey has-text-right"
+            class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
             >Address</span
           >
         </div>
@@ -168,7 +188,7 @@ const props = defineProps({
       <div class="level-right">
         <div class="level-item">
           <p
-            class="is-size-6 has-text-weight-bold"
+            class="is-size-6 has-text-weight-bold has-text-right"
             v-text="item.location.address"
           ></p>
         </div>
@@ -261,14 +281,20 @@ const props = defineProps({
 
   :not(nav).level {
     align-items: flex-start;
-    
+
     > .level-right {
       margin: 0;
       width: 50%;
 
+      flex-direction: column;
+
       > .level-item {
         width: 100%;
         justify-content: flex-end;
+      }
+
+      .level-item:not(:last-child) {
+        margin: 0px 0px 0.5em 0px;
       }
     }
   }
