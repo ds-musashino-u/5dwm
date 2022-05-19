@@ -11,34 +11,14 @@ const props = defineProps({
   pageLength: { type: Number, required: false, default: 10 },
 });
 const emit = defineEmits(["select", "next", "previous"]);
-const pageIndexRef = ref(0);
-const nextResult = reactive([]);
-const hasNextRef = ref(false);
-const isFetchingRef = ref(false);
-const cachedItems = {};
 const select = (event, item) => {
   emit("select", item);
 };
 const next = (event) => {
-  pageIndexRef.value++;
-
-  emit(
-    "fetch",
-    pageIndexRef.value * props.maxLength,
-    props.maxLength + 1,
-    nextResult,
-    isFetchingRef
-  );
+  emit("next", props.pageIndex + 1);
 };
 const previous = (event) => {
-  if (pageIndexRef.value > 0) {
-    pageIndexRef.value--;
-    items.splice(0);
-
-    for (let i = 0; i < props.maxLength; i++) {
-      items.push(cachedItems[pageIndexRef.value * props.maxLength + i]);
-    }
-  }
+  emit("previous", props.pageIndex - 1);
 };
 </script>
 
@@ -147,9 +127,7 @@ const previous = (event) => {
             <div class="level-item">
               <button
                 class="button"
-                v-bind:disabled="
-                  pageIndexRef === 0 || isFetchingRef
-                "
+                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
                 @click="previous($event)"
               >
                 <span class="icon is-small">
