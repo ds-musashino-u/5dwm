@@ -73,7 +73,11 @@ const props = defineProps({
     </transition>
   </div>
   <transition name="fade" mode="out-in">
-    <div class="panel-block" v-if="!isCollapsed && item.categories.length > 0" key="collapse">
+    <div
+      class="panel-block"
+      v-if="!isCollapsed && item.categories.length > 0"
+      key="collapse"
+    >
       <div class="level">
         <div class="level-left">
           <div class="level-item">
@@ -143,7 +147,11 @@ const props = defineProps({
     </div>
   </transition>
   <transition name="fade" mode="out-in">
-    <div class="panel-block" v-if="!isCollapsed && item.location !== null" key="collapse">
+    <div
+      class="panel-block"
+      v-if="!isCollapsed && item.location !== null"
+      key="collapse"
+    >
       <div class="level">
         <div class="level-left">
           <div class="level-item">
@@ -165,7 +173,11 @@ const props = defineProps({
     </div>
   </transition>
   <transition name="fade" mode="out-in">
-    <div class="panel-block" v-if="!isCollapsed && item.location !== null" key="collapse">
+    <div
+      class="panel-block"
+      v-if="!isCollapsed && item.location !== null"
+      key="collapse"
+    >
       <div class="level">
         <div class="level-left">
           <div class="level-item">
@@ -189,7 +201,9 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.location !== null && item.location.hasAddress" key="collapse">
+      v-if="!isCollapsed && item.location !== null && item.location.hasAddress"
+      key="collapse"
+    >
       <div class="level">
         <div class="level-left">
           <div class="level-item">
@@ -235,22 +249,16 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.description !== null && item.description.length > 0" key="collapse">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <span
-              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-              >Description</span
-            >
-          </div>
-          <div class="level-item">
-            <p
-              class="is-size-6 has-text-weight-bold"
-              v-text="item.description"
-            ></p>
-          </div>
-        </div>
+      v-if="
+        !isCollapsed && item.description !== null && item.description.length > 0
+      "
+      key="collapse"
+    >
+      <div class="content">
+        <span class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+          >Description</span
+        >
+        <p class="is-size-6 has-text-weight-bold" v-text="item.description"></p>
       </div>
     </div>
   </transition>
@@ -388,6 +396,17 @@ const props = defineProps({
 
   .control:last-child {
     padding: 12px 0px 0px 0px;
+  }
+
+  .content {
+    margin: 0;
+    padding: 0.5em 0.75em;
+    width: 100%;
+
+    span + p,
+    p {
+      margin: 0.5em 0px 0px 0px;
+    }
   }
 }
 </style>
