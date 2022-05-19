@@ -44,8 +44,6 @@ paths:
                 image:
                   type: string
                   format: uri
-                  readOnly: false
-                  writeOnly: true
                 sort:
                   type: string
                   enum: [created_at]
