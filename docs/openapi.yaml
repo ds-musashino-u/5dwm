@@ -41,9 +41,11 @@ paths:
                   type: array
                   items:
                     type: string
-                image_url:
+                image:
                   type: string
                   format: uri
+                  readOnly: false
+                  writeOnly: true
                 sort:
                   type: string
                   enum: [created_at]
