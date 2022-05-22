@@ -3,12 +3,16 @@ import json
 import logging
 import os
 import ssl
+import numpy as np
+from io import BytesIO
 from datetime import datetime, timezone
 from base64 import b64decode
-from sqlalchemy import create_engine, desc, or_
+from PIL import Image
+from sqlalchemy import create_engine, desc, and_, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media
+from shared.imaging import compute_histogram, resize_image, top_k
+from shared.models import Media, ImageVector
 
 import azure.functions as func
 
@@ -53,9 +57,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if match:
                     mime_type, encoding, data = match.groups()
-                
+
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
-                        data = b64decode(data)
+                        histogram = top_k(compute_histogram(np.array(resize_image(
+                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='chuan_hoa'), 15)
+
+                        query = session.query(ImageVector).filter(and_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
 
             try:
                 media = []
