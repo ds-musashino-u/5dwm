@@ -1,3 +1,5 @@
+import { encodeGeohash } from "./geohash.mjs"
+
 /**
  * @classdesc Location
  */
@@ -7,10 +9,11 @@ export class Location {
      * @param {!number} latitude - Latitude
      * @param {?string} address - Address
      */
-    constructor(longitude, latitude, address = null) {
+    constructor(longitude, latitude, address = null, geohashPrecision=9) {
         this.longitude = longitude;
         this.latitude = latitude;
         this.address = address;
+        this.geohash = encodeGeohash(latitude, longitude, geohashPrecision);
     }
 
     get hasAddress() {
