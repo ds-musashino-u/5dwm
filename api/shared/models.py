@@ -34,6 +34,7 @@ class ImageVector(Base):
     feature = Column('feature', String(20))
     value = Column('val', Float())
     __table_args__ = (PrimaryKeyConstraint('img_id', 'feature', name='img_vector_pkey'),)
+    media = relationship('Media')
 
 
 class User(Base):
