@@ -65,7 +65,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media)
+                query = session.query(Media)#, ImageVector).join(ImageVector, Media.id == ImageVector.id)
 
                 if sort == 'created_at':
                     if order is None:
@@ -85,8 +85,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if histogram is not None:
                     subquery = session.query(ImageVector.id).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
                     query = query.filter(Media.id.in_(subquery))
-
-                query = query.join(ImageVector, Media.id == ImageVector.id)
 
                 if keywords is not None:
                     for keyword in keywords:
