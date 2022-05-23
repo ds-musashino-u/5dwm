@@ -87,6 +87,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
                         or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
+                    if limit is None:
+                        limit = 100
+
                 if keywords is not None:
                     for keyword in keywords:
                         query = query.filter(
