@@ -65,8 +65,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media)#, ImageVector).join(ImageVector, Media.id == ImageVector.id)
-
+                query = session.query(Media).join(ImageVector, Media.id == ImageVector.id)
+                
                 if sort == 'created_at':
                     if order is None:
                         query = query.order_by(desc(Media.created_at))
@@ -120,6 +120,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': item.description,
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
+                        'histogram': item.vector,
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
