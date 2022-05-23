@@ -97,6 +97,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
 
+                query = query.filter(Media.created_at >= datetime(1970, 0, 0, 0, 0, 0, 0))
+
                 total_count = query.count()
 
                 if limit is not None:
