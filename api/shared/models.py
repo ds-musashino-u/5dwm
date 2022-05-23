@@ -1,4 +1,4 @@
-from sqlalchemy import Column, PrimaryKeyConstraint, Integer, Float, String, Text, DateTime
+from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint, Integer, Float, String, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
@@ -30,7 +30,7 @@ class Media(Base):
 
 class ImageVector(Base):
     __tablename__ = 'img_vector'
-    id = Column('img_id', Integer())
+    id = Column('img_id', Integer(), ForeignKey('media.id'))
     feature = Column('feature', String(20))
     value = Column('val', Float())
     __table_args__ = (PrimaryKeyConstraint('img_id', 'feature', name='img_vector_pkey'),)
