@@ -61,7 +61,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         histogram = top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='chuan_hoa'), 15)
+                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15)
 
             try:
                 media = []
@@ -111,16 +111,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if offset is not None:
                     query = query.offset(offset)
 
-                temp = {}
-
-                if histogram is not None:
-                    for (index, value) in histogram:
-                        temp[index] = value
-
                 for item in query.all():
                     score = None
 
-                    '''
                     if histogram is not None and item.vector is not None:
                         vector1 = []
                         vector2 = []
@@ -133,8 +126,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                         if len(vector1) > 0:
                             score = np.dot(np.ndarray(vector1), np.ndarray(vector2))
-                    '''
-
+                    
                     media.append({
                         'id': item.id,
                         'url': item.url,
@@ -145,7 +137,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
                         'score': score,
-                        'h': temp,
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
