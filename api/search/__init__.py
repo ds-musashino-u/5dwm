@@ -86,7 +86,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     subquery = session.query(ImageVector.id).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
                     query = query.filter(Media.id.in_(subquery))
 
-                query = query.join(ImageVector, Media.id == Image.id)
+                query = query.join(ImageVector, Media.id == ImageVector.id)
 
                 if keywords is not None:
                     for keyword in keywords:
