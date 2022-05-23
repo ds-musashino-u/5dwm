@@ -72,7 +72,6 @@ export async function search(token, keywords, categories, types, usernames, imag
         const json = await response.json();
 
         for (const item of json.items) {
-            // Fallback
             if(!/^https?:\/\//.test(item.url)) {
                 item.url = `https://www.5dwm.mydns.jp/5dtest/upload/images/${item.url}`;
             }
