@@ -8,7 +8,7 @@ from io import BytesIO
 from datetime import datetime, timezone
 from base64 import b64decode
 from PIL import Image
-from sqlalchemy import create_engine, desc, and_, or_
+from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.imaging import compute_histogram, resize_image, top_k
@@ -47,6 +47,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
             limit = data.get('limit')
+            histogram = None
             start_time = datetime.now(timezone.utc).timestamp()
 
             Session = sessionmaker(bind=engine)
@@ -61,8 +62,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         histogram = top_k(compute_histogram(np.array(resize_image(
                             Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='chuan_hoa'), 15)
-
-                        query = session.query(ImageVector).filter(and_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
 
             try:
                 media = []
@@ -82,6 +81,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
+
+                if histogram is not None:
+                    subquery = session.query(ImageVector.id).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
+                    query = query.filter(Media.id.in_(subquery))
 
                 if keywords is not None:
                     for keyword in keywords:
