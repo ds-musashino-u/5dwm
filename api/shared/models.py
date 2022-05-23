@@ -25,7 +25,7 @@ class Media(Base):
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     created_at = Column('datetaken', DateTime())
-    vector = relationship('ImageVector', backref='media', uselist=True)
+    vector = relationship('ImageVector', uselist=True)
 
 
 class ImageVector(Base):
