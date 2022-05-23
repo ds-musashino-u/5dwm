@@ -83,9 +83,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                #if histogram is not None:                    
-                #    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
-                #        or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
+                if histogram is not None:                    
+                    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
+                        or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                 if keywords is not None:
                     for keyword in keywords:
