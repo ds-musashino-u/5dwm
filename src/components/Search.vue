@@ -735,7 +735,7 @@ const previousResults = (index) => {
                           </div>
                         </div>
                       </div>
-                      <div class="image" v-else key="empty">
+                      <div class="image" v-else v-bind:key="imageDataUrlRef">
                         <div
                           class="image"
                           v-bind:style="{
