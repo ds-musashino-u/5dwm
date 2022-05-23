@@ -71,7 +71,29 @@ const props = defineProps({
         </nav>
       </div>
     </transition>
-  </div>
+  </div>  
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed && item.hasScore" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Score</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.score"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
@@ -96,28 +118,6 @@ const props = defineProps({
             <span
               class="is-size-6 has-text-weight-bold"
               v-text="category"
-            ></span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </transition>
-  <transition name="fade" mode="out-in">
-    <div class="panel-block" v-if="!isCollapsed && item.hasScore" key="collapse">
-      <div class="level">
-        <div class="level-left">
-          <div class="level-item">
-            <span
-              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-              >Score</span
-            >
-          </div>
-        </div>
-        <div class="level-right">
-          <div class="level-item">
-            <span
-              class="is-size-6 has-text-weight-bold"
-              v-text="item.score"
             ></span>
           </div>
         </div>
