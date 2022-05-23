@@ -435,10 +435,11 @@ const search = async (ignoreCache = true) => {
             )
           );
 
-          item.marker = marker;
+          searchResults.push({ marker: marker, item: item });
+        } else {
+          searchResults.push({ marker: null, item: item });
         }
-
-        searchResults.push(item);
+        
         searchResultsRef.value.push(item);
       }
 
@@ -493,8 +494,8 @@ const search = async (ignoreCache = true) => {
               marker.addListener("click", markerClick);
               bounds.extend(
                 new google.maps.LatLng(
-                  media.location.latitude,
-                  media.location.longitude
+                  resultItem.media.location.latitude,
+                  resultItem.media.location.longitude
                 )
               );
 
