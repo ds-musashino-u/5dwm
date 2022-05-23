@@ -53,7 +53,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         histogram = top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15)
+                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='chuan_hoa'), 15)
 
             try:
                 media = []
