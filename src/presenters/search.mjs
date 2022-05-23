@@ -3,6 +3,24 @@ import { Media } from "./media.mjs";
 import { Location } from "./location.mjs";
 
 /**
+ * @classdesc ResultItem
+ */
+ export class ResultItem {
+    /**
+     * @param {?number} score - Score
+     * @param {!Media} media - Media
+     */
+    constructor(score, media) {
+        this.score = score;
+        this.media = media;
+    }
+
+    get hasScore() {
+        return this.score !== null;
+    }
+}
+
+/**
  * /api/v1/search
  * @module search
  * @param {!string} token - ID token
@@ -15,7 +33,7 @@ import { Location } from "./location.mjs";
  * @param {?string} order - Order (asc or desc)
  * @param {!number} offset - Offset
  * @param {?number} limit - Limit
- * @return {Array<Media>} - Array of media items
+ * @return {Array<ResultItem>} - Array of result items
  */
 export async function search(token, keywords, categories, types, usernames, image = null, sort = null, order = null, offset = 0, limit = null) {
     const data = {
@@ -50,20 +68,18 @@ export async function search(token, keywords, categories, types, usernames, imag
     });
 
     if (response.ok) {
-        const media = [];
+        const resultItems = [];
         const json = await response.json();
-
-        console.log(json.items);
 
         for (const item of json.items) {
             if (item.location !== null && item.location.type === "Point" && typeof(item.location.coordinates[0]) === "number" && typeof(item.location.coordinates[1]) === "number") {
-                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at)));
             } else {
-                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at)));
             }
         }
 
-        return [media, json.count];
+        return [resultItems, json.count];
     } else {
         throw new Error(response.statusText);
     }
