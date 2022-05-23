@@ -65,8 +65,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media).join(ImageVector, Media.id == ImageVector.id)
-                
+                query = session.query(Media).join(
+                    ImageVector, Media.id == ImageVector.id)
+
                 if sort == 'created_at':
                     if order is None:
                         query = query.order_by(desc(Media.created_at))
@@ -82,9 +83,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                if histogram is not None:
-                    subquery = session.query(ImageVector.id).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))
-                    query = query.filter(Media.id.in_(subquery))
+                if histogram is not None:                    
+                    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
+                        or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                 if keywords is not None:
                     for keyword in keywords:
@@ -111,13 +112,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.offset(offset)
 
                 for item in query.all():
-                    vector = None
+                    score = None
 
-                    if item.vector is not None:
-                        vector = {}
+                    if histogram is not None and item.vector is not None:
+                        vector1 = []
+                        vector2 = []
 
-                        for element in item.vector:
-                            vector[element.feature] = element.value
+                        for (index, value) in histogram:
+                            for element in item.vector:
+                                if f'f{index}' == element.feature:
+                                    vector1.append(value)
+                                    vector2.append(element.value)
+
+                        if len(vector1) > 0:
+                            score = np.dot(np.ndarray(vector1), np.ndarray(vector2))
 
                     media.append({
                         'id': item.id,
@@ -128,7 +136,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': item.description,
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
-                        'histogram': vector,
+                        'score': score,
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
