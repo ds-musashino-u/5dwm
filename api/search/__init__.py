@@ -57,8 +57,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media).join(
-                    ImageVector, Media.id == ImageVector.id)
+                query = session.query(Media)
 
                 if sort == 'created_at':
                     if order is None:
@@ -75,8 +74,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                if histogram is not None:                    
-                    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
+                if histogram is not None:
+                    query = query.join(ImageVector, Media.id == ImageVector.id).filter(Media.id.in_(session.query(ImageVector.id).filter(
                         or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                     if limit is None:
@@ -120,8 +119,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     vector2.append(element.value)
 
                         if len(vector1) > 0:
-                            score = np.dot(np.array(vector1), np.array(vector2))
-                    
+                            score = np.dot(np.array(vector1),
+                                           np.array(vector2))
+
                     media.append({
                         'id': item.id,
                         'url': item.url,
