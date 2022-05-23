@@ -1,6 +1,5 @@
 from numpy import histogram
 from sqlalchemy import Column, PrimaryKeyConstraint, Integer, Float, String, Text, DateTime
-from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -26,7 +25,6 @@ class Media(Base):
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     created_at = Column('datetaken', DateTime())
-    vector = relationship('ImageVector', uselist=True)
 
 
 class ImageVector(Base):
@@ -35,7 +33,6 @@ class ImageVector(Base):
     feature = Column('feature', String(20))
     value = Column('val', Float())
     __table_args__ = (PrimaryKeyConstraint('img_id', 'feature', name='img_vector_pkey'),)
-    media = relationship('Media')
 
 
 class User(Base):
