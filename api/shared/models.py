@@ -25,7 +25,7 @@ class Media(Base):
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     created_at = Column('datetaken', DateTime())
-    vector = relationship('ImageVector', uselist=True)
+    vector = relationship('ImageVector', back_populates='media', uselist=True)
 
 
 class ImageVector(Base):
@@ -34,7 +34,7 @@ class ImageVector(Base):
     feature = Column('feature', String(20))
     value = Column('val', Float())
     __table_args__ = (PrimaryKeyConstraint('img_id', 'feature', name='img_vector_pkey'),)
-    media = relationship('Media')
+    media = relationship('Media', back_populates='img_vector')
 
 
 class User(Base):
