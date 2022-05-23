@@ -120,7 +120,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': item.description,
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
-                        #'histogram': item.vector,
+                        'histogram': item.vector,
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
