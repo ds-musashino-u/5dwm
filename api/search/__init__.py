@@ -65,7 +65,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media)#.join(ImageVector, Media.id == ImageVector.id)
+                query = session.query(Media).join(ImageVector, Media.id == ImageVector.id)
                 
                 if sort == 'created_at':
                     if order is None:
