@@ -28,14 +28,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
                 return func.HttpResponse(status_code=401, mimetype='', charset='')
 
-        '''
-        with psycopg2.connect(os.environ.get('POSTGRESQL_CONNECTION_URL'), sslmode='disable') as connection: #require
-            with connection.cursor(cursor_factory=DictCursor) as cursol:
-                cursol.execute('SELECT * FROM users')
-                
-                return func.HttpResponse(json.dumps([cursol.fetchall()]), status_code=200, mimetype='application/json', charset='utf-8')
-        '''
-
         if req.headers.get('Content-Type') == 'application/json':
             data = req.get_json()
             keywords = data.get('keywords', None)
