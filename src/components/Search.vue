@@ -464,7 +464,7 @@ const search = async (ignoreCache = true) => {
 
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
-        searchTotalCountRef.value = totalCount;
+        searchTotalCountRef.value = searchItems.length;
 
         if (searchItems.length > searchPageIndexRef.value * searchPageLength + searchPageLength) {
           for (const media of searchItems.splice(0, searchPageLength)) {
