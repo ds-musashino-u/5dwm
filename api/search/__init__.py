@@ -83,9 +83,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                if histogram is not None:                    
-                    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
-                        or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
+                #if histogram is not None:                    
+                #    query = query.filter(Media.id.in_(session.query(ImageVector.id).filter(
+                #        or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                 if keywords is not None:
                     for keyword in keywords:
@@ -114,6 +114,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 for item in query.all():
                     score = None
 
+                    '''
                     if histogram is not None and item.vector is not None:
                         vector1 = []
                         vector2 = []
@@ -126,6 +127,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                         if len(vector1) > 0:
                             score = np.dot(np.ndarray(vector1), np.ndarray(vector2))
+                    '''
 
                     media.append({
                         'id': item.id,
