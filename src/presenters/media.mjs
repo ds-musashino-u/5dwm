@@ -1,6 +1,5 @@
 import { Endpoints } from "./endpoints.mjs";
 import { Location } from "./location.mjs";
-import { encodeGeohash } from "./geohash.mjs"
 
 /**
  * @classdesc Media
@@ -27,10 +26,6 @@ export class Media {
         this.location = location;
         this.createdAt = new Date(createdAt);
         this.previewImageUrl = previewImageUrl;
-
-        if (this.location !== null) {
-            this.geohash = encodeGeohash(location.latitude, location.longitude, 9);
-        }
     }
 
     get hasPreviewImageUrl() {
