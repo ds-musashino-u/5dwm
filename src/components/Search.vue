@@ -8,7 +8,7 @@ import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
-import { search as searchWorldMap } from "../presenters/search.mjs";
+import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
 import Preview from "./Preview.vue";
@@ -39,7 +39,7 @@ const isSearchingRef = ref(false);
 const searchPageIndexRef = ref(0);
 const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
-const selectedMediaRef = ref(null);
+const selectedItemRef = ref(null);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -140,7 +140,7 @@ const markerClick = (event) => {
   );
 
   if (element !== undefined) {
-    selectedMediaRef.value = element.media;
+    selectedItemRef.value = element.item;
   }
 };
 const dragover = (event) => {
@@ -448,7 +448,7 @@ const search = async (ignoreCache = true) => {
 
       try {
         const idToken = await props.auth0.getIdTokenClaims();
-        const [searchItems, totalCount] = await searchWorldMap(
+        const [resultItems, totalCount] = await searchWorldMap(
           idToken.__raw,
           keywords,
           categories,
@@ -465,29 +465,30 @@ const search = async (ignoreCache = true) => {
 
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
-        searchTotalCountRef.value = searchItems.length;
+        searchTotalCountRef.value = resultItems.length;
 
-        if (searchItems.length > searchPageIndexRef.value * searchPageLength + searchPageLength) {
-          for (const media of searchItems.splice(0, searchPageLength)) {
-            if (media.location === null) {
-              const item = { marker: null, media: media };
+        if (resultItems.some(x => x.hasScore)) {
+          resultItems.sort((x, y) => (x.hasScore ? x.score : 0) - (y.hasScore ? y.score : 0));
+        }
 
-              searchResults.push(item);
-              searchResultsRef.value.push(item);
+        if (resultItems.length > searchPageIndexRef.value * searchPageLength + searchPageLength) {
+          for (const resultItem of resultItems.splice(0, searchPageLength)) {
+            if (resultItem.media.location === null) {
+              searchResults.push({ marker: null, item: resultItem });
+              searchResultsRef.value.push(resultItem);
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
-              ] = item;
+              ] = resultItem;
             } else {
               const marker = new google.maps.Marker({
                 position: {
-                  lat: media.location.latitude,
-                  lng: media.location.longitude,
+                  lat: resultItem.media.location.latitude,
+                  lng: resultItem.media.location.longitude,
                 },
                 map,
-                title: media.description,
+                title: resultItem.media.description,
                 animation: google.maps.Animation.DROP,
               });
-              const item = { marker: marker, media: media };
 
               marker.addListener("click", markerClick);
               bounds.extend(
@@ -497,57 +498,53 @@ const search = async (ignoreCache = true) => {
                 )
               );
 
-              searchResults.push(item);
-              searchResultsRef.value.push(item);
+              searchResults.push({ marker: marker, item: resultItem });
+              searchResultsRef.value.push(resultItem);
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
-              ] = item;
+              ] = resultItem;
             }
 
             index++;
           }
 
-          for (const media of searchItems) {
+          for (const resultItem of resultItems) {
             cachedSearchResults[
               searchPageIndexRef.value * searchPageLength + index
-            ] = { marker: null, media: media };
+            ] = resultItem;
             index++;
           }
         } else {
-          for (const media of searchItems) {
-            if (media.location === null) {
-              const item = { marker: null, media: media };
-
-              searchResults.push(item);
-              searchResultsRef.value.push(item);
+          for (const resultItem of resultItems) {
+            if (resultItem.media.location === null) {
+              searchResults.push({ marker: null, item: resultItem });
+              searchResultsRef.value.push(resultItem);
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
-              ] = item;
+              ] = resultItem;
             } else {
               const marker = new google.maps.Marker({
                 position: {
-                  lat: media.location.latitude,
-                  lng: media.location.longitude,
+                  lat: resultItem.media.location.latitude,
+                  lng: resultItem.media.location.longitude,
                 },
                 map,
-                title: media.description,
+                title: resultItem.media.description,
                 animation: google.maps.Animation.DROP,
               });
-              const item = { marker: marker, media: media };
-
-              marker.addListener("click", markerClick);
+              marker.addListener("click", { marker: marker, item: resultItem });
               bounds.extend(
                 new google.maps.LatLng(
-                  media.location.latitude,
-                  media.location.longitude
+                  resultItem.media.location.latitude,
+                  resultItem.media.location.longitude
                 )
               );
 
-              searchResults.push(item);
-              searchResultsRef.value.push(item);
+              searchResults.push({ marker: marker, item: resultItem });
+              searchResultsRef.value.push(resultItem);
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
-              ] = item;
+              ] = resultItem;
             }
 
             index++;
@@ -565,8 +562,8 @@ const search = async (ignoreCache = true) => {
   }
 };
 const back = (event) => {
-  if (selectedMediaRef.value !== null) {
-    selectedMediaRef.value = null;
+  if (selectedItemRef.value !== null) {
+    selectedItemRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
     for (const result of searchResults) {
       if (result.marker !== null) {
@@ -584,8 +581,8 @@ const back = (event) => {
     });
   }
 };
-const selectMedia = (item) => {
-  selectedMediaRef.value = item.media;
+const selectItem = (item) => {
+  selectedItemRef.value = item;
 };
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
@@ -607,8 +604,8 @@ const previousResults = (index) => {
         <transition name="slide" mode="out-in">
           <nav
             class="panel"
-            v-if="selectedMediaRef !== null"
-            key="selectedMediaRef"
+            v-if="selectedItemRef !== null"
+            key="selectedItemRef"
           >
             <div class="panel-block">
               <nav class="level is-mobile">
@@ -623,7 +620,7 @@ const previousResults = (index) => {
                 </div>
               </nav>
             </div>
-            <Preview :item="selectedMediaRef" />
+            <Preview :item="selectedItemRef" />
           </nav>
           <nav
             class="panel"
@@ -849,10 +846,10 @@ const previousResults = (index) => {
               :count="searchTotalCountRef"
               :page-index="searchPageIndexRef"
               :page-length="searchPageLength"
-              @select="selectMedia"
+              @select="selectItem"
               @next="nextResults"
               @previous="previousResults"
-              v-if="selectedMediaRef === null"
+              v-if="selectedItemRef === null"
               key="results"
             />
           </nav>
