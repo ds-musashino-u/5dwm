@@ -389,7 +389,8 @@ const search = async (ignoreCache = true) => {
       keywords.every((x) => x.length === 0) &&
       categories.length === 0 &&
       types.length === 0 &&
-      users.length === 0
+      users.length === 0 &&
+      imageDataUrlRef.value === null
     ) {
       shake(searchPanelRef.value);
 
