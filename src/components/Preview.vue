@@ -14,16 +14,16 @@ const props = defineProps({
     <nav class="level is-mobile">
       <div class="level-left">
         <div class="level-item">
-          <span class="icon is-small" v-if="item.type.startsWith('image')">
+          <span class="icon is-small" v-if="item.media.type.startsWith('image')">
             <i class="fa-solid fa-file-image"></i>
           </span>
-          <span class="icon is-small" v-else-if="item.type.startsWith('video')">
+          <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
             <i class="fa-solid fa-file-video"></i>
           </span>
-          <span class="icon is-small" v-else-if="item.type.startsWith('audio')">
+          <span class="icon is-small" v-else-if="item.media.type.startsWith('audio')">
             <i class="fa-solid fa-file-audio"></i>
           </span>
-          <span class="icon is-small" v-else-if="item.type.startsWith('text')">
+          <span class="icon is-small" v-else-if="item.media.type.startsWith('text')">
             <i class="fa-solid fa-file-lines"></i>
           </span>
           <span class="icon is-small" v-else>
@@ -33,7 +33,7 @@ const props = defineProps({
       </div>
       <div class="level-right">
         <div class="level-item">
-          <a class="button is-rounded" target="_blank" v-bind:href="item.url"
+          <a class="button is-rounded" target="_blank" v-bind:href="item.media.url"
             ><span class="icon is-small"><i class="fa-solid fa-link"></i></span
           ></a>
         </div>
@@ -55,7 +55,7 @@ const props = defineProps({
     <transition name="fade" mode="out-in">
       <div
         class="control"
-        v-if="!isCollapsed && item.type.startsWith('image') && item.url.startsWith('https://')"
+        v-if="!isCollapsed && item.media.type.startsWith('image') && item.media.url.startsWith('https://')"
         key="collapse"
       >
         <nav class="level">
@@ -63,7 +63,7 @@ const props = defineProps({
             <article class="media">
               <div class="media-content">
                 <picture class="image">
-                  <img v-bind:src="item.url" v-bind:alt="item.id" />
+                  <img v-bind:src="item.media.url" v-bind:alt="item.media.id" />
                 </picture>
               </div>
             </article>
@@ -75,7 +75,7 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.categories.length > 0"
+      v-if="!isCollapsed && item.media.categories.length > 0"
       key="collapse"
     >
       <div class="level">
@@ -90,12 +90,34 @@ const props = defineProps({
         <div class="level-right">
           <div
             class="level-item"
-            v-for="category in item.categories"
+            v-for="category in item.media.categories"
             v-bind:key="category"
           >
             <span
               class="is-size-6 has-text-weight-bold"
               v-text="category"
+            ></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+  <transition name="fade" mode="out-in">
+    <div class="panel-block" v-if="!isCollapsed && item.hasScore" key="collapse">
+      <div class="level">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >Score</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <span
+              class="is-size-6 has-text-weight-bold"
+              v-text="item.score"
             ></span>
           </div>
         </div>
@@ -117,7 +139,7 @@ const props = defineProps({
           <div class="level-item">
             <span
               class="is-size-6 has-text-weight-bold"
-              v-text="item.type"
+              v-text="item.media.type"
             ></span>
           </div>
         </div>
@@ -139,7 +161,7 @@ const props = defineProps({
           <div class="level-item">
             <span
               class="is-size-6 has-text-weight-bold"
-              v-text="item.username"
+              v-text="item.media.username"
             ></span>
           </div>
         </div>
@@ -149,7 +171,7 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.location !== null"
+      v-if="!isCollapsed && item.media.location !== null"
       key="collapse"
     >
       <div class="level">
@@ -165,7 +187,7 @@ const props = defineProps({
           <div class="level-item">
             <span
               class="is-size-6 has-text-weight-bold"
-              v-text="String(item.location.longitude)"
+              v-text="String(item.media.location.longitude)"
             ></span>
           </div>
         </div>
@@ -175,7 +197,7 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.location !== null"
+      v-if="!isCollapsed && item.media.location !== null"
       key="collapse"
     >
       <div class="level">
@@ -191,7 +213,7 @@ const props = defineProps({
           <div class="level-item">
             <span
               class="is-size-6 has-text-weight-bold"
-              v-text="String(item.location.latitude)"
+              v-text="String(item.media.location.latitude)"
             ></span>
           </div>
         </div>
@@ -201,7 +223,7 @@ const props = defineProps({
   <transition name="fade" mode="out-in">
     <div
       class="panel-block"
-      v-if="!isCollapsed && item.location !== null && item.location.hasAddress"
+      v-if="!isCollapsed && item.media.location !== null && item.media.location.hasAddress"
       key="collapse"
     >
       <div class="level">
@@ -217,7 +239,7 @@ const props = defineProps({
           <div class="level-item">
             <p
               class="is-size-6 has-text-weight-bold has-text-right"
-              v-text="item.location.address"
+              v-text="item.media.location.address"
             ></p>
           </div>
         </div>
@@ -239,7 +261,7 @@ const props = defineProps({
           <div class="level-item">
             <span
               class="is-size-6 has-text-weight-bold"
-              v-text="item.createdAt.toLocaleString()"
+              v-text="item.media.createdAt.toLocaleString()"
             ></span>
           </div>
         </div>
@@ -250,7 +272,7 @@ const props = defineProps({
     <div
       class="panel-block"
       v-if="
-        !isCollapsed && item.description !== null && item.description.length > 0
+        !isCollapsed && item.media.description !== null && item.media.description.length > 0
       "
       key="collapse"
     >
@@ -258,7 +280,7 @@ const props = defineProps({
         <span class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
           >Description</span
         >
-        <p class="is-size-6 has-text-weight-bold" v-text="item.description"></p>
+        <p class="is-size-6 has-text-weight-bold" v-text="item.media.description"></p>
       </div>
     </div>
   </transition>
