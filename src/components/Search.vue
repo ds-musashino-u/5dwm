@@ -408,7 +408,7 @@ const search = async (ignoreCache = true) => {
 
     if (range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
-      
+
       searchResults.splice(0);
       searchResultsRef.value.splice(0);
 
@@ -456,8 +456,8 @@ const search = async (ignoreCache = true) => {
           imageDataUrlRef.value,
           "created_at",
           "desc",
-          searchPageIndexRef.value * searchPageLength,
-          searchPageLength
+          0,
+          null
         );
         const bounds = new google.maps.LatLngBounds();
         let index = 0;
@@ -466,43 +466,91 @@ const search = async (ignoreCache = true) => {
         searchResultsRef.value.splice(0);
         searchTotalCountRef.value = totalCount;
 
-        for (const media of searchItems) {
-          if (media.location === null) {
-            const item = { marker: null, media: media };
+        if (searchItems.length > searchPageIndexRef.value * searchPageLength + searchPageLength) {
+          for (const media of searchItems.splice(0, searchPageLength)) {
+            if (media.location === null) {
+              const item = { marker: null, media: media };
 
-            searchResults.push(item);
-            searchResultsRef.value.push(item);
-            cachedSearchResults[
-              searchPageIndexRef.value * searchPageLength + index
-            ] = item;
-          } else {
-            const marker = new google.maps.Marker({
-              position: {
-                lat: media.location.latitude,
-                lng: media.location.longitude,
-              },
-              map,
-              title: media.description,
-              animation: google.maps.Animation.DROP,
-            });
-            const item = { marker: marker, media: media };
+              searchResults.push(item);
+              searchResultsRef.value.push(item);
+              cachedSearchResults[
+                searchPageIndexRef.value * searchPageLength + index
+              ] = item;
+            } else {
+              const marker = new google.maps.Marker({
+                position: {
+                  lat: media.location.latitude,
+                  lng: media.location.longitude,
+                },
+                map,
+                title: media.description,
+                animation: google.maps.Animation.DROP,
+              });
+              const item = { marker: marker, media: media };
 
-            marker.addListener("click", markerClick);
-            bounds.extend(
-              new google.maps.LatLng(
-                media.location.latitude,
-                media.location.longitude
-              )
-            );
+              marker.addListener("click", markerClick);
+              bounds.extend(
+                new google.maps.LatLng(
+                  media.location.latitude,
+                  media.location.longitude
+                )
+              );
 
-            searchResults.push(item);
-            searchResultsRef.value.push(item);
-            cachedSearchResults[
-              searchPageIndexRef.value * searchPageLength + index
-            ] = item;
+              searchResults.push(item);
+              searchResultsRef.value.push(item);
+              cachedSearchResults[
+                searchPageIndexRef.value * searchPageLength + index
+              ] = item;
+            }
+
+            index++;
           }
 
-          index++;
+          for (const media of searchItems) {
+            cachedSearchResults[
+              searchPageIndexRef.value * searchPageLength + index
+            ] = { marker: null, media: media };
+            index++;
+          }
+        } else {
+          for (const media of searchItems) {
+            if (media.location === null) {
+              const item = { marker: null, media: media };
+
+              searchResults.push(item);
+              searchResultsRef.value.push(item);
+              cachedSearchResults[
+                searchPageIndexRef.value * searchPageLength + index
+              ] = item;
+            } else {
+              const marker = new google.maps.Marker({
+                position: {
+                  lat: media.location.latitude,
+                  lng: media.location.longitude,
+                },
+                map,
+                title: media.description,
+                animation: google.maps.Animation.DROP,
+              });
+              const item = { marker: marker, media: media };
+
+              marker.addListener("click", markerClick);
+              bounds.extend(
+                new google.maps.LatLng(
+                  media.location.latitude,
+                  media.location.longitude
+                )
+              );
+
+              searchResults.push(item);
+              searchResultsRef.value.push(item);
+              cachedSearchResults[
+                searchPageIndexRef.value * searchPageLength + index
+              ] = item;
+            }
+
+            index++;
+          }
         }
 
         map.fitBounds(bounds);
