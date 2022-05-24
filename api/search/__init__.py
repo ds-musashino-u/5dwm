@@ -112,15 +112,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     score = None
 
                     if histogram is not None and item.vector is not None:
-                        sum = 0.0
-                        
-                        for (index, value) in histogram:
-                            for element in item.vector:
-                                if f'f{index}' == element.feature:
-                                    sum += value * element.value
+                        vector1 = []
+                        vector2 = []
 
-                        if sum > 0.0:
-                            score = sum
+                        for (index, value) in histogram:
+                            if value > 0.0:
+                                for element in item.vector:
+                                    if element.value > 0.0 and f'f{index}' == element.feature:
+                                        vector1.append(value)
+                                        vector2.append(element.value)
+
+                        if len(vector1) > 0:
+                            score = np.dot(np.array(vector1),
+                                           np.array(vector2))
 
                     media.append({
                         'id': item.id,
