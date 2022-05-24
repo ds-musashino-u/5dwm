@@ -52,8 +52,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     mime_type, encoding, data = match.groups()
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
-                        histogram = top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15)
+                        temp_histogram = filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
+                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15))
+
+                        if len(temp_histogram) > 0:
+                            histogram = temp_histogram
 
             try:
                 media = []
@@ -116,11 +119,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         vector2 = []
 
                         for (index, value) in histogram:
-                            if value > 0.0:
-                                for element in item.vector:
-                                    if element.value > 0.0 and f'f{index}' == element.feature:
-                                        vector1.append(value)
-                                        vector2.append(element.value)
+                            for element in item.vector:
+                                if element.value > 0.0 and f'f{index}' == element.feature:
+                                    vector1.append(value)
+                                    vector2.append(element.value)
 
                         if len(vector1) > 0:
                             score = np.dot(np.array(vector1),
