@@ -131,6 +131,70 @@ onActivated(async () => {
 });
 onDeactivated(() => {});
 
+const resizeImage = async function (dataURL, length) {
+  try {
+    return await new Promise(async (resolve1, reject1) => {
+      const i = new Image();
+
+      i.onload = () => {
+        const canvas = document.createElement("canvas");
+
+        if (i.width > i.height) {
+          if (i.width > length) {
+            canvas.width = length * window.devicePixelRatio;
+            canvas.height =
+              Math.floor((length / i.width) * i.height) *
+              window.devicePixelRatio;
+          } else {
+            canvas.width = i.width * window.devicePixelRatio;
+            canvas.height = i.height * window.devicePixelRatio;
+          }
+        } else if (i.height > length) {
+          canvas.width =
+            Math.floor((length / i.height) * i.width) * window.devicePixelRatio;
+          canvas.height = length * window.devicePixelRatio;
+        } else {
+          canvas.width = i.width * window.devicePixelRatio;
+          canvas.height = i.height * window.devicePixelRatio;
+        }
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(i, 0, 0, canvas.width, canvas.height);
+        ctx.canvas.toBlob(async (blob) => {
+          try {
+            resolve1(
+              await new Promise(async (resolve2, reject2) => {
+                const reader = new FileReader();
+
+                reader.onload = () => {
+                  resolve2(reader.result);
+                };
+                reader.onerror = () => {
+                  reject2(reader.error);
+                };
+                reader.readAsDataURL(blob);
+              })
+            );
+          } catch (e) {
+            reject1(e);
+          }
+
+          ctx.canvas.width = ctx.canvas.height = 0;
+        }, "image/jpeg");
+      };
+      i.onerror = (error) => {
+        reject1(error);
+      };
+      i.crossOrigin = "anonymous";
+      i.src = dataURL;
+    });
+  } catch (e) {
+    console.error(e);
+  }
+
+  return null;
+};
 const markerClick = (event) => {
   const element = searchResults.find(
     (x) =>
@@ -165,17 +229,20 @@ const drop = async (event) => {
       try {
         imageRef.value = {
           filename: file.name,
-          dataURL: await new Promise(function (resolve, reject) {
-            const reader = new FileReader();
+          dataURL: await resizeImage(
+            await new Promise(function (resolve, reject) {
+              const reader = new FileReader();
 
-            reader.addEventListener("load", (e) => {
-              resolve(e.target.result);
-            });
-            reader.addEventListener("error", (e) => {
-              reject(reader.error);
-            });
-            reader.readAsDataURL(file);
-          }),
+              reader.addEventListener("load", (e) => {
+                resolve(e.target.result);
+              });
+              reader.addEventListener("error", (e) => {
+                reject(reader.error);
+              });
+              reader.readAsDataURL(file);
+            }),
+            512
+          ),
         };
       } catch (error) {
         console.error(error);
@@ -203,17 +270,20 @@ const browse = async (event) => {
       try {
         imageRef.value = {
           filename: file.name,
-          dataURL: await new Promise(function (resolve, reject) {
-            const reader = new FileReader();
+          dataURL: await resizeImage(
+            await new Promise(function (resolve, reject) {
+              const reader = new FileReader();
 
-            reader.onload = () => {
-              resolve(reader.result);
-            };
-            reader.onerror = () => {
-              reject(reader.error);
-            };
-            reader.readAsDataURL(file);
-          }),
+              reader.onload = () => {
+                resolve(reader.result);
+              };
+              reader.onerror = () => {
+                reject(reader.error);
+              };
+              reader.readAsDataURL(file);
+            }),
+            512
+          ),
         };
       } catch (error) {
         console.error(error);
@@ -485,7 +555,7 @@ const search = async (ignoreCache = true) => {
           categories,
           types,
           users,
-          imageRef.value.dataURL,
+          imageRef.value === null ? null : imageRef.value.dataURL,
           "created_at",
           "desc",
           0,
@@ -500,7 +570,7 @@ const search = async (ignoreCache = true) => {
 
         if (resultItems.some((x) => x.hasScore)) {
           resultItems.sort(
-            (x, y) => (x.hasScore ? x.score : 0) - (y.hasScore ? y.score : 0)
+            (x, y) => (y.hasScore ? y.score : 0) - (x.hasScore ? x.score : 0)
           );
         }
 
@@ -619,6 +689,13 @@ const back = (event) => {
 };
 const selectItem = (item) => {
   selectedItemRef.value = item;
+
+  map.panTo(
+    new google.maps.LatLng(
+      item.media.location.latitude,
+      item.media.location.longitude
+    )
+  );
 };
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
@@ -773,7 +850,10 @@ const previousResults = (index) => {
                       <div class="image" v-else v-bind:key="imageRef">
                         <div class="image">
                           <picture class="image">
-                            <img v-bind:src="imageRef.dataURL" v-bind:alt="imageRef.filename" />
+                            <img
+                              v-bind:src="imageRef.dataURL"
+                              v-bind:alt="imageRef.filename"
+                            />
                           </picture>
                           <div class="control">
                             <button
@@ -1021,12 +1101,12 @@ const previousResults = (index) => {
               overflow: hidden;
               image-rendering: -webkit-optimize-contrast;
 
-              >picture {
+              > picture {
                 height: 100%;
                 border-radius: 8px;
                 overflow: hidden;
 
-                >img {
+                > img {
                   height: 100%;
                 }
               }
