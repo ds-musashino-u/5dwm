@@ -19,7 +19,7 @@ const queryRef = ref("");
 const isDragging = ref(false);
 const isLoading = ref(false);
 const imageIsCollapsedRef = ref(true);
-const imageDataUrlRef = ref(null);
+const imageRef = ref(null);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(true);
 const categoriesIsContinuousRef = ref(false);
@@ -147,7 +147,7 @@ const dragover = (event) => {
   isDragging.value = true;
   event.dataTransfer.dropEffect = "copy";
 };
-const drop = (event) => {
+const drop = async (event) => {
   isDragging.value = false;
 
   for (const file of event.dataTransfer.files) {
@@ -160,43 +160,73 @@ const drop = (event) => {
       name.endsWith(".jpeg") ||
       name.endsWith(".webp")
     ) {
-      const reader = new FileReader();
+      isLoading.value = true;
 
-      reader.addEventListener("load", (e) => {
-        imageDataUrlRef.value = e.target.result;
-      });
-      reader.readAsDataURL(file);
+      try {
+        imageRef.value = {
+          filename: file.name,
+          dataURL: await new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+
+            reader.addEventListener("load", (e) => {
+              resolve(e.target.result);
+            });
+            reader.addEventListener("error", (e) => {
+              reject(reader.error);
+            });
+            reader.readAsDataURL(file);
+          }),
+        };
+      } catch (error) {
+        console.error(error);
+      }
+
+      isLoading.value = false;
+
+      return;
     }
   }
 };
 const browse = async (event) => {
   for (const file of event.currentTarget.files) {
-    isLoading.value = true;
-    console.log(file);
+    const name = file.name.toLowerCase();
 
-    try {
-      imageDataUrlRef.value = await new Promise(function (resolve, reject) {
-        const reader = new FileReader();
+    if (
+      name.endsWith(".apng") ||
+      name.endsWith(".png") ||
+      name.endsWith(".jpg") ||
+      name.endsWith(".jpeg") ||
+      name.endsWith(".webp")
+    ) {
+      isLoading.value = true;
 
-        reader.onload = () => {
-          resolve(reader.result);
+      try {
+        imageRef.value = {
+          filename: file.name,
+          dataURL: await new Promise(function (resolve, reject) {
+            const reader = new FileReader();
+
+            reader.onload = () => {
+              resolve(reader.result);
+            };
+            reader.onerror = () => {
+              reject(reader.error);
+            };
+            reader.readAsDataURL(file);
+          }),
         };
-        reader.onerror = () => {
-          reject(reader.error);
-        };
-        reader.readAsDataURL(file);
-      });
-    } catch (error) {
-      console.error(error);
+      } catch (error) {
+        console.error(error);
+      }
+
+      isLoading.value = false;
+
+      return;
     }
-
-    isLoading.value = false;
-
-    return;
   }
 };
 const reset = (event) => {
-  imageDataUrlRef.value = null;
+  imageRef.value = null;
 };
 const collapseCategories = () => {
   categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
@@ -390,7 +420,7 @@ const search = async (ignoreCache = true) => {
       categories.length === 0 &&
       types.length === 0 &&
       users.length === 0 &&
-      imageDataUrlRef.value === null
+      imageRef.value === null
     ) {
       shake(searchPanelRef.value);
 
@@ -439,7 +469,7 @@ const search = async (ignoreCache = true) => {
         } else {
           searchResults.push({ marker: null, item: item });
         }
-        
+
         searchResultsRef.value.push(item);
       }
 
@@ -455,7 +485,7 @@ const search = async (ignoreCache = true) => {
           categories,
           types,
           users,
-          imageDataUrlRef.value,
+          imageRef.value.dataURL,
           "created_at",
           "desc",
           0,
@@ -468,11 +498,16 @@ const search = async (ignoreCache = true) => {
         searchResultsRef.value.splice(0);
         searchTotalCountRef.value = resultItems.length;
 
-        if (resultItems.some(x => x.hasScore)) {
-          resultItems.sort((x, y) => (x.hasScore ? x.score : 0) - (y.hasScore ? y.score : 0));
+        if (resultItems.some((x) => x.hasScore)) {
+          resultItems.sort(
+            (x, y) => (x.hasScore ? x.score : 0) - (y.hasScore ? y.score : 0)
+          );
         }
 
-        if (resultItems.length > searchPageIndexRef.value * searchPageLength + searchPageLength) {
+        if (
+          resultItems.length >
+          searchPageIndexRef.value * searchPageLength + searchPageLength
+        ) {
           for (const resultItem of resultItems.splice(0, searchPageLength)) {
             if (resultItem.media.location === null) {
               searchResults.push({ marker: null, item: resultItem });
@@ -651,7 +686,7 @@ const previousResults = (index) => {
                   <transition name="fade" mode="out-in">
                     <div
                       class="level-item"
-                      v-show="imageDataUrlRef !== null"
+                      v-show="imageRef !== null"
                       key="attaced"
                     >
                       <span class="icon is-primary">
@@ -694,8 +729,8 @@ const previousResults = (index) => {
                     <transition name="fade" mode="out-in">
                       <div
                         class="image"
-                        v-if="imageDataUrlRef === null"
-                        v-bind:key="imageDataUrlRef"
+                        v-if="imageRef === null"
+                        v-bind:key="imageRef"
                       >
                         <div class="level">
                           <div class="level-item">
@@ -735,13 +770,11 @@ const previousResults = (index) => {
                           </div>
                         </div>
                       </div>
-                      <div class="image" v-else v-bind:key="imageDataUrlRef">
-                        <div
-                          class="image"
-                          v-bind:style="{
-                            backgroundImage: 'url(' + imageDataUrlRef + ')',
-                          }"
-                        >
+                      <div class="image" v-else v-bind:key="imageRef">
+                        <div class="image">
+                          <picture class="image">
+                            <img v-bind:src="imageRef.dataURL" v-bind:alt="imageRef.filename" />
+                          </picture>
                           <div class="control">
                             <button
                               class="button is-circle"
@@ -987,6 +1020,16 @@ const previousResults = (index) => {
               justify-content: center;
               overflow: hidden;
               image-rendering: -webkit-optimize-contrast;
+
+              >picture {
+                height: 100%;
+                border-radius: 8px;
+                overflow: hidden;
+
+                >img {
+                  height: 100%;
+                }
+              }
 
               .control {
                 position: absolute;
