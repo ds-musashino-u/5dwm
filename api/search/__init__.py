@@ -138,7 +138,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps({'image': None if histogram is None else list(map(lambda data: {'feature': data[0], 'value': data[1]}, histogram)), 'count': total_count, 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': total_count, 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
