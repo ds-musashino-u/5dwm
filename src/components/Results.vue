@@ -18,7 +18,7 @@ const select = (event, item) => {
 };
 const next = (event) => {
   isForwardingRef.value = true;
-  
+
   emit("next", props.pageIndex + 1);
 };
 const previous = (event) => {
@@ -86,7 +86,10 @@ const previous = (event) => {
               >
                 <picture
                   class="image"
-                  v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')"
+                  v-if="
+                    item.media.type.startsWith('image') &&
+                    item.media.url.startsWith('https://')
+                  "
                 >
                   <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                 </picture>
@@ -129,12 +132,16 @@ const previous = (event) => {
           <div class="level-left">
             <div class="level-item">
               <button
-                class="button"
+                class="button is-primary"
                 v-bind:disabled="pageIndex === 0 || isFetching"
                 @click="previous($event)"
               >
                 <transition name="fade" mode="out-in">
-                  <span class="icon is-small" v-if="!isForwardingRef && isFetching" key="fetching">
+                  <span
+                    class="icon is-small"
+                    v-if="!isForwardingRef && isFetching"
+                    key="fetching"
+                  >
                     <i class="fas fa-spinner updating"></i>
                   </span>
                   <span class="icon is-small" v-else key="fetched">
@@ -152,7 +159,7 @@ const previous = (event) => {
           <div class="level-right">
             <div class="level-item">
               <button
-                class="button"
+                class="button is-primary"
                 v-bind:disabled="
                   pageIndex + 1 === ~~Math.ceil(count / pageLength) ||
                   isFetching
@@ -160,7 +167,11 @@ const previous = (event) => {
                 @click="next($event)"
               >
                 <transition name="fade" mode="out-in">
-                  <span class="icon is-small" v-if="isForwardingRef && isFetching" key="fetching">
+                  <span
+                    class="icon is-small"
+                    v-if="isForwardingRef && isFetching"
+                    key="fetching"
+                  >
                     <i class="fas fa-spinner updating"></i>
                   </span>
                   <span class="icon is-small" v-else key="fetched">
@@ -205,6 +216,12 @@ const previous = (event) => {
       overflow: hidden;
       box-sizing: content-box;
       text-align: center;
+    }
+
+    .button.is-primary {
+      border-radius: 8px;
+      box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+        0 0px 0 1px rgb(10 10 10 / 2%) !important;
     }
 
     > .level-right > .level-item {
