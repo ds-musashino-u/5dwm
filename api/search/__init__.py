@@ -52,8 +52,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     mime_type, encoding, data = match.groups()
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
-                        temp_histogram = filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15))
+                        temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
+                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='chuan_hoa'), 15)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
