@@ -28,16 +28,16 @@ def compute_histogram(rgb_image, r=0.1, r1=0.85, normalize=None):
 
     for y in range(rgb_image.shape[0]):
         for x in range(rgb_image.shape[1]):
-            r, g, b = rgb_image[y, x]
-            h, s, v = colorsys.rgb_to_hsv(r / 255.0, g / 255.0, b / 255.0)
-            h *= 2 * math.pi
-            v *= 255.0
+            red, green, blue = rgb_image[y, x]
+            hue, saturation, value = colorsys.rgb_to_hsv(red / 255.0, green / 255.0, blue / 255.0)
+            hue *= 2 * math.pi
+            value *= 255.0
 
-            wh = 0.0 if v == 0.0 else math.pow(s, r * math.pow(255.0 / v, r1))
+            wh = 0.0 if value == 0.0 else math.pow(saturation, r * math.pow(255.0 / value, r1))
             wi = 1.0 - wh
 
-            histogram[round(h * MULT_FCTR)] += wh
-            histogram[round(2 * math.pi * MULT_FCTR) + round(v / DIV_FCTR)] += wi
+            histogram[round(hue * MULT_FCTR)] += wh
+            histogram[round(2 * math.pi * MULT_FCTR) + round(value / DIV_FCTR)] += wi
             #histogram[round(2 * math.pi * MULT_FCTR) + 1 + round(v / DIV_FCTR)] += wi
 
     if normalize is None:
