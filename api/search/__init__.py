@@ -82,7 +82,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                     if limit is None:
-                        limit = 15 * 40
+                        limit = 15 * 100
 
                 if keywords is not None:
                     for keyword in keywords:
