@@ -42,7 +42,7 @@ def compute_histogram(rgb_image, r=0.1, r1=0.85, normalize=None):
 
     if normalize is None:
         histogram /= rgb_image.shape[0] * rgb_image.shape[1]
-    elif normalize == 'chuan_hoa':
+    elif normalize == 'l1':
         histogram = histogram / np.sum(histogram) * 100
 
     return histogram
