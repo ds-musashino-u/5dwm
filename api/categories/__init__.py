@@ -52,7 +52,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 categories = []
-                query = session.query(Category).order_by(Category.id)
+                query = session.query(Category).order_by(Category.name)
 
                 if limit is not None:
                     query = query.limit(limit)
