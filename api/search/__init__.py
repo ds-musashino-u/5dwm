@@ -7,6 +7,7 @@ import numpy as np
 from io import BytesIO
 from datetime import datetime, timezone
 from base64 import b64decode
+from urllib.request import urlopen, Request
 from PIL import Image
 from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
@@ -57,6 +58,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
+
+                elif image.startswith('https://'):
+                    response = urlopen(Request(image, method='HEAD'))
+
+                    if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
+                        if int(response.headers['Content-Length']) < 4000000:
+                            response = urlopen(Request(image))
+
+                            if response.getcode() == 200:
+                                temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
+                                Image.open(BytesIO(response.read())), 256).convert('RGB')), normalize='l1'), 15)))
+
+                                if len(temp_histogram) > 0:
+                                    histogram = temp_histogram
+
+                            else:
+                                raise Exception
+
+                        else:
+                            raise Exception
+
+                    else:
+                        raise Exception
+
+                else:
+                    raise Exception
 
             try:
                 media = []
