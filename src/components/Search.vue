@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onActivated, onDeactivated } from "vue";
+import { ref, onActivated, onDeactivated, watch } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
@@ -20,6 +20,7 @@ const isDragging = ref(false);
 const isLoading = ref(false);
 const imageIsCollapsedRef = ref(true);
 const imageRef = ref(null);
+const imageUrlRef = ref("");
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(true);
 const categoriesIsContinuousRef = ref(false);
@@ -130,6 +131,11 @@ onActivated(async () => {
   }
 });
 onDeactivated(() => {});
+watch(imageUrlRef, (currentValue, oldValue) => {
+  if (currentValue !== null) {
+    imageRef.value = null;
+  }
+});
 
 const resizeImage = async function (dataURL, length) {
   try {
@@ -227,6 +233,7 @@ const drop = async (event) => {
       isLoading.value = true;
 
       try {
+        imageUrlRef.value = "";
         imageRef.value = {
           filename: file.name,
           dataURL: await resizeImage(
@@ -268,6 +275,7 @@ const browse = async (event) => {
       isLoading.value = true;
 
       try {
+        imageUrlRef.value = "";
         imageRef.value = {
           filename: file.name,
           dataURL: await resizeImage(
@@ -297,6 +305,9 @@ const browse = async (event) => {
 };
 const reset = (event) => {
   imageRef.value = null;
+};
+const clearImageUrl = (event) => {
+  imageUrlRef.value = "";
 };
 const collapseCategories = () => {
   categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
@@ -490,7 +501,8 @@ const search = async (ignoreCache = true) => {
       categories.length === 0 &&
       types.length === 0 &&
       users.length === 0 &&
-      imageRef.value === null
+      imageRef.value === null &&
+      (imageUrlRef.value.length === 0 || !imageUrlRef.value.startsWith("https://"))
     ) {
       shake(searchPanelRef.value);
 
@@ -555,7 +567,7 @@ const search = async (ignoreCache = true) => {
           categories,
           types,
           users,
-          imageRef.value === null ? null : imageRef.value.dataURL,
+          imageRef.value === null ? imageUrlRef.value : imageRef.value.dataURL,
           "created_at",
           "desc",
           0,
@@ -741,7 +753,7 @@ const previousResults = (index) => {
             key="search"
           >
             <div class="panel-block">
-              <form @submit.prevent>
+              <form class="field" @submit.prevent>
                 <div class="control">
                   <input
                     class="input is-outlined has-text-weight-bold"
@@ -789,87 +801,108 @@ const previousResults = (index) => {
                 </div>
               </nav>
               <transition name="fade" mode="out-in">
+                <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
+                  <div class="control">
+                    <div
+                      class="drop"
+                      v-bind:style="{
+                        animationPlayState: isDragging ? 'running' : 'paused',
+                      }"
+                      @dragover.prevent="dragover($event)"
+                      @dragleave.prevent="isDragging = false"
+                      @drop.stop.prevent="drop($event)"
+                    >
+                      <transition name="fade" mode="out-in">
+                        <div
+                          class="image"
+                          v-if="imageRef === null"
+                          v-bind:key="imageRef"
+                        >
+                          <div class="level">
+                            <div class="level-item">
+                              <label
+                                class="
+                                  file
+                                  button
+                                  is-circle
+                                  has-text-weight-bold
+                                  file-label
+                                "
+                              >
+                                <input
+                                  class="file-input"
+                                  type="file"
+                                  name="upload"
+                                  accept="image/apng, image/png, image/jpeg, image/webp"
+                                  style="pointer-events: none"
+                                  v-bind:disabled="isLoading"
+                                  @change="browse($event)"
+                                />
+                                <div class="file-cta_">
+                                  <span class="icon">
+                                    <i class="fa-solid fa-file-image"></i>
+                                  </span>
+                                </div>
+                              </label>
+                            </div>
+                            <div class="level-item">
+                              <span
+                                class="
+                                  is-size-7 is-uppercase
+                                  has-text-weight-bold
+                                "
+                                >Image</span
+                              >
+                            </div>
+                          </div>
+                        </div>
+                        <div class="image" v-else v-bind:key="imageRef">
+                          <div class="image">
+                            <picture class="image">
+                              <img
+                                v-bind:src="imageRef.dataURL"
+                                v-bind:alt="imageRef.filename"
+                              />
+                            </picture>
+                            <div class="control">
+                              <button
+                                class="button is-circle"
+                                type="button"
+                                @click="reset($event)"
+                                key="menu"
+                              >
+                                <span class="icon is-small has-text-danger">
+                                  <i class="fa-solid fa-xmark"></i>
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </transition>
+                    </div>
+                  </div>
+                </div>
+              </transition>
+              <transition name="fade" mode="out-in">
                 <div
-                  class="control"
+                  class="field has-addons"
                   v-show="!imageIsCollapsedRef"
                   key="collapse"
                 >
-                  <div
-                    class="drop"
-                    v-bind:style="{
-                      animationPlayState: isDragging ? 'running' : 'paused',
-                    }"
-                    @dragover.prevent="dragover($event)"
-                    @dragleave.prevent="isDragging = false"
-                    @drop.stop.prevent="drop($event)"
-                  >
-                    <transition name="fade" mode="out-in">
-                      <div
-                        class="image"
-                        v-if="imageRef === null"
-                        v-bind:key="imageRef"
-                      >
-                        <div class="level">
-                          <div class="level-item">
-                            <label
-                              class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              "
-                            >
-                              <input
-                                class="file-input"
-                                type="file"
-                                name="upload"
-                                accept="image/apng, image/png, image/jpeg, image/webp"
-                                style="pointer-events: none"
-                                v-bind:disabled="isLoading"
-                                @change="browse($event)"
-                              />
-                              <div class="file-cta_">
-                                <span class="icon">
-                                  <i class="fa-solid fa-file-image"></i>
-                                </span>
-                              </div>
-                            </label>
-                          </div>
-                          <div class="level-item">
-                            <span
-                              class="
-                                is-size-7 is-uppercase
-                                has-text-weight-bold
-                              "
-                              >Image</span
-                            >
-                          </div>
-                        </div>
-                      </div>
-                      <div class="image" v-else v-bind:key="imageRef">
-                        <div class="image">
-                          <picture class="image">
-                            <img
-                              v-bind:src="imageRef.dataURL"
-                              v-bind:alt="imageRef.filename"
-                            />
-                          </picture>
-                          <div class="control">
-                            <button
-                              class="button is-circle"
-                              type="button"
-                              @click="reset($event)"
-                              key="menu"
-                            >
-                              <span class="icon is-small has-text-danger">
-                                <i class="fa-solid fa-xmark"></i>
-                              </span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </transition>
+                  <div class="control is-expanded">
+                    <input
+                      class="input is-outlined has-text-weight-bold"
+                      type="text"
+                      placeholder="URL"
+                      v-model="imageUrlRef"
+                    />
+                  </div>
+                  <div class="control">
+                    <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0" @click="clearImageUrl($event)">
+                      <span class="icon is-small has-text-danger">
+                        <i class="fa-solid fa-xmark"></i>
+                      </span>
+                    </button>
                   </div>
                 </div>
               </transition>
@@ -1116,6 +1149,7 @@ const previousResults = (index) => {
                 top: 0;
                 right: 0;
                 margin: 4px 4px 0px 0px;
+                width: auto !important;
               }
 
               .level {
@@ -1146,7 +1180,7 @@ const previousResults = (index) => {
       }
     }
 
-    form {
+    .field {
       width: 100%;
 
       .control {
@@ -1154,7 +1188,6 @@ const previousResults = (index) => {
         display: flex;
         justify-content: flex-start;
         align-items: center;
-        width: 100%;
 
         input {
           margin: 0;
@@ -1176,6 +1209,29 @@ const previousResults = (index) => {
           border-radius: 9999px !important;
         }
       }
+    }
+
+    .has-addons {
+      margin: 0;
+      border: 1px solid hsl(0deg, 0%, 93%);
+      border-radius: 4px;
+
+      .control>input {
+        border: 0px none transparent;
+
+      }
+
+      .control>button {
+        box-shadow: none !important;
+      }
+    }
+
+    .control:not(:first-child) {
+      margin: 0px 0px 0px 0.5rem;
+    }
+
+    .field:not(:last-child) {
+      margin-bottom: 0.5rem;
     }
   }
 }
