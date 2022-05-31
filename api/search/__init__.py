@@ -18,6 +18,8 @@ from shared.models import Media, ImageVector
 import azure.functions as func
 
 
+UPLOAD_MAX_FILESIZE = os.environ.get('UPLOAD_MAX_FILESIZE', 5000000)
+
 ssl._create_default_https_context = ssl._create_unverified_context
 engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
                        'sslmode': 'disable'}, pool_recycle=60)
@@ -63,12 +65,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     response = urlopen(Request(image, method='HEAD'))
 
                     if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
-                        if int(response.headers['Content-Length']) < 4000000:
+                        if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
                             response = urlopen(Request(image))
 
                             if response.getcode() == 200:
                                 temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                Image.open(BytesIO(response.read())), 256).convert('RGB')), normalize='l1'), 15)))
+                                    Image.open(BytesIO(response.read())), 256).convert('RGB')), normalize='l1'), 15)))
 
                                 if len(temp_histogram) > 0:
                                     histogram = temp_histogram
