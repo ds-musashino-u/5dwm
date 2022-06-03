@@ -56,7 +56,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 256).convert('RGB')), normalize='l1'), 15)))
+                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='l1'), 15)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
@@ -70,7 +70,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                             if response.getcode() == 200:
                                 temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                    Image.open(BytesIO(response.read())), 256).convert('RGB')), normalize='l1'), 15)))
+                                    Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1'), 15)))
 
                                 if len(temp_histogram) > 0:
                                     histogram = temp_histogram
