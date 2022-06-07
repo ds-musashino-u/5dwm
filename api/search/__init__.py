@@ -65,27 +65,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     response = urlopen(Request(image, method='HEAD'))
 
                     if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
-                        if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
-                            response = urlopen(Request(image))
-
-                            if response.getcode() == 200:
-                                temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                    Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1') * 100, 15)))
-
-                                if len(temp_histogram) > 0:
-                                    histogram = temp_histogram
-
+                        if 'Content-Length' in response.headers:
+                            if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
+                                response = urlopen(Request(image))
                             else:
-                                raise Exception
+                                return func.HttpResponse(status_code=413, mimetype='', charset='')
 
                         else:
-                            raise Exception
+                            response = urlopen(Request(image))
+
+                        if response.getcode() == 200:
+                            temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
+                                Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1') * 100, 15)))
+
+                            if len(temp_histogram) > 0:
+                                histogram = temp_histogram
+
+                        else:
+                            return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
 
                     else:
-                        raise Exception
+                        return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
 
                 else:
-                    raise Exception
+                    return func.HttpResponse(status_code=400, mimetype='', charset='')
 
             try:
                 media = []
