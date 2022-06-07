@@ -1,4 +1,3 @@
-import math
 import colorsys
 import numpy as np
 from PIL import Image
@@ -23,27 +22,27 @@ def resize_image(image, max_image_length=512):
 
 
 def compute_histogram(rgb_image, r=0.1, r1=0.85, normalize=None):
-    histogram = np.zeros(round(2 * math.pi * MULT_FCTR) +
+    histogram = np.zeros(round(2 * np.pi * MULT_FCTR) +
                          1 + round(255.0 / DIV_FCTR) + 1, dtype=np.float64)
 
     for y in range(rgb_image.shape[0]):
         for x in range(rgb_image.shape[1]):
             red, green, blue = rgb_image[y, x]
             hue, saturation, value = colorsys.rgb_to_hsv(red / 255.0, green / 255.0, blue / 255.0)
-            hue *= 2 * math.pi
+            hue *= 2 * np.pi
             value *= 255.0
 
-            wh = 0.0 if value == 0.0 else math.pow(saturation, r * math.pow(255.0 / value, r1))
+            wh = 0.0 if value == 0.0 else np.power(saturation, r * np.power(255.0 / value, r1))
             wi = 1.0 - wh
 
             histogram[round(hue * MULT_FCTR)] += wh
-            histogram[round(2 * math.pi * MULT_FCTR) + round(value / DIV_FCTR)] += wi
-            #histogram[round(2 * math.pi * MULT_FCTR) + 1 + round(v / DIV_FCTR)] += wi
+            histogram[round(2 * np.pi * MULT_FCTR) + round(value / DIV_FCTR)] += wi
+            #histogram[round(2 * np.pi * MULT_FCTR) + 1 + round(v / DIV_FCTR)] += wi
 
-    if normalize is None:
-        histogram /= rgb_image.shape[0] * rgb_image.shape[1]
-    elif normalize == 'l1':
-        histogram = histogram / np.sum(histogram) * 100
+    if normalize == 'l1':
+        histogram = histogram / np.sum(histogram)
+    elif normalize == 'l2':
+        histogram = np.sqrt(np.sum(histogram * histogram))
 
     return histogram
 
