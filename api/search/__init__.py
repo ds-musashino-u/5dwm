@@ -48,6 +48,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             Session = sessionmaker(bind=engine)
             session = Session()
 
+            '''
             if image is not None:
                 match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", image)
 
@@ -89,7 +90,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
-
+            '''
             try:
                 media = []
                 query = session.query(Media)
@@ -121,9 +122,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         query = query.filter(
                             Media.description.like(f'%{keyword}%'))
 
-                #if categories is not None and len(categories) > 0:
-                #    query = query.filter(or_(
-                #        *list(map(lambda category: Media.categories.contains([category]), categories))))
+                if categories is not None and len(categories) > 0:
+                    query = query.filter(or_(
+                        *list(map(lambda category: Media.categories.contains([category]), categories))))
 
                 if types is not None and len(types) > 0:
                     query = query.filter(
