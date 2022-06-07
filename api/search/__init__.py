@@ -119,7 +119,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             Media.description.like(f'%{keyword}%'))
 
                 if categories is not None and len(categories) > 0:
-                    query = query.filter(Media.categories.contains(categories))
+                    query = query.filter(or_(*list(map(lambda category: Media.categories.contains([category]), categories))))
 
                 if types is not None and len(types) > 0:
                     query = query.filter(
