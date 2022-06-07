@@ -48,7 +48,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             Session = sessionmaker(bind=engine)
             session = Session()
 
-            '''
             if image is not None:
                 match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", image)
 
@@ -90,7 +89,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
-            '''
+            
             try:
                 media = []
                 query = session.query(Media)
