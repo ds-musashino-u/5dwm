@@ -567,7 +567,7 @@ const search = async (ignoreCache = true) => {
           categories,
           types,
           users,
-          imageRef.value === null ? imageUrlRef.value : imageRef.value.dataURL,
+          imageRef.value === null ? imageUrlRef.value.length > 0 ? imageUrlRef.value : null : imageRef.value.dataURL,
           "created_at",
           "desc",
           0,
