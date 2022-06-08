@@ -935,7 +935,7 @@ const previousResults = (index) => {
               @next="nextTypes"
               @previous="previousTypes"
             />
-            <ListBox
+            <!--<ListBox
               name="Users"
               :max-length="maxUsersLength"
               :is-enabled="user !== null && searchTotalCountRef === null"
@@ -948,7 +948,7 @@ const previousResults = (index) => {
               @select="selectUser"
               @next="nextUsers"
               @previous="previousUsers"
-            />
+            />-->
             <div class="panel-block">
               <div class="control">
                 <button
