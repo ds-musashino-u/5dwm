@@ -25,11 +25,11 @@
     "bulma": "^0.9.4",
     "mocha": "^10.0.0",
     "sinon": "^14.0.0",
-    "vue": "^3.2.36"
+    "vue": "^3.2.37"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.3.3",
     "sass": "^1.52.2",
-    "vite": "^2.9.9"
+    "vite": "^2.9.10"
   }
 }
