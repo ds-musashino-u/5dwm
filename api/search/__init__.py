@@ -68,28 +68,45 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if 'Content-Length' in response.headers:
                             if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
                                 response = urlopen(Request(image))
+
+                                if response.getcode() == 200:
+                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
+                                        Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1') * 100, 15)))
+
+                                    if len(temp_histogram) > 0:
+                                        histogram = temp_histogram
+
+                                else:
+                                    return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
+
                             else:
                                 return func.HttpResponse(status_code=413, mimetype='', charset='')
 
                         else:
                             response = urlopen(Request(image))
 
-                        if response.getcode() == 200:
-                            temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1') * 100, 15)))
+                            if response.getcode() == 200:
+                                bytes = BytesIO(response.read())
 
-                            if len(temp_histogram) > 0:
-                                histogram = temp_histogram
+                                if bytes.getbuffer().nbytes < UPLOAD_MAX_FILESIZE:
+                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(
+                                        resize_image(Image.open(bytes), 512).convert('RGB')), normalize='l1') * 100, 15)))
 
-                        else:
-                            return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
+                                    if len(temp_histogram) > 0:
+                                        histogram = temp_histogram
+
+                                else:
+                                    return func.HttpResponse(status_code=413, mimetype='', charset='')
+
+                            else:
+                                return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
 
                     else:
                         return func.HttpResponse(status_code=response.getcode(), mimetype='', charset='')
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
-            
+
             try:
                 media = []
                 query = session.query(Media)
