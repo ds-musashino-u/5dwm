@@ -166,6 +166,8 @@ const resizeImage = async function (dataURL, length) {
 
         const ctx = canvas.getContext("2d");
 
+        ctx.imageSmoothingEnabled = true;
+        ctx.imageSmoothingQuality = "high";
         ctx.drawImage(i, 0, 0, canvas.width, canvas.height);
         ctx.canvas.toBlob(async (blob) => {
           try {
