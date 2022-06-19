@@ -42,7 +42,7 @@ def compute_histogram(rgb_image, r=0.1, r1=0.85, normalize=None):
     if normalize == 'l1':
         histogram = histogram / np.sum(histogram)
     elif normalize == 'l2':
-        histogram = np.sqrt(np.sum(histogram * histogram))
+        histogram = histogram / np.sqrt(np.sum(histogram * histogram))
 
     return histogram
 
