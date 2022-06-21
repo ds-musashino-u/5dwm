@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from api.shared.imaging import top_k
+from shared.imaging import top_k
 
 MULT_FCTR = 40.0
 DIV_FCTR = 8.0
