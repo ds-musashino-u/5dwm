@@ -100,23 +100,7 @@ export function decodeGeohash(geohash) {
     };
 }
 
-export function getNeighbors(geohash) {
-    const rightGeohash = this.calculateAdjacent(geohash, 'right');
-    const leftGeohash = this.calculateAdjacent(geohash, 'left');
-
-    return {
-        top: this.calculateAdjacent(geohash, 'top'),
-        bottom: this.calculateAdjacent(geohash, 'bottom'),
-        right: rightGeohash,
-        left: leftGeohash,
-        topleft: this.calculateAdjacent(leftGeohash, 'top'),
-        topright: this.calculateAdjacent(rightGeohash, 'top'),
-        bottomright: this.calculateAdjacent(rightGeohash, 'bottom'),
-        bottomleft: this.calculateAdjacent(leftGeohash, 'bottom')
-    };
-}
-
-export function calculateAdjacent(srcHash, dir) {
+function calculateAdjacent(srcHash, dir) {
     const BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
     const NEIGHBORS = {
         right: { even: "bc01fg45238967deuvhjyznpkmstqrwx" },
@@ -148,26 +132,42 @@ export function calculateAdjacent(srcHash, dir) {
     var base = srcHash.substring(0, srcHash.length - 1);
 
     if (BORDERS[dir][type].indexOf(lastChr) != -1) {
-        base = this.calculateAdjacent(base, dir);
+        base = calculateAdjacent(base, dir);
     }
 
     return base + BASE32[NEIGHBORS[dir][type].indexOf(lastChr)];
 }
 
+export function getNeighbors(geohash) {
+    const rightGeohash = calculateAdjacent(geohash, 'right');
+    const leftGeohash = calculateAdjacent(geohash, 'left');
+
+    return {
+        top: calculateAdjacent(geohash, 'top'),
+        bottom: calculateAdjacent(geohash, 'bottom'),
+        right: rightGeohash,
+        left: leftGeohash,
+        topleft: calculateAdjacent(leftGeohash, 'top'),
+        topright: calculateAdjacent(rightGeohash, 'top'),
+        bottomright: calculateAdjacent(rightGeohash, 'bottom'),
+        bottomleft: calculateAdjacent(leftGeohash, 'bottom')
+    };
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI / 180)
+}
+
 export function getDistance(lat1, lon1, lat2, lon2) {
     var R = 6371; // Radius of the earth in km
-    var dLat = this.deg2rad(lat2 - lat1);
-    var dLon = this.deg2rad(lon2 - lon1);
+    var dLat = deg2rad(lat2 - lat1);
+    var dLon = deg2rad(lon2 - lon1);
     var a =
         Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // Distance in km
 
     return d;
-}
-
-function deg2rad(deg) {
-    return deg * (Math.PI / 180)
 }
