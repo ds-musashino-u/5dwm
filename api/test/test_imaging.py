@@ -11,24 +11,24 @@ DIV_FCTR = 8.0
 
 
 class TestSearch(unittest.TestCase):
-    def test_resize_image(self):
+    @classmethod
+    def setUpClass(cls):
         match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
 
         if match:
             mime_type, encoding, data = match.groups()
-            resized_image = resize_image(Image.open(BytesIO(b64decode(data))), 4)
+            cls.IMAGE = Image.open(BytesIO(b64decode(data)))
+            
+    def test_resize_image(self):
+        resized_image = resize_image(self.IMAGE, 4)
 
-            self.assertEqual(resized_image.width, 4)
-            self.assertEqual(resized_image.height, 4)
+        self.assertEqual(resized_image.width, 4)
+        self.assertEqual(resized_image.height, 4)
 
     def test_compute_histogram(self):
-        match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==")
-
-        if match:
-            mime_type, encoding, data = match.groups()
-            histogram = compute_histogram(np.array(Image.open(BytesIO(b64decode(data))).convert('RGB')), normalize='l1')
-            
-            self.assertEqual(len(histogram), round(2 * np.pi * MULT_FCTR) + 1 + round(255.0 / DIV_FCTR) + 1)
+        histogram = compute_histogram(np.array(self.IMAGE.convert('RGB')), normalize='l1')
+        
+        self.assertEqual(len(histogram), round(2 * np.pi * MULT_FCTR) + 1 + round(255.0 / DIV_FCTR) + 1)
             
     def test_top_k(self):
         self.assertEqual(len(top_k(np.zeros(round(
