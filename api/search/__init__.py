@@ -5,7 +5,7 @@ import os
 import ssl
 import numpy as np
 from io import BytesIO
-from datetime import datetime, timezone
+from datetime import datetime, timezone, MINYEAR
 from base64 import b64decode
 from urllib.request import urlopen, Request
 from PIL import Image
@@ -154,7 +154,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if from_datetime is None:
                     query = query.filter(Media.created_at >=
-                                         datetime(datetime.MINYEAR, 1, 1, 0, 0, 0, 0))
+                                         datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                 else:
                     query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime))
 
