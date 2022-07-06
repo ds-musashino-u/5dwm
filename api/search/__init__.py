@@ -38,6 +38,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             types = data.get('types', None)
             usernames = data.get('usernames', None)
             image = data.get('image', None)
+            from_datetime = data.get('from', None)
+            to_datetime = data.get('to', None)
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
             order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
             offset = data.get('offset')
@@ -150,8 +152,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
 
-                query = query.filter(Media.created_at >=
-                                     datetime(1970, 1, 1, 0, 0, 0, 0))
+                if from_datetime is None:
+                    query = query.filter(Media.created_at >=
+                                         datetime(1970, 1, 1, 0, 0, 0, 0))
+                else:
+                    query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime))
+
+                if to_datetime is not None:
+                    query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime))
 
                 total_count = query.count()
 
