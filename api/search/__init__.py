@@ -154,7 +154,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if from_datetime is None:
                     query = query.filter(Media.created_at >=
-                                         datetime(1970, 1, 1, 0, 0, 0, 0))
+                                         datetime(datetime.MINYEAR, 1, 1, 0, 0, 0, 0))
                 else:
                     query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime))
 
