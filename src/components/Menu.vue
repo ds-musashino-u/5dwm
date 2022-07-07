@@ -39,7 +39,7 @@ const signOut = (event) => {
                         logoUrl !== null || title !== null || subtitle !== null
                       "
                     >
-                      <img v-bind:src="logoUrl" alt="Logo" />
+                      <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
                       <h1
                         class="
                           is-primary is-uppercase is-size-4
@@ -99,7 +99,7 @@ const signOut = (event) => {
                         logoUrl !== null || title !== null || subtitle !== null
                       "
                     >
-                      <img v-bind:src="logoUrl" alt="Logo" />
+                      <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
                       <h1
                         class="
                           is-primary is-uppercase is-size-4
