@@ -4,6 +4,7 @@
 import { ref } from "vue";
 
 const props = defineProps({
+  logoUrl: { type: String, required: false, default: null },
   title: { type: String, required: false, default: null },
   subtitle: { type: String, required: false, default: null },
   isLoading: { type: Boolean, required: false, default: false },
@@ -34,10 +35,16 @@ const signOut = (event) => {
                   <nav class="panel">
                     <div
                       class="panel-heading"
-                      v-if="title !== null || subtitle !== null"
+                      v-if="
+                        logoUrl !== null || title !== null || subtitle !== null
+                      "
                     >
+                      <img v-bind:src="logoUrl" alt="Logo" />
                       <h1
-                        class="is-primary is-uppercase is-size-4 has-text-weight-bold"
+                        class="
+                          is-primary is-uppercase is-size-4
+                          has-text-weight-bold
+                        "
                         v-if="title !== null"
                       >
                         {{ title }}
@@ -88,10 +95,16 @@ const signOut = (event) => {
                   <nav class="panel">
                     <div
                       class="panel-heading"
-                      v-if="title !== null || subtitle !== null"
+                      v-if="
+                        logoUrl !== null || title !== null || subtitle !== null
+                      "
                     >
+                      <img v-bind:src="logoUrl" alt="Logo" />
                       <h1
-                        class="is-primary is-uppercase is-size-4 has-text-weight-bold"
+                        class="
+                          is-primary is-uppercase is-size-4
+                          has-text-weight-bold
+                        "
                         v-if="title !== null"
                       >
                         {{ title }}
