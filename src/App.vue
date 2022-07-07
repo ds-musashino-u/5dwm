@@ -141,7 +141,6 @@ export default {
     <transition name="reveal">
       <Menu
         logo-url="/images/logo.png"
-        title="5D World Map"
         subtitle="5dworldmap.com"
         v-bind:is-loading="isSigningIn || isSigningOut"
         v-bind:user="user"
