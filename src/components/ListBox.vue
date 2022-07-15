@@ -43,7 +43,7 @@ const previous = (event) => {
   );
 };
 
-watch(isEnabledRef, async (newValue, oldValue) => {
+watch(isEnabledRef, (newValue, oldValue) => {
   if (newValue !== oldValue && oldValue === false) {
     emit(
       "next",
