@@ -156,10 +156,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(Media.created_at >=
                                          datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                 else:
-                    query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime))
+                    query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
 
                 if to_datetime is not None:
-                    query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime))
+                    query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
 
                 total_count = query.count()
 
