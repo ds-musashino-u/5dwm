@@ -9,6 +9,7 @@ import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
+import Time from "./Time.vue";
 import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
 import Preview from "./Preview.vue";
@@ -21,6 +22,11 @@ const isLoading = ref(false);
 const imageIsCollapsedRef = ref(true);
 const imageRef = ref(null);
 const imageUrlRef = ref("");
+const timeIsEnabledRef = ref(true);
+const fromDateRef = ref(new Date());
+const toDateRef = ref(new Date());
+const defaultFromDateRef = ref(new Date());
+const defaultToDateRef = ref(new Date());
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(true);
 const categoriesIsContinuousRef = ref(false);
@@ -50,6 +56,25 @@ let map = null;
 const searchPageLength = 20;
 const searchResults = [];
 const cachedSearchResults = {};
+
+fromDateRef.value.setHours(0);
+fromDateRef.value.setMinutes(0);
+fromDateRef.value.setSeconds(0);
+fromDateRef.value.setMilliseconds(0);
+toDateRef.value.setHours(0);
+toDateRef.value.setMinutes(0);
+toDateRef.value.setSeconds(0);
+toDateRef.value.setMilliseconds(0);
+toDateRef.value.setDate(toDateRef.value.getDate() + 1);
+defaultFromDateRef.value.setHours(0);
+defaultFromDateRef.value.setMinutes(0);
+defaultFromDateRef.value.setSeconds(0);
+defaultFromDateRef.value.setMilliseconds(0);
+defaultToDateRef.value.setHours(0);
+defaultToDateRef.value.setMinutes(0);
+defaultToDateRef.value.setSeconds(0);
+defaultToDateRef.value.setMilliseconds(0);
+defaultToDateRef.value.setDate(toDateRef.value.getDate());
 
 onActivated(async () => {
   const loader = new Loader({
@@ -214,6 +239,13 @@ const markerClick = (event) => {
   if (element !== undefined) {
     selectedItemRef.value = element.item;
   }
+};
+const timeEnabled = (value) => {
+  timeIsEnabledRef.value = !timeIsEnabledRef.value;
+};
+const timeChanged = (fromDate, toDate) => {
+  fromDateRef.value = fromDate;
+  toDateRef.value = toDate;
 };
 const dragover = (event) => {
   isDragging.value = true;
@@ -383,6 +415,7 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
   categoriesPageIndexRef.value = pageIndex;
 };
 const previousCategories = async (pageIndex) => {
+  categoriesIsContinuousRef.value = true;
   categoriesPageIndexRef.value = pageIndex;
 };
 const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
@@ -419,6 +452,7 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
   typesPageIndexRef.value = pageIndex;
 };
 const previousTypes = async (pageIndex) => {
+  typesIsContinuousRef.value = true;
   typesPageIndexRef.value = pageIndex;
 };
 const nextUsers = async (pageIndex, pageLength, isFetchingRef) => {
@@ -450,6 +484,7 @@ const nextUsers = async (pageIndex, pageLength, isFetchingRef) => {
   usersPageIndexRef.value = pageIndex;
 };
 const previousUsers = async (pageIndex) => {
+  usersIsContinuousRef.value = true;
   usersPageIndexRef.value = pageIndex;
 };
 const shake = (element) => {
@@ -503,8 +538,10 @@ const search = async (ignoreCache = true) => {
       categories.length === 0 &&
       types.length === 0 &&
       users.length === 0 &&
+      fromDateRef.value.getTime() > toDateRef.value.getTime() &&
       imageRef.value === null &&
-      (imageUrlRef.value.length === 0 || !imageUrlRef.value.startsWith("https://"))
+      (imageUrlRef.value.length === 0 ||
+        !imageUrlRef.value.startsWith("https://"))
     ) {
       shake(searchPanelRef.value);
 
@@ -569,7 +606,13 @@ const search = async (ignoreCache = true) => {
           categories,
           types,
           users,
-          imageRef.value === null ? imageUrlRef.value.length > 0 ? imageUrlRef.value : null : imageRef.value.dataURL,
+          imageRef.value === null
+            ? imageUrlRef.value.length > 0
+              ? imageUrlRef.value
+              : null
+            : imageRef.value.dataURL,
+          timeIsEnabledRef.value ? fromDateRef.value : null,
+          timeIsEnabledRef.value ? toDateRef.value : null,
           "created_at",
           "desc",
           0,
@@ -766,6 +809,16 @@ const previousResults = (index) => {
                 </div>
               </form>
             </div>
+            <Time
+              name="Time"
+              :isEnabled="timeIsEnabledRef"
+              :fromDate="fromDateRef"
+              :toDate="toDateRef"
+              :defaultFromDate="defaultFromDateRef"
+              :defaultToDate="defaultToDateRef"
+              @enabled="timeEnabled"
+              @changed="timeChanged"
+            />
             <div class="panel-block">
               <nav class="level is-mobile">
                 <div class="level-left">
@@ -900,7 +953,12 @@ const previousResults = (index) => {
                     />
                   </div>
                   <div class="control">
-                    <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0" @click="clearImageUrl($event)">
+                    <button
+                      type="button"
+                      class="button"
+                      v-bind:disabled="imageUrlRef.length === 0"
+                      @click="clearImageUrl($event)"
+                    >
                       <span class="icon is-small has-text-danger">
                         <i class="fa-solid fa-xmark"></i>
                       </span>
@@ -1042,7 +1100,7 @@ const previousResults = (index) => {
       width: 400px;
 
       .panel {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.9);
         border-radius: 8px;
         box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
@@ -1218,12 +1276,11 @@ const previousResults = (index) => {
       border: 1px solid hsl(0deg, 0%, 93%);
       border-radius: 4px;
 
-      .control>input {
+      .control > input {
         border: 0px none transparent;
-
       }
 
-      .control>button {
+      .control > button {
         box-shadow: none !important;
       }
     }
