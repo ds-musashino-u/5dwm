@@ -1,0 +1,797 @@
+<script setup>
+// This starter template is using Vue 3 <script setup> SFCs
+// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
+import { ref, reactive, toRef, watch } from "vue";
+const props = defineProps({
+  name: { type: String, required: false, default: null },
+  isEnabled: { type: Boolean, required: false, default: true },
+  isCollapsed: { type: Boolean, required: false, default: false },
+  item: { type: Object, required: false, default: null },
+  fromDate: { type: Object, required: false, default: new Date() },
+  toDate: { type: Object, required: false, default: new Date() },
+  defaultFromDate: { type: Object, required: false, default: new Date() },
+  defaultToDate: { type: Object, required: false, default: new Date() },
+});
+const emit = defineEmits(["enabled", "reset", "changed"]);
+const TimeUnits = {
+  Year: 0,
+  Month: 1,
+  Day: 2,
+};
+const isEnabledRef = toRef(props, "isEnabled");
+const isCollapsedRef = ref(props.isCollapsed);
+const currentUnitRef = ref(TimeUnits.Year);
+const fromDateRef = toRef(props, "fromDate");
+const toDateRef = toRef(props, "toDate");
+const fromYearRef = ref(props.fromDate.getFullYear());
+const fromMonthRef = ref(props.fromDate.getMonth());
+const fromDayRef = ref(props.fromDate.getDate());
+const fromHoursRef = ref(props.fromDate.getHours());
+const fromMinutesRef = ref(props.fromDate.getMinutes());
+const toYearRef = ref(props.toDate.getFullYear());
+const toMonthRef = ref(props.toDate.getMonth());
+const toDayRef = ref(props.toDate.getDate());
+const toHoursRef = ref(props.toDate.getHours());
+const toMinutesRef = ref(props.toDate.getMinutes());
+const hasErrorRef = ref(false);
+const minDate = new Date(0, 0, 1, 0, 0, 0);
+const maxDate = new Date(Date.now() + 24 * 60 * 60000);
+
+minDate.setFullYear(1);
+
+const addTime = (date, unit, value) => {
+  const d = new Date(date.getTime());
+
+  if (unit === TimeUnits.Year) {
+    d.setFullYear(d.getFullYear() + value);
+  } else if (unit === TimeUnits.Month) {
+    d.setMonth(d.getMonth() + value);
+  } else if (unit === TimeUnits.Day) {
+    d.setDate(d.getDate() + value);
+  }
+
+  return d;
+};
+const validateForward = (date) => {
+  const time = date.getTime();
+
+  if (time <= maxDate.getTime()) {
+    return true;
+  }
+
+  return false;
+};
+const validateBackward = (date) => {
+  const time = date.getTime();
+
+  if (minDate.getTime() < time) {
+    return true;
+  }
+
+  return false;
+};
+const updateFromDate = (date) => {
+  fromYearRef.value = date.getFullYear();
+  fromMonthRef.value = date.getMonth();
+  fromDayRef.value = date.getDate();
+  fromHoursRef.value = date.getHours();
+  fromMinutesRef.value = date.getMinutes();
+
+  if (date.getTime() <= toDateRef.value.getTime()) {
+    hasErrorRef.value = false;
+  } else {
+    hasErrorRef.value = true;
+  }
+};
+const updateToDate = (date) => {
+  toYearRef.value = date.getFullYear();
+  toMonthRef.value = date.getMonth();
+  toDayRef.value = date.getDate();
+  toHoursRef.value = date.getHours();
+  toMinutesRef.value = date.getMinutes();
+
+  if (fromDateRef.value.getTime() <= date.getTime()) {
+    hasErrorRef.value = false;
+  } else {
+    hasErrorRef.value = true;
+  }
+};
+const hasForward = ref(
+  validateForward(addTime(props.fromDate, currentUnitRef.value, 1))
+);
+const hasBackward = ref(
+  validateBackward(addTime(props.fromDate, currentUnitRef.value, -1))
+);
+const reset = (event) => {
+  emit("changed", props.defaultFromDate, props.defaultToDate);
+};
+const enabled = (event) => {
+  emit("enabled");
+}
+const forward = (event) => {
+  const fromDate = addTime(props.fromDate, currentUnitRef.value, 1);
+  const toDate = addTime(fromDate, currentUnitRef.value, 1);
+
+  hasForward.value = validateForward(
+    addTime(fromDate, currentUnitRef.value, 1)
+  );
+  hasBackward.value = validateBackward(props.fromDate);
+
+  emit("changed", fromDate, toDate);
+};
+const backward = (event) => {
+  const fromDate = addTime(props.fromDate, currentUnitRef.value, -1);
+  const toDate = addTime(fromDate, currentUnitRef.value, 1);
+
+  hasForward.value = validateForward(props.fromDate);
+  hasBackward.value = validateBackward(
+    addTime(fromDate, currentUnitRef.value, -1)
+  );
+
+  emit("changed", fromDate, toDate);
+};
+const fromYearChange = (event) => {
+  fromDateRef.value.setFullYear(Number(event.currentTarget.value));
+
+  updateFromDate(fromDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const fromMonthChange = (event) => {
+  fromDateRef.value.setMonth(Number(event.currentTarget.value) - 1);
+
+  updateFromDate(fromDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const fromDayChange = (event) => {
+  fromDateRef.value.setDate(Number(event.currentTarget.value));
+
+  updateFromDate(fromDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const fromHoursChange = (event) => {
+  fromDateRef.value.setHours(Number(event.currentTarget.value));
+
+  updateFromDate(fromDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const fromMinutesChange = (event) => {
+  fromDateRef.value.setMinutes(Number(event.currentTarget.value));
+
+  updateFromDate(fromDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const toYearChange = (event) => {
+  toDateRef.value.setFullYear(Number(event.currentTarget.value));
+
+  updateToDate(toDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const toMonthChange = (event) => {
+  toDateRef.value.setMonth(Number(event.currentTarget.value) - 1);
+
+  updateToDate(toDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const toDayChange = (event) => {
+  toDateRef.value.setDate(Number(event.currentTarget.value));
+
+  updateToDate(toDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const toHoursChange = (event) => {
+  toDateRef.value.setHours(Number(event.currentTarget.value));
+
+  updateToDate(toDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+const toMinutesChange = (event) => {
+  toDateRef.value.setMinutes(Number(event.currentTarget.value));
+
+  updateToDate(toDateRef.value);
+
+  emit("changed", fromDateRef.value, toDateRef.value);
+};
+
+watch(currentUnitRef, (newValue, oldValue) => {
+  hasForward.value = validateForward(
+    addTime(props.fromDate, currentUnitRef.value, 1)
+  );
+  hasBackward.value = validateBackward(
+    addTime(props.fromDate, currentUnitRef.value, -1)
+  );
+});
+watch(fromDateRef, (newValue, oldValue) => {
+  if (newValue.getTime() !== oldValue.getTime()) {
+    updateFromDate(newValue);
+  }
+});
+watch(toDateRef, (newValue, oldValue) => {
+  if (newValue.getTime() !== oldValue.getTime()) {
+    updateToDate(newValue);
+  }
+});
+</script>
+
+<template>
+  <div class="panel-block">
+    <nav class="level is-mobile">
+      <div class="level-left" v-if="name !== null">
+        <div class="level-item">
+          <h3
+            class="panel-heading is-uppercase has-text-weight-bold"
+            v-text="name"
+          ></h3>
+        </div>
+      </div>
+      <div class="level-right">
+        <div class="level-item">
+          <button
+            class="button is-rounded"
+            v-bind:disabled="fromDateRef.getTime() === defaultFromDate.getTime() && toDateRef.getTime() === defaultToDate.getTime()"
+            @click="reset($event)"
+          >
+            <span class="icon is-small">
+              <i class="fa-solid fa-arrow-rotate-left"></i>
+            </span>
+          </button>
+        </div>
+        <div class="level-item">
+          <button
+            class="button"
+            @click="isCollapsedRef = !isCollapsedRef; enabled();"
+          >
+            <transition name="fade" mode="out-in">
+              <span class="icon" v-if="isEnabled" key="on">
+                <i class="fa-solid fa-toggle-on"></i>
+              </span>
+              <span class="icon" v-else key="off">
+                <i class="fa-solid fa-toggle-off"></i>
+              </span>
+            </transition>
+          </button>
+        </div>
+        <div class="level-item is-hidden">
+          <button
+            class="button toggle is-rounded"
+            @click="isCollapsedRef = !isCollapsedRef"
+          >
+            <span
+              class="icon is-small"
+              v-bind:class="{ collapsed: isCollapsedRef }"
+            >
+              <i class="fa-solid fa-chevron-up"></i>
+            </span>
+          </button>
+        </div>
+      </div>
+    </nav>
+    <transition name="fade" mode="out-in">
+      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
+        <div class="level-left">
+          <div class="level-item">
+            <button
+              class="button"
+              v-bind:disabled="!isEnabled || !hasBackward"
+              @click="backward($event)"
+            >
+              <span class="icon is-small">
+                <i class="fa-solid fa-chevron-left"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+        <div class="level-item">
+          <div class="tabs is-toggle">
+            <ul>
+              <li :class="{ 'is-active': currentUnitRef === TimeUnits.Year }">
+                <a @click="currentUnitRef = TimeUnits.Year">
+                  <span class="is-size-6 has-text-weight-bold">Year</span>
+                </a>
+              </li>
+              <li :class="{ 'is-active': currentUnitRef === TimeUnits.Month }">
+                <a @click="currentUnitRef = TimeUnits.Month">
+                  <span class="is-size-6 has-text-weight-bold">Month</span>
+                </a>
+              </li>
+              <li :class="{ 'is-active': currentUnitRef === TimeUnits.Day }">
+                <a @click="currentUnitRef = TimeUnits.Day">
+                  <span class="is-size-6 has-text-weight-bold">Day</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <button
+              class="button"
+              v-bind:disabled="!isEnabled || !hasForward"
+              @click="forward($event)"
+            >
+              <span class="icon is-small">
+                <i class="fa-solid fa-chevron-right"></i>
+              </span>
+            </button>
+          </div>
+        </div>
+      </nav>
+    </transition>
+    <transition name="fade" mode="out-in">
+      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >From</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="field">
+              <div class="control">
+                <input
+                  class="input is-size-6 has-text-weight-bold"
+                  type="number"
+                  size="4"
+                  placeholder="Year"
+                  v-bind:class="{ 'has-error': hasErrorRef }"
+                  v-bind:disabled="!isEnabled"
+                  v-bind:value="fromYearRef"
+                  @change="fromYearChange"
+                />
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >/</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="fromMonthChange"
+                  >
+                    <option
+                      v-for="i in [...Array(12).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === fromMonthRef"
+                      v-text="i + 1"
+                    ></option>
+                  </select>
+                </div>
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >/</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="fromDayChange"
+                  >
+                    <option
+                      v-for="i in [...Array(31).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i + 1 === fromDayRef"
+                      v-text="i + 1"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </transition>
+    <transition name="fade" mode="out-in">
+      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
+        <div class="level-right">
+          <div class="level-item">
+            <div class="field">
+              <div class="control">
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="fromHoursChange"
+                  >
+                    <option
+                      v-for="i in [...Array(24).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === fromHoursRef"
+                      v-text="i"
+                    ></option>
+                  </select>
+                </div>
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >:</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="fromMinutesChange"
+                  >
+                    <option
+                      v-for="i in [...Array(60).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === fromMinutesRef"
+                      v-text="i"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </transition>
+    <transition name="fade" mode="out-in">
+      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
+        <div class="level-left">
+          <div class="level-item">
+            <span
+              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
+              >To</span
+            >
+          </div>
+        </div>
+        <div class="level-right">
+          <div class="level-item">
+            <div class="field">
+              <div class="control">
+                <input
+                  class="input is-size-6 has-text-weight-bold"
+                  type="number"
+                  size="4"
+                  placeholder="Year"
+                  v-bind:class="{ 'has-error': hasErrorRef }"
+                  v-bind:disabled="!isEnabled"
+                  v-bind:value="toYearRef"
+                  @change="toYearChange"
+                />
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >/</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="toMonthChange"
+                  >
+                    <option
+                      v-for="i in [...Array(12).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === toMonthRef"
+                      v-text="i + 1"
+                    ></option>
+                  </select>
+                </div>
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >/</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="toDayChange"
+                  >
+                    <option
+                      v-for="i in [...Array(31).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i + 1 === toDayRef"
+                      v-text="i + 1"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </transition>
+    <transition name="fade" mode="out-in">
+      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
+        <div class="level-right">
+          <div class="level-item">
+            <div class="field">
+              <div class="control">
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="toHoursChange"
+                  >
+                    <option
+                      v-for="i in [...Array(24).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === toHoursRef"
+                      v-text="i"
+                    ></option>
+                  </select>
+                </div>
+                <span class="is-size-6 is-uppercase has-text-weight-bold"
+                  >:</span
+                >
+                <div class="select is-normal">
+                  <select
+                    class="is-size-6 has-text-weight-bold"
+                    v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled"
+                    @change="toMinutesChange"
+                  >
+                    <option
+                      v-for="i in [...Array(60).keys()]"
+                      v-bind:key="i"
+                      v-bind:selected="i === toMinutesRef"
+                      v-text="i"
+                    ></option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </nav>
+    </transition>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.panel-block {
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
+
+  .level:first-child {
+    margin: 0;
+    padding: 0.5em 0.75em;
+    width: 100%;
+    flex-direction: row;
+
+    .panel-heading {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    > .level-left {
+      flex-direction: column;
+    }
+
+    > .level-right {
+      margin: -8px;
+      flex-direction: row;
+      align-items: flex-end;
+
+      > .level-item {
+        margin: 8px;
+
+        .button.is-rounded {
+          border-radius: 9999px !important;
+          padding: 12px !important;
+          box-shadow: none !important;
+
+          > span.icon {
+            margin: 0 !important;
+            width: 1rem !important;
+            height: 1rem !important;
+          }
+        }
+
+        .button.toggle {
+          > span {
+            transform: rotate(180deg);
+          }
+
+          > span.collapsed {
+            transition: transform 0.5s ease;
+            transform: rotate(0deg);
+          }
+        }
+
+        .field > .control > span {
+          margin: 0;
+          padding: 4px;
+        }
+      }
+
+      > .level-item:nth-child(2) > button {
+        padding: 8px !important;
+        box-shadow: none !important;
+        line-height: 1.5rem !important;
+        background: transparent !important;
+
+        > span.icon {
+          margin: 0 !important;
+          width: 1.5rem !important;
+          height: 1.5rem !important;
+          font-size: 1.5rem !important;
+          line-height: 1.5rem !important;
+        }
+      }
+    }
+  }
+
+  .level:nth-child(2) > .level-item {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    > .tabs > ul {
+      margin: 0;
+    }
+  }
+
+  .level:not(:first-child) {
+    margin: 0;
+    padding: 0.5em 0.75em;
+    width: 100%;
+    flex-direction: row;
+
+    .panel-heading {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+    }
+
+    > .level-left {
+      flex-direction: column;
+    }
+
+    > .level-right {
+      margin: -8px;
+      flex-direction: column;
+      align-items: flex-end;
+
+      > .level-item {
+        margin: 8px;
+
+        .button.is-rounded {
+          border-radius: 9999px !important;
+          padding: 12px !important;
+          box-shadow: none !important;
+
+          > span.icon {
+            margin: 0 !important;
+            width: 1rem !important;
+            height: 1rem !important;
+          }
+        }
+
+        .button.toggle {
+          > span {
+            transform: rotate(180deg);
+          }
+
+          > span.collapsed {
+            transition: transform 0.5s ease;
+            transform: rotate(0deg);
+          }
+        }
+
+        .field > .control {
+          > input {
+            font-size: 1rem !important;
+            width: calc(4rem + calc(calc(0.75em - 1px) * 2));
+          }
+
+          > span {
+            margin: 0;
+            padding: 4px;
+          }
+
+          .has-error {
+            border-color: var(--error-color);
+          }
+        }
+      }
+    }
+  }
+
+  :not(nav).level {
+    align-items: flex-start;
+    border-bottom: 0px none transparent;
+
+    > .level-left {
+      margin: 0;
+      flex-direction: column;
+      align-items: flex-start;
+
+      .level-item:not(:last-child) {
+        margin: 0px 0px 0.5em 0px;
+      }
+    }
+
+    > .level-right {
+      margin: 0;
+      width: 50%;
+      flex-direction: column;
+
+      > .level-item {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .level-item:not(:last-child) {
+        margin: 0px 0px 0.5em 0px;
+      }
+    }
+  }
+
+  .level:nth-child(even):not(:first-child) {
+    justify-content: flex-end;
+  }
+
+  .control {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 0 !important;
+
+    .level {
+      padding: 0;
+      width: 100%;
+
+      > .level-item > .media {
+        display: inline-block;
+        margin: 0;
+        border: 0px none transparent !important;
+        padding: 0;
+        width: 100%;
+
+        .media-content {
+          width: 100%;
+
+          picture {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+
+            img {
+              object-fit: contain;
+              width: 400px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .control:last-child {
+    padding: 12px 0px 0px 0px;
+  }
+
+  .content {
+    margin: 0;
+    padding: 0.5em 0.75em;
+    width: 100%;
+
+    span + p,
+    p {
+      margin: 0.5em 0px 0px 0px;
+      overflow-wrap: break-word;
+    }
+  }
+}
+
+.panel-block:not(:last-child) {
+  border-bottom: 1px solid hsl(0deg, 0%, 93%);
+}
+</style>
