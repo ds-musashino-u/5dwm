@@ -12,6 +12,7 @@ $family-sans-serif: "Barlow", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Not
 :root {
     --menu-background-color: rgba(255, 255, 255, 0.75);
     --accent-color: #{$primary};
+    --error-color: #{$danger};
 }
 
 html {
@@ -81,6 +82,15 @@ button {
     border: 0px solid transparent !important;
     box-shadow: none !important;
     transition: 0.5s;
+}
+
+.tabs.is-toggle li.is-active a {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.select:not(.is-multiple):not(.is-loading)::after {
+    border-color: var(--accent-color);
 }
 
 .is-superellips {
