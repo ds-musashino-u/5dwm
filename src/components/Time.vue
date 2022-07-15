@@ -107,7 +107,7 @@ const reset = (event) => {
 };
 const enabled = (event) => {
   emit("enabled");
-}
+};
 const forward = (event) => {
   const fromDate = addTime(props.fromDate, currentUnitRef.value, 1);
   const toDate = addTime(fromDate, currentUnitRef.value, 1);
@@ -236,7 +236,10 @@ watch(toDateRef, (newValue, oldValue) => {
         <div class="level-item">
           <button
             class="button is-rounded"
-            v-bind:disabled="fromDateRef.getTime() === defaultFromDate.getTime() && toDateRef.getTime() === defaultToDate.getTime()"
+            v-bind:disabled="
+              fromDateRef.getTime() === defaultFromDate.getTime() &&
+              toDateRef.getTime() === defaultToDate.getTime()
+            "
             @click="reset($event)"
           >
             <span class="icon is-small">
@@ -247,7 +250,10 @@ watch(toDateRef, (newValue, oldValue) => {
         <div class="level-item">
           <button
             class="button"
-            @click="isCollapsedRef = !isCollapsedRef; enabled();"
+            @click="
+              isCollapsedRef = !isCollapsedRef;
+              enabled();
+            "
           >
             <transition name="fade" mode="out-in">
               <span class="icon" v-if="isEnabled" key="on">
@@ -686,8 +692,13 @@ watch(toDateRef, (newValue, oldValue) => {
 
         .field > .control {
           > input {
+            background: transparent;
             font-size: 1rem !important;
             width: calc(4rem + calc(calc(0.75em - 1px) * 2));
+          }
+
+          > .select > select {
+            background: transparent;
           }
 
           > span {
