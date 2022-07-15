@@ -1280,7 +1280,8 @@ const previousResults = (index) => {
         border: 0px none transparent;
       }
 
-      .control > button {
+      .control > button {        
+        background: transparent;
         box-shadow: none !important;
       }
     }
