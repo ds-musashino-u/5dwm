@@ -5,7 +5,7 @@ import { Location } from "./location.mjs";
 /**
  * @classdesc ResultItem
  */
- export class ResultItem {
+export class ResultItem {
     /**
      * @param {?number} score - Score
      * @param {!Media} media - Media
@@ -35,7 +35,7 @@ import { Location } from "./location.mjs";
  * @param {?number} limit - Limit
  * @return {Array<ResultItem>} - Array of result items
  */
-export async function search(token, keywords, categories, types, usernames, image = null, sort = null, order = null, offset = 0, limit = null) {
+export async function search(token, keywords, categories, types, usernames, image = null, from = null, to = null, sort = null, order = null, offset = 0, limit = null) {
     const data = {
         keywords: keywords,
         categories: categories,
@@ -47,6 +47,14 @@ export async function search(token, keywords, categories, types, usernames, imag
 
     if (image !== null) {
         data["image"] = image;
+    }
+
+    if (from !== null) {
+        data["from"] = from.toISOString();
+    }
+
+    if (to !== null) {
+        data["to"] = to.toISOString();
     }
 
     if (sort !== null) {
@@ -72,11 +80,11 @@ export async function search(token, keywords, categories, types, usernames, imag
         const json = await response.json();
 
         for (const item of json.items) {
-            if(!/^https?:\/\//.test(item.url)) {
+            if (!/^https?:\/\//.test(item.url)) {
                 item.url = `https://www.5dwm.mydns.jp/5dtest/upload/images/${item.url}`;
             }
 
-            if (item.location !== null && item.location.type === "Point" && typeof(item.location.coordinates[0]) === "number" && typeof(item.location.coordinates[1]) === "number") {
+            if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
                 resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at)));
             } else {
                 resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at)));
