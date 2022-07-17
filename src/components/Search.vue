@@ -14,6 +14,7 @@ import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
 import Preview from "./Preview.vue";
 
+const isRooted = ref(true);
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
 const queryRef = ref("");
@@ -55,8 +56,17 @@ const props = defineProps({
 let map = null;
 const searchPageLength = 20;
 const searchResults = [];
+const searchcCriteria = {
+  keywords: [],
+  categories: [],
+  types: [],
+  users: [],
+  image: null,
+  time: null,
+};
 const cachedSearchResults = {};
 
+fromDateRef.value.setFullYear(fromDateRef.value.getFullYear() - 1);
 fromDateRef.value.setHours(0);
 fromDateRef.value.setMinutes(0);
 fromDateRef.value.setSeconds(0);
@@ -66,6 +76,7 @@ toDateRef.value.setMinutes(0);
 toDateRef.value.setSeconds(0);
 toDateRef.value.setMilliseconds(0);
 toDateRef.value.setDate(toDateRef.value.getDate() + 1);
+defaultFromDateRef.value.setFullYear(fromDateRef.value.getFullYear());
 defaultFromDateRef.value.setHours(0);
 defaultFromDateRef.value.setMinutes(0);
 defaultFromDateRef.value.setSeconds(0);
@@ -162,7 +173,20 @@ watch(imageUrlRef, (currentValue, oldValue) => {
   }
 });
 
-const resizeImage = async function (dataURL, length) {
+const sequenceEqual = (first, second) => {
+  if (first.length === second.length) {
+    for (let i = 0; i < first.length; i++) {
+      if (first[i] !== second[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  return false;
+};
+const resizeImage = async (dataURL, length) => {
   try {
     return await new Promise(async (resolve1, reject1) => {
       const i = new Image();
@@ -552,14 +576,14 @@ const search = async (ignoreCache = true) => {
       (x) => searchPageIndexRef.value * searchPageLength + x
     );
 
-    for (const result of searchResults) {
-      if (result.marker !== null) {
-        result.marker.setMap(null);
-      }
-    }
-
     if (range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
+
+      for (const result of searchResults) {
+        if (result.marker !== null) {
+          result.marker.setMap(null);
+        }
+      }
 
       searchResults.splice(0);
       searchResultsRef.value.splice(0);
@@ -596,131 +620,184 @@ const search = async (ignoreCache = true) => {
 
       map.fitBounds(bounds);
     } else {
-      isSearchingRef.value = true;
+      const image =
+        imageRef.value === null
+          ? imageUrlRef.value.length > 0
+            ? imageUrlRef.value
+            : null
+          : imageRef.value.dataURL;
+      const time =
+        timeIsEnabledRef.value === null
+          ? { from: null, to: null }
+          : { from: fromDateRef.value, to: toDateRef.value };
 
-      try {
-        const idToken = await props.auth0.getIdTokenClaims();
-        const [resultItems, totalCount] = await searchWorldMap(
-          idToken.__raw,
-          keywords,
-          categories,
-          types,
-          users,
-          imageRef.value === null
-            ? imageUrlRef.value.length > 0
-              ? imageUrlRef.value
-              : null
-            : imageRef.value.dataURL,
-          timeIsEnabledRef.value ? fromDateRef.value : null,
-          timeIsEnabledRef.value ? toDateRef.value : null,
-          "created_at",
-          "desc",
-          0,
-          null
-        );
-        const bounds = new google.maps.LatLngBounds();
-        let index = 0;
+      if (
+        !sequenceEqual(searchcCriteria.keywords, keywords) ||
+        !sequenceEqual(searchcCriteria.categories, categories) ||
+        !sequenceEqual(searchcCriteria.types, types) ||
+        !sequenceEqual(searchcCriteria.users, users) ||
+        searchcCriteria.image !== image ||
+        (searchcCriteria.time.from === null && time.from !== null) ||
+        (searchcCriteria.time.from !== null && time.from === null) ||
+        (searchcCriteria.time.from !== null &&
+          time.from !== null &&
+          searchcCriteria.time.from.getTime() !== time.from.getTime()) ||
+        (searchcCriteria.time.to === null && time.to !== null) ||
+        (searchcCriteria.time.to !== null && time.to === null) ||
+        (searchcCriteria.time.to !== null &&
+          time.to !== null &&
+          searchcCriteria.time.to.getTime() !== time.to.getTime())
+      ) {
+        for (const result of searchResults) {
+          if (result.marker !== null) {
+            result.marker.setMap(null);
+          }
+        }
+
+        searchcCriteria.keywords = keywords;
+        searchcCriteria.categories = categories;
+        searchcCriteria.types = types;
+        searchcCriteria.users = users;
+        searchcCriteria.image = image;
+        searchcCriteria.time = time;
 
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
-        searchTotalCountRef.value = resultItems.length;
+        searchPageIndexRef.value = 0;
+        searchTotalCountRef.value = null;
 
-        if (resultItems.some((x) => x.hasScore)) {
-          resultItems.sort(
-            (x, y) => (y.hasScore ? y.score : 0) - (x.hasScore ? x.score : 0)
+        isSearchingRef.value = true;
+
+        try {
+          const idToken = await props.auth0.getIdTokenClaims();
+          const [resultItems, totalCount] = await searchWorldMap(
+            idToken.__raw,
+            keywords,
+            categories,
+            types,
+            users,
+            image,
+            time.from,
+            time.to,
+            "created_at",
+            "desc",
+            0,
+            null
           );
-        }
+          const bounds = new google.maps.LatLngBounds();
+          let index = 0;
 
-        if (
-          resultItems.length >
-          searchPageIndexRef.value * searchPageLength + searchPageLength
-        ) {
-          for (const resultItem of resultItems.splice(0, searchPageLength)) {
-            if (resultItem.media.location === null) {
-              searchResults.push({ marker: null, item: resultItem });
-              searchResultsRef.value.push(resultItem);
-              cachedSearchResults[
-                searchPageIndexRef.value * searchPageLength + index
-              ] = resultItem;
-            } else {
-              const marker = new google.maps.Marker({
-                position: {
-                  lat: resultItem.media.location.latitude,
-                  lng: resultItem.media.location.longitude,
-                },
-                map,
-                title: resultItem.media.description,
-                animation: google.maps.Animation.DROP,
-              });
+          Object.keys(cachedSearchResults).forEach((key) => {
+            delete cachedSearchResults[key];
+          });
 
-              marker.addListener("click", markerClick);
-              bounds.extend(
-                new google.maps.LatLng(
-                  resultItem.media.location.latitude,
-                  resultItem.media.location.longitude
-                )
-              );
+          isRooted.value = false;
+          searchResults.splice(0);
+          searchResultsRef.value.splice(0);
+          searchTotalCountRef.value = resultItems.length;
 
-              searchResults.push({ marker: marker, item: resultItem });
-              searchResultsRef.value.push(resultItem);
-              cachedSearchResults[
-                searchPageIndexRef.value * searchPageLength + index
-              ] = resultItem;
+          if (resultItems.some((x) => x.hasScore)) {
+            resultItems.sort(
+              (x, y) => (y.hasScore ? y.score : 0) - (x.hasScore ? x.score : 0)
+            );
+          }
+
+          if (
+            resultItems.length >
+            searchPageIndexRef.value * searchPageLength + searchPageLength
+          ) {
+            for (const resultItem of resultItems.splice(0, searchPageLength)) {
+              if (resultItem.media.location === null) {
+                searchResults.push({ marker: null, item: resultItem });
+                searchResultsRef.value.push(resultItem);
+                cachedSearchResults[
+                  searchPageIndexRef.value * searchPageLength + index
+                ] = resultItem;
+              } else {
+                const marker = new google.maps.Marker({
+                  position: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  map,
+                  title: resultItem.media.description,
+                  animation: google.maps.Animation.DROP,
+                });
+
+                marker.addListener("click", markerClick);
+                bounds.extend(
+                  new google.maps.LatLng(
+                    resultItem.media.location.latitude,
+                    resultItem.media.location.longitude
+                  )
+                );
+
+                searchResults.push({ marker: marker, item: resultItem });
+                searchResultsRef.value.push(resultItem);
+                cachedSearchResults[
+                  searchPageIndexRef.value * searchPageLength + index
+                ] = resultItem;
+              }
+
+              index++;
             }
 
-            index++;
-          }
-
-          for (const resultItem of resultItems) {
-            cachedSearchResults[
-              searchPageIndexRef.value * searchPageLength + index
-            ] = resultItem;
-            index++;
-          }
-        } else {
-          for (const resultItem of resultItems) {
-            if (resultItem.media.location === null) {
-              searchResults.push({ marker: null, item: resultItem });
-              searchResultsRef.value.push(resultItem);
+            for (const resultItem of resultItems) {
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
               ] = resultItem;
-            } else {
-              const marker = new google.maps.Marker({
-                position: {
-                  lat: resultItem.media.location.latitude,
-                  lng: resultItem.media.location.longitude,
-                },
-                map,
-                title: resultItem.media.description,
-                animation: google.maps.Animation.DROP,
-              });
-              marker.addListener("click", { marker: marker, item: resultItem });
-              bounds.extend(
-                new google.maps.LatLng(
-                  resultItem.media.location.latitude,
-                  resultItem.media.location.longitude
-                )
-              );
-
-              searchResults.push({ marker: marker, item: resultItem });
-              searchResultsRef.value.push(resultItem);
-              cachedSearchResults[
-                searchPageIndexRef.value * searchPageLength + index
-              ] = resultItem;
+              index++;
             }
+          } else {
+            for (const resultItem of resultItems) {
+              if (resultItem.media.location === null) {
+                searchResults.push({ marker: null, item: resultItem });
+                searchResultsRef.value.push(resultItem);
+                cachedSearchResults[
+                  searchPageIndexRef.value * searchPageLength + index
+                ] = resultItem;
+              } else {
+                const marker = new google.maps.Marker({
+                  position: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  map,
+                  title: resultItem.media.description,
+                  animation: google.maps.Animation.DROP,
+                });
+                marker.addListener("click", {
+                  marker: marker,
+                  item: resultItem,
+                });
+                bounds.extend(
+                  new google.maps.LatLng(
+                    resultItem.media.location.latitude,
+                    resultItem.media.location.longitude
+                  )
+                );
 
-            index++;
+                searchResults.push({ marker: marker, item: resultItem });
+                searchResultsRef.value.push(resultItem);
+                cachedSearchResults[
+                  searchPageIndexRef.value * searchPageLength + index
+                ] = resultItem;
+              }
+
+              index++;
+            }
           }
+
+          map.fitBounds(bounds);
+        } catch (error) {
+          shake(searchPanelRef.value);
+          console.error(error);
         }
 
-        map.fitBounds(bounds);
-      } catch (error) {
-        shake(searchPanelRef.value);
-        console.error(error);
+        isSearchingRef.value = false;
+      } else {
+        isRooted.value = false;
       }
-
-      isSearchingRef.value = false;
     }
   }
 };
@@ -728,20 +805,7 @@ const back = (event) => {
   if (selectedItemRef.value !== null) {
     selectedItemRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
-    for (const result of searchResults) {
-      if (result.marker !== null) {
-        result.marker.setMap(null);
-      }
-    }
-
-    searchResults.splice(0);
-    searchResultsRef.value.splice(0);
-    searchPageIndexRef.value = 0;
-    searchTotalCountRef.value = null;
-
-    Object.keys(cachedSearchResults).forEach((key) => {
-      delete cachedSearchResults[key];
-    });
+    isRooted.value = true;
   }
 };
 const selectItem = (item) => {
@@ -792,11 +856,7 @@ const previousResults = (index) => {
             </div>
             <Preview :item="selectedItemRef" />
           </nav>
-          <nav
-            class="panel"
-            v-else-if="searchTotalCountRef === null"
-            key="search"
-          >
+          <nav class="panel" v-else-if="isRooted" key="search">
             <div class="panel-block">
               <form class="field" @submit.prevent>
                 <div class="control">
@@ -970,7 +1030,7 @@ const previousResults = (index) => {
             <ListBox
               name="Categories"
               :max-length="maxCategoriesLength"
-              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef"
               :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef"
@@ -984,7 +1044,7 @@ const previousResults = (index) => {
             <ListBox
               name="Types"
               :max-length="maxTypesLength"
-              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-enabled="user !== null"
               :is-collapsed="typesIsCollapsedRef"
               :is-continuous="typesIsContinuousRef"
               :items="typesItemsRef"
@@ -998,7 +1058,7 @@ const previousResults = (index) => {
             <!--<ListBox
               name="Users"
               :max-length="maxUsersLength"
-              :is-enabled="user !== null && searchTotalCountRef === null"
+              :is-enabled="user !== null"
               :is-collapsed="usersIsCollapsedRef"
               :is-continuous="usersIsContinuousRef"
               :items="usersItemsRef"
@@ -1280,7 +1340,7 @@ const previousResults = (index) => {
         border: 0px none transparent;
       }
 
-      .control > button {        
+      .control > button {
         background: transparent;
         box-shadow: none !important;
       }
