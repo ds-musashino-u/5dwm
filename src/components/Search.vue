@@ -835,227 +835,206 @@ const previousResults = (index) => {
     <div id="map" ref="mapRef"></div>
     <div class="flyout-left">
       <div class="block is-hidden-mobile" ref="searchPanelRef">
-        <transition name="slide" mode="out-in">
-          <nav
-            class="panel"
-            v-if="selectedItemRef !== null"
-            key="selectedItemRef"
-          >
-            <div class="panel-block">
-              <nav class="level is-mobile">
-                <div class="level-left">
-                  <div class="level-item">
-                    <button class="button is-rounded" @click="back($event)">
-                      <span class="icon is-small">
-                        <i class="fa-solid fa-arrow-left"></i>
-                      </span>
-                    </button>
+        <nav class="panel">
+          <div class="panel-block">
+            <form class="field" @submit.prevent>
+              <div class="control">
+                <input
+                  class="input is-outlined has-text-weight-bold"
+                  type="text"
+                  placeholder="Keywords"
+                  v-model="queryRef"
+                />
+              </div>
+            </form>
+          </div>
+          <Time
+            name="Time"
+            :isEnabled="timeIsEnabledRef"
+            :fromDate="fromDateRef"
+            :toDate="toDateRef"
+            :defaultFromDate="defaultFromDateRef"
+            :defaultToDate="defaultToDateRef"
+            @enabled="timeEnabled"
+            @changed="timeChanged"
+          />
+          <div class="panel-block">
+            <nav class="level is-mobile">
+              <div class="level-left">
+                <div class="level-item">
+                  <h3 class="panel-heading is-uppercase has-text-weight-bold">
+                    Image
+                  </h3>
+                </div>
+                <transition name="fade" mode="out-in">
+                  <div
+                    class="level-item"
+                    v-show="imageRef !== null"
+                    key="attaced"
+                  >
+                    <span class="icon is-primary">
+                      <i class="fa-solid fa-check"></i>
+                    </span>
+                  </div>
+                </transition>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <button
+                    class="button toggle is-rounded"
+                    @click="imageIsCollapsedRef = !imageIsCollapsedRef"
+                  >
+                    <span
+                      class="icon is-small"
+                      v-bind:class="{ collapsed: imageIsCollapsedRef }"
+                    >
+                      <i class="fa-solid fa-chevron-up"></i>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </nav>
+            <transition name="fade" mode="out-in">
+              <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
+                <div class="control">
+                  <div
+                    class="drop"
+                    v-bind:style="{
+                      animationPlayState: isDragging ? 'running' : 'paused',
+                    }"
+                    @dragover.prevent="dragover($event)"
+                    @dragleave.prevent="isDragging = false"
+                    @drop.stop.prevent="drop($event)"
+                  >
+                    <transition name="fade" mode="out-in">
+                      <div
+                        class="image"
+                        v-if="imageRef === null"
+                        v-bind:key="imageRef"
+                      >
+                        <div class="level">
+                          <div class="level-item">
+                            <label
+                              class="
+                                file
+                                button
+                                is-circle
+                                has-text-weight-bold
+                                file-label
+                              "
+                            >
+                              <input
+                                class="file-input"
+                                type="file"
+                                name="upload"
+                                accept="image/apng, image/png, image/jpeg, image/webp"
+                                style="pointer-events: none"
+                                v-bind:disabled="isLoading"
+                                @change="browse($event)"
+                              />
+                              <div class="file-cta_">
+                                <span class="icon">
+                                  <i class="fa-solid fa-file-image"></i>
+                                </span>
+                              </div>
+                            </label>
+                          </div>
+                          <div class="level-item">
+                            <span
+                              class="
+                                is-size-7 is-uppercase
+                                has-text-weight-bold
+                              "
+                              >Image</span
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="image" v-else v-bind:key="imageRef">
+                        <div class="image">
+                          <picture class="image">
+                            <img
+                              v-bind:src="imageRef.dataURL"
+                              v-bind:alt="imageRef.filename"
+                            />
+                          </picture>
+                          <div class="control">
+                            <button
+                              class="button is-circle"
+                              type="button"
+                              @click="reset($event)"
+                              key="menu"
+                            >
+                              <span class="icon is-small has-text-danger">
+                                <i class="fa-solid fa-xmark"></i>
+                              </span>
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </transition>
                   </div>
                 </div>
-              </nav>
-            </div>
-            <Preview :item="selectedItemRef" />
-          </nav>
-          <nav class="panel" v-else-if="isRooted" key="search">
-            <div class="panel-block">
-              <form class="field" @submit.prevent>
-                <div class="control">
+              </div>
+            </transition>
+            <transition name="fade" mode="out-in">
+              <div
+                class="field has-addons"
+                v-show="!imageIsCollapsedRef"
+                key="collapse"
+              >
+                <div class="control is-expanded">
                   <input
                     class="input is-outlined has-text-weight-bold"
                     type="text"
-                    placeholder="Keywords"
-                    v-model="queryRef"
+                    placeholder="URL"
+                    v-model="imageUrlRef"
                   />
                 </div>
-              </form>
-            </div>
-            <Time
-              name="Time"
-              :isEnabled="timeIsEnabledRef"
-              :fromDate="fromDateRef"
-              :toDate="toDateRef"
-              :defaultFromDate="defaultFromDateRef"
-              :defaultToDate="defaultToDateRef"
-              @enabled="timeEnabled"
-              @changed="timeChanged"
-            />
-            <div class="panel-block">
-              <nav class="level is-mobile">
-                <div class="level-left">
-                  <div class="level-item">
-                    <h3 class="panel-heading is-uppercase has-text-weight-bold">
-                      Image
-                    </h3>
-                  </div>
-                  <transition name="fade" mode="out-in">
-                    <div
-                      class="level-item"
-                      v-show="imageRef !== null"
-                      key="attaced"
-                    >
-                      <span class="icon is-primary">
-                        <i class="fa-solid fa-check"></i>
-                      </span>
-                    </div>
-                  </transition>
+                <div class="control">
+                  <button
+                    type="button"
+                    class="button"
+                    v-bind:disabled="imageUrlRef.length === 0"
+                    @click="clearImageUrl($event)"
+                  >
+                    <span class="icon is-small has-text-danger">
+                      <i class="fa-solid fa-xmark"></i>
+                    </span>
+                  </button>
                 </div>
-                <div class="level-right">
-                  <div class="level-item">
-                    <button
-                      class="button toggle is-rounded"
-                      @click="imageIsCollapsedRef = !imageIsCollapsedRef"
-                    >
-                      <span
-                        class="icon is-small"
-                        v-bind:class="{ collapsed: imageIsCollapsedRef }"
-                      >
-                        <i class="fa-solid fa-chevron-up"></i>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </nav>
-              <transition name="fade" mode="out-in">
-                <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
-                  <div class="control">
-                    <div
-                      class="drop"
-                      v-bind:style="{
-                        animationPlayState: isDragging ? 'running' : 'paused',
-                      }"
-                      @dragover.prevent="dragover($event)"
-                      @dragleave.prevent="isDragging = false"
-                      @drop.stop.prevent="drop($event)"
-                    >
-                      <transition name="fade" mode="out-in">
-                        <div
-                          class="image"
-                          v-if="imageRef === null"
-                          v-bind:key="imageRef"
-                        >
-                          <div class="level">
-                            <div class="level-item">
-                              <label
-                                class="
-                                  file
-                                  button
-                                  is-circle
-                                  has-text-weight-bold
-                                  file-label
-                                "
-                              >
-                                <input
-                                  class="file-input"
-                                  type="file"
-                                  name="upload"
-                                  accept="image/apng, image/png, image/jpeg, image/webp"
-                                  style="pointer-events: none"
-                                  v-bind:disabled="isLoading"
-                                  @change="browse($event)"
-                                />
-                                <div class="file-cta_">
-                                  <span class="icon">
-                                    <i class="fa-solid fa-file-image"></i>
-                                  </span>
-                                </div>
-                              </label>
-                            </div>
-                            <div class="level-item">
-                              <span
-                                class="
-                                  is-size-7 is-uppercase
-                                  has-text-weight-bold
-                                "
-                                >Image</span
-                              >
-                            </div>
-                          </div>
-                        </div>
-                        <div class="image" v-else v-bind:key="imageRef">
-                          <div class="image">
-                            <picture class="image">
-                              <img
-                                v-bind:src="imageRef.dataURL"
-                                v-bind:alt="imageRef.filename"
-                              />
-                            </picture>
-                            <div class="control">
-                              <button
-                                class="button is-circle"
-                                type="button"
-                                @click="reset($event)"
-                                key="menu"
-                              >
-                                <span class="icon is-small has-text-danger">
-                                  <i class="fa-solid fa-xmark"></i>
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </transition>
-                    </div>
-                  </div>
-                </div>
-              </transition>
-              <transition name="fade" mode="out-in">
-                <div
-                  class="field has-addons"
-                  v-show="!imageIsCollapsedRef"
-                  key="collapse"
-                >
-                  <div class="control is-expanded">
-                    <input
-                      class="input is-outlined has-text-weight-bold"
-                      type="text"
-                      placeholder="URL"
-                      v-model="imageUrlRef"
-                    />
-                  </div>
-                  <div class="control">
-                    <button
-                      type="button"
-                      class="button"
-                      v-bind:disabled="imageUrlRef.length === 0"
-                      @click="clearImageUrl($event)"
-                    >
-                      <span class="icon is-small has-text-danger">
-                        <i class="fa-solid fa-xmark"></i>
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </transition>
-            </div>
-            <ListBox
-              name="Categories"
-              :max-length="maxCategoriesLength"
-              :is-enabled="user !== null"
-              :is-collapsed="categoriesIsCollapsedRef"
-              :is-continuous="categoriesIsContinuousRef"
-              :items="categoriesItemsRef"
-              :page-index="categoriesPageIndexRef"
-              @collapse="collapseCategories"
-              @clear="clearCategories"
-              @select="selectCategory"
-              @next="nextCategories"
-              @previous="previousCategories"
-            />
-            <ListBox
-              name="Types"
-              :max-length="maxTypesLength"
-              :is-enabled="user !== null"
-              :is-collapsed="typesIsCollapsedRef"
-              :is-continuous="typesIsContinuousRef"
-              :items="typesItemsRef"
-              :page-index="typesPageIndexRef"
-              @collapse="collapseTypes"
-              @clear="clearTypes"
-              @select="selectType"
-              @next="nextTypes"
-              @previous="previousTypes"
-            />
-            <!--<ListBox
+              </div>
+            </transition>
+          </div>
+          <ListBox
+            name="Categories"
+            :max-length="maxCategoriesLength"
+            :is-enabled="user !== null"
+            :is-collapsed="categoriesIsCollapsedRef"
+            :is-continuous="categoriesIsContinuousRef"
+            :items="categoriesItemsRef"
+            :page-index="categoriesPageIndexRef"
+            @collapse="collapseCategories"
+            @clear="clearCategories"
+            @select="selectCategory"
+            @next="nextCategories"
+            @previous="previousCategories"
+          />
+          <ListBox
+            name="Types"
+            :max-length="maxTypesLength"
+            :is-enabled="user !== null"
+            :is-collapsed="typesIsCollapsedRef"
+            :is-continuous="typesIsContinuousRef"
+            :items="typesItemsRef"
+            :page-index="typesPageIndexRef"
+            @collapse="collapseTypes"
+            @clear="clearTypes"
+            @select="selectType"
+            @next="nextTypes"
+            @previous="previousTypes"
+          />
+          <!--<ListBox
               name="Users"
               :max-length="maxUsersLength"
               :is-enabled="user !== null"
@@ -1069,65 +1048,87 @@ const previousResults = (index) => {
               @next="nextUsers"
               @previous="previousUsers"
             />-->
-            <div class="panel-block">
-              <div class="control">
-                <button
-                  class="
-                    button
-                    is-rounded is-outlined is-fullwidth is-size-6 is-primary
-                  "
-                  type="submit"
-                  v-bind:disabled="user === null || isSearchingRef"
-                  @click="search"
-                >
-                  <transition name="fade" mode="out-in">
-                    <span class="icon" v-if="isSearchingRef" key="searching">
-                      <i class="fas fa-spinner updating"></i>
-                    </span>
-                    <span class="icon" v-else key="ready">
-                      <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                  </transition>
-                  <span class="is-uppercase has-text-weight-bold">Search</span>
-                </button>
-              </div>
+          <div class="panel-block">
+            <div class="control">
+              <button
+                class="
+                  button
+                  is-rounded is-outlined is-fullwidth is-size-6 is-primary
+                "
+                type="submit"
+                v-bind:disabled="user === null || isSearchingRef"
+                @click="search"
+              >
+                <transition name="fade" mode="out-in">
+                  <span class="icon" v-if="isSearchingRef" key="searching">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                  <span class="icon" v-else key="ready">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                </transition>
+                <span class="is-uppercase has-text-weight-bold">Search</span>
+              </button>
             </div>
-          </nav>
-          <nav class="panel" v-else key="results">
-            <div class="panel-block">
-              <nav class="level is-mobile">
-                <div class="level-left">
-                  <div class="level-item">
-                    <button class="button is-rounded" @click="back($event)">
-                      <span class="icon is-small">
-                        <i class="fa-solid fa-arrow-left"></i>
-                      </span>
-                    </button>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <transition name="fade" mode="out-in">
+      <div class="flyout-right" v-if="!isRooted">
+        <div class="block is-hidden-mobile">
+          <transition name="slide" mode="out-in">
+            <nav
+              class="panel"
+              v-if="selectedItemRef !== null"
+              key="selectedItemRef"
+            >
+              <div class="panel-block">
+                <nav class="level is-mobile">
+                  <div class="level-left">
+                    <div class="level-item">
+                      <button class="button is-rounded" @click="back($event)">
+                        <span class="icon is-small">
+                          <i class="fa-solid fa-arrow-left"></i>
+                        </span>
+                      </button>
+                    </div>
                   </div>
-                </div>
-              </nav>
-            </div>
-            <Results
-              :is-fetching="isSearchingRef"
-              :items="searchResultsRef"
-              :count="searchTotalCountRef"
-              :page-index="searchPageIndexRef"
-              :page-length="searchPageLength"
-              @select="selectItem"
-              @next="nextResults"
-              @previous="previousResults"
-              v-if="selectedItemRef === null"
-              key="results"
-            />
-          </nav>
-        </transition>
+                </nav>
+              </div>
+              <Preview :item="selectedItemRef" />
+            </nav>
+            <nav class="panel" v-else key="results">
+              <div class="panel-block">
+                <nav class="level is-mobile">
+                  <div class="level-left">
+                    <div class="level-item">
+                      <button class="button is-rounded" @click="back($event)">
+                        <span class="icon is-small">
+                          <i class="fa-solid fa-arrow-left"></i>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+              <Results
+                :is-fetching="isSearchingRef"
+                :items="searchResultsRef"
+                :count="searchTotalCountRef"
+                :page-index="searchPageIndexRef"
+                :page-length="searchPageLength"
+                @select="selectItem"
+                @next="nextResults"
+                @previous="previousResults"
+                v-if="selectedItemRef === null"
+                key="results"
+              />
+            </nav>
+          </transition>
+        </div>
       </div>
-    </div>
-    <div class="flyout-right">
-      <div class="block is-hidden-mobile">
-        
-      </div>
-    </div>
+    </transition>
   </div>
 </template>
 
@@ -1147,7 +1148,8 @@ const previousResults = (index) => {
     }
   }
 
-  .flyout-left {
+  .flyout-left,
+  .flyout-right {
     z-index: 1;
     position: relative;
     box-sizing: border-box;
@@ -1361,23 +1363,9 @@ const previousResults = (index) => {
   }
 
   .flyout-right {
-    z-index: 1;
     position: absolute;
-    box-sizing: border-box;
-    display: block;
     top: 0px;
-    right: 0px;
-    margin: 0;
-    padding: 16px;
-    width: fit-content;
-    max-height: 100%;
-    background: transparent;
-    overflow-x: hidden;
-    overflow-y: auto;
-
-    > .block {
-      width: 400px;
-    }
+    right: 0px; 
   }
 }
 
