@@ -75,7 +75,7 @@ toDateRef.value.setHours(0);
 toDateRef.value.setMinutes(0);
 toDateRef.value.setSeconds(0);
 toDateRef.value.setMilliseconds(0);
-toDateRef.value.setDate(toDateRef.value.getDate() + 1);
+toDateRef.value.setDate(toDateRef.value.getDate());
 defaultFromDateRef.value.setFullYear(fromDateRef.value.getFullYear());
 defaultFromDateRef.value.setHours(0);
 defaultFromDateRef.value.setMinutes(0);
@@ -833,7 +833,7 @@ const previousResults = (index) => {
 <template>
   <div id="search">
     <div id="map" ref="mapRef"></div>
-    <div class="wrap">
+    <div class="flyout-left">
       <div class="block is-hidden-mobile" ref="searchPanelRef">
         <transition name="slide" mode="out-in">
           <nav
@@ -1123,6 +1123,11 @@ const previousResults = (index) => {
         </transition>
       </div>
     </div>
+    <div class="flyout-right">
+      <div class="block is-hidden-mobile">
+        
+      </div>
+    </div>
   </div>
 </template>
 
@@ -1142,7 +1147,7 @@ const previousResults = (index) => {
     }
   }
 
-  .wrap {
+  .flyout-left {
     z-index: 1;
     position: relative;
     box-sizing: border-box;
@@ -1352,6 +1357,26 @@ const previousResults = (index) => {
 
     .field:not(:last-child) {
       margin-bottom: 0.5rem;
+    }
+  }
+
+  .flyout-right {
+    z-index: 1;
+    position: absolute;
+    box-sizing: border-box;
+    display: block;
+    top: 0px;
+    right: 0px;
+    margin: 0;
+    padding: 16px;
+    width: fit-content;
+    max-height: 100%;
+    background: transparent;
+    overflow-x: hidden;
+    overflow-y: auto;
+
+    > .block {
+      width: 400px;
     }
   }
 }
