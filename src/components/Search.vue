@@ -1074,8 +1074,8 @@ const previousResults = (index) => {
         </nav>
       </div>
     </div>
-    <transition name="fade" mode="out-in">
-      <div class="flyout-right" v-if="!isRooted">
+    <transition name="slide" mode="out-in">
+      <div class="flyout-right" v-if="!isRooted && searchTotalCountRef !== null">
         <div class="block is-hidden-mobile">
           <transition name="slide" mode="out-in">
             <nav
@@ -1105,7 +1105,7 @@ const previousResults = (index) => {
                     <div class="level-item">
                       <button class="button is-rounded" @click="back($event)">
                         <span class="icon is-small">
-                          <i class="fa-solid fa-arrow-left"></i>
+                          <i class="fa-solid fa-xmark"></i>
                         </span>
                       </button>
                     </div>
