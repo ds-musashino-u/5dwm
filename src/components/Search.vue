@@ -1363,9 +1363,8 @@ const previousResults = (index) => {
   }
 
   .flyout-right {
-    position: absolute;
-    top: 0px;
-    right: 0px; 
+    position: absolute !important;
+    right: 0px !important; 
   }
 }
 
