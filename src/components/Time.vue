@@ -35,7 +35,7 @@ const toHoursRef = ref(props.toDate.getHours());
 const toMinutesRef = ref(props.toDate.getMinutes());
 const hasErrorRef = ref(false);
 const minDate = new Date(0, 0, 1, 0, 0, 0);
-const maxDate = new Date(Date.now() + 24 * 60 * 60000);
+const maxDate = new Date();
 
 minDate.setFullYear(1);
 
@@ -97,7 +97,7 @@ const updateToDate = (date) => {
   }
 };
 const hasForward = ref(
-  validateForward(addTime(props.fromDate, currentUnitRef.value, 1))
+  validateForward(addTime(props.fromDate, currentUnitRef.value, 2))
 );
 const hasBackward = ref(
   validateBackward(addTime(props.fromDate, currentUnitRef.value, -1))
@@ -113,7 +113,7 @@ const forward = (event) => {
   const toDate = addTime(fromDate, currentUnitRef.value, 1);
 
   hasForward.value = validateForward(
-    addTime(fromDate, currentUnitRef.value, 1)
+    addTime(toDate, currentUnitRef.value, 1)
   );
   hasBackward.value = validateBackward(props.fromDate);
 
@@ -123,7 +123,7 @@ const backward = (event) => {
   const fromDate = addTime(props.fromDate, currentUnitRef.value, -1);
   const toDate = addTime(fromDate, currentUnitRef.value, 1);
 
-  hasForward.value = validateForward(props.fromDate);
+  hasForward.value = validateForward(toDate);
   hasBackward.value = validateBackward(
     addTime(fromDate, currentUnitRef.value, -1)
   );
@@ -300,17 +300,17 @@ watch(toDateRef, (newValue, oldValue) => {
             <ul>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Year }">
                 <a @click="currentUnitRef = TimeUnits.Year">
-                  <span class="is-size-6 has-text-weight-bold">Year</span>
+                  <span class="is-size-6 is-uppercase has-text-weight-bold">Year</span>
                 </a>
               </li>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Month }">
                 <a @click="currentUnitRef = TimeUnits.Month">
-                  <span class="is-size-6 has-text-weight-bold">Month</span>
+                  <span class="is-size-6 is-uppercase has-text-weight-bold">Month</span>
                 </a>
               </li>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Day }">
                 <a @click="currentUnitRef = TimeUnits.Day">
-                  <span class="is-size-6 has-text-weight-bold">Day</span>
+                  <span class="is-size-6 is-uppercase has-text-weight-bold">Day</span>
                 </a>
               </li>
             </ul>
