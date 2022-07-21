@@ -580,9 +580,26 @@ const search = async (ignoreCache = true) => {
     }
 
     const keys = Object.keys(cachedSearchResults);
-    const range = [...Array(keys.length > 0 ? Math.min(keys.filter(x => x >= searchPageIndexRef.value * searchPageLength && x < searchPageIndexRef.value * searchPageLength + searchPageLength).reduce((x, y) => Math.max(x, y), 0) % searchPageLength + 1, searchPageLength) : searchPageLength).keys()].map(
-      (x) => searchPageIndexRef.value * searchPageLength + x
-    );
+    const range = [
+      ...Array(
+        keys.length > 0
+          ? Math.min(
+              (keys
+                .filter(
+                  (x) =>
+                    x >= searchPageIndexRef.value * searchPageLength &&
+                    x <
+                      searchPageIndexRef.value * searchPageLength +
+                        searchPageLength
+                )
+                .reduce((x, y) => Math.max(x, y), 0) %
+                searchPageLength) +
+                1,
+              searchPageLength
+            )
+          : searchPageLength
+      ).keys(),
+    ].map((x) => searchPageIndexRef.value * searchPageLength + x);
 
     if (range.length > 0 && range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
@@ -751,8 +768,11 @@ const search = async (ignoreCache = true) => {
             }
 
             for (const resultItem of resultItems) {
-              if (resultItem.media.type.startsWith("kml") || resultItem.media.type.startsWith("kmz")) {
-                resultItem.media["loaded"] = false;
+              if (
+                resultItem.media.type.startsWith("kml") ||
+                resultItem.media.type.startsWith("kmz")
+              ) {
+                resultItem["loaded"] = false;
               }
 
               cachedSearchResults[
@@ -762,8 +782,11 @@ const search = async (ignoreCache = true) => {
             }
           } else {
             for (const resultItem of resultItems) {
-              if (resultItem.media.type.startsWith("kml") || resultItem.media.type.startsWith("kmz")) {
-                resultItem.media["loaded"] = false;
+              if (
+                resultItem.media.type.startsWith("kml") ||
+                resultItem.media.type.startsWith("kmz")
+              ) {
+                resultItem["loaded"] = false;
               }
 
               if (resultItem.media.location === null) {
@@ -835,10 +858,16 @@ const selectItem = (item) => {
   );
 };
 const loadItem = (item) => {
-  item.media.loaded = true;
+  item.layer = new google.maps.KmlLayer("https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml", {
+    suppressInfoWindows: true,
+    preserveViewport: false,
+    map: map,
+  });
+  item.loaded = true;
 };
 const unloadItem = (item) => {
-  item.media.loaded = false;
+  item.layer.setMap(null);
+  item.loaded = false;
 };
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
@@ -1097,7 +1126,10 @@ const previousResults = (index) => {
       </div>
     </div>
     <transition name="fade" mode="out-in">
-      <div class="flyout-right" v-if="!isRooted && searchTotalCountRef !== null">
+      <div
+        class="flyout-right"
+        v-if="!isRooted && searchTotalCountRef !== null"
+      >
         <div class="block is-hidden-mobile">
           <transition name="slide" mode="out-in">
             <nav
@@ -1388,7 +1420,7 @@ const previousResults = (index) => {
 
   .flyout-right {
     position: absolute !important;
-    right: 0px !important; 
+    right: 0px !important;
   }
 }
 
