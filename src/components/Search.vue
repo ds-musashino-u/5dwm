@@ -538,6 +538,13 @@ const shake = (element) => {
 };
 const search = async (ignoreCache = true) => {
   if (ignoreCache) {
+    searchcCriteria.keywords.splice(0);
+    searchcCriteria.categories.splice(0);
+    searchcCriteria.types.splice(0);
+    searchcCriteria.users.splice(0);
+    searchcCriteria.image = null;
+    searchcCriteria.time = null;
+
     Object.keys(cachedSearchResults).forEach((key) => {
       delete cachedSearchResults[key];
     });
@@ -572,11 +579,12 @@ const search = async (ignoreCache = true) => {
       return;
     }
 
-    const range = [...Array(searchPageLength).keys()].map(
+    const keys = Object.keys(cachedSearchResults);
+    const range = [...Array(keys.length > 0 ? Math.min(keys.filter(x => x >= searchPageIndexRef.value * searchPageLength && x < searchPageIndexRef.value * searchPageLength + searchPageLength).reduce((x, y) => Math.max(x, y), 0) % searchPageLength + 1, searchPageLength) : searchPageLength).keys()].map(
       (x) => searchPageIndexRef.value * searchPageLength + x
     );
 
-    if (range.every((x) => x in cachedSearchResults)) {
+    if (range.length > 0 && range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
 
       for (const result of searchResults) {
@@ -743,6 +751,10 @@ const search = async (ignoreCache = true) => {
             }
 
             for (const resultItem of resultItems) {
+              if (resultItem.media.type.startsWith("kml") || resultItem.media.type.startsWith("kmz")) {
+                resultItem.media["loaded"] = false;
+              }
+
               cachedSearchResults[
                 searchPageIndexRef.value * searchPageLength + index
               ] = resultItem;
@@ -750,6 +762,10 @@ const search = async (ignoreCache = true) => {
             }
           } else {
             for (const resultItem of resultItems) {
+              if (resultItem.media.type.startsWith("kml") || resultItem.media.type.startsWith("kmz")) {
+                resultItem.media["loaded"] = false;
+              }
+
               if (resultItem.media.location === null) {
                 searchResults.push({ marker: null, item: resultItem });
                 searchResultsRef.value.push(resultItem);
@@ -817,6 +833,12 @@ const selectItem = (item) => {
       item.media.location.longitude
     )
   );
+};
+const loadItem = (item) => {
+  item.media.loaded = true;
+};
+const unloadItem = (item) => {
+  item.media.loaded = false;
 };
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
@@ -1057,7 +1079,7 @@ const previousResults = (index) => {
                 "
                 type="submit"
                 v-bind:disabled="user === null || isSearchingRef"
-                @click="search"
+                @click="search()"
               >
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearchingRef" key="searching">
@@ -1074,7 +1096,7 @@ const previousResults = (index) => {
         </nav>
       </div>
     </div>
-    <transition name="slide" mode="out-in">
+    <transition name="fade" mode="out-in">
       <div class="flyout-right" v-if="!isRooted && searchTotalCountRef !== null">
         <div class="block is-hidden-mobile">
           <transition name="slide" mode="out-in">
@@ -1121,6 +1143,8 @@ const previousResults = (index) => {
                 @select="selectItem"
                 @next="nextResults"
                 @previous="previousResults"
+                @load="loadItem"
+                @unload="unloadItem"
                 v-if="selectedItemRef === null"
                 key="results"
               />
