@@ -11,7 +11,7 @@ const props = defineProps({
   pageIndex: { type: Number, required: false, default: 0 },
   pageLength: { type: Number, required: false, default: 10 },
 });
-const emit = defineEmits(["select", "next", "previous"]);
+const emit = defineEmits(["select", "next", "previous", "load", "unload"]);
 const isForwardingRef = ref(true);
 const select = (event, item) => {
   emit("select", item);
@@ -26,6 +26,13 @@ const previous = (event) => {
 
   emit("previous", props.pageIndex - 1);
 };
+const load = (event, item) => {
+  emit("load", item);
+};
+const unload = (event, item) => {
+  emit("unload", item);
+};
+
 </script>
 
 <template>
@@ -79,48 +86,63 @@ const previous = (event) => {
             v-bind:key="index"
           >
             <div class="media-content">
-              <button
-                class="button image is-64x64"
-                type="button"
-                @click="select($event, item)"
-              >
-                <picture
-                  class="image"
-                  v-if="
-                    item.media.type.startsWith('image') &&
-                    item.media.url.startsWith('https://')
-                  "
+              <div class="stack">
+                <button
+                  class="button image is-64x64"
+                  type="button"
+                  @click="select($event, item)"
                 >
-                  <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
-                </picture>
-                <span
-                  class="icon is-small"
-                  v-if="item.media.type.startsWith('image')"
-                >
-                  <i class="fa-solid fa-file-image"></i>
-                </span>
-                <span
-                  class="icon is-small"
-                  v-else-if="item.media.type.startsWith('video')"
-                >
-                  <i class="fa-solid fa-file-video"></i>
-                </span>
-                <span
-                  class="icon is-small"
-                  v-else-if="item.media.type.startsWith('audio')"
-                >
-                  <i class="fa-solid fa-file-audio"></i>
-                </span>
-                <span
-                  class="icon is-small"
-                  v-else-if="item.media.type.startsWith('text')"
-                >
-                  <i class="fa-solid fa-file-lines"></i>
-                </span>
-                <span class="icon is-small" v-else>
-                  <i class="fa-solid fa-file"></i>
-                </span>
-              </button>
+                  <picture
+                    class="image"
+                    v-if="
+                      item.media.type.startsWith('image') &&
+                      item.media.url.startsWith('https://')
+                    "
+                  >
+                    <img
+                      v-bind:src="item.media.url"
+                      v-bind:alt="String(index)"
+                    />
+                  </picture>
+                  <span
+                    class="icon is-small"
+                    v-if="item.media.type.startsWith('image')"
+                  >
+                    <i class="fa-solid fa-file-image"></i>
+                  </span>
+                  <span
+                    class="icon is-small"
+                    v-else-if="item.media.type.startsWith('video')"
+                  >
+                    <i class="fa-solid fa-file-video"></i>
+                  </span>
+                  <span
+                    class="icon is-small"
+                    v-else-if="item.media.type.startsWith('audio')"
+                  >
+                    <i class="fa-solid fa-file-audio"></i>
+                  </span>
+                  <span
+                    class="icon is-small"
+                    v-else-if="item.media.type.startsWith('text')"
+                  >
+                    <i class="fa-solid fa-file-lines"></i>
+                  </span>
+                  <span class="icon is-small" v-else>
+                    <i class="fa-solid fa-file"></i>
+                  </span>
+                </button>
+                <button class="button toggle" type="button" v-if="item.media.type.startsWith('kml')" @click="item.media.loaded ? unload($event, item) : load($event, item)">
+                  <transition name="fade" mode="out-in">
+                    <span class="icon" v-if="item.media.loaded" key="on">
+                      <i class="fa-solid fa-toggle-on"></i>
+                    </span>
+                    <span class="icon" v-else key="off">
+                      <i class="fa-solid fa-toggle-off"></i>
+                    </span>
+                  </transition>
+                </button>
+              </div>
             </div>
           </article>
         </transition-group>
@@ -279,39 +301,67 @@ const previous = (event) => {
         .media-content {
           width: 100%;
 
-          button {
-            z-index: 1;
+          .stack {
             position: relative;
-            margin: 0 !important;
-            padding: 0 !important;
             width: 100%;
             aspect-ratio: 1 / 1;
-            border-radius: 8px;
-            box-shadow: none !important;
-            overflow: hidden;
-            background: transparent !important;
 
-            picture {
-              margin: 0;
-              padding: 0;
+            button:not(.toggle) {
+              z-index: 1;
+              position: absolute;
+              margin: 0 !important;
+              padding: 0 !important;
               width: 100%;
-              height: 100%;
+              aspect-ratio: 1 / 1;
+              border-radius: 8px;
+              box-shadow: none !important;
+              overflow: hidden;
+              background: transparent !important;
 
-              img {
-                object-fit: cover;
+              picture {
+                margin: 0;
+                padding: 0;
                 width: 100%;
                 height: 100%;
+
+                img {
+                  object-fit: cover;
+                  width: 100%;
+                  height: 100%;
+                }
+              }
+
+              .icon {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                margin: 0 !important;
+                width: 1rem !important;
+                height: 1rem !important;
+                transform: translate(-50%, -50%);
               }
             }
 
-            .icon {
+            button.toggle {
               position: absolute;
-              top: 50%;
+              z-index: 1;
+              bottom: 0;
               left: 50%;
-              margin: 0 !important;
-              width: 1rem !important;
-              height: 1rem !important;
-              transform: translate(-50%, -50%);
+              width: fit-content !important;
+              height: fit-content !important;
+              padding: 8px !important;
+              box-shadow: none !important;
+              line-height: 1.5rem !important;
+              background: transparent !important;
+              transform: translate3d(-50%, 0, 0);
+              
+              > span.icon {
+                margin: 0 !important;
+                width: 1.5rem !important;
+                height: 1.5rem !important;
+                font-size: 1.5rem !important;
+                line-height: 1.5rem !important;
+              }
             }
           }
         }
