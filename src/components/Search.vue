@@ -48,6 +48,7 @@ const searchPageIndexRef = ref(0);
 const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
 const selectedItemRef = ref(null);
+const previewPanelRef = ref(null);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -857,13 +858,19 @@ const selectItem = (item) => {
     )
   );
 };
-const loadItem = (item) => {
-  item.layer = new google.maps.KmlLayer("https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml", {
+const loadItem = async (item) => {
+  item.layer = new google.maps.KmlLayer(item.media.url, {
     suppressInfoWindows: true,
     preserveViewport: false,
     map: map,
   });
-  item.loaded = true;
+  item.layer.status_changed = () => {
+    if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
+      item.loaded = true;
+    } else {
+      shake(previewPanelRef.value);
+    }
+  };
 };
 const unloadItem = (item) => {
   item.layer.setMap(null);
@@ -1130,7 +1137,7 @@ const previousResults = (index) => {
         class="flyout-right"
         v-if="!isRooted && searchTotalCountRef !== null"
       >
-        <div class="block is-hidden-mobile">
+        <div class="block is-hidden-mobile" ref="previewPanelRef">
           <transition name="slide" mode="out-in">
             <nav
               class="panel"
