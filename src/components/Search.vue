@@ -613,6 +613,7 @@ const search = async (ignoreCache = true) => {
 
       searchResults.splice(0);
       searchResultsRef.value.splice(0);
+      selectedItemRef.value = null;
 
       for (const index of range) {
         const item = cachedSearchResults[index];
