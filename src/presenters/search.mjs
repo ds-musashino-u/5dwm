@@ -86,8 +86,6 @@ export async function search(token, keywords, categories, types, usernames, imag
                 } else {
                     item.url = `https://www.5dwm.mydns.jp/5dtest/upload/images/${item.url}`;
                 }
-
-                console.log(item.url);
             }
 
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
