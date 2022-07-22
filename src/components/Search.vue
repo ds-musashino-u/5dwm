@@ -547,6 +547,10 @@ const search = async (ignoreCache = true) => {
     searchcCriteria.time = null;
 
     Object.keys(cachedSearchResults).forEach((key) => {
+      if (cachedSearchResults[key].loaded) {
+        cachedSearchResults[key].layer.setMap(null);
+      }
+
       delete cachedSearchResults[key];
     });
   }
@@ -715,6 +719,10 @@ const search = async (ignoreCache = true) => {
           let index = 0;
 
           Object.keys(cachedSearchResults).forEach((key) => {
+            if (cachedSearchResults[key].loaded) {
+              cachedSearchResults[key].layer.setMap(null);
+            }
+
             delete cachedSearchResults[key];
           });
 
