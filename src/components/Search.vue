@@ -1166,7 +1166,11 @@ const previousResults = (index) => {
                   </div>
                 </nav>
               </div>
-              <Preview :item="selectedItemRef" />
+              <Preview
+                :item="selectedItemRef"
+                @load="loadItem"
+                @unload="unloadItem"
+              />
             </nav>
             <nav class="panel" v-else key="results">
               <div class="panel-block">
