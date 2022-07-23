@@ -299,7 +299,10 @@ const unload = (event, item) => {
         width: calc(25% - 4px);
 
         .media-content {
+          border-radius: 8px;
           width: 100%;
+          background: #ffffff;
+          overflow: hidden;
 
           .stack {
             position: relative;
