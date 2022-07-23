@@ -132,7 +132,7 @@ const unload = (event, item) => {
                     <i class="fa-solid fa-file"></i>
                   </span>
                 </button>
-                <button class="button toggle" type="button" v-if="item.media.type.startsWith('kml')" @click="item.loaded ? unload($event, item) : load($event, item)">
+                <button class="button toggle" type="button" v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz')" @click="item.loaded ? unload($event, item) : load($event, item)">
                   <transition name="fade" mode="out-in">
                     <span class="icon" v-if="item.loaded" key="on">
                       <i class="fa-solid fa-toggle-on"></i>
