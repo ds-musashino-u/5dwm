@@ -13,23 +13,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         if req.headers['Content-Type'] == 'application/json':
-            data = req.get_json()
-            url = data['url']
-            
+            url = req.params['url']
+
             if url.startswith('https://www.5dwm.mydns.jp/'):
-                authorization = b64encode(f"{os.environ['BASIC_AUTHENTICATION_USERNAME']}:{os.environ['BASIC_AUTHENTICATION_PASSWORD']}".encode('utf-8')).decode('utf-8')
+                authorization = b64encode(
+                    f"{os.environ['BASIC_AUTHENTICATION_USERNAME']}:{os.environ['BASIC_AUTHENTICATION_PASSWORD']}".encode('utf-8')).decode('utf-8')
                 request = Request(
-                url,
-                method=req.method,
-                headers={'Authorization': f"BASIC {authorization}"})
-            
+                    url,
+                    method=req.method,
+                    headers={'Authorization': f"BASIC {authorization}"})
+
             else:
                 request = Request(url, method=req.method)
 
             response = urlopen(request)
 
             if response.getcode() == 200:
-                return func.HttpResponse(response.read(), status_code=200, charset='utf-8')
+                return func.HttpResponse(response.read(), status_code=200, mimetype=response.headers['Content-Type'] if 'Content-Type' in response.headers else None, charset='utf-8')
 
         return func.HttpResponse(status_code=400, mimetype='', charset='')
 
