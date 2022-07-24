@@ -8,6 +8,7 @@ import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
+import { Endpoints } from "../presenters/endpoints.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import Time from "./Time.vue";
 import ListBox from "./ListBox.vue";
@@ -868,8 +869,8 @@ const selectItem = (item) => {
   );
 };
 const loadItem = async (item) => {
-  item.layer = new google.maps.KmlLayer(item.media.url, {
-    suppressInfoWindows: true,
+  item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${item.media.url}`, {
+    suppressInfoWindows: false,
     preserveViewport: false,
     map: map,
   });
@@ -880,6 +881,49 @@ const loadItem = async (item) => {
       shake(previewPanelRef.value);
     }
   };
+  /*item.layer.addListener("click", (event) => {
+    const content = event.featureData.infoWindowHtml;
+  });*/
+  /*try {
+    const response = await fetch(item.media.url, {
+      method: "GET",
+    });
+    
+    if (response.ok) {
+      item.layer = new google.maps.KmlLayer(
+        await new Promise(async (resolve, reject) => {
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            resolve(reader.result);
+          };
+          reader.onerror = () => {
+            reject(reader.error);
+          };
+          reader.readAsDataURL(await response.blob());
+        }),
+        {
+          suppressInfoWindows: true,
+          preserveViewport: false,
+          map: map,
+        }
+      );
+      item.layer.status_changed = () => {
+        if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
+          item.loaded = true;
+        } else {
+          shake(previewPanelRef.value);
+        }
+      };
+      item.layer.addListener("click", (event) => {
+        const content = event.featureData.infoWindowHtml;
+        console.log(event);
+      });
+    }
+  } catch (e) {
+    shake(previewPanelRef.value);
+    console.error(e);
+  }*/
 };
 const unloadItem = (item) => {
   item.layer.setMap(null);
