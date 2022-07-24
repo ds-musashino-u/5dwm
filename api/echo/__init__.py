@@ -29,7 +29,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             response = urlopen(request)
 
             if response.getcode() == 200:
-                return func.HttpResponse(response.read(), status_code=200, mimetype=response.headers['Content-Type'] if 'Content-Type' in response.headers else None, charset='utf-8')
+                return func.HttpResponse(response.read(), status_code=200, charset='utf-8')
 
         return func.HttpResponse(status_code=400, mimetype='', charset='')
 
