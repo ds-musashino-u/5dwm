@@ -12,26 +12,25 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     ssl._create_default_https_context = ssl._create_unverified_context
 
     try:
-        if req.headers['Content-Type'] == 'application/json':
-            url = req.params['url']
+        url = req.params['url']
 
-            if url.startswith('https://www.5dwm.mydns.jp/'):
-                authorization = b64encode(
-                    f"{os.environ['BASIC_AUTHENTICATION_USERNAME']}:{os.environ['BASIC_AUTHENTICATION_PASSWORD']}".encode('utf-8')).decode('utf-8')
-                request = Request(
-                    url,
-                    method=req.method,
-                    headers={'Authorization': f"BASIC {authorization}"})
+        if url.startswith('https://www.5dwm.mydns.jp/'):
+            authorization = b64encode(
+                f"{os.environ['BASIC_AUTHENTICATION_USERNAME']}:{os.environ['BASIC_AUTHENTICATION_PASSWORD']}".encode('utf-8')).decode('utf-8')
+            request = Request(
+                url,
+                method=req.method,
+                headers={'Authorization': f"BASIC {authorization}"})
 
-            else:
-                request = Request(url, method=req.method)
+        else:
+            request = Request(url, method=req.method)
 
-            response = urlopen(request)
+        response = urlopen(request)
 
-            if response.getcode() == 200:
-                return func.HttpResponse(response.read(), status_code=200, mimetype=response.headers['Content-Type'] if 'Content-Type' in response.headers else None, charset='utf-8')
-
-        return func.HttpResponse(status_code=400, mimetype='', charset='')
+        if response.getcode() == 200:
+            return func.HttpResponse(response.read(), status_code=200, mimetype=response.headers['Content-Type'] if 'Content-Type' in response.headers else None, charset='utf-8')
+        else:
+            return func.HttpResponse(status_code=400, mimetype='', charset='')
 
     except Exception as e:
         logging.error(f'{e}')
