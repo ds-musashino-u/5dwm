@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -59,12 +60,37 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
                 url = data.get('url')
+                mimetype = data.get('type')
+                categories = data.get('categories')
+                address = data.get('address')
+                description = data.get('description')
+                location = data.get('location')
+                created_at = data.get('created_at')
 
                 try:
                     media = session.query(Media).filter(Media.id == id).one()
                     
                     if url is not None:
                         media.url = url
+
+                    if mimetype is not None:
+                        media.type = mimetype
+
+                    if categories is not None:
+                        media.categories = categories
+
+                    if address is not None:
+                        media.address = address
+
+                    if description is not None:
+                        media.description = description
+
+                    if location is not None:
+                        media.longitude = location['coordinates'][0]
+                        media.latitude = location['coordinates'][1]
+
+                    if created_at is not None:
+                        media.created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
 
                     session.commit()
 
