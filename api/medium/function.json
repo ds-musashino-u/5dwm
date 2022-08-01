@@ -9,6 +9,7 @@
       "route": "v1/media/{id}",
       "methods": [
         "get",
+        "put",
         "delete"
       ]
     },
