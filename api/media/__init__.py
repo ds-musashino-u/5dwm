@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
+from shared.auth import verify
 from shared.models import Media
 
 import azure.functions as func
@@ -17,25 +18,6 @@ engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if 'Authorization' in req.headers:
-            '''
-            jwt = req.headers['Authorization'].split(' ')[1].split('.') if req.headers['Authorization'].startswith('Bearer ') else req.headers['Authorization'].split('.')
-
-            if json.loads(b64decode(jwt[0] + '=' * (-len(jwt[0]) % 4)))['typ'] == 'JWT' and json.loads(b64decode(jwt[1] + '=' * (-len(jwt[1]) % 4)))['iss'] == 'https://':
-                try:
-                    response = urlopen(Request(
-                        f'https://',
-                        headers={'Content-Type': 'application/json'},
-                        data=json.dumps({'idToken': req.headers['Authorization']}).encode('utf-8')))
-
-                    if response.getcode() != 200:
-                        raise Exception
-
-                except Exception:
-                    return func.HttpResponse(status_code=403, mimetype='', charset='')
-            '''
-            pass
-
         if req.method == 'GET':
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
@@ -105,6 +87,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 session.close()
 
         elif req.method == 'POST' and req.headers.get('Content-Type') == 'application/json':
+            if 'X-Authorization' in req.headers and req.headers['X-Authorization'].startswith('Bearer '):
+                if not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
+                    return func.HttpResponse(status_code=401, mimetype='', charset='')
+
             data = req.get_json()
             url = data['url']
             mime_type = data['type']
