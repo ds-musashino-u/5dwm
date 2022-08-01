@@ -54,6 +54,7 @@ const unload = (event, item) => {
           <button
             class="button toggle"
             type="button"
+            v-bind:disabled="item.loading"
             v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz')"
             @click="item.loaded ? unload($event, item) : load($event, item)"
           >
