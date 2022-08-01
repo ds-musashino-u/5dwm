@@ -783,6 +783,7 @@ const search = async (ignoreCache = true) => {
                 resultItem.media.type.startsWith("kml") ||
                 resultItem.media.type.startsWith("kmz")
               ) {
+                resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               }
 
@@ -797,6 +798,7 @@ const search = async (ignoreCache = true) => {
                 resultItem.media.type.startsWith("kml") ||
                 resultItem.media.type.startsWith("kmz")
               ) {
+                resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               }
 
@@ -869,12 +871,15 @@ const selectItem = (item) => {
   );
 };
 const loadItem = async (item) => {
+  item.loading = true;
   item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${item.media.url}`, {
     suppressInfoWindows: false,
     preserveViewport: false,
     map: map,
   });
   item.layer.status_changed = () => {
+    item.loading = false;
+
     if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
       item.loaded = true;
     } else {
