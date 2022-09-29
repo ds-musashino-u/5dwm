@@ -306,7 +306,7 @@ const unload = (event, item) => {
           <div class="level-item">
             <span
               class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-              >Created</span
+              >Time</span
             >
           </div>
         </div>
