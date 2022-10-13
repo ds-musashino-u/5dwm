@@ -1288,6 +1288,7 @@ const previousResults = (index) => {
     display: block;
     top: 0px;
     margin: 0;
+    border-right: 1px solid hsl(0deg, 0%, 93%);
     padding: 0px;
     width: fit-content;
     height: 100%;
