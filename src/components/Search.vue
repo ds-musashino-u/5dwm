@@ -1288,12 +1288,11 @@ const previousResults = (index) => {
     display: block;
     top: 0px;
     margin: 0;
-    padding: 16px;
+    padding: 0px;
     width: fit-content;
+    height: 100%;
     max-height: 100%;
     background: transparent;
-    overflow-x: hidden;
-    overflow-y: auto;
 
     > .block {
       width: 400px;
@@ -1301,9 +1300,10 @@ const previousResults = (index) => {
       .panel {
         background: rgba(255, 255, 255, 0.9);
         border-radius: 8px;
-        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+        box-shadow: none;
+        /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
-        overflow: hidden;
+        overflow: hidden;*/
 
         .panel-block {
           flex-direction: column;
