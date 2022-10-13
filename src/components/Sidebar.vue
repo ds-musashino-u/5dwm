@@ -70,4 +70,7 @@ watchEffect(() => (selectedIndex.value = propsIndexRef.value));
 </template>
 
 <style lang="scss" scoped>
+  #sidebar {
+    border-right: 1px solid hsl(0deg, 0%, 93%);
+  }
 </style>
