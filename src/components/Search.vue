@@ -948,7 +948,6 @@ const previousResults = (index) => {
 
 <template>
   <div id="search">
-    <div id="map" ref="mapRef"></div>
     <div class="flyout-left">
       <div class="block is-hidden-mobile" ref="searchPanelRef">
         <nav class="panel">
@@ -1254,17 +1253,26 @@ const previousResults = (index) => {
         </div>
       </div>
     </transition>
+    <div id="map" ref="mapRef"></div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 #search {
-  position: relative;
+  position: absolute;
+  display: flex;
+  margin: 0;
+  padding: 0;
   width: 100%;
   height: 100%;
+  overflow: hidden;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: #ffffff;
 
   #map {
-    position: absolute;
+    position: relative;
     width: 100%;
     height: 100%;
 
@@ -1275,7 +1283,6 @@ const previousResults = (index) => {
 
   .flyout-left,
   .flyout-right {
-    z-index: 1;
     position: relative;
     box-sizing: border-box;
     display: block;
