@@ -21,7 +21,7 @@ const searchPanelRef = ref(null);
 const queryRef = ref("");
 const isDragging = ref(false);
 const isLoading = ref(false);
-const imageIsCollapsedRef = ref(false);
+const imageIsCollapsedRef = ref(true);
 const imageRef = ref(null);
 const imageUrlRef = ref("");
 const timeIsEnabledRef = ref(true);
@@ -960,15 +960,12 @@ const previousResults = (index) => {
                 </div>
               </form>
             </div>
-            <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
-              :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
-              @changed="timeChanged" />
             <div class="panel-block">
               <nav class="level is-mobile">
                 <div class="level-left">
                   <div class="level-item">
-                    <h3 class="panel-heading is-uppercase is-size-6 has-text-weight-bold">
-                      Image
+                    <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                      Image Search
                     </h3>
                   </div>
                   <transition name="fade" mode="out-in">
@@ -1020,8 +1017,8 @@ const previousResults = (index) => {
                             <div class="level-item">
                               <span class="
                                 is-size-7 is-uppercase
-                                has-text-weight-bold
-                              ">Image</span>
+                                has-text-weight-bold has-text-grey
+                              ">Browse or Drag & Drop</span>
                             </div>
                           </div>
                         </div>
@@ -1061,6 +1058,9 @@ const previousResults = (index) => {
                 </div>
               </transition>
             </div>
+            <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
+              :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
+              @changed="timeChanged" />
             <ListBox name="Categories" :max-length="maxCategoriesLength" :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
@@ -1087,7 +1087,7 @@ const previousResults = (index) => {
               <div class="control">
                 <button class="
                   button
-                  is-rounded is-outlined is-fullwidth is-size-6 is-primary
+                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
                 " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
                   <transition name="fade" mode="out-in">
                     <span class="icon" v-if="isSearchingRef" key="searching">
