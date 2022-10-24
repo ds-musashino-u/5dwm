@@ -554,7 +554,7 @@ watch(toDateRef, (newValue, oldValue) => {
           }
 
           >.select:nth-of-type(2):not(:last-of-type) {
-            margin: 0px 16px 0px 0px;
+            margin: 0px 8px 0px 0px;
             padding: 0;
           }
 
