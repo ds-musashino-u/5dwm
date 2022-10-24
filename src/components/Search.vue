@@ -21,7 +21,7 @@ const searchPanelRef = ref(null);
 const queryRef = ref("");
 const isDragging = ref(false);
 const isLoading = ref(false);
-const imageIsCollapsedRef = ref(true);
+const imageIsCollapsedRef = ref(false);
 const imageRef = ref(null);
 const imageUrlRef = ref("");
 const timeIsEnabledRef = ref(true);
@@ -30,12 +30,12 @@ const toDateRef = ref(new Date());
 const defaultFromDateRef = ref(new Date());
 const defaultToDateRef = ref(new Date());
 const maxCategoriesLength = 10;
-const categoriesIsCollapsedRef = ref(true);
+const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
 const categoriesPageIndexRef = ref(0);
 const maxTypesLength = 25;
-const typesIsCollapsedRef = ref(true);
+const typesIsCollapsedRef = ref(false);
 const typesIsContinuousRef = ref(false);
 const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
@@ -100,7 +100,7 @@ onActivated(async () => {
 
   map = new google.maps.Map(mapRef.value, {
     center: { lat: 21.028344772352863, lng: 105.85271637244875 },
-    zoom: 4,
+    zoom: 2,
     mapTypeId: "terrain",
     zoomControl: true,
     mapTypeControl: false,
@@ -168,7 +168,7 @@ onActivated(async () => {
     console.error(error);
   }
 });
-onDeactivated(() => {});
+onDeactivated(() => { });
 watch(imageUrlRef, (currentValue, oldValue) => {
   if (currentValue !== null) {
     imageRef.value = null;
@@ -590,19 +590,19 @@ const search = async (ignoreCache = true) => {
       ...Array(
         keys.length > 0
           ? Math.min(
-              (keys
-                .filter(
-                  (x) =>
-                    x >= searchPageIndexRef.value * searchPageLength &&
-                    x <
-                      searchPageIndexRef.value * searchPageLength +
-                        searchPageLength
-                )
-                .reduce((x, y) => Math.max(x, y), 0) %
-                searchPageLength) +
-                1,
-              searchPageLength
-            )
+            (keys
+              .filter(
+                (x) =>
+                  x >= searchPageIndexRef.value * searchPageLength &&
+                  x <
+                  searchPageIndexRef.value * searchPageLength +
+                  searchPageLength
+              )
+              .reduce((x, y) => Math.max(x, y), 0) %
+              searchPageLength) +
+            1,
+            searchPageLength
+          )
           : searchPageLength
       ).keys(),
     ].map((x) => searchPageIndexRef.value * searchPageLength + x);
@@ -949,207 +949,127 @@ const previousResults = (index) => {
 <template>
   <div id="search">
     <div class="flyout-left">
-      <div class="block is-hidden-mobile" ref="searchPanelRef">
-        <nav class="panel">
-          <div class="panel-block">
-            <form class="field" @submit.prevent>
-              <div class="control">
-                <input
-                  class="input is-outlined has-text-weight-bold"
-                  type="text"
-                  placeholder="Keywords"
-                  v-model="queryRef"
-                />
-              </div>
-            </form>
-          </div>
-          <Time
-            name="Time"
-            :isEnabled="timeIsEnabledRef"
-            :fromDate="fromDateRef"
-            :toDate="toDateRef"
-            :defaultFromDate="defaultFromDateRef"
-            :defaultToDate="defaultToDateRef"
-            @enabled="timeEnabled"
-            @changed="timeChanged"
-          />
-          <div class="panel-block">
-            <nav class="level is-mobile">
-              <div class="level-left">
-                <div class="level-item">
-                  <h3 class="panel-heading is-uppercase has-text-weight-bold">
-                    Image
-                  </h3>
-                </div>
-                <transition name="fade" mode="out-in">
-                  <div
-                    class="level-item"
-                    v-show="imageRef !== null"
-                    key="attaced"
-                  >
-                    <span class="icon is-primary">
-                      <i class="fa-solid fa-check"></i>
-                    </span>
-                  </div>
-                </transition>
-              </div>
-              <div class="level-right">
-                <div class="level-item">
-                  <button
-                    class="button toggle is-rounded"
-                    @click="imageIsCollapsedRef = !imageIsCollapsedRef"
-                  >
-                    <span
-                      class="icon is-small"
-                      v-bind:class="{ collapsed: imageIsCollapsedRef }"
-                    >
-                      <i class="fa-solid fa-chevron-up"></i>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </nav>
-            <transition name="fade" mode="out-in">
-              <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
+      <div class="wrap">
+        <div class="block is-hidden-mobile" ref="searchPanelRef">
+          <nav class="panel">
+            <div class="panel-block">
+              <form class="field" @submit.prevent>
                 <div class="control">
-                  <div
-                    class="drop"
-                    v-bind:style="{
+                  <input class="input is-outlined is-size-6 has-text-weight-bold" type="text" placeholder="Keywords"
+                    v-model="queryRef" />
+                </div>
+              </form>
+            </div>
+            <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
+              :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
+              @changed="timeChanged" />
+            <div class="panel-block">
+              <nav class="level is-mobile">
+                <div class="level-left">
+                  <div class="level-item">
+                    <h3 class="panel-heading is-uppercase is-size-6 has-text-weight-bold">
+                      Image
+                    </h3>
+                  </div>
+                  <transition name="fade" mode="out-in">
+                    <div class="level-item" v-show="imageRef !== null" key="attaced">
+                      <span class="icon is-primary">
+                        <i class="fa-solid fa-check"></i>
+                      </span>
+                    </div>
+                  </transition>
+                </div>
+                <div class="level-right">
+                  <div class="level-item">
+                    <button class="button toggle is-rounded" @click="imageIsCollapsedRef = !imageIsCollapsedRef">
+                      <span class="icon is-small" v-bind:class="{ collapsed: imageIsCollapsedRef }">
+                        <i class="fa-solid fa-chevron-up"></i>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </nav>
+              <transition name="fade" mode="out-in">
+                <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
+                  <div class="control">
+                    <div class="drop" v-bind:style="{
                       animationPlayState: isDragging ? 'running' : 'paused',
-                    }"
-                    @dragover.prevent="dragover($event)"
-                    @dragleave.prevent="isDragging = false"
-                    @drop.stop.prevent="drop($event)"
-                  >
-                    <transition name="fade" mode="out-in">
-                      <div
-                        class="image"
-                        v-if="imageRef === null"
-                        v-bind:key="imageRef"
-                      >
-                        <div class="level">
-                          <div class="level-item">
-                            <label
-                              class="
+                    }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDragging = false"
+                      @drop.stop.prevent="drop($event)">
+                      <transition name="fade" mode="out-in">
+                        <div class="image" v-if="imageRef === null" v-bind:key="imageRef">
+                          <div class="level">
+                            <div class="level-item">
+                              <label class="
                                 file
                                 button
                                 is-circle
                                 has-text-weight-bold
                                 file-label
-                              "
-                            >
-                              <input
-                                class="file-input"
-                                type="file"
-                                name="upload"
-                                accept="image/apng, image/png, image/jpeg, image/webp"
-                                style="pointer-events: none"
-                                v-bind:disabled="isLoading"
-                                @change="browse($event)"
-                              />
-                              <div class="file-cta_">
-                                <span class="icon">
-                                  <i class="fa-solid fa-file-image"></i>
-                                </span>
-                              </div>
-                            </label>
-                          </div>
-                          <div class="level-item">
-                            <span
-                              class="
+                              ">
+                                <input class="file-input" type="file" name="upload"
+                                  accept="image/apng, image/png, image/jpeg, image/webp" style="pointer-events: none"
+                                  v-bind:disabled="isLoading" @change="browse($event)" />
+                                <div class="file-cta_">
+                                  <span class="icon">
+                                    <i class="fa-solid fa-file-image"></i>
+                                  </span>
+                                </div>
+                              </label>
+                            </div>
+                            <div class="level-item">
+                              <span class="
                                 is-size-7 is-uppercase
                                 has-text-weight-bold
-                              "
-                              >Image</span
-                            >
+                              ">Image</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <div class="image" v-else v-bind:key="imageRef">
-                        <div class="image">
-                          <picture class="image">
-                            <img
-                              v-bind:src="imageRef.dataURL"
-                              v-bind:alt="imageRef.filename"
-                            />
-                          </picture>
-                          <div class="control">
-                            <button
-                              class="button is-circle"
-                              type="button"
-                              @click="reset($event)"
-                              key="menu"
-                            >
-                              <span class="icon is-small has-text-danger">
-                                <i class="fa-solid fa-xmark"></i>
-                              </span>
-                            </button>
+                        <div class="image" v-else v-bind:key="imageRef">
+                          <div class="image">
+                            <picture class="image">
+                              <img v-bind:src="imageRef.dataURL" v-bind:alt="imageRef.filename" />
+                            </picture>
+                            <div class="control">
+                              <button class="button is-circle" type="button" @click="reset($event)" key="menu">
+                                <span class="icon is-small has-text-danger">
+                                  <i class="fa-solid fa-xmark"></i>
+                                </span>
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </transition>
+                      </transition>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </transition>
-            <transition name="fade" mode="out-in">
-              <div
-                class="field has-addons"
-                v-show="!imageIsCollapsedRef"
-                key="collapse"
-              >
-                <div class="control is-expanded">
-                  <input
-                    class="input is-outlined has-text-weight-bold"
-                    type="text"
-                    placeholder="URL"
-                    v-model="imageUrlRef"
-                  />
+              </transition>
+              <transition name="fade" mode="out-in">
+                <div class="field has-addons" v-show="!imageIsCollapsedRef" key="collapse">
+                  <div class="control is-expanded">
+                    <input class="input is-outlined has-text-weight-bold" type="text" placeholder="URL"
+                      v-model="imageUrlRef" />
+                  </div>
+                  <div class="control">
+                    <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0"
+                      @click="clearImageUrl($event)">
+                      <span class="icon is-small has-text-danger">
+                        <i class="fa-solid fa-xmark"></i>
+                      </span>
+                    </button>
+                  </div>
                 </div>
-                <div class="control">
-                  <button
-                    type="button"
-                    class="button"
-                    v-bind:disabled="imageUrlRef.length === 0"
-                    @click="clearImageUrl($event)"
-                  >
-                    <span class="icon is-small has-text-danger">
-                      <i class="fa-solid fa-xmark"></i>
-                    </span>
-                  </button>
-                </div>
-              </div>
-            </transition>
-          </div>
-          <ListBox
-            name="Categories"
-            :max-length="maxCategoriesLength"
-            :is-enabled="user !== null"
-            :is-collapsed="categoriesIsCollapsedRef"
-            :is-continuous="categoriesIsContinuousRef"
-            :items="categoriesItemsRef"
-            :page-index="categoriesPageIndexRef"
-            @collapse="collapseCategories"
-            @clear="clearCategories"
-            @select="selectCategory"
-            @next="nextCategories"
-            @previous="previousCategories"
-          />
-          <ListBox
-            name="Types"
-            :max-length="maxTypesLength"
-            :is-enabled="user !== null"
-            :is-collapsed="typesIsCollapsedRef"
-            :is-continuous="typesIsContinuousRef"
-            :items="typesItemsRef"
-            :page-index="typesPageIndexRef"
-            @collapse="collapseTypes"
-            @clear="clearTypes"
-            @select="selectType"
-            @next="nextTypes"
-            @previous="previousTypes"
-          />
-          <!--<ListBox
+              </transition>
+            </div>
+            <ListBox name="Categories" :max-length="maxCategoriesLength" :is-enabled="user !== null"
+              :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
+              :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
+              @clear="clearCategories" @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
+            <ListBox name="Types" :max-length="maxTypesLength" :is-enabled="user !== null"
+              :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
+              :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
+              @next="nextTypes" @previous="previousTypes" />
+            <!--<ListBox
               name="Users"
               :max-length="maxUsersLength"
               :is-enabled="user !== null"
@@ -1163,93 +1083,70 @@ const previousResults = (index) => {
               @next="nextUsers"
               @previous="previousUsers"
             />-->
-          <div class="panel-block">
-            <div class="control">
-              <button
-                class="
+            <div class="panel-block">
+              <div class="control">
+                <button class="
                   button
                   is-rounded is-outlined is-fullwidth is-size-6 is-primary
-                "
-                type="submit"
-                v-bind:disabled="user === null || isSearchingRef"
-                @click="search()"
-              >
-                <transition name="fade" mode="out-in">
-                  <span class="icon" v-if="isSearchingRef" key="searching">
-                    <i class="fas fa-spinner updating"></i>
-                  </span>
-                  <span class="icon" v-else key="ready">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                  </span>
-                </transition>
-                <span class="is-uppercase has-text-weight-bold">Search</span>
-              </button>
+                " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
+                  <transition name="fade" mode="out-in">
+                    <span class="icon" v-if="isSearchingRef" key="searching">
+                      <i class="fas fa-spinner updating"></i>
+                    </span>
+                    <span class="icon" v-else key="ready">
+                      <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                  </transition>
+                  <span class="is-uppercase has-text-weight-bold">Search</span>
+                </button>
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        </div>
       </div>
     </div>
     <transition name="fade" mode="out-in">
-      <div
-        class="flyout-right"
-        v-if="!isRooted && searchTotalCountRef !== null"
-      >
-        <div class="block is-hidden-mobile" ref="previewPanelRef">
-          <transition name="slide" mode="out-in">
-            <nav
-              class="panel"
-              v-if="selectedItemRef !== null"
-              key="selectedItemRef"
-            >
-              <div class="panel-block">
-                <nav class="level is-mobile">
-                  <div class="level-left">
-                    <div class="level-item">
-                      <button class="button is-rounded" @click="back($event)">
-                        <span class="icon is-small">
-                          <i class="fa-solid fa-arrow-left"></i>
-                        </span>
-                      </button>
+      <div class="flyout-right" v-if="!isRooted && searchTotalCountRef !== null">
+        <div class="wrap">
+          <div class="block is-hidden-mobile" ref="previewPanelRef">
+            <transition name="slide" mode="out-in">
+              <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
+                <div class="panel-block">
+                  <nav class="level is-mobile">
+                    <div class="level-left">
+                      <div class="level-item">
+                        <button class="button is-rounded" @click="back($event)">
+                          <span class="icon is-small">
+                            <i class="fa-solid fa-arrow-left"></i>
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </nav>
-              </div>
-              <Preview
-                :item="selectedItemRef"
-                @load="loadItem"
-                @unload="unloadItem"
-              />
-            </nav>
-            <nav class="panel" v-else key="results">
-              <div class="panel-block">
-                <nav class="level is-mobile">
-                  <div class="level-left">
-                    <div class="level-item">
-                      <button class="button is-rounded" @click="back($event)">
-                        <span class="icon is-small">
-                          <i class="fa-solid fa-xmark"></i>
-                        </span>
-                      </button>
+                  </nav>
+                </div>
+                <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" />
+              </nav>
+              <nav class="panel" v-else key="results">
+                <div class="panel-block">
+                  <nav class="level is-mobile">
+                    <div class="level-left">
+                      <div class="level-item">
+                        <button class="button is-rounded" @click="back($event)">
+                          <span class="icon is-small">
+                            <i class="fa-solid fa-xmark"></i>
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                </nav>
-              </div>
-              <Results
-                :is-fetching="isSearchingRef"
-                :items="searchResultsRef"
-                :count="searchTotalCountRef"
-                :page-index="searchPageIndexRef"
-                :page-length="searchPageLength"
-                @select="selectItem"
-                @next="nextResults"
-                @previous="previousResults"
-                @load="loadItem"
-                @unload="unloadItem"
-                v-if="selectedItemRef === null"
-                key="results"
-              />
-            </nav>
-          </transition>
+                  </nav>
+                </div>
+                <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
+                  :page-index="searchPageIndexRef" :page-length="searchPageLength" @select="selectItem"
+                  @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem"
+                  v-if="selectedItemRef === null" key="results" />
+              </nav>
+            </transition>
+          </div>
         </div>
       </div>
     </transition>
@@ -1295,148 +1192,154 @@ const previousResults = (index) => {
     max-height: 100%;
     background: transparent;
 
-    > .block {
-      width: 400px;
+    >.wrap {
+      width: fit-content;
+      height: 100%;
+      max-height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
 
-      .panel {
-        background: rgba(255, 255, 255, 0.9);
-        border-radius: 8px;
-        box-shadow: none;
-        /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+      >.block {
+        width: 380px;
+
+        .panel {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          box-shadow: none;
+          /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
           0 0px 0 1px rgb(10 10 10 / 2%);
         overflow: hidden;*/
 
-        .panel-block {
-          flex-direction: column;
+          .panel-block {
+            flex-direction: column;
 
-          > .level {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-
-            > .level-left > .level-item > .panel-heading {
-              margin: 0 !important;
+            >.level {
+              margin: 0;
               padding: 0;
-              background: transparent;
-            }
+              width: 100%;
 
-            > .level-right {
-              margin: 0px 0px 0px 12px;
-
-              button.is-rounded {
-                border-radius: 9999px !important;
-                padding: 12px !important;
-                box-shadow: none !important;
-
-                > span.icon {
-                  margin: 0 !important;
-                  width: 1rem !important;
-                  height: 1rem !important;
-                }
+              >.level-left>.level-item>.panel-heading {
+                margin: 0 !important;
+                padding: 0;
+                background: transparent;
               }
 
-              button.toggle {
-                > span {
-                  transform: rotate(180deg);
+              >.level-right {
+                margin: 0px 0px 0px 12px;
+
+                button.is-rounded {
+                  border-radius: 9999px !important;
+                  padding: 12px !important;
+                  box-shadow: none !important;
+
+                  >span.icon {
+                    margin: 0 !important;
+                    width: 1rem !important;
+                    height: 1rem !important;
+                  }
                 }
 
-                > span.collapsed {
-                  transition: transform 0.5s ease;
-                  transform: rotate(0deg);
+                button.toggle {
+                  >span {
+                    transform: rotate(180deg);
+                  }
+
+                  >span.collapsed {
+                    transition: transform 0.5s ease;
+                    transform: rotate(0deg);
+                  }
                 }
               }
             }
           }
-        }
 
-        .panel-tabs:not(:last-child),
-        .panel-block:not(:last-child) {
-          border-bottom: 1px solid hsl(0deg, 0%, 93%);
+          .panel-tabs:not(:last-child),
+          .panel-block:not(:last-child) {
+            border-bottom: 1px solid hsl(0deg, 0%, 93%);
 
-          .drop {
-            display: flex;
-            margin: 0.5em 0px 0px 0px;
-            padding: 4px;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            border-radius: 8px;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(
-                90deg,
-                hsl(0deg, 0%, 93%) 50%,
-                transparent 50%
-              ),
-              linear-gradient(90deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
-              linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
-              linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%);
-            background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-            background-size: 16px 4px, 16px 4px, 4px 16px, 4px 16px;
-            background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0px;
-            animation: selecting 10s linear infinite;
-            animation-play-state: paused;
-            overflow: hidden;
-
-            div.image {
+            .drop {
               display: flex;
-              margin: 0;
-              border-radius: 8px;
-              padding: 0;
+              margin: 0.5em 0px 0px 0px;
+              padding: 4px;
               width: 100%;
-              height: 100%;
-              background-position: 50% 50%;
-              background-size: contain;
-              background-repeat: no-repeat;
+              aspect-ratio: 16 / 9;
+              border-radius: 8px;
               flex-direction: column;
               align-items: center;
               justify-content: center;
+              background: linear-gradient(90deg,
+                  hsl(0deg, 0%, 93%) 50%,
+                  transparent 50%),
+                linear-gradient(90deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
+                linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%),
+                linear-gradient(0deg, hsl(0deg, 0%, 93%) 50%, transparent 50%);
+              background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+              background-size: 16px 4px, 16px 4px, 4px 16px, 4px 16px;
+              background-position: 0% 0%, 100% 100%, 0% 100%, 100% 0px;
+              animation: selecting 10s linear infinite;
+              animation-play-state: paused;
               overflow: hidden;
-              image-rendering: -webkit-optimize-contrast;
 
-              > picture {
-                height: 100%;
-                border-radius: 8px;
-                overflow: hidden;
-
-                > img {
-                  height: 100%;
-                }
-              }
-
-              .control {
-                position: absolute;
-                top: 0;
-                right: 0;
-                margin: 4px 4px 0px 0px;
-                width: auto !important;
-              }
-
-              .level {
+              div.image {
                 display: flex;
-                padding: 0.5em 0.75em;
+                margin: 0;
+                border-radius: 8px;
+                padding: 0;
+                width: 100%;
+                height: 100%;
+                background-position: 50% 50%;
+                background-size: contain;
+                background-repeat: no-repeat;
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
+                overflow: hidden;
+                image-rendering: -webkit-optimize-contrast;
 
-                .level-item:not(:last-child) {
-                  margin: 0px 0px 6px 0px;
-                  padding: 0;
+                >picture {
+                  height: 100%;
+                  border-radius: 8px;
+                  overflow: hidden;
+
+                  >img {
+                    height: 100%;
+                  }
+                }
+
+                .control {
+                  position: absolute;
+                  top: 0;
+                  right: 0;
+                  margin: 4px 4px 0px 0px;
+                  width: auto !important;
+                }
+
+                .level {
+                  display: flex;
+                  padding: 0.5em 0.75em;
+                  flex-direction: column;
+                  align-items: center;
+                  justify-content: center;
+
+                  .level-item:not(:last-child) {
+                    margin: 0px 0px 6px 0px;
+                    padding: 0;
+                  }
                 }
               }
-            }
 
-            .button {
-              box-shadow: none !important;
+              .button {
+                box-shadow: none !important;
+              }
             }
           }
         }
-      }
 
-      button {
-        border-radius: 8px;
-        box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
-          0 0px 0 1px rgb(10 10 10 / 2%) !important;
+        button {
+          border-radius: 8px;
+          box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+            0 0px 0 1px rgb(10 10 10 / 2%) !important;
+        }
       }
     }
 
@@ -1476,11 +1379,11 @@ const previousResults = (index) => {
       border: 1px solid hsl(0deg, 0%, 93%);
       border-radius: 4px;
 
-      .control > input {
+      .control>input {
         border: 0px none transparent;
       }
 
-      .control > button {
+      .control>button {
         background: transparent;
         box-shadow: none !important;
       }

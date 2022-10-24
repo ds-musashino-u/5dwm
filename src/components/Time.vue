@@ -226,35 +226,25 @@ watch(toDateRef, (newValue, oldValue) => {
     <nav class="level is-mobile">
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
-          <h3
-            class="panel-heading is-uppercase has-text-weight-bold"
-            v-text="name"
-          ></h3>
+          <h3 class="panel-heading is-uppercase is-size-6 has-text-weight-bold" v-text="name"></h3>
         </div>
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button
-            class="button is-rounded"
-            v-bind:disabled="
-              fromDateRef.getTime() === defaultFromDate.getTime() &&
-              toDateRef.getTime() === defaultToDate.getTime()
-            "
-            @click="reset($event)"
-          >
+          <button class="button is-rounded" v-bind:disabled="
+            fromDateRef.getTime() === defaultFromDate.getTime() &&
+            toDateRef.getTime() === defaultToDate.getTime()
+          " @click="reset($event)">
             <span class="icon is-small">
               <i class="fa-solid fa-arrow-rotate-left"></i>
             </span>
           </button>
         </div>
         <div class="level-item">
-          <button
-            class="button"
-            @click="
-              isCollapsedRef = !isCollapsedRef;
-              enabled();
-            "
-          >
+          <button class="button" @click="
+            isCollapsedRef = !isCollapsedRef;
+          enabled();
+          ">
             <transition name="fade" mode="out-in">
               <span class="icon" v-if="isEnabled" key="on">
                 <i class="fa-solid fa-toggle-on"></i>
@@ -266,14 +256,8 @@ watch(toDateRef, (newValue, oldValue) => {
           </button>
         </div>
         <div class="level-item is-hidden">
-          <button
-            class="button toggle is-rounded"
-            @click="isCollapsedRef = !isCollapsedRef"
-          >
-            <span
-              class="icon is-small"
-              v-bind:class="{ collapsed: isCollapsedRef }"
-            >
+          <button class="button toggle is-rounded" @click="isCollapsedRef = !isCollapsedRef">
+            <span class="icon is-small" v-bind:class="{ collapsed: isCollapsedRef }">
               <i class="fa-solid fa-chevron-up"></i>
             </span>
           </button>
@@ -284,11 +268,7 @@ watch(toDateRef, (newValue, oldValue) => {
       <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
         <div class="level-left">
           <div class="level-item">
-            <button
-              class="button"
-              v-bind:disabled="!isEnabled || !hasBackward"
-              @click="backward($event)"
-            >
+            <button class="button" v-bind:disabled="!isEnabled || !hasBackward" @click="backward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-left"></i>
               </span>
@@ -300,17 +280,17 @@ watch(toDateRef, (newValue, oldValue) => {
             <ul>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Year }">
                 <a @click="currentUnitRef = TimeUnits.Year">
-                  <span class="is-size-6 is-uppercase has-text-weight-bold">Year</span>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold">Year</span>
                 </a>
               </li>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Month }">
                 <a @click="currentUnitRef = TimeUnits.Month">
-                  <span class="is-size-6 is-uppercase has-text-weight-bold">Month</span>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold">Month</span>
                 </a>
               </li>
               <li :class="{ 'is-active': currentUnitRef === TimeUnits.Day }">
                 <a @click="currentUnitRef = TimeUnits.Day">
-                  <span class="is-size-6 is-uppercase has-text-weight-bold">Day</span>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold">Day</span>
                 </a>
               </li>
             </ul>
@@ -318,11 +298,7 @@ watch(toDateRef, (newValue, oldValue) => {
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button
-              class="button"
-              v-bind:disabled="!isEnabled || !hasForward"
-              @click="forward($event)"
-            >
+            <button class="button" v-bind:disabled="!isEnabled || !hasForward" @click="forward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-right"></i>
               </span>
@@ -335,60 +311,30 @@ watch(toDateRef, (newValue, oldValue) => {
       <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
         <div class="level-left">
           <div class="level-item">
-            <span
-              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-              >From</span
-            >
+            <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">From</span>
           </div>
         </div>
         <div class="level-right">
           <div class="level-item">
             <div class="field">
               <div class="control">
-                <input
-                  class="input is-size-6 has-text-weight-bold"
-                  type="number"
-                  size="4"
-                  placeholder="Year"
-                  v-bind:class="{ 'has-error': hasErrorRef }"
-                  v-bind:disabled="!isEnabled"
-                  v-bind:value="fromYearRef"
-                  @change="fromYearChange"
-                />
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >/</span
-                >
+                <input class="input is-size-7 has-text-weight-bold" type="number" size="4" placeholder="Year"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
+                  @change="fromYearChange" />
+                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="fromMonthChange"
-                  >
-                    <option
-                      v-for="i in [...Array(12).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === fromMonthRef"
-                      v-text="i + 1"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="fromMonthChange">
+                    <option v-for="i in [...Array(12).keys()]" v-bind:key="i" v-bind:selected="i === fromMonthRef"
+                      v-text="i + 1"></option>
                   </select>
                 </div>
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >/</span
-                >
+                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="fromDayChange"
-                  >
-                    <option
-                      v-for="i in [...Array(31).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i + 1 === fromDayRef"
-                      v-text="i + 1"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="fromDayChange">
+                    <option v-for="i in [...Array(31).keys()]" v-bind:key="i" v-bind:selected="i + 1 === fromDayRef"
+                      v-text="i + 1"></option>
                   </select>
                 </div>
               </div>
@@ -404,36 +350,18 @@ watch(toDateRef, (newValue, oldValue) => {
             <div class="field">
               <div class="control">
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="fromHoursChange"
-                  >
-                    <option
-                      v-for="i in [...Array(24).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === fromHoursRef"
-                      v-text="i"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="fromHoursChange">
+                    <option v-for="i in [...Array(24).keys()]" v-bind:key="i" v-bind:selected="i === fromHoursRef"
+                      v-text="i"></option>
                   </select>
                 </div>
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >:</span
-                >
+                <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="fromMinutesChange"
-                  >
-                    <option
-                      v-for="i in [...Array(60).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === fromMinutesRef"
-                      v-text="i"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="fromMinutesChange">
+                    <option v-for="i in [...Array(60).keys()]" v-bind:key="i" v-bind:selected="i === fromMinutesRef"
+                      v-text="i"></option>
                   </select>
                 </div>
               </div>
@@ -446,60 +374,30 @@ watch(toDateRef, (newValue, oldValue) => {
       <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
         <div class="level-left">
           <div class="level-item">
-            <span
-              class="is-size-6 is-uppercase has-text-weight-bold has-text-grey"
-              >To</span
-            >
+            <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">To</span>
           </div>
         </div>
         <div class="level-right">
           <div class="level-item">
             <div class="field">
               <div class="control">
-                <input
-                  class="input is-size-6 has-text-weight-bold"
-                  type="number"
-                  size="4"
-                  placeholder="Year"
-                  v-bind:class="{ 'has-error': hasErrorRef }"
-                  v-bind:disabled="!isEnabled"
-                  v-bind:value="toYearRef"
-                  @change="toYearChange"
-                />
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >/</span
-                >
+                <input class="input is-size-7 has-text-weight-bold" type="number" size="4" placeholder="Year"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="toYearRef"
+                  @change="toYearChange" />
+                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="toMonthChange"
-                  >
-                    <option
-                      v-for="i in [...Array(12).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === toMonthRef"
-                      v-text="i + 1"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="toMonthChange">
+                    <option v-for="i in [...Array(12).keys()]" v-bind:key="i" v-bind:selected="i === toMonthRef"
+                      v-text="i + 1"></option>
                   </select>
                 </div>
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >/</span
-                >
+                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="toDayChange"
-                  >
-                    <option
-                      v-for="i in [...Array(31).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i + 1 === toDayRef"
-                      v-text="i + 1"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="toDayChange">
+                    <option v-for="i in [...Array(31).keys()]" v-bind:key="i" v-bind:selected="i + 1 === toDayRef"
+                      v-text="i + 1"></option>
                   </select>
                 </div>
               </div>
@@ -515,36 +413,18 @@ watch(toDateRef, (newValue, oldValue) => {
             <div class="field">
               <div class="control">
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="toHoursChange"
-                  >
-                    <option
-                      v-for="i in [...Array(24).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === toHoursRef"
-                      v-text="i"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="toHoursChange">
+                    <option v-for="i in [...Array(24).keys()]" v-bind:key="i" v-bind:selected="i === toHoursRef"
+                      v-text="i"></option>
                   </select>
                 </div>
-                <span class="is-size-6 is-uppercase has-text-weight-bold"
-                  >:</span
-                >
+                <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
                 <div class="select is-normal">
-                  <select
-                    class="is-size-6 has-text-weight-bold"
-                    v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled"
-                    @change="toMinutesChange"
-                  >
-                    <option
-                      v-for="i in [...Array(60).keys()]"
-                      v-bind:key="i"
-                      v-bind:selected="i === toMinutesRef"
-                      v-text="i"
-                    ></option>
+                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
+                    v-bind:disabled="!isEnabled" @change="toMinutesChange">
+                    <option v-for="i in [...Array(60).keys()]" v-bind:key="i" v-bind:selected="i === toMinutesRef"
+                      v-text="i"></option>
                   </select>
                 </div>
               </div>
@@ -574,16 +454,16 @@ watch(toDateRef, (newValue, oldValue) => {
       background: transparent;
     }
 
-    > .level-left {
+    >.level-left {
       flex-direction: column;
     }
 
-    > .level-right {
+    >.level-right {
       margin: -8px;
       flex-direction: row;
       align-items: flex-end;
 
-      > .level-item {
+      >.level-item {
         margin: 8px;
 
         .button.is-rounded {
@@ -591,7 +471,7 @@ watch(toDateRef, (newValue, oldValue) => {
           padding: 12px !important;
           box-shadow: none !important;
 
-          > span.icon {
+          >span.icon {
             margin: 0 !important;
             width: 1rem !important;
             height: 1rem !important;
@@ -599,29 +479,29 @@ watch(toDateRef, (newValue, oldValue) => {
         }
 
         .button.toggle {
-          > span {
+          >span {
             transform: rotate(180deg);
           }
 
-          > span.collapsed {
+          >span.collapsed {
             transition: transform 0.5s ease;
             transform: rotate(0deg);
           }
         }
 
-        .field > .control > span {
+        .field>.control>span {
           margin: 0;
           padding: 4px;
         }
       }
 
-      > .level-item:nth-child(2) > button {
+      >.level-item:nth-child(2)>button {
         padding: 8px !important;
         box-shadow: none !important;
         line-height: 1.5rem !important;
         background: transparent !important;
 
-        > span.icon {
+        >span.icon {
           margin: 0 !important;
           width: 1.5rem !important;
           height: 1.5rem !important;
@@ -632,13 +512,13 @@ watch(toDateRef, (newValue, oldValue) => {
     }
   }
 
-  .level:nth-child(2) > .level-item {
+  .level:nth-child(2)>.level-item {
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
 
-    > .tabs > ul {
+    >.tabs>ul {
       margin: 0;
     }
   }
@@ -655,16 +535,16 @@ watch(toDateRef, (newValue, oldValue) => {
       background: transparent;
     }
 
-    > .level-left {
+    >.level-left {
       flex-direction: column;
     }
 
-    > .level-right {
+    >.level-right {
       margin: -8px;
       flex-direction: column;
       align-items: flex-end;
 
-      > .level-item {
+      >.level-item {
         margin: 8px;
 
         .button.is-rounded {
@@ -672,7 +552,7 @@ watch(toDateRef, (newValue, oldValue) => {
           padding: 12px !important;
           box-shadow: none !important;
 
-          > span.icon {
+          >span.icon {
             margin: 0 !important;
             width: 1rem !important;
             height: 1rem !important;
@@ -680,28 +560,28 @@ watch(toDateRef, (newValue, oldValue) => {
         }
 
         .button.toggle {
-          > span {
+          >span {
             transform: rotate(180deg);
           }
 
-          > span.collapsed {
+          >span.collapsed {
             transition: transform 0.5s ease;
             transform: rotate(0deg);
           }
         }
 
-        .field > .control {
-          > input {
+        .field>.control {
+          >input {
             background: transparent;
-            font-size: 1rem !important;
-            width: calc(4rem + calc(calc(0.75em - 1px) * 2));
+            font-size: 0.75rem !important;
+            width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
           }
 
-          > .select > select {
+          >.select>select {
             background: transparent;
           }
 
-          > span {
+          >span {
             margin: 0;
             padding: 4px;
           }
@@ -718,7 +598,7 @@ watch(toDateRef, (newValue, oldValue) => {
     align-items: flex-start;
     border-bottom: 0px none transparent;
 
-    > .level-left {
+    >.level-left {
       margin: 0;
       flex-direction: column;
       align-items: flex-start;
@@ -728,12 +608,12 @@ watch(toDateRef, (newValue, oldValue) => {
       }
     }
 
-    > .level-right {
+    >.level-right {
       margin: 0;
       width: 50%;
       flex-direction: column;
 
-      > .level-item {
+      >.level-item {
         width: 100%;
         justify-content: flex-end;
       }
@@ -759,7 +639,7 @@ watch(toDateRef, (newValue, oldValue) => {
       padding: 0;
       width: 100%;
 
-      > .level-item > .media {
+      >.level-item>.media {
         display: inline-block;
         margin: 0;
         border: 0px none transparent !important;
@@ -794,7 +674,7 @@ watch(toDateRef, (newValue, oldValue) => {
     padding: 0.5em 0.75em;
     width: 100%;
 
-    span + p,
+    span+p,
     p {
       margin: 0.5em 0px 0px 0px;
       overflow-wrap: break-word;

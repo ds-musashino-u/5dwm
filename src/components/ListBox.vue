@@ -61,7 +61,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
           <h3
-            class="panel-heading is-uppercase has-text-weight-bold"
+            class="panel-heading is-uppercase is-size-6 has-text-weight-bold"
             v-text="name"
           ></h3>
         </div>
