@@ -226,7 +226,7 @@ watch(toDateRef, (newValue, oldValue) => {
     <nav class="level is-mobile">
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
-          <h3 class="panel-heading is-uppercase is-size-6 has-text-weight-bold" v-text="name"></h3>
+          <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="name"></h3>
         </div>
       </div>
       <div class="level-right">
