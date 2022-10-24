@@ -1200,7 +1200,7 @@ const previousResults = (index) => {
       overflow-y: auto;
 
       >.block {
-        width: 380px;
+        width: 400px;
 
         .panel {
           background: rgba(255, 255, 255, 0.9);

@@ -337,18 +337,6 @@ watch(toDateRef, (newValue, oldValue) => {
                       v-text="i + 1"></option>
                   </select>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </transition>
-    <transition name="fade" mode="out-in">
-      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
-        <div class="level-right">
-          <div class="level-item">
-            <div class="field">
-              <div class="control">
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
                     v-bind:disabled="!isEnabled" @change="fromHoursChange">
@@ -400,18 +388,6 @@ watch(toDateRef, (newValue, oldValue) => {
                       v-text="i + 1"></option>
                   </select>
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </transition>
-    <transition name="fade" mode="out-in">
-      <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
-        <div class="level-right">
-          <div class="level-item">
-            <div class="field">
-              <div class="control">
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
                     v-bind:disabled="!isEnabled" @change="toHoursChange">
@@ -577,6 +553,11 @@ watch(toDateRef, (newValue, oldValue) => {
             width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
           }
 
+          >.select:nth-of-type(2):not(:last-of-type) {
+            margin: 0px 16px 0px 0px;
+            padding: 0;
+          }
+
           >.select>select {
             background: transparent;
           }
@@ -624,9 +605,9 @@ watch(toDateRef, (newValue, oldValue) => {
     }
   }
 
-  .level:nth-child(even):not(:first-child) {
+  /*.level:nth-child(even):not(:first-child) {
     justify-content: flex-end;
-  }
+  }*/
 
   .control {
     display: flex;
