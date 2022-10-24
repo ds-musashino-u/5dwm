@@ -1103,12 +1103,9 @@ const previousResults = (index) => {
             </div>
           </nav>
         </div>
-      </div>
-    </div>
-    <transition name="fade" mode="out-in">
-      <div class="flyout-right" v-if="!isRooted && searchTotalCountRef !== null">
-        <div class="wrap">
-          <div class="block is-hidden-mobile" ref="previewPanelRef">
+        <transition name="fade" mode="out-in">
+
+          <div class="block is-hidden-mobile" v-if="!isRooted && searchTotalCountRef !== null" ref="previewPanelRef">
             <transition name="slide" mode="out-in">
               <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
                 <div class="panel-block">
@@ -1147,9 +1144,9 @@ const previousResults = (index) => {
               </nav>
             </transition>
           </div>
-        </div>
+        </transition>
       </div>
-    </transition>
+    </div>
     <div id="map" ref="mapRef"></div>
   </div>
 </template>
