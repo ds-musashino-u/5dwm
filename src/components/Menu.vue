@@ -64,7 +64,7 @@ const signOut = (event) => {
                             is-rounded
                             is-outlined
                             is-fullwidth
-                            is-size-6
+                            is-size-7
                             is-primary
                           "
                           type="button"
@@ -155,7 +155,7 @@ const signOut = (event) => {
                             is-rounded
                             is-outlined
                             is-fullwidth
-                            is-size-6
+                            is-size-7
                             is-primary
                           "
                           type="button"
@@ -178,7 +178,7 @@ const signOut = (event) => {
                         <button
                           class="
                             button
-                            is-rounded is-outlined is-fullwidth is-size-6
+                            is-rounded is-outlined is-fullwidth is-size-7
                           "
                           type="button"
                           v-bind:disabled="isLoading"
