@@ -631,7 +631,7 @@ const search = async (ignoreCache = true) => {
             },
             map,
             title: item.media.description,
-            label: String(index),
+            label: String(index + 1),
             animation: google.maps.Animation.DROP,
           });
 
@@ -758,7 +758,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map,
                   title: resultItem.media.description,
-                  label: String(index),
+                  label: String(index + 1),
                   animation: google.maps.Animation.DROP,
                 });
 
@@ -818,7 +818,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map,
                   title: resultItem.media.description,
-                  label: String(index),
+                  label: String(index + 1),
                   animation: google.maps.Animation.DROP,
                 });
                 marker.addListener("click", {
