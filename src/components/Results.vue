@@ -41,12 +41,12 @@ const unload = (event, item) => {
       <div class="level-left">
         <div class="level-item">
           <h3
-            class="panel-heading is-uppercase has-text-weight-bold"
+            class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
             v-text="String(count) + ' Items'"
             v-if="count > 0 || count === 0"
           ></h3>
           <h3
-            class="panel-heading is-uppercase has-text-weight-bold"
+            class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
             v-text="String(count) + ' Item'"
             v-else
           ></h3>
