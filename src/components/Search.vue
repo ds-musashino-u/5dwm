@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onActivated, onDeactivated, watch } from "vue";
+import { ref, onMounted, onActivated, onDeactivated, watch } from "vue";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
@@ -89,10 +89,11 @@ defaultToDateRef.value.setSeconds(0);
 defaultToDateRef.value.setMilliseconds(0);
 defaultToDateRef.value.setDate(toDateRef.value.getDate());
 
+onMounted(() => {});
 onActivated(async () => {
   const loader = new Loader({
     apiKey: GoogleMapsConfig.API_KEY,
-    version: "weekly",
+    version: "quarterly",
     language: navigator.language,
   });
 
@@ -100,7 +101,7 @@ onActivated(async () => {
 
   map = new google.maps.Map(mapRef.value, {
     center: { lat: 35.5040538, lng: 138.6486497 },
-    zoom: 2,
+    zoom: 4,
     mapTypeId: "terrain",
     zoomControl: true,
     mapTypeControl: false,
@@ -629,7 +630,7 @@ const search = async (ignoreCache = true) => {
               lat: item.media.location.latitude,
               lng: item.media.location.longitude,
             },
-            map,
+            map: map,
             title: item.media.description,
             label: String(index + 1),
             animation: google.maps.Animation.DROP,
@@ -756,7 +757,7 @@ const search = async (ignoreCache = true) => {
                     lat: resultItem.media.location.latitude,
                     lng: resultItem.media.location.longitude,
                   },
-                  map,
+                  map: map,
                   title: resultItem.media.description,
                   label: String(index + 1),
                   animation: google.maps.Animation.DROP,
@@ -816,15 +817,11 @@ const search = async (ignoreCache = true) => {
                     lat: resultItem.media.location.latitude,
                     lng: resultItem.media.location.longitude,
                   },
-                  map,
-                  title: resultItem.media.description,
+                  map: map,
                   label: String(index + 1),
                   animation: google.maps.Animation.DROP,
                 });
-                marker.addListener("click", {
-                  marker: marker,
-                  item: resultItem,
-                });
+                marker.addListener("click", markerClick);
                 bounds.extend(
                   new google.maps.LatLng(
                     resultItem.media.location.latitude,
@@ -1174,6 +1171,7 @@ const previousResults = (index) => {
   background: #ffffff;
 
   #map {
+    display: block;
     position: relative;
     width: 100%;
     height: 100%;
