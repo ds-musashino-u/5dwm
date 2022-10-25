@@ -1203,6 +1203,7 @@ const previousResults = (index) => {
 
       >.block {
         width: 400px;
+        height: fit-content;
 
         .panel {
           background: rgba(255, 255, 255, 0.9);
