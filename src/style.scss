@@ -133,7 +133,7 @@ button {
     align-items: flex-start;
     justify-content: flex-start;
 
-    > .wrap {
+    >.wrap {
         position: relative;
         margin: 0;
         padding: 0;
@@ -142,7 +142,7 @@ button {
         height: 100%;
         overflow: hidden;
 
-        > .content {
+        >.content {
             position: absolute;
             margin: 0;
             padding: 0;
@@ -166,13 +166,13 @@ button {
                 backface-visibility: hidden;
                 color: #000000;
                 box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-                
+
                 .icon {
                     color: var(--accent-color);
                     transition: 0.5s;
                 }
 
-                span + .icon:last-of-type {
+                span+.icon:last-of-type {
                     color: var(--accent-color);
                     transition: 0.5s;
                 }
@@ -207,7 +207,7 @@ button {
                 padding: 16px !important;
                 height: initial;
                 border-radius: 290486px;
-                
+
                 span {
                     margin: 0 !important;
                     width: 0.75rem !important;
@@ -250,7 +250,7 @@ button {
         background-clip: padding-box;
         height: initial;
 
-        > span.icon {
+        >span.icon {
             margin: 0 !important;
             width: 1rem !important;
             height: 1rem !important;
@@ -264,8 +264,7 @@ button {
 
 #sidebar {
     position: relative;
-    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px)
-        calc(env(safe-area-inset-left, 0px) + 16px);
+    padding: env(safe-area-inset-top, 0px) 16px env(safe-area-inset-bottom, 0px) calc(env(safe-area-inset-left, 0px) + 16px);
     width: fit-content;
     height: 100%;
     background: #ffffff;
@@ -280,7 +279,7 @@ button {
         }
     }
 
-    > .level {
+    >.level {
         display: flex;
         margin: 0;
         padding: 0;
@@ -289,7 +288,7 @@ button {
         align-items: center;
         justify-content: flex-start;
 
-        > .level-item:first-child {
+        >.level-item:first-child {
             display: flex;
             top: 0;
             margin: 0;
@@ -298,7 +297,7 @@ button {
             align-items: flex-start;
             justify-content: flex-start;
 
-            > .level {
+            >.level {
                 display: flex;
                 margin: 0;
                 padding: 0;
@@ -306,13 +305,13 @@ button {
                 align-items: center;
                 justify-content: flex-start;
 
-                > .level-item:first-child {
+                >.level-item:first-child {
                     margin: 0;
                     padding: 0;
 
                     button,
                     .button {
-                        > span.icon {
+                        >span.icon {
                             margin: 0 !important;
                             width: 1rem !important;
                             height: 1rem !important;
@@ -320,7 +319,7 @@ button {
                     }
                 }
 
-                > .level-item:not(:first-child) {
+                >.level-item:not(:first-child) {
                     margin: 0;
                     padding: 32px 0px 0px 0px;
 
@@ -346,7 +345,7 @@ button {
             }
         }
 
-        > .level-item:last-child:not(:first-child) {
+        >.level-item:last-child:not(:first-child) {
             position: absolute;
             bottom: 0;
             margin: 0;
@@ -395,7 +394,7 @@ button {
             transition: 0.5s;
         }
 
-        span + .icon:last-of-type {
+        span+.icon:last-of-type {
             color: var(--accent-color);
             transition: 0.5s;
         }
@@ -424,7 +423,7 @@ button {
         }
     }
 
-    > .columns {
+    >.columns {
         display: flex;
         top: 0;
         margin: 0;
@@ -436,31 +435,31 @@ button {
         overflow-x: hidden;
         overflow-y: auto;
 
-        > .column {
+        >.column {
             flex: none;
             margin: auto !important;
             overflow-x: hidden;
             overflow-y: auto;
 
-            > .control {
+            >.control {
                 margin: 0;
                 padding: 0;
 
-                > .level:first-child {
+                >.level:first-child {
                     display: flex;
                     margin: -8px -8px -8px -8px;
                     flex-direction: column;
 
-                    > .level-item {
+                    >.level-item {
                         margin: 0;
                         padding: 8px 8px 8px 8px;
                     }
 
-                    > .level-item > .level {
+                    >.level-item>.level {
                         margin: -8px -8px -8px -8px;
                         flex-direction: column;
 
-                        > .level-item {
+                        >.level-item {
                             margin: 0;
                             padding: 8px 8px 8px 8px;
                         }
@@ -474,7 +473,7 @@ button {
 #upload {
     padding: 16px;
 
-    > .level {
+    >.level {
         display: flex;
         margin: -8px -8px -8px -8px;
         padding: 0;
@@ -482,7 +481,7 @@ button {
         justify-content: flex-start;
         align-items: flex-start;
 
-        > .level-item {
+        >.level-item {
             margin: 8px 8px 8px 8px;
             padding: 0;
         }
@@ -589,6 +588,17 @@ button {
 .gallery-list-leave-to {
     opacity: 0;
     transform: translate3d(0.5, 0.5, 1);
+}
+
+::-webkit-scrollbar {
+    -webkit-appearance: none;
+    width: 7px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 @keyframes loading {
