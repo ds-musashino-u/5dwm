@@ -631,6 +631,7 @@ const search = async (ignoreCache = true) => {
             },
             map,
             title: item.media.description,
+            label: String(index),
             animation: google.maps.Animation.DROP,
           });
 
@@ -659,9 +660,9 @@ const search = async (ignoreCache = true) => {
             : null
           : imageRef.value.dataURL;
       const time =
-        timeIsEnabledRef.value === null
-          ? { from: null, to: null }
-          : { from: fromDateRef.value, to: toDateRef.value };
+        timeIsEnabledRef.value
+          ? { from: fromDateRef.value, to: toDateRef.value }
+          : { from: null, to: null };
 
       if (
         !sequenceEqual(searchcCriteria.keywords, keywords) ||
@@ -757,6 +758,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map,
                   title: resultItem.media.description,
+                  label: String(index),
                   animation: google.maps.Animation.DROP,
                 });
 
@@ -816,6 +818,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map,
                   title: resultItem.media.description,
+                  label: String(index),
                   animation: google.maps.Animation.DROP,
                 });
                 marker.addListener("click", {
