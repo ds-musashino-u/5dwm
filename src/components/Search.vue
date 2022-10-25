@@ -1083,68 +1083,73 @@ const previousResults = (index) => {
               @next="nextUsers"
               @previous="previousUsers"
             />-->
-            <div class="panel-block">
-              <div class="control">
-                <button class="
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="flyout-left">
+      <div class="wrap">
+        <div class="block">
+          <div class="panel-block">
+            <div class="control">
+              <button class="
                   button
                   is-rounded is-outlined is-fullwidth is-size-7 is-primary
                 " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
-                  <transition name="fade" mode="out-in">
-                    <span class="icon" v-if="isSearchingRef" key="searching">
-                      <i class="fas fa-spinner updating"></i>
-                    </span>
-                    <span class="icon" v-else key="ready">
-                      <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                  </transition>
-                  <span class="is-uppercase has-text-weight-bold">Search</span>
-                </button>
-              </div>
+                <transition name="fade" mode="out-in">
+                  <span class="icon" v-if="isSearchingRef" key="searching">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                  <span class="icon" v-else key="ready">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                  </span>
+                </transition>
+                <span class="is-uppercase has-text-weight-bold">Search</span>
+              </button>
             </div>
-          </nav>
-        </div>
-        <transition name="fade" mode="out-in">
-
-          <div class="block is-hidden-mobile" v-if="!isRooted && searchTotalCountRef !== null" ref="previewPanelRef">
-            <transition name="slide" mode="out-in">
-              <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
-                <div class="panel-block">
-                  <nav class="level is-mobile">
-                    <div class="level-left">
-                      <div class="level-item">
-                        <button class="button is-rounded" @click="back($event)">
-                          <span class="icon is-small">
-                            <i class="fa-solid fa-arrow-left"></i>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </nav>
-                </div>
-                <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" />
-              </nav>
-              <nav class="panel" v-else key="results">
-                <div class="panel-block">
-                  <nav class="level is-mobile">
-                    <div class="level-left">
-                      <div class="level-item">
-                        <button class="button is-rounded" @click="back($event)">
-                          <span class="icon is-small">
-                            <i class="fa-solid fa-xmark"></i>
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                  </nav>
-                </div>
-                <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
-                  :page-index="searchPageIndexRef" :page-length="searchPageLength" @select="selectItem"
-                  @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem"
-                  v-if="selectedItemRef === null" key="results" />
-              </nav>
-            </transition>
           </div>
-        </transition>
+          <transition name="fade" mode="out-in">
+            <div class="block is-hidden-mobile" v-if="!isRooted && searchTotalCountRef !== null" ref="previewPanelRef">
+              <transition name="slide" mode="out-in">
+                <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
+                  <div class="panel-block">
+                    <nav class="level is-mobile">
+                      <div class="level-left">
+                        <div class="level-item">
+                          <button class="button is-rounded" @click="back($event)">
+                            <span class="icon is-small">
+                              <i class="fa-solid fa-arrow-left"></i>
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </nav>
+                  </div>
+                  <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" />
+                </nav>
+                <nav class="panel" v-else key="results">
+                  <div class="panel-block">
+                    <nav class="level is-mobile">
+                      <div class="level-left">
+                        <div class="level-item">
+                          <button class="button is-rounded" @click="back($event)">
+                            <span class="icon is-small">
+                              <i class="fa-solid fa-xmark"></i>
+                            </span>
+                          </button>
+                        </div>
+                      </div>
+                    </nav>
+                  </div>
+                  <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
+                    :page-index="searchPageIndexRef" :page-length="searchPageLength" @select="selectItem"
+                    @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem"
+                    v-if="selectedItemRef === null" key="results" />
+                </nav>
+              </transition>
+            </div>
+          </transition>
+        </div>
       </div>
     </div>
     <div id="map" ref="mapRef"></div>
