@@ -10,11 +10,12 @@ const props = defineProps({
   count: { type: Number, required: false, default: 0 },
   pageIndex: { type: Number, required: false, default: 0 },
   pageLength: { type: Number, required: false, default: 10 },
+  canBack: { type: Boolean, required: false, default: true },
 });
-const emit = defineEmits(["select", "next", "previous", "load", "unload"]);
+const emit = defineEmits(["select", "next", "previous", "load", "unload", "back"]);
 const isForwardingRef = ref(true);
-const select = (event, item) => {
-  emit("select", item);
+const select = (event, index, item) => {
+  emit("select", index, item);
 };
 const next = (event) => {
   isForwardingRef.value = true;
@@ -32,193 +33,167 @@ const load = (event, item) => {
 const unload = (event, item) => {
   emit("unload", item);
 };
-
+const back = (event) => {
+  emit("back");
+};
 </script>
 
 <template>
   <div class="panel-block">
-    <nav class="level is-mobile">
-      <div class="level-left">
-        <div class="level-item">
-          <h3
-            class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
-            v-text="String(count) + ' Items'"
-            v-if="count > 0 || count === 0"
-          ></h3>
-          <h3
-            class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
-            v-text="String(count) + ' Item'"
-            v-else
-          ></h3>
-        </div>
-      </div>
-      <div class="level-right">
-        <div class="level-item">
-          <button
-            class="button toggle is-rounded"
-            @click="isCollapsed = !isCollapsed"
-          >
-            <span
-              class="icon is-small"
-              v-bind:class="{ collapsed: isCollapsed }"
-            >
-              <i class="fa-solid fa-chevron-up"></i>
-            </span>
-          </button>
-        </div>
-      </div>
-    </nav>
-    <transition name="fade" mode="out-in">
-      <div class="control" v-if="!isCollapsed && items === null" key="loading">
-        <nav class="level">
-          <div class="level-item">
-            <span class="icon">
-              <i class="fas fa-spinner updating"></i>
-            </span>
-          </div>
-        </nav>
-      </div>
-      <div class="control" v-else-if="!isCollapsed" key="loaded">
-        <transition-group name="gallery-list" class="gallery" tag="div" v-cloak>
-          <article
-            class="media gallery-list-item"
-            v-for="(item, index) in items"
-            v-bind:key="index"
-          >
-            <div class="media-content">
-              <div class="stack">
-                <button
-                  class="button image is-64x64"
-                  type="button"
-                  @click="select($event, item)"
-                >
-                  <picture
-                    class="image"
-                    v-if="
-                      item.media.type.startsWith('image') &&
-                      item.media.url.startsWith('https://')
-                    "
-                  >
-                    <img
-                      v-bind:src="item.media.url"
-                      v-bind:alt="String(index)"
-                    />
-                  </picture>
-                  <span
-                    class="icon is-small"
-                    v-if="item.media.type.startsWith('image')"
-                  >
-                    <i class="fa-solid fa-file-image"></i>
-                  </span>
-                  <span
-                    class="icon is-small"
-                    v-else-if="item.media.type.startsWith('video')"
-                  >
-                    <i class="fa-solid fa-file-video"></i>
-                  </span>
-                  <span
-                    class="icon is-small"
-                    v-else-if="item.media.type.startsWith('audio')"
-                  >
-                    <i class="fa-solid fa-file-audio"></i>
-                  </span>
-                  <span
-                    class="icon is-small"
-                    v-else-if="item.media.type.startsWith('text')"
-                  >
-                    <i class="fa-solid fa-file-lines"></i>
-                  </span>
-                  <span class="icon is-small" v-else>
-                    <i class="fa-solid fa-file"></i>
+    <div class="top">
+      <nav class="panel">
+        <div class="panel-block">
+          <nav class="level is-mobile">
+            <div class="level-left">
+              <div class="level-item">
+                <button class="button is-rounded" v-bind:disabled="!canBack" @click="back($event)">
+                  <span class="icon is-small">
+                    <i class="fa-solid fa-arrow-left"></i>
                   </span>
                 </button>
-                <button class="button toggle" type="button" v-bind:disabled="item.loading" v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz')" @click="item.loaded ? unload($event, item) : load($event, item)">
-                  <transition name="fade" mode="out-in">
-                    <span class="icon" v-if="item.loaded" key="on">
-                      <i class="fa-solid fa-toggle-on"></i>
+              </div>
+            </div>
+          </nav>
+        </div>
+        <div class="panel-block">
+          <nav class="level is-mobile">
+            <div class="level-left">
+              <div class="level-item">
+                <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="String(0) + ' Items'"
+                  v-if="count === null"></h3>
+                <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="String(count) + ' Items'"
+                  v-else-if="count > 0 || count === 0"></h3>
+                <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="String(count) + ' Item'"
+                  v-else></h3>
+              </div>
+            </div>
+          </nav>
+        </div>
+      </nav>
+    </div>
+    <div class="wrap">
+      <transition name="fade" mode="out-in">
+        <div class="control" v-if="!isCollapsed && items === null" key="loading">
+          <nav class="level">
+            <div class="level-item">
+              <span class="icon">
+                <i class="fas fa-spinner updating"></i>
+              </span>
+            </div>
+          </nav>
+        </div>
+        <div class="control" v-else-if="!isCollapsed" key="loaded">
+          <transition-group name="gallery-list" class="gallery" tag="div" v-cloak>
+            <article class="media gallery-list-item" v-for="(item, index) in items" v-bind:key="index">
+              <div class="media-content">
+                <div class="stack">
+                  <button class="button image is-64x64" type="button" @click="select($event, pageIndex * pageLength + index, item)">
+                    <picture class="image" v-if="
+                      item.media.type.startsWith('image') &&
+                      item.media.url.startsWith('https://')
+                    ">
+                      <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
+                    </picture>
+                    <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
+                    <span class="icon is-small" v-if="item.media.type.startsWith('image')">
+                      <i class="fa-solid fa-file-image"></i>
                     </span>
-                    <span class="icon" v-else key="off">
-                      <i class="fa-solid fa-toggle-off"></i>
+                    <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
+                      <i class="fa-solid fa-file-video"></i>
+                    </span>
+                    <span class="icon is-small" v-else-if="item.media.type.startsWith('audio')">
+                      <i class="fa-solid fa-file-audio"></i>
+                    </span>
+                    <span class="icon is-small" v-else-if="item.media.type.startsWith('text')">
+                      <i class="fa-solid fa-file-lines"></i>
+                    </span>
+                    <span class="icon is-small" v-else>
+                      <i class="fa-solid fa-file"></i>
+                    </span>
+                  </button>
+                  <button class="button toggle" type="button" v-bind:disabled="item.loading"
+                    v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz')"
+                    @click="item.loaded ? unload($event, item) : load($event, item)">
+                    <transition name="fade" mode="out-in">
+                      <span class="icon" v-if="item.loaded" key="on">
+                        <i class="fa-solid fa-toggle-on"></i>
+                      </span>
+                      <span class="icon" v-else key="off">
+                        <i class="fa-solid fa-toggle-off"></i>
+                      </span>
+                    </transition>
+                  </button>
+                </div>
+              </div>
+            </article>
+          </transition-group>
+        </div>
+      </transition>
+    </div>
+    <div class="bottom">
+      <transition name="fade">
+        <div class="control" v-show="!isCollapsed && count > pageLength">
+          <nav class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <button class="button is-primary" v-bind:disabled="pageIndex === 0 || isFetching"
+                  @click="previous($event)">
+                  <transition name="fade" mode="out-in">
+                    <span class="icon is-small" v-if="!isForwardingRef && isFetching" key="fetching">
+                      <i class="fas fa-spinner updating"></i>
+                    </span>
+                    <span class="icon is-small" v-else key="fetched">
+                      <i class="fa-solid fa-chevron-left"></i>
                     </span>
                   </transition>
                 </button>
               </div>
             </div>
-          </article>
-        </transition-group>
-      </div>
-    </transition>
-    <transition name="fade">
-      <div class="control" v-show="!isCollapsed && count > pageLength">
-        <nav class="level">
-          <div class="level-left">
             <div class="level-item">
-              <button
-                class="button is-primary"
-                v-bind:disabled="pageIndex === 0 || isFetching"
-                @click="previous($event)"
-              >
-                <transition name="fade" mode="out-in">
-                  <span
-                    class="icon is-small"
-                    v-if="!isForwardingRef && isFetching"
-                    key="fetching"
-                  >
-                    <i class="fas fa-spinner updating"></i>
-                  </span>
-                  <span class="icon is-small" v-else key="fetched">
-                    <i class="fa-solid fa-chevron-left"></i>
-                  </span>
-                </transition>
-              </button>
+              <span class="is-size-7 has-text-weight-bold">{{ pageIndex + 1 }}/{{ ~~Math.ceil(count / pageLength)
+              }}</span>
             </div>
-          </div>
-          <div class="level-item">
-            <span class="is-size-6 has-text-weight-bold"
-              >{{ pageIndex + 1 }}/{{ ~~Math.ceil(count / pageLength) }}</span
-            >
-          </div>
-          <div class="level-right">
-            <div class="level-item">
-              <button
-                class="button is-primary"
-                v-bind:disabled="
+            <div class="level-right">
+              <div class="level-item">
+                <button class="button is-primary" v-bind:disabled="
                   pageIndex + 1 === ~~Math.ceil(count / pageLength) ||
                   isFetching
-                "
-                @click="next($event)"
-              >
-                <transition name="fade" mode="out-in">
-                  <span
-                    class="icon is-small"
-                    v-if="isForwardingRef && isFetching"
-                    key="fetching"
-                  >
-                    <i class="fas fa-spinner updating"></i>
-                  </span>
-                  <span class="icon is-small" v-else key="fetched">
-                    <i class="fa-solid fa-chevron-right"></i>
-                  </span>
-                </transition>
-              </button>
+                " @click="next($event)">
+                  <transition name="fade" mode="out-in">
+                    <span class="icon is-small" v-if="isForwardingRef && isFetching" key="fetching">
+                      <i class="fas fa-spinner updating"></i>
+                    </span>
+                    <span class="icon is-small" v-else key="fetched">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </span>
+                  </transition>
+                </button>
+              </div>
             </div>
-          </div>
-        </nav>
-      </div>
-    </transition>
+          </nav>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
 .panel-block {
+  display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  justify-content: flex-start;
+  align-items: flex-end;
   padding: 0;
+  width: fit-content;
+  height: 100%;
+  max-height: 100%;
 
   .level {
     margin: 0;
     padding: 0.5em 0.75em;
     width: 100%;
+    flex-shrink: 0;
+    height: fit-content;
 
     .panel-heading {
       margin: 0;
@@ -246,23 +221,23 @@ const unload = (event, item) => {
         0 0px 0 1px rgb(10 10 10 / 2%) !important;
     }
 
-    > .level-right > .level-item {
+    >.level-right>.level-item {
       button.is-rounded {
         border-radius: 9999px !important;
         padding: 12px !important;
         box-shadow: none !important;
 
-        > span {
+        >span {
           transform: rotate(180deg);
         }
 
-        > span.icon {
+        >span.icon {
           margin: 0 !important;
           width: 1rem !important;
           height: 1rem !important;
         }
 
-        > span.collapsed {
+        >span.collapsed {
           transition: transform 0.5s ease;
           transform: rotate(0deg);
         }
@@ -275,7 +250,9 @@ const unload = (event, item) => {
     flex-direction: column;
     justify-content: flex-start;
     align-items: center;
+    padding: 0em 0.75em;
     width: 400px;
+    height: fit-content;
 
     .level {
       padding: 0.5em 0.75em;
@@ -284,6 +261,7 @@ const unload = (event, item) => {
 
     .gallery {
       display: flex;
+      flex-shrink: 0;
       margin: -2px -2px -2px -2px;
       flex-direction: row;
       flex-wrap: wrap;
@@ -301,7 +279,7 @@ const unload = (event, item) => {
         .media-content {
           border-radius: 8px;
           width: 100%;
-          background: #ffffff;
+          background: hsl(0deg, 0%, 93%);
           overflow: hidden;
 
           .stack {
@@ -311,7 +289,6 @@ const unload = (event, item) => {
 
             button:not(.toggle) {
               z-index: 1;
-              position: absolute;
               margin: 0 !important;
               padding: 0 !important;
               width: 100%;
@@ -343,6 +320,17 @@ const unload = (event, item) => {
                 height: 1rem !important;
                 transform: translate(-50%, -50%);
               }
+
+              .badge {
+                position: absolute;
+                top: 0%;
+                left: 0%;
+                margin: 0 !important;
+                border-radius: 8px 0px 8px 0px;
+                padding: 8px;
+                background: var(--accent-color);
+                color: #ffffff;
+              }
             }
 
             button.toggle {
@@ -357,8 +345,8 @@ const unload = (event, item) => {
               line-height: 1.5rem !important;
               background: transparent !important;
               transform: translate3d(-50%, 0, 0);
-              
-              > span.icon {
+
+              >span.icon {
                 margin: 0 !important;
                 width: 1.5rem !important;
                 height: 1.5rem !important;
@@ -387,8 +375,65 @@ const unload = (event, item) => {
     }
   }
 
-  .control:last-child {
-    padding: 0;
+  .control:last-child:not(:first-child) {
+    flex-shrink: 0;
+    border-top: 1px solid hsl(0deg, 0%, 93%);
+  }
+
+  .wrap {
+    flex-basis: auto;
+    width: fit-content;
+    height: 100%;
+    max-height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  .top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+
+    .panel {
+      border-radius: 0;
+      width: fit-content;
+      box-shadow: none !important;
+
+      >.panel-block {
+        height: fit-content;
+      }
+
+      >.panel-block:not(:last-child) {
+        border-bottom: 1px solid hsl(0deg, 0%, 93%);
+        width: 400px;
+      }
+    }
+  }
+
+  .bottom {
+    border-top: 1px solid hsl(0deg, 0%, 93%);
+
+    .control {
+      padding: 0;
+    }
+  }
+
+  .top,
+  .bottom {
+    flex-shrink: 0;
+    width: fit-content;
+    height: fit-content;
+    min-height: fit-content;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    box-sizing: border-box;
+
+    button {
+      border-radius: 8px;
+      box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+        0 0px 0 1px rgb(10 10 10 / 2%) !important;
+    }
   }
 }
 </style>

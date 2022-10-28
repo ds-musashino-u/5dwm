@@ -89,7 +89,7 @@ defaultToDateRef.value.setSeconds(0);
 defaultToDateRef.value.setMilliseconds(0);
 defaultToDateRef.value.setDate(toDateRef.value.getDate());
 
-onMounted(() => {});
+onMounted(() => { });
 onActivated(async () => {
   const loader = new Loader({
     apiKey: GoogleMapsConfig.API_KEY,
@@ -860,8 +860,8 @@ const back = (event) => {
     isRooted.value = true;
   }
 };
-const selectItem = (item) => {
-  selectedItemRef.value = item;
+const selectItem = (index, item) => {
+  selectedItemRef.value = Object.assign({index: index}, item);;
 
   map.panTo(
     new google.maps.LatLng(
@@ -1086,9 +1086,7 @@ const previousResults = (index) => {
           </nav>
         </div>
       </div>
-    </div>
-    <div class="flyout-left">
-      <div class="wrap">
+      <div class="bottom">
         <div class="block">
           <div class="panel-block">
             <div class="control">
@@ -1108,48 +1106,22 @@ const previousResults = (index) => {
               </button>
             </div>
           </div>
-          <transition name="fade" mode="out-in">
-            <div class="block is-hidden-mobile" v-if="!isRooted && searchTotalCountRef !== null" ref="previewPanelRef">
-              <transition name="slide" mode="out-in">
-                <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
-                  <div class="panel-block">
-                    <nav class="level is-mobile">
-                      <div class="level-left">
-                        <div class="level-item">
-                          <button class="button is-rounded" @click="back($event)">
-                            <span class="icon is-small">
-                              <i class="fa-solid fa-arrow-left"></i>
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    </nav>
-                  </div>
-                  <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" />
-                </nav>
-                <nav class="panel" v-else key="results">
-                  <div class="panel-block">
-                    <nav class="level is-mobile">
-                      <div class="level-left">
-                        <div class="level-item">
-                          <button class="button is-rounded" @click="back($event)">
-                            <span class="icon is-small">
-                              <i class="fa-solid fa-xmark"></i>
-                            </span>
-                          </button>
-                        </div>
-                      </div>
-                    </nav>
-                  </div>
-                  <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
-                    :page-index="searchPageIndexRef" :page-length="searchPageLength" @select="selectItem"
-                    @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem"
-                    v-if="selectedItemRef === null" key="results" />
-                </nav>
-              </transition>
-            </div>
-          </transition>
         </div>
+      </div>
+    </div>
+    <div class="flyout-left">
+      <div class="block is-hidden-mobile" ref="previewPanelRef">
+        <transition name="slide" mode="out-in">
+          <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
+            <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back" />
+          </nav>
+          <nav class="panel" v-else key="results">
+            <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
+              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" @select="selectItem" @next="nextResults"
+              @previous="previousResults" @load="loadItem" @unload="unloadItem" @back="back"
+              v-if="selectedItemRef === null" key="results" />
+          </nav>
+        </transition>
       </div>
     </div>
     <div id="map" ref="mapRef"></div>
@@ -1185,7 +1157,10 @@ const previousResults = (index) => {
   .flyout-right {
     position: relative;
     box-sizing: border-box;
-    display: block;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-end;
     top: 0px;
     margin: 0;
     border-right: 1px solid hsl(0deg, 0%, 93%);
@@ -1196,6 +1171,7 @@ const previousResults = (index) => {
     background: transparent;
 
     >.wrap {
+      flex-basis: auto;
       width: fit-content;
       height: 100%;
       max-height: 100%;
@@ -1344,6 +1320,91 @@ const previousResults = (index) => {
           box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
             0 0px 0 1px rgb(10 10 10 / 2%) !important;
         }
+      }
+    }
+
+    >.block {
+      width: 400px;
+      height: fit-content;
+
+      .panel {
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        box-shadow: none;
+      }
+    }
+
+    >.block {
+      width: fit-content;
+      height: 100%;
+
+      >.panel {
+        width: fit-content;
+        height: 100%;
+      }
+    }
+
+    >.top {
+      .panel-block:first-child {
+        border-bottom: 1px solid hsl(0deg, 0%, 93%);
+        border-radius: 0px;
+      }
+    }
+
+    >.bottom {
+      .panel-block:last-child {
+        border-top: 1px solid hsl(0deg, 0%, 93%);
+        border-radius: 0px;
+      }
+    }
+
+    >.top,
+    >.bottom {
+      flex-shrink: 0;
+      width: 100%;
+      height: fit-content;
+      min-height: fit-content;
+      overflow-x: hidden;
+      overflow-y: hidden;
+      box-sizing: border-box;
+
+      >.block {
+        width: 400px;
+        height: fit-content;
+
+        .panel {
+          background: rgba(255, 255, 255, 0.9);
+          border-radius: 8px;
+          box-shadow: none;
+          /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+            0 0px 0 1px rgb(10 10 10 / 2%);
+          overflow: hidden;*/
+
+          .panel-block {
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-end;
+          }
+        }
+
+        button {
+          box-sizing: border-box;
+          border-radius: 8px;
+          height: fit-content;
+          box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
+            0 0px 0 1px rgb(10 10 10 / 2%) !important;
+        }
+      }
+    }
+
+    >.top+.block {
+      width: fit-content;
+      height: 100%;
+
+      >nav.panel {
+        width: fit-content;
+        height: 100%;
       }
     }
 
