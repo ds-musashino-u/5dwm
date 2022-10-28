@@ -327,7 +327,7 @@ const back = (event) => {
                 left: 0%;
                 margin: 0 !important;
                 border-radius: 8px 0px 8px 0px;
-                padding: 8px;
+                padding: 8px 12px 8px 12px;
                 background: var(--accent-color);
                 color: #ffffff;
               }
