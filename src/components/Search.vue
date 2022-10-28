@@ -56,7 +56,7 @@ const props = defineProps({
   text: String,
 });
 let map = null;
-const searchPageLength = 20;
+const searchPageLength = 24;
 const searchResults = [];
 const searchcCriteria = {
   keywords: [],
@@ -699,6 +699,7 @@ const search = async (ignoreCache = true) => {
         searchResultsRef.value.splice(0);
         searchPageIndexRef.value = 0;
         searchTotalCountRef.value = null;
+        selectedItemRef.value = null;
 
         isSearchingRef.value = true;
 
