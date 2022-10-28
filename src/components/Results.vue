@@ -87,7 +87,8 @@ const back = (event) => {
             <article class="media gallery-list-item" v-for="(item, index) in items" v-bind:key="index">
               <div class="media-content">
                 <div class="stack">
-                  <button class="button image is-64x64" type="button" @click="select($event, pageIndex * pageLength + index, item)">
+                  <button class="button image is-64x64" type="button"
+                    @click="select($event, pageIndex * pageLength + index, item)">
                     <picture class="image" v-if="
                       item.media.type.startsWith('image') &&
                       item.media.url.startsWith('https://')
@@ -149,10 +150,12 @@ const back = (event) => {
                 </button>
               </div>
             </div>
-            <div class="level-item">
-              <span class="is-size-7 has-text-weight-bold">{{ pageIndex + 1 }}/{{ ~~Math.ceil(count / pageLength)
-              }}</span>
-            </div>
+            <transition name="fade">
+              <div class="level-item" v-if="~~Math.ceil(count / pageLength) > 0">
+                <span class="is-size-7 has-text-weight-bold">{{ pageIndex + 1 }}/{{ ~~Math.ceil(count / pageLength)
+                }}</span>
+              </div>
+            </transition>
             <div class="level-right">
               <div class="level-item">
                 <button class="button is-primary" v-bind:disabled="
@@ -265,7 +268,7 @@ const back = (event) => {
       margin: -2px -2px -2px -2px;
       flex-direction: row;
       flex-wrap: wrap;
-      justify-content: space-between;
+      justify-content: start;
       align-items: flex-start;
       width: calc(100% + 4px);
 
