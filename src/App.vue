@@ -7,7 +7,7 @@ import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
 import Upload from "./components/Upload.vue";
 import { Auth0Config } from "./presenters/auth0-config.mjs";
-import createAuth0Client from "@auth0/auth0-spa-js";
+import { createAuth0Client } from '@auth0/auth0-spa-js';
 
 export default {
   components: {
@@ -116,50 +116,29 @@ export default {
 
     return { auth0, user, isSigningIn, isSigningOut, signIn, signOut };
   },
-  mounted() {},
+  mounted() { },
 };
 </script>
 
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
-  <Sidebar
-    :user="user"
-    :items="contents"
-    :index="contentIndex"
-    @reveal="reveal"
-    @select="select"
-  />
+  <Sidebar :user="user" :items="contents" :index="contentIndex" @reveal="reveal" @select="select" />
   <div class="wrap">
     <div class="content">
       <keep-alive>
-        <component
-          :is="contents[contentIndex].component"
-          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name }"
-        ></component>
+        <component :is="contents[contentIndex].component"
+          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name }"></component>
       </keep-alive>
     </div>
     <transition name="reveal">
-      <Menu
-        logo-url="/images/logo.png"
-        subtitle="5dworldmap.com"
-        v-bind:is-loading="isSigningIn || isSigningOut"
-        v-bind:user="user"
-        v-bind:items="contents"
-        @select="select"
-        @sign-in="signIn"
-        @sign-out="signOut"
-        v-if="user === null || isRevealed"
-      />
+      <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
+        v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn" @sign-out="signOut"
+        v-if="user === null || isRevealed" />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
     <transition name="fade" mode="out-in">
-      <button
-        class="button is-circle"
-        type="button"
-        @click="reveal"
-        key="menu"
-      >
+      <button class="button is-circle" type="button" @click="reveal" key="menu">
         <span class="icon is-small">
           <i class="fas fa-bars"></i>
         </span>
@@ -169,4 +148,5 @@ export default {
 </template>
 
 <style lang="scss">
+
 </style>
