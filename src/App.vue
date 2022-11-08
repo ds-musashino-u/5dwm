@@ -54,8 +54,10 @@ export default {
         isSigningIn.value = true;
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
-          client_id: Auth0Config.CLIENT_ID,
-          cacheLocation: "localstorage",
+          clientId: Auth0Config.CLIENT_ID,
+          authorizationParams: {
+            redirect_uri: window.location.origin
+          }
         });
 
         if (await auth0.value.isAuthenticated()) {
@@ -67,6 +69,7 @@ export default {
         } else {
           let code = null;
           let state = null;
+          let error = null;
 
           for (const [key, value] of new URLSearchParams(
             window.location.search
@@ -75,11 +78,14 @@ export default {
               code = value;
             } else if (key === "state") {
               state = value;
+            } else if (key === "error") {
+              error = value;
             }
           }
 
-          if (code !== null && state !== null) {
+          if (code !== null && state !== null || error !== null) {
             await auth0.value.handleRedirectCallback();
+            window.history.replaceState({}, document.title, "/");
             user.value = await auth0.value.getUser();
           }
         }
@@ -90,12 +96,10 @@ export default {
       }
     });
 
-    const signIn = async () => {
+    const signIn = async (e) => {
       try {
         isSigningIn.value = true;
-        await auth0.value.loginWithRedirect({
-          redirect_uri: window.location.origin,
-        });
+        await auth0.value.loginWithRedirect();
       } catch (error) {
         console.error(error);
       } finally {
