@@ -862,7 +862,7 @@ const back = (event) => {
   }
 };
 const selectItem = (index, item) => {
-  selectedItemRef.value = Object.assign({index: index}, item);;
+  selectedItemRef.value = Object.assign({ index: index }, item);;
 
   map.panTo(
     new google.maps.LatLng(
@@ -995,7 +995,7 @@ const previousResults = (index) => {
                     }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDragging = false"
                       @drop.stop.prevent="drop($event)">
                       <transition name="fade" mode="out-in">
-                        <div class="image" v-if="imageRef === null" v-bind:key="imageRef">
+                        <div class="image" v-if="imageRef === null" v-bind:key="null">
                           <div class="level">
                             <div class="level-item">
                               <label class="
@@ -1118,8 +1118,8 @@ const previousResults = (index) => {
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
-              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" @select="selectItem" @next="nextResults"
-              @previous="previousResults" @load="loadItem" @unload="unloadItem" @back="back"
+              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" @select="selectItem"
+              @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem" @back="back"
               v-if="selectedItemRef === null" key="results" />
           </nav>
         </transition>
@@ -1283,6 +1283,7 @@ const previousResults = (index) => {
                   overflow: hidden;
 
                   >img {
+                    object-fit: contain;
                     height: 100%;
                   }
                 }
@@ -1311,6 +1312,34 @@ const previousResults = (index) => {
 
               .button {
                 box-shadow: none !important;
+              }
+
+              button.is-circle,
+              .button.is-circle {
+                margin: 0px;
+                padding: 16px !important;
+                height: initial;
+                border-radius: 290486px;
+
+                span {
+                  margin: 0 !important;
+                  width: 0.75rem !important;
+                  height: 0.75rem !important;
+                  color: var(--accent-color);
+                }
+              }
+
+              button.is-primary.is-circle,
+              .button.is-primary.is-circle {
+                border-radius: 290486px;
+                overflow: hidden;
+                background-color: var(--primary-background-color) !important;
+                color: #ffffff !important;
+                transition: 0.5s;
+
+                span {
+                  color: #ffffff !important;
+                }
               }
             }
           }
