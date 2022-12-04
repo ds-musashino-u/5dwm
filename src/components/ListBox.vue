@@ -6,6 +6,7 @@ import { ref, reactive, toRef, watch } from "vue";
 const props = defineProps({
   name: { type: String, required: false, default: null },
   isEnabled: { type: Boolean, required: false, default: true },
+  isCollapsable: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
   isContinuous: { type: Boolean, required: false, default: false },
   items: { type: Array, required: false, default: [] },
@@ -84,7 +85,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             </span>
           </button>
         </div>
-        <div class="level-item">
+        <div class="level-item" v-if="isCollapsable">
           <button
             class="button toggle is-rounded"
             @click="collapse"
@@ -178,11 +179,11 @@ watch(isEnabledRef, (newValue, oldValue) => {
 .panel-block {
   flex-direction: column;
   align-items: flex-start;
-  padding: 0;
+  padding: 0.5em 0em;
 
   .level {
     margin: 0;
-    padding: 0.5em 0.75em;
+    padding: 0em 0.75em;
     width: 100%;
 
     .panel-heading {

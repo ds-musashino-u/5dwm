@@ -314,6 +314,10 @@ const back = (event) => {
       border-radius: 0;
       width: 400px;
       box-shadow: none !important;
+
+      >.level {
+        padding: 0.5em 0.75em;
+      }
     }
   }
 
@@ -322,6 +326,10 @@ const back = (event) => {
 
     .control {
       padding: 0;
+
+      >.level {
+        padding: 0.5em 0.75em;
+      }
     }
   }
 
@@ -342,6 +350,10 @@ const back = (event) => {
     }
   }
 
+  .panel-block:not(:first-child)>.level {
+    padding: 0.5em 0.75em;
+  }
+
   .panel-block {
     flex-direction: column;
     align-items: flex-start;
@@ -349,7 +361,7 @@ const back = (event) => {
 
     .level {
       margin: 0;
-      padding: 0.5em 0.75em;
+      padding: 0em 0.75em;
       width: 100%;
       flex-direction: row;
 

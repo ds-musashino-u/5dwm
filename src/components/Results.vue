@@ -4,6 +4,7 @@
 import { ref } from "vue";
 
 const props = defineProps({
+  isCollapsable: { type: Boolean, required: false, default: false },
   isCollapsed: { type: Boolean, required: false, default: false },
   isFetching: { type: Boolean, required: false, default: false },
   items: { type: Array, required: false, default: null },
@@ -65,6 +66,15 @@ const back = (event) => {
                   v-else-if="count > 0 || count === 0"></h3>
                 <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="String(count) + ' Item'"
                   v-else></h3>
+              </div>
+            </div>
+            <div class="level-right" :class="{'is-invisible': !isCollapsable}">
+              <div class="level-item">
+                <button class="button toggle is-rounded" @click="collapse">
+                  <span class="icon is-small" v-bind:class="{ collapsed: isCollapsed }">
+                    <i class="fa-solid fa-chevron-up"></i>
+                  </span>
+                </button>
               </div>
             </div>
           </nav>
@@ -187,13 +197,13 @@ const back = (event) => {
   justify-content: flex-start;
   align-items: flex-end;
   padding: 0;
-  width: fit-content;
+  width: 100%;
   height: 100%;
   max-height: 100%;
 
   .level {
     margin: 0;
-    padding: 0.5em 0.75em;
+    padding: 0em 0.75em;
     width: 100%;
     flex-shrink: 0;
     height: fit-content;
@@ -410,6 +420,10 @@ const back = (event) => {
       >.panel-block:not(:last-child) {
         border-bottom: 1px solid hsl(0deg, 0%, 93%);
         width: 400px;
+
+        >.level {
+          padding: 0.5em 0.75em;
+        }
       }
     }
   }
@@ -419,6 +433,10 @@ const back = (event) => {
 
     .control {
       padding: 0;
+
+      >.level {
+        padding: 0.5em 0.75em;
+      }
     }
   }
 

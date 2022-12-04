@@ -100,7 +100,7 @@ onActivated(async () => {
   await loader.load();
 
   map = new google.maps.Map(mapRef.value, {
-    center: { lat: 35.5040538, lng: 138.6486497 },
+    center: { lat: 35.6809591, lng: 139.7673068 },
     zoom: 4,
     mapTypeId: "terrain",
     zoomControl: true,
@@ -954,41 +954,45 @@ const previousResults = (index) => {
         <div class="block is-hidden-mobile" ref="searchPanelRef">
           <nav class="panel">
             <div class="panel-block">
-              <form class="field" @submit.prevent>
-                <div class="control">
-                  <input class="input is-outlined is-size-6 has-text-weight-bold" type="text" placeholder="Keywords"
-                    v-model="queryRef" />
-                </div>
-              </form>
+              <div class="block">
+                <form class="field" @submit.prevent>
+                  <div class="control">
+                    <input class="input is-outlined is-size-6 has-text-weight-bold is-size-7" type="text"
+                      placeholder="Keywords" v-model="queryRef" />
+                  </div>
+                </form>
+              </div>
             </div>
             <div class="panel-block">
-              <nav class="level is-mobile">
-                <div class="level-left">
-                  <div class="level-item">
-                    <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                      Image Search
-                    </h3>
-                  </div>
-                  <transition name="fade" mode="out-in">
-                    <div class="level-item" v-show="imageRef !== null" key="attaced">
-                      <span class="icon is-primary">
-                        <i class="fa-solid fa-check"></i>
-                      </span>
+              <div class="block">
+                <nav class="level is-mobile">
+                  <div class="level-left">
+                    <div class="level-item">
+                      <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                        Image Search
+                      </h3>
                     </div>
-                  </transition>
-                </div>
-                <div class="level-right">
-                  <div class="level-item">
-                    <button class="button toggle is-rounded" @click="imageIsCollapsedRef = !imageIsCollapsedRef">
-                      <span class="icon is-small" v-bind:class="{ collapsed: imageIsCollapsedRef }">
-                        <i class="fa-solid fa-chevron-up"></i>
-                      </span>
-                    </button>
+                    <transition name="fade" mode="out-in">
+                      <div class="level-item" v-show="imageRef !== null" key="attaced">
+                        <span class="icon is-primary">
+                          <i class="fa-solid fa-check"></i>
+                        </span>
+                      </div>
+                    </transition>
                   </div>
-                </div>
-              </nav>
+                  <div class="level-right">
+                    <div class="level-item">
+                      <button class="button toggle is-rounded" @click="imageIsCollapsedRef = !imageIsCollapsedRef">
+                        <span class="icon is-small" v-bind:class="{ collapsed: imageIsCollapsedRef }">
+                          <i class="fa-solid fa-chevron-up"></i>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </nav>
+              </div>
               <transition name="fade" mode="out-in">
-                <div class="field" v-show="!imageIsCollapsedRef" key="collapse">
+                <div class="block" v-show="!imageIsCollapsedRef" key="collapse">
                   <div class="control">
                     <div class="drop" v-bind:style="{
                       animationPlayState: isDragging ? 'running' : 'paused',
@@ -1043,18 +1047,20 @@ const previousResults = (index) => {
                 </div>
               </transition>
               <transition name="fade" mode="out-in">
-                <div class="field has-addons" v-show="!imageIsCollapsedRef" key="collapse">
-                  <div class="control is-expanded">
-                    <input class="input is-outlined has-text-weight-bold" type="text" placeholder="URL"
-                      v-model="imageUrlRef" />
-                  </div>
-                  <div class="control">
-                    <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0"
-                      @click="clearImageUrl($event)">
-                      <span class="icon is-small has-text-danger">
-                        <i class="fa-solid fa-xmark"></i>
-                      </span>
-                    </button>
+                <div class="block" v-show="!imageIsCollapsedRef" key="collapse">
+                  <div class="field has-addons">
+                    <div class="control is-expanded">
+                      <input class="input is-size-7 has-text-weight-bold" type="text" placeholder="URL"
+                        v-model="imageUrlRef" />
+                    </div>
+                    <div class="control">
+                      <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0"
+                        @click="clearImageUrl($event)">
+                        <span class="icon is-small has-text-danger">
+                          <i class="fa-solid fa-xmark"></i>
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </transition>
@@ -1062,11 +1068,11 @@ const previousResults = (index) => {
             <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
               :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
               @changed="timeChanged" />
-            <ListBox name="Categories" :max-length="maxCategoriesLength" :is-enabled="user !== null"
+            <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
               @clear="clearCategories" @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
-            <ListBox name="Types" :max-length="maxTypesLength" :is-enabled="user !== null"
+            <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null"
               :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
               :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
               @next="nextTypes" @previous="previousTypes" />
@@ -1192,45 +1198,64 @@ const previousResults = (index) => {
         overflow: hidden;*/
 
           .panel-block {
+            padding: 0;
             flex-direction: column;
 
-            >.level {
-              margin: 0;
-              padding: 0;
+            >.block {
               width: 100%;
 
-              >.level-left>.level-item>.panel-heading {
-                margin: 0 !important;
+              >.level {
+                margin: 0;
                 padding: 0;
-                background: transparent;
-              }
+                width: 100%;
 
-              >.level-right {
-                margin: 0px 0px 0px 12px;
-
-                button.is-rounded {
-                  border-radius: 9999px !important;
-                  padding: 12px !important;
-                  box-shadow: none !important;
-
-                  >span.icon {
-                    margin: 0 !important;
-                    width: 1rem !important;
-                    height: 1rem !important;
-                  }
+                >.level-left>.level-item>.panel-heading {
+                  margin: 0 !important;
+                  padding: 0;
+                  background: transparent;
                 }
 
-                button.toggle {
-                  >span {
-                    transform: rotate(180deg);
+                >.level-right {
+                  margin: 0px 0px 0px 12px;
+
+                  button.is-rounded {
+                    border-radius: 9999px !important;
+                    padding: 12px !important;
+                    box-shadow: none !important;
+
+                    >span.icon {
+                      margin: 0 !important;
+                      width: 1rem !important;
+                      height: 1rem !important;
+                    }
                   }
 
-                  >span.collapsed {
-                    transition: transform 0.5s ease;
-                    transform: rotate(0deg);
+                  button.toggle {
+                    >span {
+                      transform: rotate(180deg);
+                    }
+
+                    >span.collapsed {
+                      transition: transform 0.5s ease;
+                      transform: rotate(0deg);
+                    }
                   }
                 }
               }
+
+              >.field {
+                padding: 0;
+              }
+            }
+
+            >.block {
+              margin: 0;
+              padding: 0em 0.75em;
+            }
+
+            >.block:last-child {
+              margin: 0;
+              padding: 0.5em 0.75em;
             }
           }
 
@@ -1240,7 +1265,7 @@ const previousResults = (index) => {
 
             .drop {
               display: flex;
-              margin: 0.5em 0px 0px 0px;
+              margin: 0;
               padding: 4px;
               width: 100%;
               aspect-ratio: 16 / 9;
@@ -1283,7 +1308,7 @@ const previousResults = (index) => {
                   overflow: hidden;
 
                   >img {
-                    object-fit: contain;
+                    object-fit: cover;
                     height: 100%;
                   }
                 }
@@ -1374,10 +1399,14 @@ const previousResults = (index) => {
       }
     }
 
-    >.top {
+    >.block>.panel>.panel-block>.top {
       .panel-block:first-child {
         border-bottom: 1px solid hsl(0deg, 0%, 93%);
         border-radius: 0px;
+      }
+
+      >.panel>.panel-block:first-child>.level {
+        padding: 0.5em 0.75em;
       }
     }
 
@@ -1385,6 +1414,10 @@ const previousResults = (index) => {
       .panel-block:last-child {
         border-top: 1px solid hsl(0deg, 0%, 93%);
         border-radius: 0px;
+      }
+
+      >.control>.level {
+        padding: 0.5em 0.75em;
       }
     }
 
@@ -1450,7 +1483,7 @@ const previousResults = (index) => {
         input {
           margin: 0;
           border: 0px none transparent;
-          padding: 24px 12px 24px 12px;
+          padding: 16px 12px 16px 12px;
           background-color: transparent;
           box-shadow: none;
           backface-visibility: hidden;
@@ -1489,7 +1522,7 @@ const previousResults = (index) => {
     }
 
     .field:not(:last-child) {
-      margin-bottom: 0.5rem;
+      margin-bottom: 0rem;
     }
   }
 

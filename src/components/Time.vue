@@ -420,7 +420,7 @@ watch(toDateRef, (newValue, oldValue) => {
 
   .level:first-child {
     margin: 0;
-    padding: 0.5em 0.75em;
+    padding: 0em 0.75em;
     width: 100%;
     flex-direction: row;
 
@@ -488,20 +488,23 @@ watch(toDateRef, (newValue, oldValue) => {
     }
   }
 
-  .level:nth-child(2)>.level-item {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    >.tabs>ul {
+  .level:nth-child(2) {
+    padding: 0em 0.75em 1em 0.75em !important;
+    >.level-item {
       margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      >.tabs>ul {
+        margin: 0;
+      }
     }
   }
 
   .level:not(:first-child) {
     margin: 0;
-    padding: 0.5em 0.75em;
+    padding: 0em 0.75em 0.5em 0.75em;
     width: 100%;
     flex-direction: row;
 
@@ -548,6 +551,7 @@ watch(toDateRef, (newValue, oldValue) => {
 
         .field>.control {
           >input {
+            border: 1px solid hsl(0deg, 0%, 93%) !important;
             background: transparent;
             font-size: 0.75rem !important;
             width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
@@ -559,12 +563,13 @@ watch(toDateRef, (newValue, oldValue) => {
           }
 
           >.select>select {
+            border: 1px solid hsl(0deg, 0%, 93%) !important;
             background: transparent;
           }
 
           >span {
             margin: 0;
-            padding: 4px;
+            padding: 4px 2px 4px 2px;
           }
 
           .has-error {
