@@ -13,8 +13,22 @@ import ListBox from "./ListBox.vue";
 const mapRef = ref(null);
 let map = null;
 const isActivated = ref(false);
+const isEnabledRef = ref(true);
+const pageIndexRef = ref(0);
+const pageLengthRef = ref(10);
+const isFetchingRef = ref(false);
+const isContinuousRef = ref(true);
+const totalCountRef = ref(0);
+const isForwardingRef = ref(true);
+const itemsRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+
+
+
+
 const isDragging = ref(false);
 const isLoading = ref(false);
+
+
 
 const isUploadingRef = ref(false);
 const isUpdating = ref(false);
@@ -38,7 +52,14 @@ const props = defineProps({
     user: Object,
     text: String,
 });
-const emit = defineEmits(["completed", "updated"]);
+const emit = defineEmits(["select", "completed", "updated"]);
+const select = (event, index) => {
+    emit("select", pageIndexRef.value * props.pageLength + index);
+};
+
+
+
+
 const dragover = (event) => {
     isDragging.value = true;
     event.dataTransfer.dropEffect = "copy";
@@ -345,7 +366,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     <div id="upload">
         <div class="flyout-left">
             <div class="wrap">
-                <div class="block is-hidden-mobile">
+                <div class="block wide is-hidden-mobile">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -377,351 +398,81 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                             </nav>
                             <transition name="fade" mode="out-in">
-                                <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
-                                    <div class="control">
-                                        <div class="drop" v-bind:style="{
-                                            animationPlayState: isDragging ? 'running' : 'paused',
-                                        }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDragging = false"
-                                            @drop.stop.prevent="drop($event)">
-                                            <transition name="fade" mode="out-in">
-                                                <div class="image" v-if="mediaRef === null" v-bind:key="null">
-                                                    <div class="level">
-                                                        <div class="level-item">
-                                                            <label class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              ">
-                                                                <input class="file-input" type="file" name="upload"
-                                                                    style="pointer-events: none"
-                                                                    v-bind:disabled="isLoading"
-                                                                    @change="browse($event)" />
-                                                                <div class="file-cta_">
-                                                                    <span class="icon">
-                                                                        <i class="fa-solid fa-file"></i>
-                                                                    </span>
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                        <div class="level-item">
-                                                            <span class="
-                                is-size-7 is-uppercase
-                                has-text-weight-bold has-text-grey
-                              ">Browse or Drag & Drop</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="image" v-else v-bind:key="mediaRef">
-                                                    <transition name="fade" mode="out-in">
-                                                        <div class="image" v-if="mediaRef.type.startsWith('image/')"
-                                                            key="image">
-                                                            <picture class="image">
-                                                                <img v-bind:src="mediaRef.dataURL"
-                                                                    v-bind:alt="mediaRef.filename" />
-                                                            </picture>
-                                                            <div class="control">
-                                                                <button class="button is-circle" type="button"
-                                                                    @click="reset($event)" key="menu">
-                                                                    <span class="icon is-small has-text-danger">
-                                                                        <i class="fa-solid fa-xmark"></i>
-                                                                    </span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                        <div class="image" v-else :key="mediaRef.type">
-                                                            <div class="level">
-                                                                <div class="level-item">
-                                                                    <label class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              ">
-                                                                        <input class="file-input" type="file"
-                                                                            name="upload" style="pointer-events: none"
-                                                                            v-bind:disabled="isLoading"
-                                                                            @change="browse($event)" />
-                                                                        <div class="file-cta_">
-                                                                            <span class="icon">
-                                                                                <i class="fa-solid fa-file"></i>
-                                                                            </span>
-                                                                        </div>
-                                                                    </label>
-                                                                </div>
-                                                                <div class="level-item">
-                                                                    <span
-                                                                        class="is-size-7 has-text-weight-bold has-text-grey">{{
-                                                                                mediaRef.filename
-                                                                        }}</span>
-                                                                </div>
-                                                            </div>
-                                                            <div class="control">
-                                                                <button class="button is-circle" type="button"
-                                                                    @click="reset($event)" key="menu">
-                                                                    <span class="icon is-small has-text-danger">
-                                                                        <i class="fa-solid fa-xmark"></i>
-                                                                    </span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                    </transition>
-                                                </div>
-                                            </transition>
+                                <div class="control" v-if="isFetchingRef && itemsRef.length === 0" key="loading">
+                                    <nav class="level">
+                                        <div class="level-item">
+                                            <span class="icon">
+                                                <i class="fas fa-spinner updating"></i>
+                                            </span>
                                         </div>
-                                    </div>
+                                    </nav>
+                                </div>
+                                <div class="control" v-else key="default">
+                                    <label v-for="(item, index) in itemsRef" v-bind:key="item">
+                                        <input type="checkbox" v-bind:disabled="!isEnabledRef"
+                                            @change="select($event, index)" v-bind:checked="item.checked" />
+                                        <span class="custom"></span>
+                                        <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
+                                    </label>
                                 </div>
                             </transition>
-                            <transition name="fade" mode="out-in">
-                                <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
-                                    <div class="field has-addons">
-                                        <div class="control is-expanded">
-                                            <input class="input is-size-7 has-text-weight-bold" type="text"
-                                                placeholder="URL" v-model="mediaUrlRef" />
-                                        </div>
-                                        <div class="control">
-                                            <button type="button" class="button"
-                                                v-bind:disabled="mediaUrlRef.length === 0"
-                                                @click="clearImageUrl($event)">
-                                                <span class="icon is-small has-text-danger">
-                                                    <i class="fa-solid fa-xmark"></i>
-                                                </span>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            <transition name="fade">
+                <div class="bottom" v-show="totalCountRef > pageLengthRef || isContinuousRef">
+                    <div class="block">
+                        <div class="panel-block">
+                            <div class="control">
+                                <nav class="level">
+                                    <div class="level-left">
+                                        <div class="level-item">
+                                            <button class="button is-primary"
+                                                v-bind:disabled="(pageIndexRef === 0 || isFetchingRef)"
+                                                @click="previous($event)">
+                                                <transition name="fade" mode="out-in">
+                                                    <span class="icon is-small"
+                                                        v-if="(!isForwardingRef && isFetchingRef)" key="fetching">
+                                                        <i class="fas fa-spinner updating"></i>
+                                                    </span>
+                                                    <span class="icon is-small" v-else key="fetched">
+                                                        <i class="fa-solid fa-chevron-left"></i>
+                                                    </span>
+                                                </transition>
                                             </button>
                                         </div>
                                     </div>
-                                </div>
-                            </transition>
-                        </div>
-                        <div class="panel-block">
-                            <nav class="level is-mobile">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                                            Description
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="level-right is-invisible">
-                                    <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </nav>
-                            <div class="field">
-                                <div class="control">
-                                    <textarea class="textarea is-small" placeholder="Enter a description"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
-        <div class="flyout-left">
-            <div class="wrap">
-                <div class="block is-hidden-mobile">
-                    <nav class="panel">
-                        <div class="panel-block">
-                            <nav class="level is-mobile">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                                            Location
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="level-right is-invisible">
-                                    <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="locationIsCollapsedRef = !locationIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: locationIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </nav>
-                            <div class="field">
-                                <nav class="level is-mobile">
-                                    <div class="level-left">
-                                        <div class="level-item">
-                                            <span
-                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Longitude</span>
+                                    <transition name="fade">
+                                        <div class="level-item" v-if="~~Math.ceil(totalCountRef / pageLengthRef) > 0">
+                                            <span class="is-size-7 has-text-weight-bold">{{ pageIndexRef + 1 }}/{{
+                                                    ~~Math.ceil(totalCountRef / pageLengthRef)
+                                            }}</span>
                                         </div>
-                                    </div>
+                                    </transition>
                                     <div class="level-right">
                                         <div class="level-item">
-                                            <input class="input is-size-7 is-outlined has-text-weight-bold" type="text"
-                                                size="16" placeholder="Enter a longitude"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:value="fromYearRef"
-                                                @change="fromYearChange" />
+                                            <button class="button is-primary"
+                                                v-bind:disabled="(pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef)"
+                                                @click="next($event)">
+                                                <transition name="fade" mode="out-in">
+                                                    <span class="icon is-small"
+                                                        v-if="(isForwardingRef && isFetchingRef)" key="fetching">
+                                                        <i class="fas fa-spinner updating"></i>
+                                                    </span>
+                                                    <span class="icon is-small" v-else key="fetched">
+                                                        <i class="fa-solid fa-chevron-right"></i>
+                                                    </span>
+                                                </transition>
+                                            </button>
                                         </div>
                                     </div>
                                 </nav>
                             </div>
-                            <div class="field">
-                                <nav class="level is-mobile">
-                                    <div class="level-left">
-                                        <div class="level-item">
-                                            <span
-                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey no-spin">Latitude</span>
-                                        </div>
-                                    </div>
-                                    <div class="level-right">
-                                        <div class="level-item">
-                                            <input class="input is-size-7 is-outlined has-text-weight-bold" type="text"
-                                                size="16" placeholder="Enter a latitude"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:value="fromYearRef"
-                                                @change="fromYearChange" />
-                                        </div>
-                                    </div>
-                                </nav>
-                            </div>
-                            <div class="block">
-                                <div class="field has-addons">
-                                    <div class="control is-expanded">
-                                        <input class="input is-size-7 has-text-weight-bold" type="text"
-                                            placeholder="Address" v-model="addressRef" />
-                                    </div>
-                                    <div class="control">
-                                        <button type="button" class="button" @click="clearImageUrl($event)">
-                                            <span class="icon is-small">
-                                                <i class="fa-solid fa-location-crosshairs"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div id="map">
-                                <div class="content" ref="mapRef"></div><span class="crosshairs icon"><i
-                                        class="fa-solid fa-crosshairs"></i></span>
-                            </div>
-                        </div>
-                        <div class="panel-block">
-                            <nav class="level is-mobile">
-                                <div class="level-left">
-                                    <div class="level-item">
-                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                                            Time
-                                        </h3>
-                                    </div>
-                                </div>
-                                <div class="level-right is-invisible">
-                                    <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
-                                            </span>
-                                        </button>
-                                    </div>
-                                </div>
-                            </nav>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
-                                        size="4" placeholder="Year" v-bind:class="{ 'has-error': hasErrorRef }"
-                                        v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
-                                        @change="fromYearChange" />
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromMonthChange">
-                                            <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromMonthRef" v-text="i + 1"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromDayChange">
-                                            <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
-                                                v-bind:selected="i + 1 === fromDayRef" v-text="i + 1"></option>
-                                        </select>
-                                    </div>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromHoursChange">
-                                            <option v-for="i in [...Array(24).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromHoursRef" v-text="i"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromMinutesChange">
-                                            <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromMinutesRef" v-text="i"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromSecondsChange">
-                                            <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromSecondsRef" v-text="i"></option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
-        <div class="flyout-left">
-            <div class="wrap">
-                <div class="block is-hidden-mobile">
-                    <nav class="panel">
-                        <ListBox name="Categories" :page-length="maxCategoriesLength"
-                            :is-enabled="user !== null && isActivated" :is-collapsed="categoriesIsCollapsedRef"
-                            :is-continuous="categoriesIsContinuousRef" :items="categoriesItemsRef"
-                            :page-index="categoriesPageIndexRef" @collapse="collapseCategories" @clear="clearCategories"
-                            @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
-                        <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isActivated"
-                            :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef"
-                            :items="typesItemsRef" :page-index="typesPageIndexRef" @collapse="collapseTypes"
-                            @clear="clearTypes" @select="selectType" @next="nextTypes" @previous="previousTypes" />
-                    </nav>
-                </div>
-            </div>
-            <div class="bottom">
-                <div class="block">
-                    <div class="panel-block">
-                        <div class="control">
-                            <button class="
-                  button
-                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                " type="submit" v-bind:disabled="user === null || isUploadingRef" @click="search()">
-                                <transition name="fade" mode="out-in">
-                                    <span class="icon" v-if="isUploadingRef" key="uploading">
-                                        <i class="fas fa-spinner updating"></i>
-                                    </span>
-                                    <span class="icon" v-else key="ready">
-                                        <i class="fa-solid fa-cloud-arrow-up"></i>
-                                    </span>
-                                </transition>
-                                <span class="is-uppercase has-text-weight-bold">Upload</span>
-                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </transition>
         </div>
     </div>
 </template>
@@ -811,6 +562,69 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     .panel-block {
                         flex-direction: column;
                         padding: 0;
+
+                        .control {
+                            display: flex;
+                            margin: 0;
+                            padding: 0;
+                            flex-direction: column;
+                            justify-content: flex-start;
+                            align-items: center;
+
+                            .level {
+                                padding: 0.5em 0.75em;
+                                width: 100%;
+                            }
+
+                            label {
+                                padding: 0.5em 0.75em;
+                                width: 100%;
+                                background-color: transparent;
+                                transition: background-color 0.5s;
+                            }
+
+                            label:hover {
+                                background-color: hsl(0deg, 0%, 93%);
+                            }
+
+                            label>span {
+                                user-select: none;
+                            }
+
+                            label>span:not(:first-of-type) {
+                                margin: 0px 0px 0px 12px;
+                            }
+
+                            label input[type="checkbox"],
+                            label input[type="radio"] {
+                                display: none;
+                            }
+
+                            label .custom {
+                                position: relative;
+                                margin: 0;
+                                font-size: 1rem;
+                            }
+
+                            label input[type="checkbox"]+.custom:before,
+                            label input[type="radio"]+.custom:before {
+                                font-weight: 900;
+                                font-family: "Font Awesome 6 Free";
+                                content: "\f00c";
+                                color: transparent;
+                                text-shadow: none;
+                            }
+
+                            label input[type="checkbox"]:checked+.custom:before,
+                            label input[type="radio"]:checked+.custom:before {
+                                color: var(--accent-color);
+                                transition: 0.5s;
+                            }
+                        }
+
+                        .control:last-child {
+                            padding: 0;
+                        }
 
                         >.block {
                             margin: 0;
@@ -985,6 +799,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                         0 0px 0 1px rgb(10 10 10 / 2%) !important;
                 }
             }
+
+            >.block.wide {
+                width: 801px !important;
+            }
         }
 
         >.block {
@@ -996,6 +814,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 border-radius: 8px;
                 box-shadow: none;
             }
+        }
+
+        >.block.wide {
+            width: 801px !important;
         }
 
         >.block {
@@ -1033,7 +855,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             box-sizing: border-box;
 
             >.block {
-                width: 400px;
+                width: 100%;
                 height: fit-content;
 
                 .panel {
