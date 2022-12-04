@@ -5,7 +5,7 @@ import { ref, onMounted } from "vue";
 import Sidebar from "./components/Sidebar.vue";
 import Menu from "./components/Menu.vue";
 import Search from "./components/Search.vue";
-import Uploads from "./components/Uploads.vue";
+import Data from "./components/Data.vue";
 import Uploader from "./components/Uploader.vue";
 import { Auth0Config } from "./presenters/auth0-config.mjs";
 import { createAuth0Client } from '@auth0/auth0-spa-js';
@@ -15,7 +15,7 @@ export default {
     Sidebar,
     Menu,
     Search,
-    Uploads,
+    Data,
     Uploader,
   },
   data() {
@@ -31,7 +31,7 @@ export default {
         {
           icon: "fa-solid fa-database",
           name: "Data",
-          component: "Uploads",
+          component: "Data",
         },
         {
           icon: "fa-solid fa-cloud-arrow-up",
