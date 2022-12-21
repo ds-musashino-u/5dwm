@@ -342,7 +342,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 </script>
 
 <template>
-    <div id="upload">
+    <div id="uploader">
         <div class="flyout-left">
             <div class="wrap">
                 <div class="block is-hidden-mobile">
@@ -727,7 +727,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 </template>
 
 <style lang="scss" scoped>
-#upload {
+#uploader {
     position: absolute;
     display: flex;
     margin: 0;
