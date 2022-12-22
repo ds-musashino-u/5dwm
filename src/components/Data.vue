@@ -3,24 +3,25 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated, watch } from "vue";
+import { Endpoints } from "../presenters/endpoints.mjs";
+import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
+import { getMedia } from "../presenters/media.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
-import { getMedia } from "../presenters/media.mjs";
-import { Endpoints } from "../presenters/endpoints.mjs";
-import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
 
-const mapRef = ref(null);
-let map = null;
-const isActivated = ref(false);
+const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
+const isFetchingUsersRef = ref(false);
 const pageIndexRef = ref(0);
 const pageLengthRef = ref(10);
 const isFetchingRef = ref(false);
 const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
-const itemsRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
+const mediaRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+const isUpdatingMediaRef = ref(false);
 
 
 
@@ -31,12 +32,10 @@ const isLoading = ref(false);
 
 
 const isUploadingRef = ref(false);
-const isUpdating = ref(false);
+
 const pictures = ref([]);
 
 const mediaIsCollapsedRef = ref(false);
-const mediaRef = ref(null);
-const mediaUrlRef = ref("");
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
@@ -53,85 +52,189 @@ const props = defineProps({
     text: String,
 });
 const emit = defineEmits(["select", "completed", "updated"]);
-const select = (event, index) => {
+const selectUser = (event, index) => {
+    usersRef.value[index].checked = event.currentTarget.checked;
+
+    if (index > 0) {
+        if (event.currentTarget.checked) {
+            usersRef.value[0].checked = false;
+        } else {
+            let isSelected = false;
+
+            for (let i = 1; i < usersRef.value.length; i++) {
+                if (index !== i && usersRef.value[i].checked) {
+                    isSelected = true;
+                }
+            }
+
+            if (!isSelected) {
+                usersRef.value[0].checked = true;
+            }
+        }
+    } else if (event.currentTarget.checked) {
+        for (let i = 1; i < usersRef.value.length; i++) {
+            usersRef.value[i].checked = false;
+        }
+    }
+};
+const selectMedia = (event, index) => {
+    mediaRef.value[index].checked = event.currentTarget.checked;
+
+    for (let i = 0; i < mediaRef.value.length; i++) {
+        if (index !== i && mediaRef.value[i].checked) {
+            mediaRef.value[i].checked = false;
+        }
+    }
+
     emit("select", pageIndexRef.value * props.pageLength + index);
 };
+const searchMedia = async () => {
+    try {
+        const idToken = await props.auth0.getIdTokenClaims();
+        const [resultItems, totalCount] = await searchWorldMap(
+            idToken.__raw,
+            keywords,
+            categories,
+            types,
+            users,
+            image,
+            time.from,
+            time.to,
+            "created_at",
+            "desc",
+            0,
+            null
+        );
+        const bounds = new google.maps.LatLngBounds();
+        let index = 0;
 
+        Object.keys(cachedSearchResults).forEach((key) => {
+            if (cachedSearchResults[key].loaded) {
+                cachedSearchResults[key].layer.setMap(null);
+            }
 
+            delete cachedSearchResults[key];
+        });
 
+        isRooted.value = false;
+        searchResults.splice(0);
+        searchResultsRef.value.splice(0);
+        searchTotalCountRef.value = resultItems.length;
 
-const dragover = (event) => {
-    isDragging.value = true;
-    event.dataTransfer.dropEffect = "copy";
-};
-const drop = async (event) => {
-    isDragging.value = false;
-
-    for (const file of event.dataTransfer.files) {
-        isLoading.value = true;
-
-        try {
-            mediaUrlRef.value = "";
-            mediaRef.value = {
-                filename: file.name,
-                type: file.type,
-                dataURL: await new Promise(function (resolve, reject) {
-                    const reader = new FileReader();
-
-                    reader.addEventListener("load", (e) => {
-                        resolve(e.target.result);
-                    });
-                    reader.addEventListener("error", (e) => {
-                        reject(reader.error);
-                    });
-                    reader.readAsDataURL(file);
-                }),
-            };
-        } catch (error) {
-            console.error(error);
+        if (resultItems.some((x) => x.hasScore)) {
+            resultItems.sort(
+                (x, y) => (y.hasScore ? y.score : 0) - (x.hasScore ? x.score : 0)
+            );
         }
 
-        isLoading.value = false;
+        if (
+            resultItems.length >
+            searchPageIndexRef.value * searchPageLength + searchPageLength
+        ) {
+            for (const resultItem of resultItems.splice(0, searchPageLength)) {
+                if (resultItem.media.location === null) {
+                    searchResults.push({ marker: null, item: resultItem });
+                    searchResultsRef.value.push(resultItem);
+                    cachedSearchResults[
+                        searchPageIndexRef.value * searchPageLength + index
+                    ] = resultItem;
+                } else {
+                    const marker = new google.maps.Marker({
+                        position: {
+                            lat: resultItem.media.location.latitude,
+                            lng: resultItem.media.location.longitude,
+                        },
+                        map: map,
+                        title: resultItem.media.description,
+                        label: String(index + 1),
+                        animation: google.maps.Animation.DROP,
+                    });
 
-        return;
-    }
-};
-const browse = async (event) => {
-    for (const file of event.currentTarget.files) {
-        isLoading.value = true;
+                    marker.addListener("click", markerClick);
+                    bounds.extend(
+                        new google.maps.LatLng(
+                            resultItem.media.location.latitude,
+                            resultItem.media.location.longitude
+                        )
+                    );
 
-        try {
-            mediaUrlRef.value = "";
-            mediaRef.value = {
-                filename: file.name,
-                type: file.type,
-                dataURL: await new Promise(function (resolve, reject) {
-                    const reader = new FileReader();
+                    searchResults.push({ marker: marker, item: resultItem });
+                    searchResultsRef.value.push(resultItem);
+                    cachedSearchResults[
+                        searchPageIndexRef.value * searchPageLength + index
+                    ] = resultItem;
+                }
 
-                    reader.onload = () => {
-                        resolve(reader.result);
-                    };
-                    reader.onerror = () => {
-                        reject(reader.error);
-                    };
-                    reader.readAsDataURL(file);
-                }),
-            };
-        } catch (error) {
-            console.error(error);
+                index++;
+            }
+
+            for (const resultItem of resultItems) {
+                if (
+                    resultItem.media.type.startsWith("kml") ||
+                    resultItem.media.type.startsWith("kmz")
+                ) {
+                    resultItem["loading"] = false;
+                    resultItem["loaded"] = false;
+                }
+
+                cachedSearchResults[
+                    searchPageIndexRef.value * searchPageLength + index
+                ] = resultItem;
+                index++;
+            }
+        } else {
+            for (const resultItem of resultItems) {
+                if (
+                    resultItem.media.type.startsWith("kml") ||
+                    resultItem.media.type.startsWith("kmz")
+                ) {
+                    resultItem["loading"] = false;
+                    resultItem["loaded"] = false;
+                }
+
+                if (resultItem.media.location === null) {
+                    searchResults.push({ marker: null, item: resultItem });
+                    searchResultsRef.value.push(resultItem);
+                    cachedSearchResults[
+                        searchPageIndexRef.value * searchPageLength + index
+                    ] = resultItem;
+                } else {
+                    const marker = new google.maps.Marker({
+                        position: {
+                            lat: resultItem.media.location.latitude,
+                            lng: resultItem.media.location.longitude,
+                        },
+                        map: map,
+                        label: String(index + 1),
+                        animation: google.maps.Animation.DROP,
+                    });
+                    marker.addListener("click", markerClick);
+                    bounds.extend(
+                        new google.maps.LatLng(
+                            resultItem.media.location.latitude,
+                            resultItem.media.location.longitude
+                        )
+                    );
+
+                    searchResults.push({ marker: marker, item: resultItem });
+                    searchResultsRef.value.push(resultItem);
+                    cachedSearchResults[
+                        searchPageIndexRef.value * searchPageLength + index
+                    ] = resultItem;
+                }
+
+                index++;
+            }
         }
 
-        isLoading.value = false;
-
-        return;
+        map.fitBounds(bounds);
+    } catch (error) {
+        console.error(error);
     }
 };
-const reset = (event) => {
-    mediaRef.value = null;
-};
-const clearImageUrl = (event) => {
-    mediaUrlRef.value = "";
-};
+
+
+
 const collapseCategories = () => {
     categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
 };
@@ -301,7 +404,7 @@ const upload = async (event) => {
     update();
 };
 const update = async () => {
-    isUpdating.value = true;
+    isUpdatingMediaRef.value = true;
 
     try {
         const response = await fetch("https://www.5dworldmap.com/api/v1/recent", {
@@ -322,51 +425,84 @@ const update = async () => {
         console.error(error);
     }
 
-    isUpdating.value = false;
+    isUpdatingMediaRef.value = false;
 
     emit("updated");
 };
 
 onActivated(async () => {
-    isActivated.value = true;
+    isActivatedRef.value = true;
 
     update();
-
-    const loader = new Loader({
-        apiKey: GoogleMapsConfig.API_KEY,
-        version: "quarterly",
-        language: navigator.language,
-    });
-
-    await loader.load();
-
-    map = new google.maps.Map(mapRef.value, {
-        center: { lat: 35.6809591, lng: 139.7673068 },
-        zoom: 4,
-        mapTypeId: "terrain",
-        zoomControl: true,
-        mapTypeControl: false,
-        scaleControl: true,
-        streetViewControl: false,
-        rotateControl: true,
-        fullscreenControl: false,
-    });
 });
 onDeactivated(() => {
-    isActivated.value = false;
+    isActivatedRef.value = false;
 });
-watch(mediaUrlRef, (currentValue, oldValue) => {
-    if (currentValue !== null) {
-        mediaRef.value = null;
-    }
+watch(isEnabledRef, (newValue, oldValue) => {
+  if (newValue !== oldValue && oldValue === false) {
+    
+  }
 });
 </script>
 
 <template>
-    <div id="upload">
-        <div class="flyout-left">
+    <div id="data">
+        <div class="flyout-left is-hidden">
             <div class="wrap">
-                <div class="block wide is-hidden-mobile">
+                <div class="block is-hidden-mobile">
+                    <nav class="panel">
+                        <div class="panel-block">
+                            <nav class="level is-mobile">
+                                <div class="level-left">
+                                    <div class="level-item">
+                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                                            Users
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item">
+                                        <button class="button toggle is-rounded" :disabled="isFetchingUsersRef"
+                                            @click="update">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-rotate"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </nav>
+                            <transition name="fade" mode="out-in">
+                                <div class="control" v-if="isFetchingUsersRef && usersRef.length === 0" key="loading">
+                                    <nav class="level">
+                                        <div class="level-item">
+                                            <span class="icon">
+                                                <i class="fas fa-spinner updating"></i>
+                                            </span>
+                                        </div>
+                                    </nav>
+                                </div>
+                                <div class="control" v-else key="default">
+                                    <label v-for="(item, index) in usersRef" v-bind:key="item">
+                                        <input type="checkbox"
+                                            v-bind:disabled="!isEnabledRef || usersRef.reduce((x, y, i) => i > 0 && y.checked ? x + 1 : x, 0) === 0"
+                                            @change="selectUser($event, index)" v-bind:checked="item.checked"
+                                            v-if="index === 0" :key="0" />
+                                        <input type="checkbox" v-bind:disabled="!isEnabledRef"
+                                            @change="selectUser($event, index)" v-bind:checked="item.checked" v-else
+                                            :key="index" />
+                                        <span class="custom"></span>
+                                        <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
+                                    </label>
+                                </div>
+                            </transition>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        <div id="media" ref="viewerRef">
+            <div class="wrap">
+                <div class="block is-hidden-mobile">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -376,22 +512,14 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             Media
                                         </h3>
                                     </div>
-                                    <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaRef !== null || mediaUrlRef.length > 0"
-                                            key="attaced">
-                                            <span class="icon is-primary">
-                                                <i class="fa-solid fa-check"></i>
-                                            </span>
-                                        </div>
-                                    </transition>
                                 </div>
-                                <div class="level-right is-invisible">
+                                <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
+                                        <button class="button toggle is-rounded" :disabled="isFetchingRef"
+                                            @click="update">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-arrows-rotate"
+                                                    v-bind:class="{ loading: isFetchingRef }"></i>
                                             </span>
                                         </button>
                                     </div>
@@ -408,9 +536,9 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </nav>
                                 </div>
                                 <div class="control" v-else key="default">
-                                    <label v-for="(item, index) in itemsRef" v-bind:key="item">
+                                    <label v-for="(item, index) in mediaRef" v-bind:key="item">
                                         <input type="checkbox" v-bind:disabled="!isEnabledRef"
-                                            @change="select($event, index)" v-bind:checked="item.checked" />
+                                            @change="selectMedia($event, index)" v-bind:checked="item.checked" />
                                         <span class="custom"></span>
                                         <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
                                     </label>
@@ -478,7 +606,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 </template>
 
 <style lang="scss" scoped>
-#upload {
+#data {
     position: absolute;
     display: flex;
     margin: 0;
@@ -525,6 +653,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         }
     }
 
+    #media,
     .flyout-left,
     .flyout-right {
         position: relative;
@@ -988,6 +1117,21 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     .flyout-right {
         position: absolute !important;
         right: 0px !important;
+    }
+
+    #media {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        >.wrap {
+            width: 100%;
+
+            .block {
+                width: 100%;
+            }
+        }
     }
 }
 
