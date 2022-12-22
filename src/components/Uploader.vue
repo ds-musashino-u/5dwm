@@ -12,8 +12,8 @@ import ListBox from "./ListBox.vue";
 
 const mapRef = ref(null);
 let map = null;
-const isActivated = ref(false);
-const isDragging = ref(false);
+const isActivatedRef = ref(false);
+const isDraggingRef = ref(false);
 const isLoading = ref(false);
 
 const isUploadingRef = ref(false);
@@ -40,11 +40,11 @@ const props = defineProps({
 });
 const emit = defineEmits(["completed", "updated"]);
 const dragover = (event) => {
-    isDragging.value = true;
+    isDraggingRef.value = true;
     event.dataTransfer.dropEffect = "copy";
 };
 const drop = async (event) => {
-    isDragging.value = false;
+    isDraggingRef.value = false;
 
     for (const file of event.dataTransfer.files) {
         isLoading.value = true;
@@ -307,7 +307,7 @@ const update = async () => {
 };
 
 onActivated(async () => {
-    isActivated.value = true;
+    isActivatedRef.value = true;
 
     update();
 
@@ -332,7 +332,7 @@ onActivated(async () => {
     });
 });
 onDeactivated(() => {
-    isActivated.value = false;
+    isActivatedRef.value = false;
 });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
@@ -380,8 +380,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
                                     <div class="control">
                                         <div class="drop" v-bind:style="{
-                                            animationPlayState: isDragging ? 'running' : 'paused',
-                                        }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDragging = false"
+                                            animationPlayState: isDraggingRef ? 'running' : 'paused',
+                                        }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
                                             <transition name="fade" mode="out-in">
                                                 <div class="image" v-if="mediaRef === null" v-bind:key="null">
@@ -689,11 +689,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 <div class="block is-hidden-mobile">
                     <nav class="panel">
                         <ListBox name="Categories" :page-length="maxCategoriesLength"
-                            :is-enabled="user !== null && isActivated" :is-collapsed="categoriesIsCollapsedRef"
+                            :is-enabled="user !== null && isActivatedRef" :is-collapsed="categoriesIsCollapsedRef"
                             :is-continuous="categoriesIsContinuousRef" :items="categoriesItemsRef"
                             :page-index="categoriesPageIndexRef" @collapse="collapseCategories" @clear="clearCategories"
                             @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
-                        <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isActivated"
+                        <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isActivatedRef"
                             :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef"
                             :items="typesItemsRef" :page-index="typesPageIndexRef" @collapse="collapseTypes"
                             @clear="clearTypes" @select="selectType" @next="nextTypes" @previous="previousTypes" />
