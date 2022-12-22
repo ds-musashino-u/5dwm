@@ -19,8 +19,8 @@ const isRooted = ref(true);
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
 const queryRef = ref("");
-const isDragging = ref(false);
-const isLoading = ref(false);
+const isDraggingRef = ref(false);
+const isLoadingRef = ref(false);
 const imageIsCollapsedRef = ref(true);
 const imageRef = ref(null);
 const imageUrlRef = ref("");
@@ -112,9 +112,9 @@ onActivated(async () => {
   });
 
   try {
-    const categories = await getCategories();
+    /*const categories = await getCategories();
 
-    console.log(categories);
+    console.log(categories);*/
     /*console.log("insert");
     const cat = await insertCategory("foobarbaz");
 
@@ -139,9 +139,9 @@ onActivated(async () => {
   }
 
   try {
-    const media = await getMedia("image*", "created_at", "desc", 0, 10);
+    /*const media = await getMedia("image*", "created_at", "desc", 0, 10);
 
-    console.log(media);
+    console.log(media);*/
 
     /*console.log(await getMedium(media[0].id));
 
@@ -160,9 +160,9 @@ onActivated(async () => {
   }
 
   try {
-    const users = await getUsers();
+    /*const users = await getUsers();
 
-    console.log(users);
+    console.log(users);*/
 
     //console.log(await getUser(users[0].username));
   } catch (error) {
@@ -275,11 +275,11 @@ const timeChanged = (fromDate, toDate) => {
   toDateRef.value = toDate;
 };
 const dragover = (event) => {
-  isDragging.value = true;
+  isDraggingRef.value = true;
   event.dataTransfer.dropEffect = "copy";
 };
 const drop = async (event) => {
-  isDragging.value = false;
+  isDraggingRef.value = false;
 
   for (const file of event.dataTransfer.files) {
     const name = file.name.toLowerCase();
@@ -291,7 +291,7 @@ const drop = async (event) => {
       name.endsWith(".jpeg") ||
       name.endsWith(".webp")
     ) {
-      isLoading.value = true;
+      isLoadingRef.value = true;
 
       try {
         imageUrlRef.value = "";
@@ -316,7 +316,7 @@ const drop = async (event) => {
         console.error(error);
       }
 
-      isLoading.value = false;
+      isLoadingRef.value = false;
 
       return;
     }
@@ -333,7 +333,7 @@ const browse = async (event) => {
       name.endsWith(".jpeg") ||
       name.endsWith(".webp")
     ) {
-      isLoading.value = true;
+      isLoadingRef.value = true;
 
       try {
         imageUrlRef.value = "";
@@ -358,7 +358,7 @@ const browse = async (event) => {
         console.error(error);
       }
 
-      isLoading.value = false;
+      isLoadingRef.value = false;
 
       return;
     }
@@ -995,8 +995,8 @@ const previousResults = (index) => {
                 <div class="block" v-show="!imageIsCollapsedRef" key="collapse">
                   <div class="control">
                     <div class="drop" v-bind:style="{
-                      animationPlayState: isDragging ? 'running' : 'paused',
-                    }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDragging = false"
+                      animationPlayState: isDraggingRef ? 'running' : 'paused',
+                    }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
                       @drop.stop.prevent="drop($event)">
                       <transition name="fade" mode="out-in">
                         <div class="image" v-if="imageRef === null" v-bind:key="null">
@@ -1011,7 +1011,7 @@ const previousResults = (index) => {
                               ">
                                 <input class="file-input" type="file" name="upload"
                                   accept="image/apng, image/png, image/jpeg, image/webp" style="pointer-events: none"
-                                  v-bind:disabled="isLoading" @change="browse($event)" />
+                                  v-bind:disabled="isLoadingRef" @change="browse($event)" />
                                 <div class="file-cta_">
                                   <span class="icon">
                                     <i class="fa-solid fa-file-image"></i>
