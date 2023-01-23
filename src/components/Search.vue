@@ -22,7 +22,7 @@ const queryRef = ref("");
 const isDraggingRef = ref(false);
 const isLoadingRef = ref(false);
 const imageIsCollapsedRef = ref(true);
-const imageRef = ref(null);
+const imageFileRef = ref(null);
 const imageUrlRef = ref("");
 const timeIsEnabledRef = ref(true);
 const fromDateRef = ref(new Date());
@@ -172,7 +172,7 @@ onActivated(async () => {
 onDeactivated(() => { });
 watch(imageUrlRef, (currentValue, oldValue) => {
   if (currentValue !== null) {
-    imageRef.value = null;
+    imageFileRef.value = null;
   }
 });
 
@@ -295,7 +295,7 @@ const drop = async (event) => {
 
       try {
         imageUrlRef.value = "";
-        imageRef.value = {
+        imageFileRef.value = {
           filename: file.name,
           dataURL: await resizeImage(
             await new Promise(function (resolve, reject) {
@@ -337,7 +337,7 @@ const browse = async (event) => {
 
       try {
         imageUrlRef.value = "";
-        imageRef.value = {
+        imageFileRef.value = {
           filename: file.name,
           dataURL: await resizeImage(
             await new Promise(function (resolve, reject) {
@@ -365,7 +365,7 @@ const browse = async (event) => {
   }
 };
 const reset = (event) => {
-  imageRef.value = null;
+  imageFileRef.value = null;
 };
 const clearImageUrl = (event) => {
   imageUrlRef.value = "";
@@ -577,7 +577,7 @@ const search = async (ignoreCache = true) => {
       types.length === 0 &&
       users.length === 0 &&
       fromDateRef.value.getTime() > toDateRef.value.getTime() &&
-      imageRef.value === null &&
+      imageFileRef.value === null &&
       (imageUrlRef.value.length === 0 ||
         !imageUrlRef.value.startsWith("https://"))
     ) {
@@ -655,11 +655,11 @@ const search = async (ignoreCache = true) => {
       map.fitBounds(bounds);
     } else {
       const image =
-        imageRef.value === null
+        imageFileRef.value === null
           ? imageUrlRef.value.length > 0
             ? imageUrlRef.value
             : null
-          : imageRef.value.dataURL;
+          : imageFileRef.value.dataURL;
       const time =
         timeIsEnabledRef.value
           ? { from: fromDateRef.value, to: toDateRef.value }
@@ -973,7 +973,7 @@ const previousResults = (index) => {
                       </h3>
                     </div>
                     <transition name="fade" mode="out-in">
-                      <div class="level-item" v-show="imageRef !== null" key="attaced">
+                      <div class="level-item" v-show="imageFileRef !== null" key="attaced">
                         <span class="icon is-primary">
                           <i class="fa-solid fa-check"></i>
                         </span>
@@ -999,7 +999,7 @@ const previousResults = (index) => {
                     }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
                       @drop.stop.prevent="drop($event)">
                       <transition name="fade" mode="out-in">
-                        <div class="image" v-if="imageRef === null" v-bind:key="null">
+                        <div class="image" v-if="imageFileRef === null" v-bind:key="null">
                           <div class="level">
                             <div class="level-item">
                               <label class="
@@ -1027,10 +1027,10 @@ const previousResults = (index) => {
                             </div>
                           </div>
                         </div>
-                        <div class="image" v-else v-bind:key="imageRef">
+                        <div class="image" v-else v-bind:key="imageFileRef">
                           <div class="image">
                             <picture class="image">
-                              <img v-bind:src="imageRef.dataURL" v-bind:alt="imageRef.filename" />
+                              <img v-bind:src="imageFileRef.dataURL" v-bind:alt="imageFileRef.filename" />
                             </picture>
                             <div class="control">
                               <button class="button is-circle" type="button" @click="reset($event)" key="menu">
