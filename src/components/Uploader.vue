@@ -381,7 +381,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     <div class="control">
                                         <div class="drop" v-bind:style="{
                                             animationPlayState: isDraggingRef ? 'running' : 'paused',
-                                        }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
+                                        }" @dragover.prevent="dragover($event)"
+                                            @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
                                             <transition name="fade" mode="out-in">
                                                 <div class="image" v-if="mediaRef === null" v-bind:key="null">
@@ -454,7 +455,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 <div class="level-item">
                                                                     <span
                                                                         class="is-size-7 has-text-weight-bold has-text-grey">{{
-                                                                                mediaRef.filename
+                                                                            mediaRef.filename
                                                                         }}</span>
                                                                 </div>
                                                             </div>
@@ -521,6 +522,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                             </div>
                         </div>
+                        <ListBox name="Types" :page-length="maxTypesLength"
+                            :is-enabled="user !== null && isActivatedRef" :is-collapsed="typesIsCollapsedRef"
+                            :is-continuous="typesIsContinuousRef" :items="typesItemsRef" :page-index="typesPageIndexRef"
+                            @collapse="collapseTypes" @clear="clearTypes" @select="selectType" @next="nextTypes"
+                            @previous="previousTypes" />
                     </nav>
                 </div>
             </div>
@@ -601,10 +607,6 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </div>
                             </div>
-                            <div id="map">
-                                <div class="content" ref="mapRef"></div><span class="crosshairs icon"><i
-                                        class="fa-solid fa-crosshairs"></i></span>
-                            </div>
                         </div>
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -627,76 +629,66 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
-                            <div class="field">
-                                <div class="control">
-                                    <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
-                                        size="4" placeholder="Year" v-bind:class="{ 'has-error': hasErrorRef }"
-                                        v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
-                                        @change="fromYearChange" />
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromMonthChange">
-                                            <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromMonthRef" v-text="i + 1"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromDayChange">
-                                            <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
-                                                v-bind:selected="i + 1 === fromDayRef" v-text="i + 1"></option>
-                                        </select>
-                                    </div>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromHoursChange">
-                                            <option v-for="i in [...Array(24).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromHoursRef" v-text="i"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromMinutesChange">
-                                            <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromMinutesRef" v-text="i"></option>
-                                        </select>
-                                    </div>
-                                    <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
-                                    <div class="select is-normal">
-                                        <select class="is-size-7 has-text-weight-bold"
-                                            v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                            @change="fromSecondsChange">
-                                            <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                v-bind:selected="i === fromSecondsRef" v-text="i"></option>
-                                        </select>
+                            <div class="block">
+                                <div class="field">
+                                    <div class="control">
+                                        <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
+                                            size="4" placeholder="Year" v-bind:class="{ 'has-error': hasErrorRef }"
+                                            v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
+                                            @change="fromYearChange" />
+                                        <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
+                                        <div class="select is-normal">
+                                            <select class="is-size-7 has-text-weight-bold"
+                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
+                                                @change="fromMonthChange">
+                                                <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
+                                                    v-bind:selected="i === fromMonthRef" v-text="i + 1"></option>
+                                            </select>
+                                        </div>
+                                        <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
+                                        <div class="select is-normal">
+                                            <select class="is-size-7 has-text-weight-bold"
+                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
+                                                @change="fromDayChange">
+                                                <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
+                                                    v-bind:selected="i + 1 === fromDayRef" v-text="i + 1"></option>
+                                            </select>
+                                        </div>
+                                        <div class="select is-normal">
+                                            <select class="is-size-7 has-text-weight-bold"
+                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
+                                                @change="fromHoursChange">
+                                                <option v-for="i in [...Array(24).keys()]" v-bind:key="i"
+                                                    v-bind:selected="i === fromHoursRef" v-text="i"></option>
+                                            </select>
+                                        </div>
+                                        <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
+                                        <div class="select is-normal">
+                                            <select class="is-size-7 has-text-weight-bold"
+                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
+                                                @change="fromMinutesChange">
+                                                <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
+                                                    v-bind:selected="i === fromMinutesRef" v-text="i"></option>
+                                            </select>
+                                        </div>
+                                        <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
+                                        <div class="select is-normal">
+                                            <select class="is-size-7 has-text-weight-bold"
+                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
+                                                @change="fromSecondsChange">
+                                                <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
+                                                    v-bind:selected="i === fromSecondsRef" v-text="i"></option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </nav>
-                </div>
-            </div>
-        </div>
-        <div class="flyout-left">
-            <div class="wrap">
-                <div class="block is-hidden-mobile">
-                    <nav class="panel">
                         <ListBox name="Categories" :page-length="maxCategoriesLength"
                             :is-enabled="user !== null && isActivatedRef" :is-collapsed="categoriesIsCollapsedRef"
                             :is-continuous="categoriesIsContinuousRef" :items="categoriesItemsRef"
                             :page-index="categoriesPageIndexRef" @collapse="collapseCategories" @clear="clearCategories"
                             @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
-                        <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isActivatedRef"
-                            :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef"
-                            :items="typesItemsRef" :page-index="typesPageIndexRef" @collapse="collapseTypes"
-                            @clear="clearTypes" @select="selectType" @next="nextTypes" @previous="previousTypes" />
                     </nav>
                 </div>
             </div>
@@ -723,6 +715,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 </div>
             </div>
         </div>
+        <div id="map">
+            <div class="content" ref="mapRef"></div>
+            <div class="crosshairs icon"><i class="fa-solid fa-crosshairs"></i></div>
+        </div>
     </div>
 </template>
 
@@ -744,7 +740,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         display: flex;
         position: relative;
         width: 100%;
-        aspect-ratio: 1 / 1;
+        /*aspect-ratio: 1 / 1;*/
+        height: 100%;
         justify-content: center;
         align-items: center;
 
@@ -755,6 +752,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         .content {
             display: block;
             position: relative;
+            margin: 0;
             width: 100%;
             height: 100%;
         }
@@ -818,6 +816,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             width: 100%;
                         }
 
+                        >#map {
+                            margin-top: 0.5em;
+                        }
+
                         >.block:last-child {
                             margin: 0;
                             padding: 0.5em 0.75em;
@@ -864,6 +866,15 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                         >.field {
                             padding: 0em 0.75em;
+                        }
+
+                        .field:not(:last-of-type):first-of-type {
+                            margin-bottom: 0em;
+                        }
+
+                        .field:not(:last-of-type):not(:first-of-type) {
+                            margin-top: 0.5em;
+                            margin-bottom: 0em;
                         }
                     }
 
