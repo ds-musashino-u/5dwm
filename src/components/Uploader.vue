@@ -15,13 +15,13 @@ let map = null;
 const isActivatedRef = ref(false);
 const isDraggingRef = ref(false);
 const isLoading = ref(false);
-
+const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
 const isUpdating = ref(false);
 const pictures = ref([]);
 
 const mediaIsCollapsedRef = ref(false);
-const mediaRef = ref(null);
+const mediaFileRef = ref(null);
 const mediaUrlRef = ref("");
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
@@ -51,7 +51,7 @@ const drop = async (event) => {
 
         try {
             mediaUrlRef.value = "";
-            mediaRef.value = {
+            mediaFileRef.value = {
                 filename: file.name,
                 type: file.type,
                 dataURL: await new Promise(function (resolve, reject) {
@@ -81,7 +81,7 @@ const browse = async (event) => {
 
         try {
             mediaUrlRef.value = "";
-            mediaRef.value = {
+            mediaFileRef.value = {
                 filename: file.name,
                 type: file.type,
                 dataURL: await new Promise(function (resolve, reject) {
@@ -106,7 +106,7 @@ const browse = async (event) => {
     }
 };
 const reset = (event) => {
-    mediaRef.value = null;
+    mediaFileRef.value = null;
 };
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
@@ -235,6 +235,50 @@ const shake = (element) => {
         { duration: 1000, iterations: 1 }
     );
 };
+const locate = async () => {
+    if ("permissions" in navigator) {
+        const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
+
+        if (permissionStatus.state == "granted" || permissionStatus.state == "prompt") {
+            isLocatingRef.value = true;
+            navigator.geolocation.getCurrentPosition((position) => {
+                isLocatingRef.value = false;
+                map.panTo(
+                    new google.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    )
+                );
+            }, (error) => {
+                isLocatingRef.value = false;
+                console.error(error);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            });
+        }
+    } else {
+        isLocatingRef.value = true;
+
+        navigator.geolocation.getCurrentPosition((position) => {
+            isLocatingRef.value = false;
+            map.panTo(
+                new google.maps.LatLng(
+                    position.coords.latitude,
+                    position.coords.longitude
+                )
+            );
+        }, (error) => {
+            isLocatingRef.value = false;
+            console.error(error);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        });
+    }
+};
 const upload = async (event) => {
     isUploadingRef.value = true;
 
@@ -336,7 +380,7 @@ onDeactivated(() => {
 });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
-        mediaRef.value = null;
+        mediaFileRef.value = null;
     }
 });
 </script>
@@ -356,7 +400,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </h3>
                                     </div>
                                     <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaRef !== null || mediaUrlRef.length > 0"
+                                        <div class="level-item" v-show="mediaFileRef !== null || mediaUrlRef.length > 0"
                                             key="attaced">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-check"></i>
@@ -385,7 +429,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
                                             <transition name="fade" mode="out-in">
-                                                <div class="image" v-if="mediaRef === null" v-bind:key="null">
+                                                <div class="image" v-if="mediaFileRef === null" v-bind:key="null">
                                                     <div class="level">
                                                         <div class="level-item">
                                                             <label class="
@@ -414,13 +458,13 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="image" v-else v-bind:key="mediaRef">
+                                                <div class="image" v-else v-bind:key="mediaFileRef">
                                                     <transition name="fade" mode="out-in">
-                                                        <div class="image" v-if="mediaRef.type.startsWith('image/')"
+                                                        <div class="image" v-if="mediaFileRef.type.startsWith('image/')"
                                                             key="image">
                                                             <picture class="image">
-                                                                <img v-bind:src="mediaRef.dataURL"
-                                                                    v-bind:alt="mediaRef.filename" />
+                                                                <img v-bind:src="mediaFileRef.dataURL"
+                                                                    v-bind:alt="mediaFileRef.filename" />
                                                             </picture>
                                                             <div class="control">
                                                                 <button class="button is-circle" type="button"
@@ -431,7 +475,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                        <div class="image" v-else :key="mediaRef.type">
+                                                        <div class="image" v-else :key="mediaFileRef.type">
                                                             <div class="level">
                                                                 <div class="level-item">
                                                                     <label class="
@@ -455,7 +499,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 <div class="level-item">
                                                                     <span
                                                                         class="is-size-7 has-text-weight-bold has-text-grey">{{
-                                                                            mediaRef.filename
+                                                                            mediaFileRef.filename
                                                                         }}</span>
                                                                 </div>
                                                             </div>
@@ -544,14 +588,18 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </h3>
                                     </div>
                                 </div>
-                                <div class="level-right is-invisible">
+                                <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="locationIsCollapsedRef = !locationIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: locationIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
-                                            </span>
+                                        <button class="button is-rounded"
+                                            v-bind:disabled="user === null || isLocatingRef" @click="locate">
+                                            <transition name="fade" mode="out-in">
+                                                <span class="icon" v-if="isLocatingRef" key="uploading">
+                                                    <i class="fas fa-spinner updating"></i>
+                                                </span>
+                                                <span class="icon is-small" v-else key="ready">
+                                                    <i class="fa-solid fa-location-arrow"></i>
+                                                </span>
+                                            </transition>
                                         </button>
                                     </div>
                                 </div>
