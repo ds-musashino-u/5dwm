@@ -12,6 +12,7 @@ import ListBox from "./ListBox.vue";
 
 const mapRef = ref(null);
 let map = null;
+let geocoder = null;
 const isActivatedRef = ref(false);
 const isDraggingRef = ref(false);
 const isLoading = ref(false);
@@ -23,6 +24,19 @@ const pictures = ref([]);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaUrlRef = ref("");
+const descriptionRef = ref("");
+const latitudeRef = ref("");
+const longitudeRef = ref("");
+const hasLocationErrorRef = ref(false);
+const addressRef = ref("");
+const timeRef = ref(new Date());
+const timeYearRef = ref(timeRef.value.getFullYear());
+const timeMonthRef = ref(timeRef.value.getMonth());
+const timeDayRef = ref(timeRef.value.getDate());
+const timeHoursRef = ref(timeRef.value.getHours());
+const timeMinutesRef = ref(timeRef.value.getMinutes());
+const timeSecondsRef = ref(timeRef.value.getSeconds());
+const hasTimeErrorRef = ref(false);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
@@ -38,6 +52,7 @@ const props = defineProps({
     user: Object,
     text: String,
 });
+
 const emit = defineEmits(["completed", "updated"]);
 const dragover = (event) => {
     isDraggingRef.value = true;
@@ -105,11 +120,129 @@ const browse = async (event) => {
         return;
     }
 };
-const reset = (event) => {
+const resetMedia = (event) => {
     mediaFileRef.value = null;
 };
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
+};
+const latitudeChange = (event) => {
+    if (isFinite(latitudeRef.value) && isFinite(longitudeRef.value)) {
+        const location = map.getCenter();
+
+        if (latitudeRef.value !== String(location.lat()) || longitudeRef.value !== String(location.lng())) {
+            map.panTo(
+                new google.maps.LatLng(
+                    Number(latitudeRef.value),
+                    Number(longitudeRef.value)
+                )
+            );
+        }
+
+        hasLocationErrorRef.value = false;
+    } else {
+        hasLocationErrorRef.value = true;
+    }
+};
+const longitudeChange = (event) => {
+    if (isFinite(latitudeRef.value) && isFinite(longitudeRef.value)) {
+        const location = map.getCenter();
+
+        if (latitudeRef.value !== String(location.lat()) || longitudeRef.value !== String(location.lng())) {
+            map.panTo(
+                new google.maps.LatLng(
+                    Number(latitudeRef.value),
+                    Number(longitudeRef.value)
+                )
+            );
+        }
+
+        hasLocationErrorRef.value = false;
+    } else {
+        hasLocationErrorRef.value = true;
+    }
+};
+const geocode = async (event) => {
+    if (addressRef.value.length > 0) {
+        try {
+            const response = await geocoder.geocode({ address: addressRef.value })
+
+            if (response.results.length > 0) {
+                const location = response.results[0].geometry.location;
+
+                latitudeRef.value = String(location.lat());
+                longitudeRef.value = String(location.lng());
+
+                map.panTo(
+                    new google.maps.LatLng(
+                        Number(latitudeRef.value),
+                        Number(longitudeRef.value)
+                    )
+                );
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
+};
+const resetTime = (event) => {
+    timeRef.value = new Date();
+    timeYearRef.value = timeRef.value.getFullYear();
+    timeMonthRef.value = timeRef.value.getMonth();
+    timeDayRef.value = timeRef.value.getDate();
+    timeHoursRef.value = timeRef.value.getHours();
+    timeMinutesRef.value = timeRef.value.getMinutes();
+    timeSecondsRef.value = timeRef.value.getSeconds();
+};
+function timeIsValid(d, m, y) {
+    function daysInMonth(m, y) { // m is 0 indexed: 0-11
+        switch (m) {
+            case 1:
+                return (y % 4 == 0 && y % 100) || y % 400 == 0 ? 29 : 28;
+            case 8: case 3: case 5: case 10:
+                return 30;
+            default:
+                return 31
+        }
+    }
+
+    return m >= 0 && m < 12 && d > 0 && d <= daysInMonth(m, y);
+}
+const timeYearChange = (event) => {
+    hasTimeErrorRef.value = !timeIsValid(timeRef.value.getDate(), timeRef.value.getMonth(), Number(event.currentTarget.value));
+
+    if (!hasTimeErrorRef.value) {
+        timeRef.value.setFullYear(Number(event.currentTarget.value));
+    }
+};
+const timeMonthChange = (event) => {
+    hasTimeErrorRef.value = !timeIsValid(timeRef.value.getDate(), Number(event.currentTarget.value) - 1, timeRef.value.getFullYear());
+
+    if (!hasTimeErrorRef.value) {
+        timeRef.value.setMonth(Number(event.currentTarget.value) - 1);
+    }
+};
+const timeDayChange = (event) => {
+    hasTimeErrorRef.value = !timeIsValid(Number(event.currentTarget.value), timeRef.value.getMonth(), timeRef.value.getFullYear());
+
+    if (!hasTimeErrorRef.value) {
+        timeRef.value.setDate(Number(event.currentTarget.value));
+    }
+};
+const timeHoursChange = (event) => {
+    timeRef.value.setHours(Number(event.currentTarget.value));
+
+    hasTimeErrorRef.value = isNaN(timeRef.value.getDate());
+};
+const timeMinutesChange = (event) => {
+    timeRef.value.setMinutes(Number(event.currentTarget.value));
+
+    hasTimeErrorRef.value = isNaN(timeRef.value.getDate());
+};
+const timeSecondsChange = (event) => {
+    timeRef.value.setSeconds(Number(event.currentTarget.value));
+
+    hasTimeErrorRef.value = isNaN(timeRef.value.getDate());
 };
 const collapseCategories = () => {
     categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
@@ -243,6 +376,8 @@ const locate = async () => {
             isLocatingRef.value = true;
             navigator.geolocation.getCurrentPosition((position) => {
                 isLocatingRef.value = false;
+                latitudeRef.value = String(position.coords.latitude);
+                longitudeRef.value = String(position.coords.longitude)
                 map.panTo(
                     new google.maps.LatLng(
                         position.coords.latitude,
@@ -263,6 +398,8 @@ const locate = async () => {
 
         navigator.geolocation.getCurrentPosition((position) => {
             isLocatingRef.value = false;
+            latitudeRef.value = String(position.coords.latitude);
+            longitudeRef.value = String(position.coords.longitude)
             map.panTo(
                 new google.maps.LatLng(
                     position.coords.latitude,
@@ -374,6 +511,13 @@ onActivated(async () => {
         rotateControl: true,
         fullscreenControl: false,
     });
+    map.addListener("center_changed", () => {
+        const location = map.getCenter();
+
+        latitudeRef.value = String(location.lat());
+        longitudeRef.value = String(location.lng());
+    });
+    geocoder = new google.maps.Geocoder();
 });
 onDeactivated(() => {
     isActivatedRef.value = false;
@@ -432,13 +576,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 <div class="image" v-if="mediaFileRef === null" v-bind:key="null">
                                                     <div class="level">
                                                         <div class="level-item">
-                                                            <label class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              ">
+                                                            <label
+                                                                class="file button is-circle has-text-weight-bold file-label">
                                                                 <input class="file-input" type="file" name="upload"
                                                                     style="pointer-events: none"
                                                                     v-bind:disabled="isLoading"
@@ -451,10 +590,9 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                             </label>
                                                         </div>
                                                         <div class="level-item">
-                                                            <span class="
-                                is-size-7 is-uppercase
-                                has-text-weight-bold has-text-grey
-                              ">Browse or Drag & Drop</span>
+                                                            <span
+                                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Browse
+                                                                or Drag & Drop</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -468,7 +606,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                             </picture>
                                                             <div class="control">
                                                                 <button class="button is-circle" type="button"
-                                                                    @click="reset($event)" key="menu">
+                                                                    @click="resetMedia($event)" key="menu">
                                                                     <span class="icon is-small has-text-danger">
                                                                         <i class="fa-solid fa-xmark"></i>
                                                                     </span>
@@ -478,13 +616,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                         <div class="image" v-else :key="mediaFileRef.type">
                                                             <div class="level">
                                                                 <div class="level-item">
-                                                                    <label class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              ">
+                                                                    <label
+                                                                        class="file button is-circle has-text-weight-bold file-label">
                                                                         <input class="file-input" type="file"
                                                                             name="upload" style="pointer-events: none"
                                                                             v-bind:disabled="isLoading"
@@ -505,7 +638,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                             </div>
                                                             <div class="control">
                                                                 <button class="button is-circle" type="button"
-                                                                    @click="reset($event)" key="menu">
+                                                                    @click="resetMedia($event)" key="menu">
                                                                     <span class="icon is-small has-text-danger">
                                                                         <i class="fa-solid fa-xmark"></i>
                                                                     </span>
@@ -563,8 +696,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <div class="block">
                                 <div class="field">
                                     <div class="control">
-                                        <textarea class="textarea is-small"
-                                            placeholder="Enter a description"></textarea>
+                                        <textarea class="textarea is-small" placeholder="Enter a description"
+                                            v-model="descriptionRef"></textarea>
                                     </div>
                                 </div>
                             </div>
@@ -596,7 +729,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <button class="button is-rounded"
                                             v-bind:disabled="user === null || isLocatingRef" @click="locate">
                                             <transition name="fade" mode="out-in">
-                                                <span class="icon" v-if="isLocatingRef" key="uploading">
+                                                <span class="icon" v-if="isLocatingRef" key="locating">
                                                     <i class="fas fa-spinner updating"></i>
                                                 </span>
                                                 <span class="icon is-small" v-else key="ready">
@@ -617,10 +750,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                     <div class="level-right">
                                         <div class="level-item">
-                                            <input class="input is-size-7 is-outlined has-text-weight-bold" type="text"
-                                                size="16" placeholder="Enter a longitude"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:value="fromYearRef"
-                                                @change="fromYearChange" />
+                                            <input
+                                                class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
+                                                type="text" size="16" placeholder="Enter a longitude"
+                                                v-bind:class="{ 'has-error': hasLocationErrorRef }"
+                                                v-model="longitudeRef" @change="longitudeChange" />
                                         </div>
                                     </div>
                                 </nav>
@@ -635,10 +769,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                     <div class="level-right">
                                         <div class="level-item">
-                                            <input class="input is-size-7 is-outlined has-text-weight-bold" type="text"
-                                                size="16" placeholder="Enter a latitude"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:value="fromYearRef"
-                                                @change="fromYearChange" />
+                                            <input
+                                                class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
+                                                type="text" size="16" placeholder="Enter a latitude"
+                                                v-bind:class="{ 'has-error': hasLocationErrorRef }"
+                                                v-model="latitudeRef" @change="latitudeChange" />
                                         </div>
                                     </div>
                                 </nav>
@@ -650,7 +785,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             placeholder="Address" v-model="addressRef" />
                                     </div>
                                     <div class="control">
-                                        <button type="button" class="button" @click="clearImageUrl($event)">
+                                        <button type="button" class="button" @click="geocode($event)">
                                             <span class="icon is-small">
                                                 <i class="fa-solid fa-location-crosshairs"></i>
                                             </span>
@@ -668,13 +803,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </h3>
                                     </div>
                                 </div>
-                                <div class="level-right is-invisible">
+                                <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
+                                        <button class="button is-rounded" @click="resetTime">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-clock"></i>
                                             </span>
                                         </button>
                                     </div>
@@ -684,51 +817,51 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 <div class="field">
                                     <div class="control">
                                         <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
-                                            size="4" placeholder="Year" v-bind:class="{ 'has-error': hasErrorRef }"
-                                            v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
-                                            @change="fromYearChange" />
+                                            size="4" placeholder="Year" v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                            v-bind:disabled="!isActivatedRef" v-bind:value="timeYearRef"
+                                            @change="timeYearChange" />
                                         <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                                @change="fromMonthChange">
+                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                                v-bind:disabled="!isActivatedRef" @change="timeMonthChange">
                                                 <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i === fromMonthRef" v-text="i + 1"></option>
+                                                    v-bind:selected="i === timeMonthRef" v-text="i + 1"></option>
                                             </select>
                                         </div>
                                         <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                                @change="fromDayChange">
+                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                                v-bind:disabled="!isActivatedRef" @change="timeDayChange">
                                                 <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i + 1 === fromDayRef" v-text="i + 1"></option>
+                                                    v-bind:selected="i + 1 === timeDayRef" v-text="i + 1"></option>
                                             </select>
                                         </div>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                                @change="fromHoursChange">
+                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                                v-bind:disabled="!isActivatedRef" @change="timeHoursChange">
                                                 <option v-for="i in [...Array(24).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i === fromHoursRef" v-text="i"></option>
+                                                    v-bind:selected="i === timeHoursRef" v-text="i"></option>
                                             </select>
                                         </div>
                                         <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                                @change="fromMinutesChange">
+                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                                v-bind:disabled="!isActivatedRef" @change="timeMinutesChange">
                                                 <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i === fromMinutesRef" v-text="i"></option>
+                                                    v-bind:selected="i === timeMinutesRef" v-text="i"></option>
                                             </select>
                                         </div>
                                         <span class="is-size-7 is-uppercase has-text-weight-bold">:</span>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled"
-                                                @change="fromSecondsChange">
+                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
+                                                v-bind:disabled="!isActivatedRef" @change="timeSecondsChange">
                                                 <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i === fromSecondsRef" v-text="i"></option>
+                                                    v-bind:selected="i === timeSecondsRef" v-text="i"></option>
                                             </select>
                                         </div>
                                     </div>
@@ -818,6 +951,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             line-height: 1.0rem;
             left: 50%;
             right: 50%;
+            top: 50%;
             transform-origin: 0% 0%;
             transform: translate(-50%, -50%);
         }
@@ -1157,6 +1291,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 border: 1px solid hsl(0deg, 0%, 93%) !important;
             }
 
+            input.is-outlined.has-error,
+            select.has-error {
+                border-color: var(--error-color) !important;
+            }
+
             input[type="text"] {
                 margin: 0;
                 border: 0px none transparent;
@@ -1189,10 +1328,6 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
             button.is-rounded {
                 border-radius: 9999px !important;
-            }
-
-            .has-error {
-                border-color: var(--error-color);
             }
 
             .control {
