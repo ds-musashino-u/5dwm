@@ -126,6 +126,13 @@ const resetMedia = (event) => {
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
 };
+const paste = async (event) => {
+    try {
+        descriptionRef.value = await navigator.clipboard.readText();
+    } catch (error) {
+        console.error(error);
+    }
+};
 const latitudeChange = (event) => {
     if (isFinite(latitudeRef.value) && isFinite(longitudeRef.value)) {
         const location = map.getCenter();
@@ -681,13 +688,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </h3>
                                     </div>
                                 </div>
-                                <div class="level-right is-invisible">
+                                <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded"
-                                            @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
-                                                <i class="fa-solid fa-chevron-up"></i>
+                                        <button class="button is-rounded" @click="paste">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-paste"></i>
                                             </span>
                                         </button>
                                     </div>
