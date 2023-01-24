@@ -21,9 +21,9 @@ const isUploadingRef = ref(false);
 const isUpdating = ref(false);
 const pictures = ref([]);
 
-const uploadIsReadyRef = ref(false);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
+const mediaPreviewRef = ref(null);
 const mediaUrlRef = ref("");
 const descriptionRef = ref("");
 const latitudeRef = ref("");
@@ -55,6 +55,72 @@ const props = defineProps({
 });
 
 const emit = defineEmits(["completed", "updated"]);
+const resizeImage = async (dataURL, length) => {
+    try {
+        return await new Promise(async (resolve1, reject1) => {
+            const i = new Image();
+
+            i.onload = () => {
+                const canvas = document.createElement("canvas");
+
+                if (i.width > i.height) {
+                    if (i.width > length) {
+                        canvas.width = length * window.devicePixelRatio;
+                        canvas.height =
+                            Math.floor((length / i.width) * i.height) *
+                            window.devicePixelRatio;
+                    } else {
+                        canvas.width = i.width * window.devicePixelRatio;
+                        canvas.height = i.height * window.devicePixelRatio;
+                    }
+                } else if (i.height > length) {
+                    canvas.width =
+                        Math.floor((length / i.height) * i.width) * window.devicePixelRatio;
+                    canvas.height = length * window.devicePixelRatio;
+                } else {
+                    canvas.width = i.width * window.devicePixelRatio;
+                    canvas.height = i.height * window.devicePixelRatio;
+                }
+
+                const ctx = canvas.getContext("2d");
+
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = "high";
+                ctx.drawImage(i, 0, 0, canvas.width, canvas.height);
+                ctx.canvas.toBlob(async (blob) => {
+                    try {
+                        resolve1(
+                            await new Promise(async (resolve2, reject2) => {
+                                const reader = new FileReader();
+
+                                reader.onload = () => {
+                                    resolve2(reader.result);
+                                };
+                                reader.onerror = () => {
+                                    reject2(reader.error);
+                                };
+                                reader.readAsDataURL(blob);
+                            })
+                        );
+                    } catch (e) {
+                        reject1(e);
+                    }
+
+                    ctx.canvas.width = ctx.canvas.height = 0;
+                }, "image/jpeg");
+            };
+            i.onerror = (error) => {
+                reject1(error);
+            };
+            i.crossOrigin = "anonymous";
+            i.src = dataURL;
+        });
+    } catch (e) {
+        console.error(e);
+    }
+
+    return null;
+};
 const dragover = (event) => {
     isDraggingRef.value = true;
     event.dataTransfer.dropEffect = "copy";
@@ -82,6 +148,12 @@ const drop = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+
+            if (mediaFileRef.value.type.startsWith('image/')) {
+                mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
+            } else {
+                mediaPreviewRef.value = null;
+            }
         } catch (error) {
             console.error(error);
         }
@@ -112,6 +184,12 @@ const browse = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+
+            if (mediaFileRef.value.type.startsWith('image/')) {
+                mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
+            } else {
+                mediaPreviewRef.value = null;
+            }
         } catch (error) {
             console.error(error);
         }
@@ -123,6 +201,7 @@ const browse = async (event) => {
 };
 const resetMedia = (event) => {
     mediaFileRef.value = null;
+    mediaPreviewRef.value = null;
 };
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
@@ -604,12 +683,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div class="image" v-else v-bind:key="mediaFileRef">
+                                                <div class="image" v-else v-bind:key="mediaFileRef.filename">
                                                     <transition name="fade" mode="out-in">
-                                                        <div class="image" v-if="mediaFileRef.type.startsWith('image/')"
-                                                            key="image">
+                                                        <div class="image" v-if="mediaPreviewRef !== null" :key="mediaFileRef.filename">
                                                             <picture class="image">
-                                                                <img v-bind:src="mediaFileRef.dataURL"
+                                                                <img v-bind:src="mediaPreviewRef"
                                                                     v-bind:alt="mediaFileRef.filename" />
                                                             </picture>
                                                             <div class="control">
@@ -621,7 +699,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 </button>
                                                             </div>
                                                         </div>
-                                                        <div class="image" v-else :key="mediaFileRef.type">
+                                                        <div class="image" v-else :key="null">
                                                             <div class="level">
                                                                 <div class="level-item">
                                                                     <label
@@ -886,10 +964,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 <div class="block">
                     <div class="panel-block">
                         <div class="control">
-                            <button class="
-                  button
-                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                " type="submit" v-bind:disabled="user === null || !uploadIsReadyRef || isUploadingRef" @click="search()">
+                            <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
+                                type="submit"
+                                v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && mediaUrlRef.length === 0"
+                                @click="search()">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadingRef" key="uploading">
                                         <i class="fas fa-spinner updating"></i>
