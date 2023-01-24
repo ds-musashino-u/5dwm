@@ -18,7 +18,7 @@ from shared.models import Media, ImageVector
 import azure.functions as func
 
 
-UPLOAD_MAX_FILESIZE = os.environ.get('UPLOAD_MAX_FILESIZE', 5000000)
+UPLOAD_MAX_FILESIZE = int(os.environ.get('UPLOAD_MAX_FILESIZE', '5000000'))
 
 ssl._create_default_https_context = ssl._create_unverified_context
 engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={

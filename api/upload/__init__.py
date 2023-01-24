@@ -17,7 +17,7 @@ from azure.storage.blob import BlobServiceClient, ContentSettings
 from azure.cosmos.cosmos_client import CosmosClient
 
 
-UPLOAD_MAX_FILESIZE = os.environ.get('UPLOAD_MAX_FILESIZE', 5000000)
+UPLOAD_MAX_FILESIZE = int(os.environ.get('UPLOAD_MAX_FILESIZE', '5000000'))
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
