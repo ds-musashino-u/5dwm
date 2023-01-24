@@ -560,9 +560,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
-                            <div class="field">
-                                <div class="control">
-                                    <textarea class="textarea is-small" placeholder="Enter a description"></textarea>
+                            <div class="block">
+                                <div class="field">
+                                    <div class="control">
+                                        <textarea class="textarea is-small"
+                                            placeholder="Enter a description"></textarea>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -861,6 +864,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                         >.block {
                             margin: 0;
                             padding: 0em 0.75em;
+                            width: 100%;
+                        }
+
+                        >.block:first-of-type:last-of-type {
+                            margin: 0;
+                            padding: 0em 0.75em 0.5em 0.75em;
                             width: 100%;
                         }
 
