@@ -519,29 +519,19 @@ const locate = async () => {
 const upload = async (event) => {
     isUploadingRef.value = true;
 
-    for (const file of event.currentTarget.files) {
+    if (mediaFileRef.value !== null) {
         try {
-            const dataURL = await new Promise(function (resolve, reject) {
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                    resolve(reader.result);
-                };
-                reader.onerror = () => {
-                    reject(reader.error);
-                };
-                reader.readAsDataURL(file);
-            });
-
+            const idToken = await props.auth0.getIdTokenClaims();
             const response = await fetch(
                 "https://www.5dworldmap.com/api/v1/upload",
                 {
                     mode: "cors",
                     method: "POST",
                     headers: {
+                        "X-Authorization": `Bearer ${idToken.__raw}`,
                         "Content-Type": "application/json",
                     },
-                    body: JSON.stringify({ image: dataURL }),
+                    body: JSON.stringify({ image: mediaFileRef.value.dataURL }),
                 }
             );
 
@@ -558,7 +548,6 @@ const upload = async (event) => {
     isUploadingRef.value = false;
 
     emit("completed");
-    update();
 };
 const update = async () => {
     isUpdating.value = true;
@@ -698,7 +687,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 </div>
                                                 <div class="image" v-else v-bind:key="mediaFileRef.filename">
                                                     <transition name="fade" mode="out-in">
-                                                        <div class="image" v-if="mediaPreviewRef !== null" :key="mediaFileRef.filename">
+                                                        <div class="image" v-if="mediaPreviewRef !== null"
+                                                            :key="mediaFileRef.filename">
                                                             <picture class="image">
                                                                 <img v-bind:src="mediaPreviewRef"
                                                                     v-bind:alt="mediaFileRef.filename" />
@@ -759,8 +749,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 placeholder="URL" v-model="mediaUrlRef" />
                                         </div>
                                         <div class="control">
-                                            <button type="button" class="button"
-                                                @click="pasteImageUrl($event)">
+                                            <button type="button" class="button" @click="pasteImageUrl($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-paste"></i>
                                                 </span>
@@ -988,7 +977,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                 type="submit"
                                 v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && mediaUrlRef.length === 0"
-                                @click="search()">
+                                @click="upload()">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadingRef" key="uploading">
                                         <i class="fas fa-spinner updating"></i>
