@@ -21,6 +21,7 @@ const isUploadingRef = ref(false);
 const isUpdating = ref(false);
 const pictures = ref([]);
 
+const uploadIsReadyRef = ref(false);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaUrlRef = ref("");
@@ -888,7 +889,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <button class="
                   button
                   is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                " type="submit" v-bind:disabled="user === null || isUploadingRef" @click="search()">
+                " type="submit" v-bind:disabled="user === null || !uploadIsReadyRef || isUploadingRef" @click="search()">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadingRef" key="uploading">
                                         <i class="fas fa-spinner updating"></i>
