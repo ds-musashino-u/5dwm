@@ -15,7 +15,7 @@ import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
 import Preview from "./Preview.vue";
 
-const isRooted = ref(true);
+const isRootedRef = ref(true);
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
 const queryRef = ref("");
@@ -730,7 +730,7 @@ const search = async (ignoreCache = true) => {
             delete cachedSearchResults[key];
           });
 
-          isRooted.value = false;
+          isRootedRef.value = false;
           searchResults.splice(0);
           searchResultsRef.value.splice(0);
           searchTotalCountRef.value = resultItems.length;
@@ -849,7 +849,7 @@ const search = async (ignoreCache = true) => {
 
         isSearchingRef.value = false;
       } else {
-        isRooted.value = false;
+        isRootedRef.value = false;
       }
     }
   }
@@ -858,7 +858,7 @@ const back = (event) => {
   if (selectedItemRef.value !== null) {
     selectedItemRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
-    isRooted.value = true;
+    isRootedRef.value = true;
   }
 };
 const selectItem = (index, item) => {
