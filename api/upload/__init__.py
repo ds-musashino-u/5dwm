@@ -25,9 +25,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if req.headers['X-Authorization'].startswith('Bearer ') and not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
             return func.HttpResponse(status_code=401, mimetype='', charset='')
 
-        #if int(req.headers['Content-Length']) >= UPLOAD_MAX_FILESIZE:
-        #    return func.HttpResponse(status_code=413, mimetype='', charset='')
-        
         if req.headers['Content-Type'] == 'application/json':
             data = req.get_json()            
             match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", data.get('image'))
@@ -40,6 +37,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     id = str(uuid4())
                     path = f'media/{id}'
                     decoded_data = b64decode(data)
+
+                    if len(decoded_data) >= UPLOAD_MAX_FILESIZE:
+                        return func.HttpResponse(status_code=413, mimetype='', charset='')
                     
                     blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
                     container_client = blob_service_client.get_container_client(container_name)
