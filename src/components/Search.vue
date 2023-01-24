@@ -367,6 +367,19 @@ const browse = async (event) => {
 const reset = (event) => {
   imageFileRef.value = null;
 };
+const pasteImageUrl = async (event) => {
+    try {
+        const text = await navigator.clipboard.readText();
+
+        if (text.startsWith("https://")) {
+          imageUrlRef.value = text;
+        } else {
+            shake(event.currentTarget || event.target);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
 const clearImageUrl = (event) => {
   imageUrlRef.value = "";
 };
@@ -1052,6 +1065,13 @@ const previousResults = (index) => {
                     <div class="control is-expanded">
                       <input class="input is-size-7 has-text-weight-bold" type="text" placeholder="URL"
                         v-model="imageUrlRef" />
+                    </div>
+                    <div class="control">
+                      <button type="button" class="button" @click="pasteImageUrl($event)">
+                        <span class="icon is-small">
+                          <i class="fa-solid fa-paste"></i>
+                        </span>
+                      </button>
                     </div>
                     <div class="control">
                       <button type="button" class="button" v-bind:disabled="imageUrlRef.length === 0"
