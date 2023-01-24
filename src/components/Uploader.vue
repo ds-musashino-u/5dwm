@@ -206,7 +206,20 @@ const resetMedia = (event) => {
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
 };
-const paste = async (event) => {
+const pasteImageUrl = async (event) => {
+    try {
+        const text = await navigator.clipboard.readText();
+
+        if (text.startsWith("https://")) {
+            mediaUrlRef.value = text;
+        } else {
+            shake(event.currentTarget || event.target);
+        }
+    } catch (error) {
+        console.error(error);
+    }
+};
+const pasteDescription = async (event) => {
     try {
         descriptionRef.value = await navigator.clipboard.readText();
     } catch (error) {
@@ -747,6 +760,14 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </div>
                                         <div class="control">
                                             <button type="button" class="button"
+                                                @click="pasteImageUrl($event)">
+                                                <span class="icon is-small">
+                                                    <i class="fa-solid fa-paste"></i>
+                                                </span>
+                                            </button>
+                                        </div>
+                                        <div class="control">
+                                            <button type="button" class="button"
                                                 v-bind:disabled="mediaUrlRef.length === 0"
                                                 @click="clearImageUrl($event)">
                                                 <span class="icon is-small has-text-danger">
@@ -769,7 +790,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button is-rounded" @click="paste">
+                                        <button class="button is-rounded" @click="pasteDescription">
                                             <span class="icon is-small">
                                                 <i class="fa-solid fa-paste"></i>
                                             </span>
