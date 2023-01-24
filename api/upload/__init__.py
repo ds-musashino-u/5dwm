@@ -22,8 +22,8 @@ UPLOAD_MAX_FILESIZE = os.environ.get('UPLOAD_MAX_FILESIZE', 5000000)
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        #if req.headers['X-Authorization'].startswith('Bearer ') and not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
-        #    return func.HttpResponse(status_code=401, mimetype='', charset='')
+        if req.headers['X-Authorization'].startswith('Bearer ') and not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
+            return func.HttpResponse(status_code=401, mimetype='', charset='')
 
         #if int(req.headers['Content-Length']) >= UPLOAD_MAX_FILESIZE:
         #    return func.HttpResponse(status_code=413, mimetype='', charset='')
