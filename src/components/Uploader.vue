@@ -523,7 +523,7 @@ const upload = async (event) => {
         try {
             const idToken = await props.auth0.getIdTokenClaims();
             const response = await fetch(
-                "https://www.5dworldmap.com/api/v1/upload",
+                Endpoints.UPLOAD_URL,
                 {
                     mode: "cors",
                     method: "POST",
