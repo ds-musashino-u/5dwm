@@ -55,7 +55,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                         
                         blob_client = container_client.get_blob_client(thumbnail_path)
-                        blob_client.upload_blob(thumbnail_bytes.getvalue(), blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
+                        blob_client.upload_blob(thumbnail_bytes.getvalue(), blob_type="BlockBlob", content_settings=ContentSettings(content_type='image/jpeg'))
                     else:
                         thumbnail_path = None
 
