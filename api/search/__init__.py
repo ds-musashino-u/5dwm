@@ -27,11 +27,8 @@ engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if req.headers['X-Authorization'].startswith('Bearer '):
-            payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
-
-            if payload is None or verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
-                return func.HttpResponse(status_code=401, mimetype='', charset='')
+        if not req.headers['X-Authorization'].startswith('Bearer ') or verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None or verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
+            return func.HttpResponse(status_code=401, mimetype='', charset='')
 
         if req.headers.get('Content-Type') == 'application/json':
             data = req.get_json()
