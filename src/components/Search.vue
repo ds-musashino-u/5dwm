@@ -3,6 +3,7 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onMounted, onActivated, onDeactivated, watch } from "vue";
+import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
@@ -368,17 +369,17 @@ const reset = (event) => {
   imageFileRef.value = null;
 };
 const pasteImageUrl = async (event) => {
-    try {
-        const text = await navigator.clipboard.readText();
+  try {
+    const text = await navigator.clipboard.readText();
 
-        if (text.startsWith("https://")) {
-          imageUrlRef.value = text;
-        } else {
-            shake(event.currentTarget || event.target);
-        }
-    } catch (error) {
-        console.error(error);
+    if (text.startsWith("https://")) {
+      imageUrlRef.value = text;
+    } else {
+      shake(event.currentTarget || event.target);
     }
+  } catch (error) {
+    console.error(error);
+  }
 };
 const clearImageUrl = (event) => {
   imageUrlRef.value = "";
@@ -717,9 +718,8 @@ const search = async (ignoreCache = true) => {
         isSearchingRef.value = true;
 
         try {
-          const idToken = await props.auth0.getIdTokenClaims();
           const [resultItems, totalCount] = await searchWorldMap(
-            idToken.__raw,
+            await getAccessToken(props.auth0),
             keywords,
             categories,
             types,

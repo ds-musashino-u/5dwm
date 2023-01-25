@@ -23,7 +23,7 @@ export class ResultItem {
 /**
  * /api/v1/search
  * @module search
- * @param {!string} token - ID token
+ * @param {!string} token - Access token
  * @param {!Array<string>} keywords - Keywords
  * @param {!Array<string>} categories - Categories
  * @param {!Array<string>} types - Types
