@@ -17,7 +17,7 @@ describe("uploader", function () {
         fetchStub.restore();
     });
     it("upload", async function () {
-        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", url: "https://static.5dworldmap.com/media/foo.png", type: "image/png", thumbnail_url: "https://static.5dworldmap.com/media/thumbnails/foo.png", created_at: "1970-01-01T09:00:00Z" }) }));
+        fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", url: "https://static.5dworldmap.com/media/foo.png", type: "image/png", thumbnail: {url: "https://static.5dworldmap.com/media/thumbnails/foo.jpeg", type: "image/jpeg"}, created_at: "1970-01-01T09:00:00Z" }) }));
 
         const result = await upload("dummy_token", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==");
 
