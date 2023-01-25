@@ -22,12 +22,12 @@ UPLOAD_MAX_FILESIZE = int(os.environ.get('UPLOAD_MAX_FILESIZE', '5000000'))
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if req.headers['X-Authorization'].startswith('Bearer ') and not verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]):
+        if req.headers['X-Authorization'].startswith('Bearer ') and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is not None:
             return func.HttpResponse(status_code=401, mimetype='', charset='')
 
         if req.headers['Content-Type'] == 'application/json':
-            data = req.get_json()            
-            match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", data.get('image'))
+            json = req.get_json()
+            match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", json['data'])
             
             if match:
                 mime_type, encoding, data = match.groups()
@@ -68,6 +68,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     database = client.get_database_client('5DWM')
                     container = database.get_container_client('Uploads')
                     container.upsert_item(item)
+
+                    item["created_at"] = item["timestamp"]
+
+                    del item["pk"]
+                    del item["timestamp"]
 
                     return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
