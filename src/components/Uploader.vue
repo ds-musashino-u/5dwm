@@ -17,7 +17,7 @@ let map = null;
 let geocoder = null;
 const isActivatedRef = ref(false);
 const isDraggingRef = ref(false);
-const isLoading = ref(false);
+const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
 const isUpdating = ref(false);
@@ -46,6 +46,7 @@ const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
 const categoriesPageIndexRef = ref(0);
 const maxTypesLength = 25;
+const typesIsLoadingRef = ref(true);
 const typesIsCollapsedRef = ref(false);
 const typesIsContinuousRef = ref(false);
 const typesItemsRef = ref([]);
@@ -131,7 +132,7 @@ const drop = async (event) => {
     isDraggingRef.value = false;
 
     for (const file of event.dataTransfer.files) {
-        isLoading.value = true;
+        isLoadingRef.value = true;
 
         try {
             mediaUrlRef.value = "";
@@ -160,14 +161,14 @@ const drop = async (event) => {
             console.error(error);
         }
 
-        isLoading.value = false;
+        isLoadingRef.value = false;
 
         return;
     }
 };
 const browse = async (event) => {
     for (const file of event.currentTarget.files) {
-        isLoading.value = true;
+        isLoadingRef.value = true;
 
         try {
             mediaUrlRef.value = "";
@@ -196,7 +197,7 @@ const browse = async (event) => {
             console.error(error);
         }
 
-        isLoading.value = false;
+        isLoadingRef.value = false;
 
         return;
     }
@@ -410,7 +411,7 @@ const previousCategories = async (pageIndex) => {
 };
 const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
     if (typesItemsRef.value.length <= pageIndex * maxTypesLength) {
-        isFetchingRef.value = true;
+        typesIsLoadingRef.value = isFetchingRef.value = true;
 
         try {
             const items = await getTypes(
@@ -436,7 +437,7 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
             console.error(error);
         }
 
-        isFetchingRef.value = false;
+        typesIsLoadingRef.value = isFetchingRef.value = false;
     }
 
     typesPageIndexRef.value = pageIndex;
@@ -642,9 +643,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <transition name="fade" mode="out-in">
                                 <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
                                     <div class="control">
-                                        <div class="drop" v-bind:style="{
-                                            animationPlayState: isDraggingRef ? 'running' : 'paused',
-                                        }" @dragover.prevent="dragover($event)"
+                                        <div class="drop" v-bind:style="{animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto'}"
+                                            @dragover.prevent="dragover($event)"
                                             @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
                                             <transition name="fade" mode="out-in">
@@ -655,7 +655,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 class="file button is-circle has-text-weight-bold file-label">
                                                                 <input class="file-input" type="file" name="upload"
                                                                     style="pointer-events: none"
-                                                                    v-bind:disabled="isLoading"
+                                                                    v-bind:disabled="isLoadingRef || typesIsLoadingRef"
                                                                     @change="browse($event)" />
                                                                 <div class="file-cta_">
                                                                     <span class="icon">
@@ -695,7 +695,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                         class="file button is-circle has-text-weight-bold file-label">
                                                                         <input class="file-input" type="file"
                                                                             name="upload" style="pointer-events: none"
-                                                                            v-bind:disabled="isLoading"
+                                                                            v-bind:disabled="isLoadingRef"
                                                                             @change="browse($event)" />
                                                                         <div class="file-cta_">
                                                                             <span class="icon">
