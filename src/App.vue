@@ -62,17 +62,18 @@ export default {
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
           clientId: Auth0Config.CLIENT_ID,
+          audience: "https://5dworldmap.com/api/v1/",
           authorizationParams: {
             redirect_uri: window.location.origin
-          },
-          cacheLocation: "localstorage"
+          }
         });
 
         if (await auth0.value.isAuthenticated()) {
           user.value = await auth0.value.getUser();
           const accessToken = await auth0.value.getTokenSilently({
-            audience: "https://5dworldmap.com/api/v1/",
-            scope: "openid"
+            authorizationParams: {
+              audience: "https://5dworldmap.com/api/v1/"
+            }
           });
 
           console.log(accessToken);
