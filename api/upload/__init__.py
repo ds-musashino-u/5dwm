@@ -51,7 +51,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         thumbnail_path = f'media/thumbnails/{id}'
                         thumbnail_type = 'image/jpeg'
 
-                        thumbnail_image = resize_image(Image.open(BytesIO(decoded_data)), 8).convert('RGB')
+                        thumbnail_image = resize_image(Image.open(BytesIO(decoded_data)), 512).convert('RGB')
                         thumbnail_bytes = BytesIO()
                         thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                         
