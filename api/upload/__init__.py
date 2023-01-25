@@ -29,8 +29,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         #    return func.HttpResponse(status_code=401, mimetype='', charset='')
 
         if req.headers['Content-Type'] == 'application/json':
-            json = req.get_json()
-            match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", json['data'])
+            json_data = req.get_json()
+            match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", json_data['data'])
             
             if match:
                 mime_type, encoding, data = match.groups()
