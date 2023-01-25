@@ -5,7 +5,7 @@
 Pillow
 numpy
 pyjwt
-pyjwt[crypto]
+cryptography
 psycopg2-binary==2.9.3
 SQLAlchemy
 azure-functions
