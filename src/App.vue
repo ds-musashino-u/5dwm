@@ -111,7 +111,11 @@ export default {
     const signIn = async (e) => {
       try {
         isSigningIn.value = true;
-        await auth0.value.loginWithRedirect();
+        await auth0.value.loginWithRedirect({
+          authorizationParams: {
+            redirect_uri: window.location.origin
+          }
+        });
       } catch (error) {
         console.error(error);
       } finally {
