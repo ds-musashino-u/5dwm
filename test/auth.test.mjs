@@ -21,8 +21,8 @@ describe("auth", function () {
             authorizationParams: {
                 audience: Auth0Config.AUDIENCE
             }
-        }).returns("foo.bar.baz");
-        claimsStub.returns({__raw: "qux.quux.corge" });
+        }).returns(Promise.resolve("foo.bar.baz"));
+        claimsStub.returns(Promise.resolve({__raw: "qux.quux.corge" }));
 
         assert.equal(true, await getAccessToken(auth0, Auth0Config.AUDIENCE) === "foo.bar.baz");
         
@@ -32,7 +32,7 @@ describe("auth", function () {
             authorizationParams: {
                 audience: Auth0Config.AUDIENCE
             }
-        }).returns("foo..bar");
+        }).returns(Promise.resolve("foo..bar"));
         
         assert.equal(true, await getAccessToken(auth0, Auth0Config.AUDIENCE) === "qux.quux.corge");
 
