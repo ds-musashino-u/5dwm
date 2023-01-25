@@ -3,10 +3,12 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated, watch } from "vue";
+import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { Endpoints } from "../presenters/endpoints.mjs";
+import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
 
@@ -521,25 +523,9 @@ const upload = async (event) => {
 
     if (mediaFileRef.value !== null) {
         try {
-            const idToken = await props.auth0.getIdTokenClaims();
-            const response = await fetch(
-                Endpoints.UPLOAD_URL,
-                {
-                    mode: "cors",
-                    method: "POST",
-                    headers: {
-                        "X-Authorization": `Bearer ${idToken.__raw}`,
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ image: mediaFileRef.value.dataURL }),
-                }
-            );
+            const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.dataURL);
 
-            if (response.ok) {
-                console.log(await response.json());
-            } else {
-                throw new Error(response.statusText);
-            }
+            console.log(result);
         } catch (error) {
             console.error(error);
         }
