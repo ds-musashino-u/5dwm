@@ -48,11 +48,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     container_client = blob_service_client.get_container_client(container_name)
                     
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
-                        thumbnail_path = f'media/thumbnails/{id}'
+                        thumbnail_path = f'media/thumbnails/{id}.jpeg'
 
                         thumbnail_image = resize_image(Image.open(BytesIO(decoded_data)), 8).convert('RGB')
                         thumbnail_bytes = BytesIO()
-                        thumbnail_image.save(thumbnail_bytes, format='PNG')
+                        thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                         
                         blob_client = container_client.get_blob_client(thumbnail_path)
                         blob_client.upload_blob(thumbnail_bytes.getvalue(), blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
@@ -65,7 +65,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     item = {'id': id, 'pk': id, 'url': f'https://5dwm.blob.core.windows.net/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                     
                     if thumbnail_path is not None:
-                        item["thumbnail_url"] = f'https://5dwm.blob.core.windows.net/{container_name}/{thumbnail_path}'
+                        item["thumbnail"] = {'url': f'https://5dwm.blob.core.windows.net/{container_name}/{thumbnail_path}', 'type': 'image/jpeg'}
 
                     client = CosmosClient.from_connection_string(os.environ['AZURE_COSMOS_DB_CONNECTION_STRING'])
                     database = client.get_database_client('5DWM')
