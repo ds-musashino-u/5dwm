@@ -64,14 +64,18 @@ export default {
           clientId: Auth0Config.CLIENT_ID,
           authorizationParams: {
             redirect_uri: window.location.origin
-          }
+          },
+          cacheLocation: "localstorage"
         });
 
         if (await auth0.value.isAuthenticated()) {
           user.value = await auth0.value.getUser();
-          const idToken = await auth0.value.getIdTokenClaims();
+          const accessToken = await auth0.value.getTokenSilently({
+            audience: "https://5dworldmap.com/api/v1/",
+            scope: "openid"
+          });
 
-          console.log(idToken.__raw);
+          console.log(accessToken);
           console.log(user.value);
         } else {
           let code = null;
