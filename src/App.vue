@@ -64,6 +64,7 @@ export default {
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
           clientId: Auth0Config.CLIENT_ID,
+          audience: Auth0Config.AUDIENCE,
           authorizationParams: {
             redirect_uri: window.location.origin
           },
