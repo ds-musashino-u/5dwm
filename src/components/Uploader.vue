@@ -47,6 +47,7 @@ const typesIsCollapsedRef = ref(false);
 const typesIsContinuousRef = ref(false);
 const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
+const progressRef = ref(0);
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -533,6 +534,7 @@ const locate = async () => {
 };
 const upload = async (event) => {
     isUploadingRef.value = true;
+    progressRef.value = 1.0;
 
     if (mediaFileRef.value !== null) {
         try {
@@ -545,6 +547,7 @@ const upload = async (event) => {
     }
 
     isUploadingRef.value = false;
+    progressRef.value = 0;
 
     emit("completed");
 };
@@ -968,6 +971,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             <div class="content" ref="mapRef"></div>
             <div class="crosshairs icon"><i class="fa-solid fa-crosshairs"></i></div>
         </div>
+        <transition name="fade">
+            <div class="progress" v-if="progressRef > 0" v-cloak>
+                <div class="bar animating" v-bind:style="{ width: String(Math.floor(100.0 * progressRef)) + '%' }">
+                </div>
+            </div>
+        </transition>
     </div>
 </template>
 
