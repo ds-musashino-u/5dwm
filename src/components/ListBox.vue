@@ -49,7 +49,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
           <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="name"></h3>
         </div>
         <transition name="fade">
-          <div class="level-item" v-show="isBadgeVisible">
+          <div class="level-item" v-if="isBadgeVisible">
             <span class="badge has-text-weight-bold" v-text="items.reduce((x, y) => y.checked ? x + 1 : x, 0)"></span>
           </div>
         </transition>
