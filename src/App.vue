@@ -59,6 +59,10 @@ export default {
     const isAdmin = ref(false);
 
     onMounted(async () => {
+      const callbackUrl = new URL(window.location.origin);
+
+      callbackUrl.pathname = "/callback/";
+
       try {
         isSigningIn.value = true;
         auth0.value = await createAuth0Client({
@@ -66,7 +70,7 @@ export default {
           clientId: Auth0Config.CLIENT_ID,
           audience: Auth0Config.AUDIENCE,
           authorizationParams: {
-            redirect_uri: window.location.origin
+            redirect_uri: callbackUrl.toString()
           },
           cacheLocation: 'localstorage'
         });
@@ -134,11 +138,15 @@ export default {
     });
 
     const signIn = async (e) => {
+      const callbackUrl = new URL(window.location.origin);
+
+      callbackUrl.pathname = "/callback/";
+
       try {
         isSigningIn.value = true;
         await auth0.value.loginWithRedirect({
           authorizationParams: {
-            redirect_uri: window.location.origin
+            redirect_uri: callbackUrl.toString()
           }
         });
       } catch (error) {
