@@ -64,10 +64,10 @@ export default {
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
           clientId: Auth0Config.CLIENT_ID,
-          audience: Auth0Config.AUDIENCE,
           authorizationParams: {
             redirect_uri: window.location.origin
-          }
+          },
+          cacheLocation: 'localstorage'
         });
 
         if (await auth0.value.isAuthenticated()) {
@@ -84,7 +84,6 @@ export default {
           }
 
           user.value = await auth0.value.getUser();
-
 
           console.log(jwt_decode(accessToken));
           console.log(await auth0.value.getIdTokenClaims());
@@ -108,7 +107,6 @@ export default {
 
           if (code !== null && state !== null || error !== null) {
             await auth0.value.handleRedirectCallback();
-            window.history.replaceState({}, document.title, "/");
 
             const accessToken = await auth0.value.getTokenSilently({
               authorizationParams: {
@@ -124,6 +122,8 @@ export default {
 
             user.value = await auth0.value.getUser();
           }
+
+          window.history.replaceState({}, document.title, "/");
         }
       } catch (error) {
         console.error(error);
