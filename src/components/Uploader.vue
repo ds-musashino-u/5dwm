@@ -7,7 +7,6 @@ import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
-import { Endpoints } from "../presenters/endpoints.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
@@ -20,9 +19,6 @@ const isDraggingRef = ref(false);
 const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
-const isUpdating = ref(false);
-const pictures = ref([]);
-
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaPreviewRef = ref(null);
@@ -157,6 +153,10 @@ const drop = async (event) => {
             } else {
                 mediaPreviewRef.value = null;
             }
+
+            for (const item of typesItemsRef.value) {
+                item.checked = mediaFileRef.value.type.startsWith(item.name);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -193,6 +193,10 @@ const browse = async (event) => {
             } else {
                 mediaPreviewRef.value = null;
             }
+
+            for (const item of typesItemsRef.value) {
+                item.checked = mediaFileRef.value.type.startsWith(item.name);
+            }
         } catch (error) {
             console.error(error);
         }
@@ -205,6 +209,10 @@ const browse = async (event) => {
 const resetMedia = (event) => {
     mediaFileRef.value = null;
     mediaPreviewRef.value = null;
+
+    for (const item of typesItemsRef.value) {
+        item.checked = false;
+    }
 };
 const clearImageUrl = (event) => {
     mediaUrlRef.value = "";
@@ -373,16 +381,19 @@ const selectCategory = (index) => {
 };
 const selectType = (index) => {
     typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
+
+    for (let i = 0; i < typesItemsRef.value.length; i++) {
+        if (index !== i && typesItemsRef.value[i].checked) {
+            typesItemsRef.value[i].checked = false;
+        }
+    }
 };
 const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
     if (categoriesItemsRef.value.length <= pageIndex * maxCategoriesLength) {
         isFetchingRef.value = true;
 
         try {
-            const items = await getCategories(
-                pageIndex * maxCategoriesLength,
-                pageLength
-            );
+            const items = await getCategories(pageIndex * maxCategoriesLength, pageLength);
             let length;
 
             if (items.length > maxCategoriesLength) {
@@ -414,12 +425,7 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
         typesIsLoadingRef.value = isFetchingRef.value = true;
 
         try {
-            const items = await getTypes(
-                null,
-                null,
-                pageIndex * maxTypesLength,
-                pageLength
-            );
+            const items = await getTypes(null, null, pageIndex * maxTypesLength, pageLength);
             let length;
 
             if (items.length > maxTypesLength) {
@@ -430,8 +436,14 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
                 length = items.length;
             }
 
-            for (let i = 0; i < length; i++) {
-                typesItemsRef.value.push({ checked: false, name: items[i] });
+            if (mediaFileRef.value === null) {
+                for (let i = 0; i < length; i++) {
+                    typesItemsRef.value.push({ checked: false, name: items[i] });
+                }
+            } else {
+                for (let i = 0; i < length; i++) {
+                    typesItemsRef.value.push({ checked: mediaFileRef.value.type.startsWith(items[i]), name: items[i] });
+                }
             }
         } catch (error) {
             console.error(error);
@@ -536,37 +548,9 @@ const upload = async (event) => {
 
     emit("completed");
 };
-const update = async () => {
-    isUpdating.value = true;
-
-    try {
-        const response = await fetch("https://www.5dworldmap.com/api/v1/recent", {
-            mode: "cors",
-            method: "GET",
-        });
-
-        if (response.ok) {
-            pictures.value.splice(0);
-
-            for (const item of await response.json()) {
-                pictures.value.push(item);
-            }
-        } else {
-            throw new Error(response.statusText);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-
-    isUpdating.value = false;
-
-    emit("updated");
-};
 
 onActivated(async () => {
     isActivatedRef.value = true;
-
-    update();
 
     const loader = new Loader({
         apiKey: GoogleMapsConfig.API_KEY,
@@ -643,7 +627,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <transition name="fade" mode="out-in">
                                 <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
                                     <div class="control">
-                                        <div class="drop" v-bind:style="{animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto'}"
+                                        <div class="drop"
+                                            v-bind:style="{ animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto' }"
                                             @dragover.prevent="dragover($event)"
                                             @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
@@ -785,8 +770,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                         <ListBox name="Types" :page-length="maxTypesLength"
                             :is-enabled="user !== null && isActivatedRef" :is-collapsed="typesIsCollapsedRef"
                             :is-continuous="typesIsContinuousRef" :items="typesItemsRef" :page-index="typesPageIndexRef"
-                            @collapse="collapseTypes" @clear="clearTypes" @select="selectType" @next="nextTypes"
-                            @previous="previousTypes" />
+                            :is-badge-visible="false" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
+                            @next="nextTypes" @previous="previousTypes" />
                     </nav>
                 </div>
             </div>
@@ -962,7 +947,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                 type="submit"
-                                v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && mediaUrlRef.length === 0"
+                                v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked)"
                                 @click="upload()">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadingRef" key="uploading">
