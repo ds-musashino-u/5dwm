@@ -372,7 +372,7 @@ const pasteImageUrl = async (event) => {
   try {
     const text = await navigator.clipboard.readText();
 
-    if (text.startsWith("https://")) {
+    if (text.toLowerCase().startsWith("https://")) {
       imageUrlRef.value = text;
     } else {
       shake(event.currentTarget || event.target);
@@ -429,10 +429,7 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
     isFetchingRef.value = true;
 
     try {
-      const items = await getCategories(
-        pageIndex * maxCategoriesLength,
-        pageLength
-      );
+      const items = await getCategories(pageIndex * maxCategoriesLength, pageLength);
       let length;
 
       if (items.length > maxCategoriesLength) {
@@ -464,12 +461,7 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
     isFetchingRef.value = true;
 
     try {
-      const items = await getTypes(
-        null,
-        null,
-        pageIndex * maxTypesLength,
-        pageLength
-      );
+      const items = await getTypes(null, null, pageIndex * maxTypesLength, pageLength);
       let length;
 
       if (items.length > maxTypesLength) {
@@ -593,7 +585,7 @@ const search = async (ignoreCache = true) => {
       fromDateRef.value.getTime() > toDateRef.value.getTime() &&
       imageFileRef.value === null &&
       (imageUrlRef.value.length === 0 ||
-        !imageUrlRef.value.startsWith("https://"))
+        !imageUrlRef.value.toLowerCase().startsWith("https://"))
     ) {
       shake(searchPanelRef.value);
 

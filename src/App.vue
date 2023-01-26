@@ -9,6 +9,7 @@ import Data from "./components/Data.vue";
 import Uploader from "./components/Uploader.vue";
 import { Auth0Config } from "./presenters/auth0-config.mjs";
 import { createAuth0Client } from '@auth0/auth0-spa-js';
+import jwt_decode from 'jwt-decode';
 
 export default {
   components: {
@@ -55,6 +56,7 @@ export default {
     const user = ref(null);
     const isSigningIn = ref(false);
     const isSigningOut = ref(false);
+    const isAdmin = ref(false);
 
     onMounted(async () => {
       try {
@@ -62,21 +64,30 @@ export default {
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
           clientId: Auth0Config.CLIENT_ID,
-          audience: "https://5dworldmap.com/api/v1/",
+          audience: Auth0Config.AUDIENCE,
           authorizationParams: {
             redirect_uri: window.location.origin
           }
         });
 
         if (await auth0.value.isAuthenticated()) {
-          user.value = await auth0.value.getUser();
           const accessToken = await auth0.value.getTokenSilently({
             authorizationParams: {
-              audience: "https://5dworldmap.com/api/v1/"
+              audience: Auth0Config.AUDIENCE
             }
           });
 
-          console.log(accessToken);
+          const decoded = jwt_decode(accessToken);
+
+          if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
+            isAdmin.value = true;
+          }
+
+          user.value = await auth0.value.getUser();
+
+
+          console.log(jwt_decode(accessToken));
+          console.log(await auth0.value.getIdTokenClaims());
           console.log(user.value);
         } else {
           let code = null;
@@ -98,6 +109,19 @@ export default {
           if (code !== null && state !== null || error !== null) {
             await auth0.value.handleRedirectCallback();
             window.history.replaceState({}, document.title, "/");
+
+            const accessToken = await auth0.value.getTokenSilently({
+              authorizationParams: {
+                audience: Auth0Config.AUDIENCE
+              }
+            });
+
+            const decoded = jwt_decode(accessToken);
+
+            if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
+              isAdmin.value = true;
+            }
+
             user.value = await auth0.value.getUser();
           }
         }

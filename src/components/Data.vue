@@ -78,7 +78,8 @@ const selectUser = (event, index) => {
     }
 };
 const selectMedia = (event, index) => {
-    mediaRef.value[index].checked = event.currentTarget.checked;
+    index =  pageIndexRef.value * props.pageLength + index;
+    mediaRef.value[index].checked = (event.currentTarget || event.target).checked;
 
     for (let i = 0; i < mediaRef.value.length; i++) {
         if (index !== i && mediaRef.value[i].checked) {
@@ -86,7 +87,7 @@ const selectMedia = (event, index) => {
         }
     }
 
-    emit("select", pageIndexRef.value * props.pageLength + index);
+    emit("select", index);
 };
 const searchMedia = async () => {
     try {
