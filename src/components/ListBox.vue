@@ -6,12 +6,13 @@ import { ref, reactive, toRef, watch } from "vue";
 const props = defineProps({
   name: { type: String, required: false, default: null },
   isEnabled: { type: Boolean, required: false, default: true },
+  isBadgeVisible: { type: Boolean, required: false, default: true },
   isCollapsable: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
   isContinuous: { type: Boolean, required: false, default: false },
   items: { type: Array, required: false, default: [] },
   pageIndex: { type: Number, required: false, default: 0 },
-  pageLength: { type: Number, required: false, default: 10 },
+  pageLength: { type: Number, required: false, default: 10 }
 });
 const emit = defineEmits(["collapse", "clear", "select", "next", "previous"]);
 const isEnabledRef = toRef(props, "isEnabled");
@@ -24,34 +25,18 @@ const collapse = (event) => {
   emit("collapse");
 }
 const select = (event, index) => {
-  emit(
-    "select",
-    pageIndexRef.value * props.pageLength + index
-  );
+  emit("select", pageIndexRef.value * props.pageLength + index);
 };
 const next = (event) => {
-  emit(
-    "next",
-    pageIndexRef.value + 1,
-    props.pageLength + 1,
-    isFetchingRef
-  );
+  emit("next", pageIndexRef.value + 1, props.pageLength + 1, isFetchingRef);
 };
 const previous = (event) => {
-  emit(
-    "previous",
-    pageIndexRef.value - 1
-  );
+  emit("previous", pageIndexRef.value - 1);
 };
 
 watch(isEnabledRef, (newValue, oldValue) => {
   if (newValue !== oldValue && oldValue === false) {
-    emit(
-      "next",
-      pageIndexRef.value,
-      props.pageLength + 1,
-      isFetchingRef
-    );
+    emit("next", pageIndexRef.value, props.pageLength + 1, isFetchingRef);
   }
 });
 </script>
@@ -61,39 +46,26 @@ watch(isEnabledRef, (newValue, oldValue) => {
     <nav class="level is-mobile">
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
-          <h3
-            class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
-            v-text="name"
-          ></h3>
+          <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="name"></h3>
         </div>
-        <div class="level-item">
-          <span
-            class="badge has-text-weight-bold"
-            v-text="items.reduce((x, y) => y.checked ? x + 1 : x, 0)"
-          ></span>
-        </div>
+        <transition name="fade">
+          <div class="level-item" v-show="isBadgeVisible">
+            <span class="badge has-text-weight-bold" v-text="items.reduce((x, y) => y.checked ? x + 1 : x, 0)"></span>
+          </div>
+        </transition>
       </div>
       <div class="level-right">
         <div class="level-item">
-          <button
-            class="button is-rounded"
-            v-bind:disabled="items.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0"
-            @click="clear($event)"
-          >
+          <button class="button is-rounded" v-bind:disabled="items.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0"
+            @click="clear($event)">
             <span class="icon is-small">
               <i class="fa-solid fa-arrow-rotate-left"></i>
             </span>
           </button>
         </div>
         <div class="level-item" v-if="isCollapsable">
-          <button
-            class="button toggle is-rounded"
-            @click="collapse"
-          >
-            <span
-              class="icon is-small"
-              v-bind:class="{ collapsed: isCollapsed }"
-            >
+          <button class="button toggle is-rounded" @click="collapse">
+            <span class="icon is-small" v-bind:class="{ collapsed: isCollapsed }">
               <i class="fa-solid fa-chevron-up"></i>
             </span>
           </button>
@@ -101,11 +73,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
       </div>
     </nav>
     <transition name="fade" mode="out-in">
-      <div
-        class="control"
-        v-if="!isCollapsed && isFetchingRef && items.length === 0"
-        key="loading"
-      >
+      <div class="control" v-if="!isCollapsed && isFetchingRef && items.length === 0" key="loading">
         <nav class="level">
           <div class="level-item">
             <span class="icon">
@@ -115,41 +83,24 @@ watch(isEnabledRef, (newValue, oldValue) => {
         </nav>
       </div>
       <div class="control" v-else-if="!isCollapsed" key="default">
-        <label
-          v-for="(item, index) in [...Array(pageLength).keys()].map(
-            (x) => pageIndex * pageLength + x < items.length ? items[pageIndex * pageLength + x] : null
-          ).filter(x => x !== null)"
-          v-bind:key="item"
-        >
-          <input
-            type="checkbox"
-            v-bind:disabled="!isEnabled"
-            @change="select($event, index)"
-            v-bind:checked="item.checked"
-          />
+        <label v-for="(item, index) in [...Array(pageLength).keys()].map(
+          (x) => pageIndex * pageLength + x < items.length ? items[pageIndex * pageLength + x] : null
+        ).filter(x => x !== null)" v-bind:key="item">
+          <input type="checkbox" v-bind:disabled="!isEnabled" @change="select($event, index)"
+            v-bind:checked="item.checked" />
           <span class="custom"></span>
-          <span
-            class="is-size-7 has-text-weight-bold"
-            v-text="item.name"
-          ></span>
+          <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
         </label>
       </div>
     </transition>
     <transition name="fade">
-      <div
-        class="control"
-        v-show="!isCollapsed && (pageIndexRef > 0 || isContinuous)"
-      >
+      <div class="control" v-show="!isCollapsed && (pageIndexRef > 0 || isContinuous)">
         <nav class="level">
           <div class="level-left">
             <div class="level-item">
-              <button
-                class="button"
-                v-bind:disabled="
-                  !isEnabled || pageIndexRef === 0 || isFetchingRef
-                "
-                @click="previous($event)"
-              >
+              <button class="button" v-bind:disabled="
+                !isEnabled || pageIndexRef === 0 || isFetchingRef
+              " @click="previous($event)">
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-left"></i>
                 </span>
@@ -158,11 +109,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
           </div>
           <div class="level-right">
             <div class="level-item">
-              <button
-                class="button"
-                v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef"
-                @click="next($event)"
-              >
+              <button class="button" v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef"
+                @click="next($event)">
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-right"></i>
                 </span>
@@ -206,7 +154,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
       text-align: center;
     }
 
-    > .level-right > .level-item {
+    >.level-right>.level-item {
       margin: 0px 0px 0px 12px;
 
       button.is-rounded {
@@ -214,7 +162,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         padding: 12px !important;
         box-shadow: none !important;
 
-        > span.icon {
+        >span.icon {
           margin: 0 !important;
           width: 1rem !important;
           height: 1rem !important;
@@ -222,11 +170,11 @@ watch(isEnabledRef, (newValue, oldValue) => {
       }
 
       button.toggle {
-        > span {
+        >span {
           transform: rotate(180deg);
         }
 
-        > span.collapsed {
+        >span.collapsed {
           transition: transform 0.5s ease;
           transform: rotate(0deg);
         }
@@ -256,11 +204,11 @@ watch(isEnabledRef, (newValue, oldValue) => {
       background-color: hsl(0deg, 0%, 93%);
     }
 
-    label > span {
+    label>span {
       user-select: none;
     }
 
-    label > span:not(:first-of-type) {
+    label>span:not(:first-of-type) {
       margin: 0px 0px 0px 12px;
     }
 
@@ -275,8 +223,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
       font-size: 1rem;
     }
 
-    label input[type="checkbox"] + .custom:before,
-    label input[type="radio"] + .custom:before {
+    label input[type="checkbox"]+.custom:before,
+    label input[type="radio"]+.custom:before {
       font-weight: 900;
       font-family: "Font Awesome 6 Free";
       content: "\f00c";
@@ -284,8 +232,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
       text-shadow: none;
     }
 
-    label input[type="checkbox"]:checked + .custom:before,
-    label input[type="radio"]:checked + .custom:before {
+    label input[type="checkbox"]:checked+.custom:before,
+    label input[type="radio"]:checked+.custom:before {
       color: var(--accent-color);
       transition: 0.5s;
     }
