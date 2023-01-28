@@ -15,8 +15,8 @@ paths:
         - Search
       summary: Search media
       description: Search media.
-      #security:
-      #  - bearerAuth: []
+      security:
+        - bearerAuth: []
       requestBody:
         description: Search query
         required: true
@@ -506,8 +506,8 @@ components:
         - last_name
         - updated_at
         - email
-security:
-  - bearerAuth: []
+#security:
+#  - bearerAuth: []
 tags:
   - name: Search
   - name: Categories
