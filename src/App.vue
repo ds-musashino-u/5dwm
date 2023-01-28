@@ -113,11 +113,21 @@ export default {
           if (code !== null && state !== null || error !== null) {
             await auth0.value.handleRedirectCallback();
 
-            const accessToken = await auth0.value.getTokenSilently({
-              authorizationParams: {
-                audience: Auth0Config.AUDIENCE
-              }
-            });
+            let accessToken;
+
+            if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+              accessToken = await auth0.value.getTokenWithPopup({
+                authorizationParams: {
+                  audience: Auth0Config.AUDIENCE
+                }
+              });
+            } else {
+              accessToken = await auth0.value.getTokenSilently({
+                authorizationParams: {
+                  audience: Auth0Config.AUDIENCE
+                }
+              });
+            }
 
             const decoded = jwt_decode(accessToken);
 
@@ -144,6 +154,7 @@ export default {
 
       try {
         isSigningIn.value = true;
+
         await auth0.value.loginWithRedirect({
           authorizationParams: {
             redirect_uri: callbackUrl.toString()
