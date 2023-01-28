@@ -148,22 +148,47 @@ export default {
     });
 
     const signIn = async (e) => {
-      const callbackUrl = new URL(window.location.origin);
+      if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+        try {
+          isSigningIn.value = true;
+          
+          await auth0.value.loginWithPopup();
+          const accessToken = await auth0.value.getTokenSilently({
+            authorizationParams: {
+              audience: Auth0Config.AUDIENCE
+            }
+          });
 
-      callbackUrl.pathname = "/callback/";
+          const decoded = jwt_decode(accessToken);
 
-      try {
-        isSigningIn.value = true;
-
-        await auth0.value.loginWithRedirect({
-          authorizationParams: {
-            redirect_uri: callbackUrl.toString()
+          if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
+            isAdmin.value = true;
           }
-        });
-      } catch (error) {
-        console.error(error);
-      } finally {
-        isSigningIn.value = false;
+
+          user.value = await auth0.value.getUser();
+        } catch (error) {
+          console.error(error);
+        } finally {
+          isSigningIn.value = false;
+        }
+      } else {
+        const callbackUrl = new URL(window.location.origin);
+
+        callbackUrl.pathname = "/callback/";
+
+        try {
+          isSigningIn.value = true;
+
+          await auth0.value.loginWithRedirect({
+            authorizationParams: {
+              redirect_uri: callbackUrl.toString()
+            }
+          });
+        } catch (error) {
+          console.error(error);
+        } finally {
+          isSigningIn.value = false;
+        }
       }
     };
     const signOut = async () => {
