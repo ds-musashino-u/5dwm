@@ -299,6 +299,8 @@ paths:
         - Media
       summary: Insert media
       description: Insert media.
+      security:
+        - bearerAuth: []
       requestBody:
         description: Media data
         required: true
@@ -338,6 +340,8 @@ paths:
         - Media
       summary: Delete media
       description: Delete media by identifier.
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
