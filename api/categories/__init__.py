@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from shared.auth import verify
 from shared.models import Category
 
 import azure.functions as func
@@ -16,25 +17,6 @@ engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if 'Authorization' in req.headers:
-            '''
-            jwt = req.headers['Authorization'].split(' ')[1].split('.') if req.headers['Authorization'].startswith('Bearer ') else req.headers['Authorization'].split('.')
-
-            if json.loads(b64decode(jwt[0] + '=' * (-len(jwt[0]) % 4)))['typ'] == 'JWT' and json.loads(b64decode(jwt[1] + '=' * (-len(jwt[1]) % 4)))['iss'] == 'https://':
-                try:
-                    response = urlopen(Request(
-                        f'https://',
-                        headers={'Content-Type': 'application/json'},
-                        data=json.dumps({'idToken': req.headers['Authorization']}).encode('utf-8')))
-
-                    if response.getcode() != 200:
-                        raise Exception
-
-                except Exception:
-                    return func.HttpResponse(status_code=403, mimetype='', charset='')
-            '''
-            pass
-
         if req.method == 'GET':
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
@@ -72,36 +54,43 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             finally:
                 session.close()
 
-        elif req.method == 'POST' and req.headers.get('Content-Type') == 'application/json':
-            name = req.get_json()['name']
+        elif req.method == 'POST':
+            if req.headers['X-Authorization'].startswith('Bearer '):
+                if verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
+                    return func.HttpResponse(status_code=401, mimetype='', charset='')
+            else:
+                return func.HttpResponse(status_code=401, mimetype='', charset='')
+            
+            if req.headers.get('Content-Type') == 'application/json':
+                name = req.get_json()['name']
 
-            if type(name) != str:
-                return func.HttpResponse(status_code=400, mimetype='', charset='')
+                if type(name) != str:
+                    return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-            Session = sessionmaker(bind=engine)
-            session = Session()
+                Session = sessionmaker(bind=engine)
+                session = Session()
 
-            try:
-                category = Category()
-                category.name = name
-                category.updated_at = datetime.now(timezone.utc)
+                try:
+                    category = Category()
+                    category.name = name
+                    category.updated_at = datetime.now(timezone.utc)
 
-                session.add(category)
-                session.commit()
+                    session.add(category)
+                    session.commit()
 
-                return func.HttpResponse(json.dumps({
-                    'id': category.id,
-                    'name': category.name,
-                    'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=201, mimetype='application/json', charset='utf-8')
+                    return func.HttpResponse(json.dumps({
+                        'id': category.id,
+                        'name': category.name,
+                        'updated_at': category.updated_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }), status_code=201, mimetype='application/json', charset='utf-8')
 
-            except Exception as e:
-                session.rollback()
+                except Exception as e:
+                    session.rollback()
 
-                raise e
+                    raise e
 
-            finally:
-                session.close()
+                finally:
+                    session.close()
 
         return func.HttpResponse(status_code=400, mimetype='', charset='')
 

@@ -4,6 +4,7 @@ import os
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from shared.auth import verify
 from shared.models import Category
 
 import azure.functions as func
@@ -15,30 +16,17 @@ engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if 'Authorization' in req.headers:
-            '''
-            jwt = req.headers['Authorization'].split(' ')[1].split('.') if req.headers['Authorization'].startswith('Bearer ') else req.headers['Authorization'].split('.')
-
-            if json.loads(b64decode(jwt[0] + '=' * (-len(jwt[0]) % 4)))['typ'] == 'JWT' and json.loads(b64decode(jwt[1] + '=' * (-len(jwt[1]) % 4)))['iss'] == 'https://':
-                try:
-                    response = urlopen(Request(
-                        f'https://',
-                        headers={'Content-Type': 'application/json'},
-                        data=json.dumps({'idToken': req.headers['Authorization']}).encode('utf-8')))
-
-                    if response.getcode() != 200:
-                        raise Exception
-
-                except Exception:
-                    return func.HttpResponse(status_code=403, mimetype='', charset='')
-            '''
-            pass
-
         id = int(req.route_params.get('id'))
         Session = sessionmaker(bind=engine)
         session = Session()
 
         if req.method == 'DELETE':
+            if req.headers['X-Authorization'].startswith('Bearer '):
+                if verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
+                    return func.HttpResponse(status_code=401, mimetype='', charset='')
+            else:
+                return func.HttpResponse(status_code=401, mimetype='', charset='')
+            
             try:
                 category = session.query(Category).filter(
                     Category.id == id).one()
@@ -61,6 +49,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 session.close()
 
         elif req.method == 'PUT':
+            if req.headers['X-Authorization'].startswith('Bearer '):
+                if verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
+                    return func.HttpResponse(status_code=401, mimetype='', charset='')
+            else:
+                return func.HttpResponse(status_code=401, mimetype='', charset='')
+            
             if req.headers.get('Content-Type') == 'application/json':
                 name = req.get_json()['name']
 
