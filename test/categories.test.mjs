@@ -29,16 +29,16 @@ describe("categories", function () {
     it("insertCategory", async function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
 
-        assert.equal(true, await insertCategory("foobar") instanceof Category);
+        assert.equal(true, await insertCategory("dummy_token", "foobar") instanceof Category);
     });
     it("updateCategory", async function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
 
-        assert.equal(true, await updateCategory(1, "foobar") instanceof Category);
+        assert.equal(true, await updateCategory("dummy_token", 1, "foobar") instanceof Category);
     });
     it("deleteCategory", async function () {
         fetchStub.returns(Promise.resolve({ ok: true, json: () => Promise.resolve({ id: "1", name: "foobar", updated_at: "1970-01-01T09:00:00Z" }) }));
 
-        assert.equal(true, await deleteCategory(1) instanceof Category);
+        assert.equal(true, await deleteCategory("dummy_token", 1) instanceof Category);
     });
 });
