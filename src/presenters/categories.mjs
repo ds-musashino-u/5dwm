@@ -82,14 +82,16 @@ export async function getCategory(id) {
 /**
  * /api/v1/categories
  * @module insertCategory
+ * @param {!string} token - Access token
  * @param {!string} name - Name
  * @return {?Category} - Category item
  */
-export async function insertCategory(name) {
+export async function insertCategory(token, name) {
     const response = await fetch(encodeURI(Endpoints.CATEGORIES_URL), {
         mode: "cors",
         method: "POST",
         headers: {
+            "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: name })
@@ -111,15 +113,17 @@ export async function insertCategory(name) {
 /**
  * /api/v1/categories/{id}
  * @module updateCategory
+ * @param {!string} token - Access token
  * @param {!number} id - Category identifier
  * @param {!string} name - Name
  * @return {?Category} - Category item
  */
-export async function updateCategory(id, name) {
+export async function updateCategory(token, id, name) {
     const response = await fetch(encodeURI(`${Endpoints.CATEGORIES_URL}/${id}`), {
         mode: "cors",
         method: "PUT",
         headers: {
+            "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({ name: name })
@@ -141,14 +145,16 @@ export async function updateCategory(id, name) {
 /**
  * /api/v1/categories/{id}
  * @module deleteCategory
+ * @param {!string} token - Access token
  * @param {!number} id - Category identifier
  * @return {?Category} - Category item
  */
-export async function deleteCategory(id) {
+export async function deleteCategory(token, id) {
     const response = await fetch(encodeURI(`${Endpoints.CATEGORIES_URL}/${id}`), {
         mode: "cors",
         method: "DELETE",
         headers: {
+            "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/x-www-form-urlencoded"
         }
     });
