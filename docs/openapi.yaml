@@ -115,7 +115,9 @@ paths:
       tags:
         - Categories
       summary: Insert category
-      description: Insert category.      
+      description: Insert category.
+      security:
+        - bearerAuth: []
       requestBody:
         description: category data
         required: true
@@ -155,6 +157,8 @@ paths:
         - Categories
       summary: Update category
       description: Update category by identifier.
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
@@ -186,6 +190,8 @@ paths:
         - Categories
       summary: Delete category
       description: Delete category by identifier.
+      security:
+        - bearerAuth: []
       parameters:
       - name: id
         in: path
