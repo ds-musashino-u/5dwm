@@ -8,6 +8,7 @@ const props = defineProps({
   title: { type: String, required: false, default: null },
   subtitle: { type: String, required: false, default: null },
   isLoading: { type: Boolean, required: false, default: false },
+  isAdmin: { type: Boolean, required: false, default: false },
   user: { type: Object, required: false, default: null },
   items: Array,
 });
@@ -33,44 +34,30 @@ const signOut = (event) => {
               <div class="level-item">
                 <div class="block">
                   <nav class="panel">
-                    <div
-                      class="panel-heading"
-                      v-if="
-                        logoUrl !== null || title !== null || subtitle !== null
-                      "
-                    >
+                    <div class="panel-heading" v-if="
+                      logoUrl !== null || title !== null || subtitle !== null
+                    ">
                       <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
-                      <h1
-                        class="
+                      <h1 class="
                           is-primary is-uppercase is-size-4
                           has-text-weight-bold
-                        "
-                        v-if="title !== null"
-                      >
+                        " v-if="title !== null">
                         {{ title }}
                       </h1>
-                      <h2
-                        class="is-size-7 has-text-weight-bold"
-                        v-if="subtitle !== null"
-                      >
+                      <h2 class="is-size-7 has-text-weight-bold" v-if="subtitle !== null">
                         {{ subtitle }}
                       </h2>
                     </div>
                     <div class="panel-block">
                       <div class="control">
-                        <button
-                          class="
+                        <button class="
                             button
                             is-rounded
                             is-outlined
                             is-fullwidth
                             is-size-7
                             is-primary
-                          "
-                          type="button"
-                          v-bind:disabled="isLoading"
-                          @click="signIn"
-                        >
+                          " type="button" v-bind:disabled="isLoading" @click="signIn">
                           <transition name="fade" mode="out-in">
                             <span class="icon" v-if="isLoading" key="loading">
                               <i class="fas fa-spinner updating"></i>
@@ -79,9 +66,7 @@ const signOut = (event) => {
                               <i class="fa-solid fa-arrow-right-to-bracket"></i>
                             </span>
                           </transition>
-                          <span class="is-uppercase has-text-weight-bold"
-                            >Sign In</span
-                          >
+                          <span class="is-uppercase has-text-weight-bold">Sign In</span>
                         </button>
                       </div>
                     </div>
@@ -93,26 +78,17 @@ const signOut = (event) => {
               <div class="level-item">
                 <div class="block">
                   <nav class="panel">
-                    <div
-                      class="panel-heading"
-                      v-if="
-                        logoUrl !== null || title !== null || subtitle !== null
-                      "
-                    >
+                    <div class="panel-heading" v-if="
+                      logoUrl !== null || title !== null || subtitle !== null
+                    ">
                       <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
-                      <h1
-                        class="
+                      <h1 class="
                           is-primary is-uppercase is-size-4
                           has-text-weight-bold
-                        "
-                        v-if="title !== null"
-                      >
+                        " v-if="title !== null">
                         {{ title }}
                       </h1>
-                      <h2
-                        class="is-size-7 has-text-weight-bold"
-                        v-if="subtitle !== null"
-                      >
+                      <h2 class="is-size-7 has-text-weight-bold" v-if="subtitle !== null">
                         {{ subtitle }}
                       </h2>
                     </div>
@@ -121,49 +97,39 @@ const signOut = (event) => {
                         <div class="is-superellips">
                           <figure>
                             <picture class="image is-64x64">
-                              <img
-                                v-bind:src="user.picture"
-                                width="64"
-                                height="64"
-                                v-bind:alt="user.name"
-                              />
+                              <img v-bind:src="user.picture" width="64" height="64" v-bind:alt="user.name" />
                             </picture>
                           </figure>
                         </div>
                       </div>
                       <div class="block">
-                        <h2
-                          class="is-size-5 has-text-weight-bold"
-                          v-if="'nickname' in user"
-                        >
+                        <h2 class="is-size-5 has-text-weight-bold" v-if="'nickname' in user">
                           {{ user.nickname }}
                         </h2>
                         <h3 class="is-size-7 has-text-weight-bold">
                           {{ user.name }}
                         </h3>
                       </div>
+                      <div class="block" v-if="isAdmin">
+                        <span class="icon-text">
+                          <span class="icon">
+                            <i class="fa-solid fa-id-badge"></i>
+                          </span>
+                          <span class="is-uppercase is-size-7 has-text-weight-bold">Admin</span>
+                        </span>
+                      </div>
                     </div>
-                    <div
-                      class="panel-block is-hidden-tablet"
-                      v-for="(item, index) in items"
-                      v-bind:key="item"
-                    >
+                    <div class="panel-block is-hidden-tablet" v-for="(item, index) in items" v-bind:key="item">
                       <div class="control">
-                        <button
-                          class="
+                        <button class="
                             button
                             is-rounded
                             is-outlined
                             is-fullwidth
                             is-size-7
                             is-primary
-                          "
-                          type="button"
-                          v-bind:disabled="isLoading"
-                          v-bind:data-index="index"
-                          v-bind:data-name="item.name"
-                          @click="select"
-                        >
+                          " type="button" v-bind:disabled="isLoading" v-bind:data-index="index"
+                          v-bind:data-name="item.name" @click="select">
                           <span class="icon">
                             <i v-bind:class="item.icon"></i>
                           </span>
@@ -175,28 +141,19 @@ const signOut = (event) => {
                     </div>
                     <div class="panel-block">
                       <div class="control">
-                        <button
-                          class="
+                        <button class="
                             button
                             is-rounded is-outlined is-fullwidth is-size-7
-                          "
-                          type="button"
-                          v-bind:disabled="isLoading"
-                          @click="signOut"
-                        >
+                          " type="button" v-bind:disabled="isLoading" @click="signOut">
                           <transition name="fade" mode="out-in">
                             <span class="icon" v-if="isLoading" key="loading">
                               <i class="fas fa-spinner updating"></i>
                             </span>
                             <span class="icon" v-else key="loaded">
-                              <i
-                                class="fa-solid fa-arrow-right-from-bracket"
-                              ></i>
+                              <i class="fa-solid fa-arrow-right-from-bracket"></i>
                             </span>
                           </transition>
-                          <span class="is-uppercase has-text-weight-bold"
-                            >Sign Out</span
-                          >
+                          <span class="is-uppercase has-text-weight-bold">Sign Out</span>
                         </button>
                       </div>
                     </div>
@@ -212,20 +169,20 @@ const signOut = (event) => {
 </template>
 
 <style lang="scss" scoped>
-#menu > .columns > .column {
+#menu>.columns>.column {
   padding: 0;
 
-  > .control {
+  >.control {
     padding: 16px;
 
-    > .level:first-child {
+    >.level:first-child {
       margin: -8px !important;
 
-      > .level-item {
+      >.level-item {
         margin: 0;
         padding: 8px !important;
 
-        > .block {
+        >.block {
           .panel {
             background: #ffffff !important;
             border-radius: 8px !important;
@@ -260,11 +217,11 @@ const signOut = (event) => {
                 padding: 0;
               }
 
-              h1 + h2 {
+              h1+h2 {
                 margin: 6px 0px 0px 0px;
               }
 
-              h2 + h3 {
+              h2+h3 {
                 margin: 6px 0px 0px 0px;
               }
             }
@@ -274,7 +231,7 @@ const signOut = (event) => {
               border-bottom: 1px solid hsl(0deg, 0%, 93%);
             }
 
-            > .panel-block:nth-of-type(2) {
+            >.panel-block:nth-of-type(2) {
               display: flex !important;
               flex-direction: column !important;
               justify-content: center !important;
