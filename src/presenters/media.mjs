@@ -12,7 +12,7 @@ export class Media {
      * @param {!Array<string>} categories - Categories
      * @param {!string} description - Description
      * @param {!string} username - User name
-     * @param {!Location} location - Location
+     * @param {?Location} location - Location
      * @param {!string} createdAt - Updated date time (ISO 8601)
      * @param {?string} previewImageUrl - Preview image URL
      */
@@ -123,9 +123,30 @@ export async function getMedium(id) {
  * @param {!string} description - Description
  * @param {!string} username - User name
  * @param {!Location} location - Location
+ * @param {?Date} createdAt - Created date time
  * @return {?Media} - Media item
  */
- export async function insertMedium(token, url, type, categories, description, username, location) {
+export async function insertMedium(token, url, type, categories, description, username, location, createdAt=null) {
+    const data = {
+        url: url,
+        type: type,
+        categories: categories,
+        description: description,
+        username: username,
+        location: {
+            type: "Point",
+            coordinates: [location.longitude, location.latitude]
+        }
+    };
+
+    if (location.hasAddress) {
+        data["address"] = location.address;
+    }
+
+    if (createdAt !== null) {
+        data["created_at"] = createdAt.toISOString()
+    }
+
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
         mode: "cors",
         method: "POST",
@@ -133,18 +154,7 @@ export async function getMedium(id) {
             "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-            url: url,
-            type: type,
-            categories: categories,
-            description: description,
-            username: username,
-            location: {
-                type: "Point",
-                coordinates: [location.longitude, location.latitude]
-            },
-            address: location.address
-        })
+        body: JSON.stringify(data)
     });
 
     if (response.ok) {
