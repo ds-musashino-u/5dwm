@@ -223,7 +223,7 @@ export default {
       }
     };
 
-    return { auth0, user, isSigningIn, isSigningOut, signIn, signOut };
+    return { auth0, user, isSigningIn, isSigningOut, isAdmin, signIn, signOut };
   },
   mounted() { },
 };
@@ -241,7 +241,7 @@ export default {
     </div>
     <transition name="reveal">
       <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
-        v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn" @sign-out="signOut"
+        v-bind:is-admin="isAdmin" v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn" @sign-out="signOut"
         v-if="user === null || isRevealed" />
     </transition>
   </div>
