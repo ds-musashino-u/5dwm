@@ -6,7 +6,7 @@ import { ref, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
-import { getMedia } from "../presenters/media.mjs";
+import { insertMedium, Media } from "../presenters/media.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
@@ -158,6 +158,8 @@ const drop = async (event) => {
             for (const item of typesItemsRef.value) {
                 item.checked = mediaFileRef.value.type.startsWith(item.name);
             }
+
+            mediaUrlRef.value = "";
         } catch (error) {
             console.error(error);
         }
@@ -198,6 +200,8 @@ const browse = async (event) => {
             for (const item of typesItemsRef.value) {
                 item.checked = mediaFileRef.value.type.startsWith(item.name);
             }
+
+            mediaUrlRef.value = "";
         } catch (error) {
             console.error(error);
         }
@@ -533,6 +537,9 @@ const locate = async () => {
     }
 };
 const upload = async (event) => {
+    let url = null;
+    let thumbnailUrl = null;
+
     isUploadingRef.value = true;
     progressRef.value = 1.0;
 
@@ -540,8 +547,48 @@ const upload = async (event) => {
         try {
             const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.dataURL);
 
-            console.log(result);
+            url = result.url;
+            thumbnailUrl = result.thumbnail.url;
         } catch (error) {
+            console.error(error);
+        }
+    } else if (mediaUrlRef.value.length > 0) {
+        url = mediaUrlRef.value;
+    }
+
+    for (const item of typesItemsRef.value) {
+        if (item.checked) {
+            type = item.name;
+
+            break;
+        }
+    }
+
+    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
+    let location = null;
+    let createdDate = null;
+    let media = null;
+
+    if (longitudeRef.value.length > 0 && latitudeRef.value.length > 0 && isFinite(longitudeRef.value) && isFinite(latitudeRef.value)) {
+        location = new Location(Number(longitudeRef.value), Number(latitudeRef.value));
+
+        if (addressRef.value.length > 0) {
+            locate.address = addressRef.value;
+        }
+    }
+
+    if (timeYearRef.value.length > 0 && timeMonthRef.value.length > 0 && timeDayRef.value.length > 0 && timeHoursRef.value.length > 0 && timeMinutesRef.value.length > 0 && timeSecondsRef.value.length > 0
+        && isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
+        createdDate = new Date(Number(timeYearRef.value), Number(timeMonthRef.value) - 1, Number(timeDayRef.value), Number(timeHoursRef.value), Number(timeMinutesRef.value), Number(timeSecondsRef.value));
+    }
+
+    if (url === null || type === null || location === null || createdDate === null) {
+        shake(event.currentTarget || event.target);
+    } else {
+        try {
+            media = await insertMedium(getAccessToken(auth0.value), url, type, categories, descriptionRef.value, props.user.sub, location, createdDate)
+        } catch (error) {
+            shake(event.currentTarget || event.target);
             console.error(error);
         }
     }
@@ -549,7 +596,7 @@ const upload = async (event) => {
     isUploadingRef.value = false;
     progressRef.value = 0;
 
-    emit("completed");
+    emit("completed", event, media);
 };
 
 onActivated(async () => {
