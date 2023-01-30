@@ -19,6 +19,7 @@ const isDraggingRef = ref(false);
 const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
+const isUploadedRef = ref(false);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaPreviewRef = ref(null);
@@ -588,6 +589,11 @@ const upload = async (event) => {
         try {
             media = await insertMedium(getAccessToken(auth0.value), url, type, categories, descriptionRef.value, props.user.sub, location, createdDate)
             media.previewImageUrl = thumbnailUrl;
+
+            isUploadedRef.value = true;
+            window.setTimeout(() => {
+                isUploadedRef.value = false;
+            }, 3000);
         } catch (error) {
             shake(event.currentTarget || event.target);
             console.error(error);
@@ -1001,7 +1007,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked)"
                                 @click="upload()">
                                 <transition name="fade" mode="out-in">
-                                    <span class="icon" v-if="isUploadingRef" key="uploading">
+                                    <span class="icon" v-if="isUploadedRef" key="uploaded">
+                                        <i class="fa-solid fa-check"></i>
+                                    </span>
+                                    <span class="icon" v-else-if="isUploadingRef" key="uploading">
                                         <i class="fas fa-spinner updating"></i>
                                     </span>
                                     <span class="icon" v-else key="ready">
