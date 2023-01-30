@@ -115,14 +115,16 @@ export default {
 
             let accessToken;
 
-            if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
-              accessToken = await auth0.value.getTokenWithPopup({
+            try {
+              accessToken = await auth0.value.getTokenSilently({
                 authorizationParams: {
                   audience: Auth0Config.AUDIENCE
                 }
               });
-            } else {
-              accessToken = await auth0.value.getTokenSilently({
+            } catch (error) {
+              console.error(error);
+
+              accessToken = await auth0.value.getTokenWithPopup({
                 authorizationParams: {
                   audience: Auth0Config.AUDIENCE
                 }
@@ -136,6 +138,7 @@ export default {
             }
 
             user.value = await auth0.value.getUser();
+            console.log(user.value);
           }
 
           window.history.replaceState({}, document.title, "/");
@@ -148,12 +151,29 @@ export default {
     });
 
     const signIn = async (e) => {
-      if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+      const callbackUrl = new URL(window.location.origin);
+
+      callbackUrl.pathname = "/callback/";
+
+      try {
+        isSigningIn.value = true;
+
+        await auth0.value.loginWithRedirect({
+          authorizationParams: {
+            redirect_uri: callbackUrl.toString()
+          }
+        });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        isSigningIn.value = false;
+      }
+      /*if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         try {
           isSigningIn.value = true;
-          
+
           await auth0.value.loginWithPopup();
-          const accessToken = await auth0.value.getTokenSilently({
+          const accessToken = await auth0.value.getTokenWithPopup({
             authorizationParams: {
               audience: Auth0Config.AUDIENCE
             }
@@ -189,7 +209,7 @@ export default {
         } finally {
           isSigningIn.value = false;
         }
-      }
+      }*/
     };
     const signOut = async () => {
       try {
