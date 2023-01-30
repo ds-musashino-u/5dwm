@@ -587,6 +587,7 @@ const upload = async (event) => {
     } else {
         try {
             media = await insertMedium(getAccessToken(auth0.value), url, type, categories, descriptionRef.value, props.user.sub, location, createdDate)
+            media.previewImageUrl = thumbnailUrl;
         } catch (error) {
             shake(event.currentTarget || event.target);
             console.error(error);
