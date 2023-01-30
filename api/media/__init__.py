@@ -97,15 +97,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             url = data['url']
             mime_type = data['type']
             categories = data['categories']
-            address = data['address']
+            address = data['address'] if 'address' in data else ''
             description = data['description']
             username = data['username']
             longitude = data['location']['coordinates'][0]
             latitude = data['location']['coordinates'][1]
+            created_at = datetime.fromisoformat(data['created_at'].replace('Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
 
             if type(url) != str and type(mime_type) != str and type(categories) != list and type(address) != str and type(description) != str and type(username) != str and data['location']['type'] != 'Point':
                 return func.HttpResponse(status_code=400, mimetype='', charset='')
-
+            
             Session = sessionmaker(bind=engine)
             session = Session()
 
@@ -119,7 +120,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 media.username = username
                 media.latitude = latitude
                 media.longitude = longitude
-                media.created_at = datetime.now(timezone.utc)
+                media.created_at = created_at
 
                 session.add(media)
                 session.commit()
