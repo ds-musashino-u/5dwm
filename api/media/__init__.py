@@ -114,10 +114,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'username': username,
                     'location': {'type': 'Point', 'coordinates': [longitude, latitude]},
                     'created_at': created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=400, mimetype='', charset='')
+                }), status_code=400, mimetype='', charset='', mimetype='application/json')
             
-            #Session = sessionmaker(bind=engine)
-            #session = Session()
+            Session = sessionmaker(bind=engine)
+            session = Session()
 
             try:
                 media = Media()
@@ -131,8 +131,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 media.longitude = longitude
                 media.created_at = created_at
 
-                #session.add(media)
-                #session.commit()
+                session.add(media)
+                session.commit()
 
                 return func.HttpResponse(json.dumps({
                     'id': media.id,
@@ -147,13 +147,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 }), status_code=201, mimetype='application/json', charset='utf-8')
 
             except Exception as e:
-                #session.rollback()
+                session.rollback()
 
                 raise e
 
             finally:
-                pass
-                #session.close()
+                session.close()
 
     except Exception as e:
         logging.error(f'{e}')
