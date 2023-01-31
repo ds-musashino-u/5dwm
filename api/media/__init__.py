@@ -105,7 +105,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             created_at = datetime.fromisoformat(data['created_at'].replace('Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
 
             if type(url) is not str or type(mime_type) is not str or type(categories) is not list or type(address) is not str or type(description) is not str or type(username) is not str or data['location']['type'] != 'Point':
-                return func.HttpResponse(status_code=400, mimetype='', charset='')
+                return func.HttpResponse(json.dumps({
+                    'url': url,
+                    'type': mime_type,
+                    'created_at': created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                }), status_code=200, mimetype='application/json', charset='utf-8')
+                #return func.HttpResponse(status_code=400, mimetype='', charset='')
             
             Session = sessionmaker(bind=engine)
             session = Session()
