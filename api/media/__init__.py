@@ -106,9 +106,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             if type(url) is not str or type(mime_type) is not str or type(address) is not str or type(description) is not str or type(username) is not str or data['location']['type'] is not 'Point':
                 return func.HttpResponse(json.dumps({
-                    'id': url,
                     'url': url,
-                    'type': type,
+                    'type': mime_type,
                     'categories': categories,
                     'address': address,
                     'description': description,
