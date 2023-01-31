@@ -118,7 +118,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     '_address': type(address) is not str,
                     '_description': type(description) is not str,
                     '_username': type(username) is not str,
-                    '_location': data['location']['type'] is not 'Point',
+                    '_location': data['location']['type'] != 'Point',
                     'location': {'type': 'Point', 'coordinates': [longitude, latitude]},
                     'created_at': created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }), status_code=200, mimetype='', charset='utf-8', mimetype='application/json')
