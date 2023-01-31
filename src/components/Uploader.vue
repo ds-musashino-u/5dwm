@@ -6,6 +6,7 @@ import { ref, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
+import { Location } from "../presenters/location.mjs";
 import { insertMedium, Media } from "../presenters/media.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
@@ -540,7 +541,7 @@ const locate = async () => {
 const upload = async (event) => {
     let url = null;
     let thumbnailUrl = null;
-
+    
     isUploadingRef.value = true;
     progressRef.value = 1.0;
 
@@ -557,6 +558,12 @@ const upload = async (event) => {
         url = mediaUrlRef.value;
     }
 
+    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
+    let type = null;
+    let location = null;
+    let createdDate = null;
+    let media = null;
+
     for (const item of typesItemsRef.value) {
         if (item.checked) {
             type = item.name;
@@ -564,11 +571,6 @@ const upload = async (event) => {
             break;
         }
     }
-
-    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
-    let location = null;
-    let createdDate = null;
-    let media = null;
 
     if (longitudeRef.value.length > 0 && latitudeRef.value.length > 0 && isFinite(longitudeRef.value) && isFinite(latitudeRef.value)) {
         location = new Location(Number(longitudeRef.value), Number(latitudeRef.value));
@@ -578,16 +580,15 @@ const upload = async (event) => {
         }
     }
 
-    if (timeYearRef.value.length > 0 && timeMonthRef.value.length > 0 && timeDayRef.value.length > 0 && timeHoursRef.value.length > 0 && timeMinutesRef.value.length > 0 && timeSecondsRef.value.length > 0
-        && isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
-        createdDate = new Date(Number(timeYearRef.value), Number(timeMonthRef.value) - 1, Number(timeDayRef.value), Number(timeHoursRef.value), Number(timeMinutesRef.value), Number(timeSecondsRef.value));
+    if (isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
+        createdDate = new Date(Number(timeYearRef.value), Number(timeMonthRef.value), Number(timeDayRef.value), Number(timeHoursRef.value), Number(timeMinutesRef.value), Number(timeSecondsRef.value));
     }
 
     if (url === null || type === null || location === null || createdDate === null) {
         shake(event.currentTarget || event.target);
     } else {
         try {
-            media = await insertMedium(getAccessToken(auth0.value), url, type, categories, descriptionRef.value, props.user.sub, location, createdDate)
+            media = await insertMedium(getAccessToken(props.auth0), url, type, categories, descriptionRef.value, props.user.sub, location, createdDate)
             media.previewImageUrl = thumbnailUrl;
 
             isUploadedRef.value = true;
@@ -1005,7 +1006,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                 type="submit"
                                 v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked)"
-                                @click="upload()">
+                                @click="upload($event)">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadedRef" key="uploaded">
                                         <i class="fa-solid fa-check"></i>
