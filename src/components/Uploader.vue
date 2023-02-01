@@ -588,7 +588,7 @@ const upload = async (event) => {
         shake(event.currentTarget || event.target);
     } else {
         try {
-            media = await insertMedium(await getAccessToken(props.auth0), url, type, categories, descriptionRef.value, props.user.nickname/*props.user.sub*/, location, createdDate)
+            media = await insertMedium(await getAccessToken(props.auth0), url, type, categories, descriptionRef.value, props.user.email.split("@")[0]/*props.user.sub*/, location, createdDate)
             media.previewImageUrl = thumbnailUrl;
 
             isUploadedRef.value = true;
