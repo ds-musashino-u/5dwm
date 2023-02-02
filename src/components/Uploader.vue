@@ -543,7 +543,7 @@ const upload = async (event) => {
     let thumbnailUrl = null;
     
     isUploadingRef.value = true;
-    progressRef.value = 1.0;
+    progressRef.value = 0.5;
 
     if (mediaFileRef.value !== null) {
         try {
@@ -557,6 +557,8 @@ const upload = async (event) => {
     } else if (mediaUrlRef.value.length > 0) {
         url = mediaUrlRef.value;
     }
+
+    progressRef.value = 1;
 
     const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
     let type = null;
