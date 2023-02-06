@@ -743,6 +743,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 content: "\f00c";
                                 color: transparent;
                                 text-shadow: none;
+                                transition: 0.5s;
                             }
 
                             label input[type="checkbox"]:checked+.custom:before,
