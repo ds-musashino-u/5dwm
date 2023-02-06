@@ -12,6 +12,12 @@ import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
 
+const props = defineProps({
+    auth0: Object,
+    user: Object,
+    text: String,
+    media: { type: Object, required: false, default: null },
+});
 const mapRef = ref(null);
 let map = null;
 let geocoder = null;
@@ -21,6 +27,7 @@ const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
 const isUploadedRef = ref(false);
+const mediaIDRef = ref(null);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaPreviewRef = ref(null);
@@ -39,22 +46,40 @@ const timeMinutesRef = ref(timeRef.value.getMinutes());
 const timeSecondsRef = ref(timeRef.value.getSeconds());
 const hasTimeErrorRef = ref(false);
 const maxCategoriesLength = 10;
+const categoriesRef = ref(null);
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
 const categoriesPageIndexRef = ref(0);
 const maxTypesLength = 25;
+const typeRef = ref(null);
 const typesIsLoadingRef = ref(true);
 const typesIsCollapsedRef = ref(false);
 const typesIsContinuousRef = ref(false);
 const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
 const progressRef = ref(0);
-const props = defineProps({
-    auth0: Object,
-    user: Object,
-    text: String,
-});
+
+if (props.media !== null) {
+    mediaIDRef.value = props.media.id;
+    mediaUrlRef.value = props.media.url;
+    descriptionRef.value = props.media.description;
+    timeRef.value = props.media.createdAt;
+    timeYearRef.value = timeRef.value.getFullYear();
+    timeMonthRef.value = timeRef.value.getMonth();
+    timeDayRef.value = timeRef.value.getDate();
+    timeHoursRef.value = timeRef.value.getHours();
+    timeMinutesRef.value = timeRef.value.getMinutes();
+    timeSecondsRef.value = timeRef.value.getSeconds();
+    longitudeRef.value = String(props.media.location.longitude);
+    latitudeRef.value = String(props.media.location.latitude);
+    typeRef.value = props.media.type;
+    categoriesRef.value = props.media.categories === null ? [] : props.media.categories;
+
+    if (props.media.location.hasAddress()) {
+        addressRef.value = props.media.location.address;
+    }
+}
 
 const emit = defineEmits(["completed", "updated"]);
 const resizeImage = async (dataURL, length) => {
@@ -383,15 +408,26 @@ const clearTypes = () => {
     }
 };
 const selectCategory = (index) => {
-    categoriesItemsRef.value[index].checked =
-        !categoriesItemsRef.value[index].checked;
+    categoriesItemsRef.value[index].checked = !categoriesItemsRef.value[index].checked;
+
+    if (categoriesRef.value !== null) {
+        categoriesRef.value = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
+    }
 };
 const selectType = (index) => {
-    typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
+    typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;    
 
     for (let i = 0; i < typesItemsRef.value.length; i++) {
         if (index !== i && typesItemsRef.value[i].checked) {
             typesItemsRef.value[i].checked = false;
+        }
+    }
+
+    if (typeRef.value !== null) {
+        if (typesItemsRef.value[index].checked) {
+            typeRef.value = typesItemsRef.value[index].name;
+        } else if (typesItemsRef.value.every(x => !x.checked)) {
+            typeRef.value = "";
         }
     }
 };
@@ -411,8 +447,16 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
                 length = items.length;
             }
 
-            for (let i = 0; i < length; i++) {
-                categoriesItemsRef.value.push({ checked: false, name: items[i].name });
+            if (categoriesRef.value === null) {
+                for (let i = 0; i < length; i++) {
+                    categoriesItemsRef.value.push({ checked: false, name: items[i].name });
+                }
+            } else {
+                for (let i = 0; i < length; i++) {
+                    const category = categoriesRef.value.find(x => x.name === items[i].name);
+                    
+                    categoriesItemsRef.value.push({ checked: category === undefined ? false : category.checked, name: items[i].name });
+                }
             }
         } catch (error) {
             console.error(error);
@@ -443,7 +487,11 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
                 length = items.length;
             }
 
-            if (mediaFileRef.value === null) {
+            if (typeRef.value !== null && typeRef.value.length > 0) {
+                for (let i = 0; i < length; i++) {
+                    typesItemsRef.value.push({ checked: typeRef.value.startsWith(items[i]), name: items[i] });
+                }
+            } else if (mediaFileRef.value === null) {
                 for (let i = 0; i < length; i++) {
                     typesItemsRef.value.push({ checked: false, name: items[i] });
                 }
@@ -541,7 +589,7 @@ const locate = async () => {
 const upload = async (event) => {
     let url = null;
     let thumbnailUrl = null;
-    
+
     isUploadingRef.value = true;
     progressRef.value = 0.5;
 
@@ -662,6 +710,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
                                             Media
                                         </h3>
+                                    </div>
+                                    <div class="level-item" v-if="mediaIDRef !== null">
+                                        <span class="is-size-7 has-text-weight-bold has-text-grey"
+                                            v-text="mediaIDRef"></span>
                                     </div>
                                     <transition name="fade" mode="out-in">
                                         <div class="level-item" v-show="mediaFileRef !== null || mediaUrlRef.length > 0"
