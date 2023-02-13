@@ -55,6 +55,7 @@ const props = defineProps({
   auth0: Object,
   user: Object,
   text: String,
+  isAdmin: Boolean
 });
 let map = null;
 const searchPageLength = 24;
