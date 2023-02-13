@@ -20,22 +20,22 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const mediaRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true }/*, { name: "Categories", checked: false }*/]);
+const dataItemsRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+
+
+
 const isUpdatingMediaRef = ref(false);
-
-
-
-
 const isDragging = ref(false);
 const isLoading = ref(false);
-
-
-
 const isUploadingRef = ref(false);
-
 const pictures = ref([]);
-
 const mediaIsCollapsedRef = ref(false);
+
+
+
+
+
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
@@ -50,8 +50,27 @@ const props = defineProps({
     auth0: Object,
     user: Object,
     text: String,
+    isAdmin: Boolean
 });
 const emit = defineEmits(["select", "completed", "updated"]);
+const selectDataSource = (event, index) => {
+    dataSourcesRef.value[index].checked = event.currentTarget.checked;
+
+    for (let i = 0; i < dataSourcesRef.value.length; i++) {
+        if (index !== i) {
+            dataSourcesRef.value[i].checked = false;
+        }
+    }
+};
+const resetDataSource = (event) => {
+    for (const source of dataSourcesRef.value) {
+        if (source.name === "Media") {
+            source.checked = true;
+        } else {
+            source.checked = false;
+        }
+    }
+};
 const selectUser = (event, index) => {
     usersRef.value[index].checked = event.currentTarget.checked;
 
@@ -78,17 +97,21 @@ const selectUser = (event, index) => {
     }
 };
 const selectMedia = (event, index) => {
-    index =  pageIndexRef.value * props.pageLength + index;
-    mediaRef.value[index].checked = (event.currentTarget || event.target).checked;
+    index = pageIndexRef.value * props.pageLength + index;
+    dataItemsRef.value[index].checked = (event.currentTarget || event.target).checked;
 
-    for (let i = 0; i < mediaRef.value.length; i++) {
-        if (index !== i && mediaRef.value[i].checked) {
-            mediaRef.value[i].checked = false;
+    for (let i = 0; i < dataItemsRef.value.length; i++) {
+        if (index !== i && dataItemsRef.value[i].checked) {
+            dataItemsRef.value[i].checked = false;
         }
     }
 
     emit("select", index);
 };
+const update = () => {
+
+};
+
 const searchMedia = async () => {
     try {
         const idToken = await props.auth0.getIdTokenClaims();
@@ -360,76 +383,6 @@ const shake = (element) => {
         { duration: 1000, iterations: 1 }
     );
 };
-const upload = async (event) => {
-    isUploadingRef.value = true;
-
-    for (const file of event.currentTarget.files) {
-        try {
-            const dataURL = await new Promise(function (resolve, reject) {
-                const reader = new FileReader();
-
-                reader.onload = () => {
-                    resolve(reader.result);
-                };
-                reader.onerror = () => {
-                    reject(reader.error);
-                };
-                reader.readAsDataURL(file);
-            });
-
-            const response = await fetch(
-                "https://www.5dworldmap.com/api/v1/upload",
-                {
-                    mode: "cors",
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ image: dataURL }),
-                }
-            );
-
-            if (response.ok) {
-                console.log(await response.json());
-            } else {
-                throw new Error(response.statusText);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    isUploadingRef.value = false;
-
-    emit("completed");
-    update();
-};
-const update = async () => {
-    isUpdatingMediaRef.value = true;
-
-    try {
-        const response = await fetch("https://www.5dworldmap.com/api/v1/recent", {
-            mode: "cors",
-            method: "GET",
-        });
-
-        if (response.ok) {
-            pictures.value.splice(0);
-
-            for (const item of await response.json()) {
-                pictures.value.push(item);
-            }
-        } else {
-            throw new Error(response.statusText);
-        }
-    } catch (error) {
-        console.error(error);
-    }
-
-    isUpdatingMediaRef.value = false;
-
-    emit("updated");
-};
 
 onActivated(async () => {
     isActivatedRef.value = true;
@@ -440,19 +393,49 @@ onDeactivated(() => {
     isActivatedRef.value = false;
 });
 watch(isEnabledRef, (newValue, oldValue) => {
-  if (newValue !== oldValue && oldValue === false) {
-    
-  }
+    if (newValue !== oldValue && oldValue === false) {
+
+    }
 });
 </script>
 
 <template>
     <div id="data">
-        <div class="flyout-left is-hidden">
+        <div class="flyout-left" :class="{ 'is-hidden': !props.isAdmin }">
             <div class="wrap">
                 <div class="block is-hidden-mobile">
                     <nav class="panel">
                         <div class="panel-block">
+                            <nav class="level is-mobile">
+                                <div class="level-left">
+                                    <div class="level-item">
+                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                                            Source
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item">
+                                        <button class="button is-rounded"
+                                            v-bind:disabled="dataSourcesRef.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0 || dataSourcesRef.find(x => x.name ==='Media' && x.checked) !== undefined"
+                                            @click="resetDataSource($event)">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </nav>
+                            <div class="control">
+                                <label v-for="(item, index) in dataSourcesRef" v-bind:key="item">
+                                    <input type="checkbox" v-bind:disabled="!isEnabledRef || item.checked"
+                                        @change="selectDataSource($event, index)" v-bind:checked="item.checked" />
+                                    <span class="custom"></span>
+                                    <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="panel-block" v-if="false">
                             <nav class="level is-mobile">
                                 <div class="level-left">
                                     <div class="level-item">
@@ -509,9 +492,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <nav class="level is-mobile">
                                 <div class="level-left">
                                     <div class="level-item">
-                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                                            Media
-                                        </h3>
+                                        <transition name="fade" mode="out-in">
+                                            <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="dataSourcesRef.find(x => x.checked).name" :key="dataSourcesRef.find(x => x.checked).name"></h3>
+                                        </transition>
                                     </div>
                                 </div>
                                 <div class="level-right">
@@ -537,7 +520,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </nav>
                                 </div>
                                 <div class="control" v-else key="default">
-                                    <label v-for="(item, index) in mediaRef" v-bind:key="item">
+                                    <label v-for="(item, index) in dataItemsRef" v-bind:key="item">
                                         <input type="checkbox" v-bind:disabled="!isEnabledRef"
                                             @change="selectMedia($event, index)" v-bind:checked="item.checked" />
                                         <span class="custom"></span>
@@ -575,7 +558,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <transition name="fade">
                                         <div class="level-item" v-if="~~Math.ceil(totalCountRef / pageLengthRef) > 0">
                                             <span class="is-size-7 has-text-weight-bold">{{ pageIndexRef + 1 }}/{{
-                                                    ~~Math.ceil(totalCountRef / pageLengthRef)
+                                            ~~Math.ceil(totalCountRef / pageLengthRef)
                                             }}</span>
                                         </div>
                                     </transition>
