@@ -16,6 +16,7 @@ const props = defineProps({
     auth0: Object,
     user: Object,
     text: String,
+    isAdmin: Boolean,
     media: { type: Object, required: false, default: null },
 });
 const mapRef = ref(null);
