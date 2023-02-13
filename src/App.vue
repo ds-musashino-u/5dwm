@@ -236,7 +236,7 @@ export default {
     <div class="content">
       <keep-alive>
         <component :is="contents[contentIndex].component"
-          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name }"></component>
+          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, isAdmin: isAdmin }"></component>
       </keep-alive>
     </div>
     <transition name="reveal">
