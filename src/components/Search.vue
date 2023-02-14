@@ -3,13 +3,13 @@
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onMounted, onActivated, onDeactivated, watch } from "vue";
+import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
-import { Endpoints } from "../presenters/endpoints.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import Time from "./Time.vue";
 import ListBox from "./ListBox.vue";
@@ -593,27 +593,7 @@ const search = async (ignoreCache = true) => {
       return;
     }
 
-    const keys = Object.keys(cachedSearchResults);
-    const range = [
-      ...Array(
-        keys.length > 0
-          ? Math.min(
-            (keys
-              .filter(
-                (x) =>
-                  x >= searchPageIndexRef.value * searchPageLength &&
-                  x <
-                  searchPageIndexRef.value * searchPageLength +
-                  searchPageLength
-              )
-              .reduce((x, y) => Math.max(x, y), 0) %
-              searchPageLength) +
-            1,
-            searchPageLength
-          )
-          : searchPageLength
-      ).keys(),
-    ].map((x) => searchPageIndexRef.value * searchPageLength + x);
+    const range = [...Array(searchPageLength).keys()].map((x) => searchPageIndexRef.value * searchPageLength + x);
 
     if (range.length > 0 && range.every((x) => x in cachedSearchResults)) {
       const bounds = new google.maps.LatLngBounds();
@@ -671,6 +651,7 @@ const search = async (ignoreCache = true) => {
         timeIsEnabledRef.value
           ? { from: fromDateRef.value, to: toDateRef.value }
           : { from: null, to: null };
+      let searchcCriteriaIsUpdated = false;
 
       if (
         !sequenceEqual(searchcCriteria.keywords, keywords) ||
@@ -689,12 +670,6 @@ const search = async (ignoreCache = true) => {
           time.to !== null &&
           searchcCriteria.time.to.getTime() !== time.to.getTime())
       ) {
-        for (const result of searchResults) {
-          if (result.marker !== null) {
-            result.marker.setMap(null);
-          }
-        }
-
         searchcCriteria.keywords = keywords;
         searchcCriteria.categories = categories;
         searchcCriteria.types = types;
@@ -702,10 +677,21 @@ const search = async (ignoreCache = true) => {
         searchcCriteria.image = image;
         searchcCriteria.time = time;
 
-        searchResults.splice(0);
-        searchResultsRef.value.splice(0);
         searchPageIndexRef.value = 0;
         searchTotalCountRef.value = null;
+        
+        searchcCriteriaIsUpdated = true;
+      }
+
+      if (searchcCriteriaIsUpdated || range.some(x => x in cachedSearchResults === false)) {
+        for (const result of searchResults) {
+          if (result.marker !== null) {
+            result.marker.setMap(null);
+          }
+        }
+
+        searchResults.splice(0);
+        searchResultsRef.value.splice(0);
         selectedItemRef.value = null;
 
         isSearchingRef.value = true;
@@ -722,8 +708,8 @@ const search = async (ignoreCache = true) => {
             time.to,
             "created_at",
             "desc",
-            0,
-            null
+            image === null ? searchPageIndexRef.value * searchPageLength : 0,
+            image === null ? searchPageLength : null
           );
           const bounds = new google.maps.LatLngBounds();
           let index = 0;
@@ -739,7 +725,7 @@ const search = async (ignoreCache = true) => {
           isRootedRef.value = false;
           searchResults.splice(0);
           searchResultsRef.value.splice(0);
-          searchTotalCountRef.value = resultItems.length;
+          searchTotalCountRef.value = totalCount;
 
           if (resultItems.some((x) => x.hasScore)) {
             resultItems.sort(
