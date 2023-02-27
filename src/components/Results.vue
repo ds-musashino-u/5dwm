@@ -290,7 +290,7 @@ const back = (event) => {
         width: calc(25% - 4px);
 
         .media-content {
-          border-radius: 8px;
+          border-radius: 0px;
           width: 100%;
           background: hsl(0deg, 0%, 93%);
           overflow: hidden;
@@ -306,7 +306,7 @@ const back = (event) => {
               padding: 0 !important;
               width: 100%;
               aspect-ratio: 1 / 1;
-              border-radius: 8px;
+              border-radius: 0px;
               box-shadow: none !important;
               overflow: hidden;
               background: transparent !important;
@@ -339,7 +339,7 @@ const back = (event) => {
                 top: 0%;
                 left: 0%;
                 margin: 0 !important;
-                border-radius: 8px 0px 8px 0px;
+                border-radius: 0px 0px 0px 0px;
                 padding: 8px 12px 8px 12px;
                 background: var(--accent-color);
                 color: #ffffff;
