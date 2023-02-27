@@ -557,7 +557,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="control" v-else key="default">
                                     <label v-for="(item, index) in dataItemsRef" v-bind:key="item">
                                         <div v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
-                                            :style="{ width: column.width }" :key="column">
+                                            :style="{ width: 'width' in column ? column.width : 'auto' }" :key="column">
                                             <input type="checkbox" v-bind:disabled="!isEnabledRef"
                                                 @change="selectMedia($event, index)" v-bind:checked="item.checked"
                                                 v-if="i === 0" />
