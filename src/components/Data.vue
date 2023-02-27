@@ -4,6 +4,7 @@
 import { Loader } from "@googlemaps/js-api-loader";
 import { ref, onActivated, onDeactivated, watch } from "vue";
 import { Endpoints } from "../presenters/endpoints.mjs";
+import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getCategories } from "../presenters/categories.mjs";
@@ -14,14 +15,14 @@ const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
 const pageIndexRef = ref(0);
-const pageLengthRef = ref(10);
+const pageLengthRef = ref(50);
 const isFetchingRef = ref(false);
 const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true }/*, { name: "Categories", checked: false }*/]);
-const dataItemsRef = ref([{ name: "Foo", checked: false }, { name: "Bar", checked: false }, { name: "Baz", checked: false }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "ID", value: "id", width: "10%" }, { name: "Description", value: "description", width: "50%" }, { name: "Type", value: "type", width: "40%" }] }/*, { name: "Categories", checked: false }*/]);
+const dataItemsRef = ref([]);
 
 
 
@@ -97,7 +98,7 @@ const selectUser = (event, index) => {
     }
 };
 const selectMedia = (event, index) => {
-    index = pageIndexRef.value * props.pageLength + index;
+    index = pageIndexRef.value * pageLengthRef.value + index;
     dataItemsRef.value[index].checked = (event.currentTarget || event.target).checked;
 
     for (let i = 0; i < dataItemsRef.value.length; i++) {
@@ -106,10 +107,34 @@ const selectMedia = (event, index) => {
         }
     }
 
-    emit("select", index);
+    emit("select", dataItemsRef.value[index], index);
 };
-const update = () => {
+const update = async () => {
+    const dataSource = dataSourcesRef.value.find(x => x.checked).name;
 
+    isFetchingRef.value = true;
+
+    if (dataSource === "Media") {
+        dataItemsRef.value.splice(0);
+
+        try {
+            const [resultItems, totalCount] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], props.isAdmin ? [] : [props.user.email.split("@")[0]], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
+
+            for (const resultItem of resultItems) {
+                dataItemsRef.value.push({ data: resultItem.media, checked: false });
+            }
+
+            totalCountRef.value = totalCount;
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    isFetchingRef.value = false;
+};
+const next = async () => {
+};
+const previous = async () => {
 };
 
 const searchMedia = async () => {
@@ -417,7 +442,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="level-right">
                                     <div class="level-item">
                                         <button class="button is-rounded"
-                                            v-bind:disabled="dataSourcesRef.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0 || dataSourcesRef.find(x => x.name ==='Media' && x.checked) !== undefined"
+                                            v-bind:disabled="dataSourcesRef.reduce((x, y) => y.checked ? x + 1 : x, 0) === 0 || dataSourcesRef.find(x => x.name === 'Media' && x.checked) !== undefined"
                                             @click="resetDataSource($event)">
                                             <span class="icon is-small">
                                                 <i class="fa-solid fa-arrow-rotate-left"></i>
@@ -493,14 +518,15 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="level-left">
                                     <div class="level-item">
                                         <transition name="fade" mode="out-in">
-                                            <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="dataSourcesRef.find(x => x.checked).name" :key="dataSourcesRef.find(x => x.checked).name"></h3>
+                                            <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
+                                                v-text="dataSourcesRef.find(x => x.checked).name"
+                                                :key="dataSourcesRef.find(x => x.checked).name"></h3>
                                         </transition>
                                     </div>
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded" :disabled="isFetchingRef"
-                                            @click="update">
+                                        <button class="button toggle is-rounded" :disabled="isFetchingRef" @click="update">
                                             <span class="icon is-small">
                                                 <i class="fa-solid fa-arrows-rotate"
                                                     v-bind:class="{ loading: isFetchingRef }"></i>
@@ -509,8 +535,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
+                            <nav class="level is-mobile">
+                                <div class="level-left">
+                                    <div class="level-item"
+                                        v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
+                                        :style="{ width: column.width }" :key="column"><span class="custom"
+                                            v-if="index === 0"></span><span class="is-size-7 has-text-weight-bold"
+                                            v-text="column.name"></span></div>
+                                </div>
+                            </nav>
                             <transition name="fade" mode="out-in">
-                                <div class="control" v-if="isFetchingRef && itemsRef.length === 0" key="loading">
+                                <div class="control" v-if="isFetchingRef && dataItemsRef.length === 0" key="loading">
                                     <nav class="level">
                                         <div class="level-item">
                                             <span class="icon">
@@ -520,11 +555,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </nav>
                                 </div>
                                 <div class="control" v-else key="default">
-                                    <label v-for="(item, index) in dataItemsRef" v-bind:key="item">
-                                        <input type="checkbox" v-bind:disabled="!isEnabledRef"
-                                            @change="selectMedia($event, index)" v-bind:checked="item.checked" />
-                                        <span class="custom"></span>
-                                        <span class="is-size-7 has-text-weight-bold" v-text="item.name"></span>
+                                    <label class="is-align-items-flex-start" v-for="(item, index) in dataItemsRef"
+                                        v-bind:key="item">
+                                        <div v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
+                                            :style="{ width: column.width }" :key="column">
+                                            <input type="checkbox" v-bind:disabled="!isEnabledRef"
+                                                @change="selectMedia($event, index)" v-bind:checked="item.checked"
+                                                v-if="i === 0" />
+                                            <span class="custom" v-if="i === 0"></span>
+                                            <span class="is-size-7 has-text-weight-bold"
+                                                v-text="typeof (item.data[column.value]) === 'string' ? item.data[column.value].substring(0, 100) : item.data[column.value]"></span>
+                                        </div>
                                     </label>
                                 </div>
                             </transition>
@@ -544,8 +585,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 v-bind:disabled="(pageIndexRef === 0 || isFetchingRef)"
                                                 @click="previous($event)">
                                                 <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small"
-                                                        v-if="(!isForwardingRef && isFetchingRef)" key="fetching">
+                                                    <span class="icon is-small" v-if="(!isForwardingRef && isFetchingRef)"
+                                                        key="fetching">
                                                         <i class="fas fa-spinner updating"></i>
                                                     </span>
                                                     <span class="icon is-small" v-else key="fetched">
@@ -558,7 +599,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <transition name="fade">
                                         <div class="level-item" v-if="~~Math.ceil(totalCountRef / pageLengthRef) > 0">
                                             <span class="is-size-7 has-text-weight-bold">{{ pageIndexRef + 1 }}/{{
-                                            ~~Math.ceil(totalCountRef / pageLengthRef)
+                                                ~~Math.ceil(totalCountRef / pageLengthRef)
                                             }}</span>
                                         </div>
                                     </transition>
@@ -568,8 +609,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 v-bind:disabled="(pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef)"
                                                 @click="next($event)">
                                                 <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small"
-                                                        v-if="(isForwardingRef && isFetchingRef)" key="fetching">
+                                                    <span class="icon is-small" v-if="(isForwardingRef && isFetchingRef)"
+                                                        key="fetching">
                                                         <i class="fas fa-spinner updating"></i>
                                                     </span>
                                                     <span class="icon is-small" v-else key="fetched">
@@ -690,10 +731,14 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             }
 
                             label {
+                                display: flex;
                                 padding: 0.5em 0.75em;
                                 width: 100%;
                                 background-color: transparent;
                                 transition: background-color 0.5s;
+                                flex-direction: row;
+                                align-items: center;
+                                justify-content: flex-start;
                             }
 
                             label:hover {
@@ -717,6 +762,27 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 position: relative;
                                 margin: 0;
                                 font-size: 1rem;
+                            }
+
+                            label>div {
+                                display: flex;
+                                flex-direction: row;
+                                align-items: center;
+                                justify-content: flex-start;
+                            }
+
+                            label>div:not(:first-of-type) {
+                                padding: 0px 0px 0px 12px;
+                            }
+
+                            label>div>span:not(:first-of-type) {
+                                margin: 0px 0px 0px 12px;
+                            }
+
+                            label>div>span {
+                                white-space: nowrap;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
                             }
 
                             label input[type="checkbox"]+.custom:before,
@@ -756,10 +822,42 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             padding: 0em 0.75em;
                             width: 100%;
 
-                            >.level-left>.level-item>.panel-heading {
-                                margin: 0 !important;
-                                padding: 0;
-                                background: transparent;
+                            >.level-left {
+                                >.level-item {
+                                    justify-content: flex-start;
+
+                                    >.panel-heading {
+                                        margin: 0 !important;
+                                        padding: 0;
+                                        background: transparent;
+                                    }
+
+                                    >span:not(:first-of-type) {
+                                        margin: 0px 0px 0px 12px;
+                                    }
+
+                                    .custom {
+                                        position: relative;
+                                        margin: 0;
+                                        font-size: 1rem;
+                                    }
+
+                                    .custom:before {
+                                        font-weight: 900;
+                                        font-family: "Font Awesome 6 Free";
+                                        content: "\f00c";
+                                        color: transparent;
+                                        text-shadow: none;
+                                    }
+                                }
+
+                                .level-item:not(:last-child) {
+                                    margin: 0;
+                                }
+
+                                .level-item:not(:first-of-type) {
+                                    padding: 0px 0px 0px 12px;
+                                }
                             }
 
                             >.level-right {
@@ -787,6 +885,14 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                         transform: rotate(0deg);
                                     }
                                 }
+                            }
+                        }
+
+                        >.level:not(:first-of-type) {
+                            padding: 0.5em 0.75em;
+
+                            >.level-left {
+                                width: 100%;
                             }
                         }
 
