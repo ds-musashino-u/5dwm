@@ -21,7 +21,7 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "ID", value: "id", width: "10%" }, { name: "Description", value: "description", width: "50%" }, { name: "Type", value: "type", width: "40%" }] }/*, { name: "Categories", checked: false }*/]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "ID", value: "id", width: "10%" }, { name: "", value: "url", width: "10%" }, { name: "Description", value: "description", width: "50%" }, { name: "Type", value: "type", width: "30%" }] }/*, { name: "Categories", checked: false }*/]);
 const dataItemsRef = ref([]);
 
 
@@ -540,7 +540,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-item"
                                         v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
                                         :style="{ width: column.width }" :key="column"><span class="custom"
-                                            v-if="index === 0"></span><span class="is-size-7 has-text-weight-bold"
+                                            v-if="index === 0"></span><span class="is-size-7 has-text-weight-bold has-text-grey"
                                             v-text="column.name"></span></div>
                                 </div>
                             </nav>
@@ -555,16 +555,23 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </nav>
                                 </div>
                                 <div class="control" v-else key="default">
-                                    <label class="is-align-items-flex-start" v-for="(item, index) in dataItemsRef"
-                                        v-bind:key="item">
+                                    <label v-for="(item, index) in dataItemsRef" v-bind:key="item">
                                         <div v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
                                             :style="{ width: column.width }" :key="column">
                                             <input type="checkbox" v-bind:disabled="!isEnabledRef"
                                                 @change="selectMedia($event, index)" v-bind:checked="item.checked"
                                                 v-if="i === 0" />
                                             <span class="custom" v-if="i === 0"></span>
-                                            <span class="is-size-7 has-text-weight-bold"
+                                            <span class="is-size-7 has-text-weight-bold" v-if="column.value !== 'url'"
                                                 v-text="typeof (item.data[column.value]) === 'string' ? item.data[column.value].substring(0, 100) : item.data[column.value]"></span>
+                                            <a :href="item.data.url" target="_blank" v-else-if="item.data.type.startsWith('image')">
+                                                <img :src="item.data.url" :alt="item.data.id">
+                                            </a>
+                                            <a :href="item.data.url" target="_blank" v-else>
+                                                <span class="icon is-small">
+                                                    <i class="fa-solid fa-link"></i>
+                                                </span>
+                                            </a>
                                         </div>
                                     </label>
                                 </div>
@@ -732,7 +739,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                             label {
                                 display: flex;
-                                padding: 0.5em 0.75em;
+                                padding: 0em 0.75em;
                                 width: 100%;
                                 background-color: transparent;
                                 transition: background-color 0.5s;
@@ -745,8 +752,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 background-color: hsl(0deg, 0%, 93%);
                             }
 
-                            label>span {
-                                user-select: none;
+                            label>span,
+                            label>div:not(.image) {
+                                padding: 0.5em 0em;
                             }
 
                             label>span:not(:first-of-type) {
@@ -773,6 +781,19 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                             label>div:not(:first-of-type) {
                                 padding: 0px 0px 0px 12px;
+                            }
+
+                            label>div:nth-of-type(2) {
+                                justify-content: center;
+
+                                >a>img {
+                                    object-fit: cover;
+                                    display: block;
+                                    margin: 0;
+                                    padding: 0;
+                                    aspect-ratio: 1 / 1;
+                                    height: calc(1.5em + calc(0.75rem * 1.5));
+                                }
                             }
 
                             label>div>span:not(:first-of-type) {
