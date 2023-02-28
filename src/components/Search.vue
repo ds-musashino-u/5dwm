@@ -697,7 +697,7 @@ const search = async (ignoreCache = true) => {
         isSearchingRef.value = true;
 
         try {
-          const [resultItems, totalCount] = await searchWorldMap(
+          const [resultItems, totalCount, timestamp] = await searchWorldMap(
             await getAccessToken(props.auth0),
             keywords,
             categories,
