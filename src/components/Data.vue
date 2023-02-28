@@ -21,7 +21,7 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "ID", value: "id", width: "10%" }, { name: "", value: "url", width: "10%" }, { name: "Description", value: "description", width: "50%" }, { name: "Type", value: "type", width: "30%" }] }/*, { name: "Categories", checked: false }*/]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }/*, { name: "Categories", checked: false }*/]);
 const dataItemsRef = ref([]);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
@@ -84,8 +84,7 @@ const selectUser = (event, index) => {
     }
 };
 const selectMedia = (event, index) => {
-    index = pageIndexRef.value * pageLengthRef.value + index;
-    dataItemsRef.value[index].checked = (event.currentTarget || event.target).checked;
+    dataItemsRef.value[index].checked = !dataItemsRef.value[index].checked;
 
     for (let i = 0; i < dataItemsRef.value.length; i++) {
         if (index !== i && dataItemsRef.value[i].checked) {
@@ -93,7 +92,7 @@ const selectMedia = (event, index) => {
         }
     }
 
-    emit("select", dataItemsRef.value[index], index);
+    emit("select", dataItemsRef.value[index], pageIndexRef.value * pageLengthRef.value + index);
 };
 const update = async () => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
@@ -531,47 +530,38 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
-                            <nav class="level is-mobile">
-                                <div class="level-left">
-                                    <div class="level-item"
-                                        v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
-                                        :style="{ width: column.width }" :key="column"><span class="custom"
-                                            v-if="index === 0"></span><span class="is-size-7 has-text-weight-bold has-text-grey"
-                                            v-text="column.name"></span></div>
-                                </div>
-                            </nav>
-                            <transition name="fade" mode="out-in">
-                                <div class="control" v-if="isFetchingRef && dataItemsRef.length === 0" key="loading">
-                                    <nav class="level">
-                                        <div class="level-item">
-                                            <span class="icon">
-                                                <i class="fas fa-spinner updating"></i>
-                                            </span>
-                                        </div>
-                                    </nav>
-                                </div>
-                                <div class="control" v-else key="default">
-                                    <label v-for="(item, index) in dataItemsRef" v-bind:key="item">
-                                        <div v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
-                                            :style="{ width: 'width' in column ? column.width : 'auto' }" :key="column">
-                                            <input type="checkbox" v-bind:disabled="!isEnabledRef"
-                                                @change="selectMedia($event, index)" v-bind:checked="item.checked"
-                                                v-if="i === 0" />
-                                            <span class="custom" v-if="i === 0"></span>
-                                            <span class="is-size-7 has-text-weight-bold" v-if="column.value !== 'url'"
-                                                v-text="typeof (item.data[column.value]) === 'string' ? item.data[column.value].substring(0, 100) : item.data[column.value]"></span>
-                                            <a :href="item.data.url" target="_blank" v-else-if="item.data.type.startsWith('image')">
-                                                <img :src="item.data.url" :alt="item.data.id">
-                                            </a>
-                                            <a :href="item.data.url" target="_blank" v-else>
-                                                <span class="icon is-small">
-                                                    <i class="fa-solid fa-link"></i>
-                                                </span>
-                                            </a>
-                                        </div>
-                                    </label>
-                                </div>
-                            </transition>
+                            <table class="table is-fullwidth is-hoverable">
+                                <thead>
+                                    <tr>
+                                        <th v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
+                                            :style="{ width: column.width }" :key="column"><span class="custom"
+                                                v-if="index === 0"></span><span
+                                                class="is-size-7 has-text-weight-bold has-text-grey"
+                                                v-text="column.name"></span></th>
+                                    </tr>
+                                </thead>
+                                <transition name="fade" mode="out-in">
+                                    <tbody v-if="!isFetchingRef">
+                                        <tr v-for="(item, index) in dataItemsRef" v-bind:key="item"
+                                            :class="{ 'is-selected': item.checked }" @click="selectMedia($event, index)">
+                                            <td v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
+                                                :style="{ width: 'width' in column ? column.width : 'auto' }" :key="column">
+                                                <span class="is-size-7 has-text-weight-bold" v-if="column.value !== 'url'"
+                                                    v-text="typeof (item.data[column.value]) === 'string' ? item.data[column.value].substring(0, 100) : item.data[column.value]"></span>
+                                                <a :href="item.data.url" target="_blank"
+                                                    v-else-if="item.data.type.startsWith('image')">
+                                                    <picture><img :src="item.data.url" :alt="item.data.id"></picture>
+                                                </a>
+                                                <a :href="item.data.url" target="_blank" v-else>
+                                                    <span class="icon is-small">
+                                                        <i class="fa-solid fa-link"></i>
+                                                    </span>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </transition>
+                            </table>
                         </div>
                     </nav>
                 </div>
@@ -1238,6 +1228,116 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
             .block {
                 width: 100%;
+
+                >.panel>.panel-block {
+                    table {
+                        margin: 0;
+                        padding: 0;
+
+                        thead>tr {
+                            >th {
+                                border-bottom: 1px solid hsl(0deg, 0%, 93%);
+                                padding-left: 0;
+                                padding-top: 0.5em;
+                                padding-right: 0;
+                                padding-bottom: 0.5em;
+
+                                >span {
+                                    padding-left: 0.75em;
+                                }
+                            }
+
+                            >th:last-of-type>span {
+                                padding-right: 0.75em;
+                            }
+                        }
+
+                        tbody {
+                            >tr {
+                                background-color: transparent;
+                                transition: .5s;
+
+                                >td {
+                                    border-bottom: 0px solid transparent;
+                                    padding: 0;
+                                    vertical-align: middle;
+                                    height: calc(1.5em + calc(0.75rem * 1.5));
+
+                                    >span {
+                                        display: flex;
+                                        padding-left: 0.75em;
+                                        padding-top: 0.5em;
+                                        padding-right: 0;
+                                        padding-bottom: 0.5em;
+                                        white-space: nowrap;
+                                        text-overflow: ellipsis;
+                                        overflow: hidden;
+                                        align-items: center;
+                                    }
+
+                                    >a {
+                                        display: flex;
+                                        justify-content: center;
+                                        
+                                        >span {
+                                            padding-left: 0em;
+                                            padding-top: 0.5em;
+                                            padding-right: 0;
+                                            padding-bottom: 0.5em;
+                                        }
+
+                                        >span.is-small {
+                                            font-size: 1rem;
+                                            line-height: 1rem;
+                                            height: 1rem;
+                                        }
+
+                                        >picture {
+                                            display: block;
+                                            margin: 0;
+                                            padding: 0;
+                                            height: 100%;
+
+                                            >img {
+                                                object-fit: cover;
+                                                display: block;
+                                                margin: 0;
+                                                padding: 0;
+                                                aspect-ratio: 1 / 1;
+                                                width: calc(1.5em + calc(0.75rem * 1.5));
+                                            }
+                                        }
+                                    }
+                                }
+
+                                >td:first-of-type {
+                                    text-align: center;
+                                    vertical-align: middle;
+                                }
+
+                                >td:last-of-type>span {
+                                    padding-right: 0.75em;
+                                }
+                            }
+
+                            >tr:nth-child(even) {
+                                background-color: hsl(0, 0%, 96%);
+                                transition: .5s;
+                            }
+
+                            >tr:hover {
+                                background-color: hsl(0, 0%, 93%);
+                                transition: .5s;
+                            }
+
+                            >tr.is-selected {
+                                color: #ffffff;
+                                background-color: #0e00de;
+                                transition: .5s;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
