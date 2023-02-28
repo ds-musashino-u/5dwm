@@ -20,6 +20,7 @@ const pageLengthRef = ref(50);
 const isFetchingRef = ref(false);
 const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
+const lastUpdatedRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
 const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false }]);
@@ -104,7 +105,8 @@ const update = async () => {
         dataItemsRef.value.splice(0);
 
         try {
-            const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), queryRef.value.split(/\s/).reduce((x, y) => {
+            const query = queryRef.value;
+            const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), query.split(/\s/).reduce((x, y) => {
                 if (y.length > 0) {
                     x.push(y);
                 }
@@ -112,11 +114,14 @@ const update = async () => {
                 return x;
             }, []), [], [], props.isAdmin ? [] : [props.user.email.split("@")[0]], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
 
-            for (const resultItem of resultItems) {
-                dataItemsRef.value.push({ data: resultItem.media, checked: false });
-            }
+            if (query === queryRef.value && timestamp > lastUpdatedRef.value) {
+                for (const resultItem of resultItems) {
+                    dataItemsRef.value.push({ data: resultItem.media, checked: false });
+                }
 
-            totalCountRef.value = totalCount;
+                totalCountRef.value = totalCount;
+                lastUpdatedRef.value = timestamp;
+            }
         } catch (error) {
             console.error(error);
         }
@@ -548,7 +553,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                         v-if="dataSourcesRef.find(x => x.checked).name === 'Media'"
                                                         :key="dataSourcesRef.find(x => x.checked).name">
                                                         <input class="input is-outlined is-size-7 has-text-weight-bold"
-                                                            type="text" placeholder="Keywords" v-model="queryRef" />
+                                                            type="text" placeholder="Keywords" v-model="queryRef" @input="update()" />
                                                     </div>
                                                 </transition>
                                                 <div class="control">
