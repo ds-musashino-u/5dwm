@@ -12,6 +12,7 @@ import { getCategories } from "../presenters/categories.mjs";
 const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
+const dataRef = ref(null);
 const queryRef = ref("");
 const pageIndexRef = ref(0);
 const pageLengthRef = ref(50);
@@ -20,7 +21,7 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "Name", value: "name", width: "100%" }] }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "50%" }] }]);
 const dataItemsRef = ref([]);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
@@ -126,6 +127,7 @@ const update = async () => {
                 lastUpdatedRef.value = timestamp;
             }
         } catch (error) {
+            shake(dataRef.value);
             console.error(error);
         }
     } else if (dataSource === "Categories" && categoriesItemsRef.value.length <= pageIndexRef.value * pageLengthRef.value) {
@@ -150,6 +152,7 @@ const update = async () => {
                 dataItemsRef.value.push({ data: { id: items[i].id, name: items[i].name, updatedAt: items[i].updatedAt }, checked: false });
             }
         } catch (error) {
+            shake(dataRef.value);
             console.error(error);
         }
     }
@@ -170,6 +173,15 @@ const previous = async () => {
 
         await update();
     }
+};
+const format = (obj) => {
+    if (typeof (obj) === "string") {
+        return obj.substring(0, 100);
+    } else if (typeof (obj) === "object" && "toLocaleString" in obj) {
+        return obj.toLocaleString();
+    }
+    
+    return obj;
 };
 const shake = (element) => {
     element.animate(
@@ -297,9 +309,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
             </div>
         </div>
-        <div id="media" ref="viewerRef">
+        <div id="media">
             <div class="wrap">
-                <div class="block is-hidden-mobile">
+                <div class="block is-hidden-mobile" ref="dataRef">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -370,7 +382,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             <td v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
                                                 :style="{ width: 'width' in column ? column.width : 'auto' }" :key="column">
                                                 <span class="is-size-7 has-text-weight-bold" v-if="column.value !== 'url'"
-                                                    v-text="typeof (item.data[column.value]) === 'string' ? item.data[column.value].substring(0, 100) : item.data[column.value]"></span>
+                                                    v-text="format(item.data[column.value])"></span>
                                                 <a :href="item.data.url" target="_blank"
                                                     v-else-if="item.data.type.startsWith('image')">
                                                     <picture><img :src="item.data.url" :alt="item.data.id"></picture>
