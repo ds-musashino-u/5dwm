@@ -14,6 +14,7 @@ import ListBox from "./ListBox.vue";
 const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
+const queryRef = ref("");
 const pageIndexRef = ref(0);
 const pageLengthRef = ref(50);
 const isFetchingRef = ref(false);
@@ -21,7 +22,7 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }/*, { name: "Categories", checked: false }*/]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false }]);
 const dataItemsRef = ref([]);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
@@ -41,7 +42,7 @@ const props = defineProps({
 });
 const emit = defineEmits(["select", "completed", "updated"]);
 const selectDataSource = (event, index) => {
-    dataSourcesRef.value[index].checked = event.currentTarget.checked;
+    dataSourcesRef.value[index].checked = !dataSourcesRef.value[index].checked;
 
     for (let i = 0; i < dataSourcesRef.value.length; i++) {
         if (index !== i) {
@@ -103,7 +104,13 @@ const update = async () => {
         dataItemsRef.value.splice(0);
 
         try {
-            const [resultItems, totalCount] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], props.isAdmin ? [] : [props.user.email.split("@")[0]], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
+            const [resultItems, totalCount] = await searchWorldMap(await getAccessToken(props.auth0), queryRef.value.split(/\s/).reduce((x, y) => {
+                if (y.length > 0) {
+                    x.push(y);
+                }
+
+                return x;
+            }, []), [], [], props.isAdmin ? [] : [props.user.email.split("@")[0]], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
 
             for (const resultItem of resultItems) {
                 dataItemsRef.value.push({ data: resultItem.media, checked: false });
@@ -421,7 +428,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
 <template>
     <div id="data">
-        <div class="flyout-left" :class="{ 'is-hidden': !props.isAdmin }">
+        <div class="flyout-left is-hidden">
             <div class="wrap">
                 <div class="block is-hidden-mobile">
                     <nav class="panel">
@@ -511,7 +518,20 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         <div class="panel-block">
                             <nav class="level is-mobile">
                                 <div class="level-left">
-                                    <div class="level-item">
+                                    <div class="level-item" v-if="props.isAdmin">
+                                        <div class="tabs is-toggle">
+                                            <ul>
+                                                <li v-for="(item, index) in dataSourcesRef"
+                                                    :class="{ 'is-active': item.checked }" v-bind:key="item">
+                                                    <a @click="selectDataSource($event, index)">
+                                                        <span class="is-size-7 is-uppercase has-text-weight-bold"
+                                                            v-text="item.name"></span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="level-item" v-else>
                                         <transition name="fade" mode="out-in">
                                             <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold"
                                                 v-text="dataSourcesRef.find(x => x.checked).name"
@@ -521,12 +541,32 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button toggle is-rounded" :disabled="isFetchingRef" @click="update">
-                                            <span class="icon is-small">
-                                                <i class="fa-solid fa-arrows-rotate"
-                                                    v-bind:class="{ loading: isFetchingRef }"></i>
-                                            </span>
-                                        </button>
+                                        <div class="field">
+                                            <form class="field" @submit.prevent>
+                                                <transition name="fade" mode="out-in">
+                                                    <div class="control"
+                                                        v-if="dataSourcesRef.find(x => x.checked).name === 'Media'"
+                                                        :key="dataSourcesRef.find(x => x.checked).name">
+                                                        <input class="input is-outlined is-size-7 has-text-weight-bold"
+                                                            type="text" placeholder="Keywords" v-model="queryRef" />
+                                                    </div>
+                                                </transition>
+                                                <div class="control">
+                                                    <button class="button is-rounded" :disabled="isFetchingRef"
+                                                        @click="update">
+                                                        <transition name="fade" mode="out-in">
+                                                            <span class="icon is-small" v-if="isFetchingRef" key="updating">
+                                                                <i class="fa-solid fa-arrows-rotate"
+                                                                    :class="{ loading: isFetchingRef }"></i>
+                                                            </span>
+                                                            <span class="icon is-small" v-else key="updated">
+                                                                <i class="fa-solid fa-search"></i>
+                                                            </span>
+                                                        </transition>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
                                 </div>
                             </nav>
@@ -536,7 +576,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                         <th v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
                                             :style="{ width: column.width }" :key="column"><span class="custom"
                                                 v-if="index === 0"></span><span
-                                                class="is-size-7 has-text-weight-bold has-text-grey"
+                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
                                                 v-text="column.name"></span></th>
                                     </tr>
                                 </thead>
@@ -856,6 +896,49 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                         color: transparent;
                                         text-shadow: none;
                                     }
+
+                                    .tabs>ul {
+                                        margin: 0;
+                                        padding: 0;
+
+                                        li {
+                                            margin: 0;
+                                            padding: 0;
+                                            border-left: 0px none transparent;
+                                            border-top: 2px solid transparent;
+                                            border-right: 0px none transparent;
+                                            border-bottom: 2px solid transparent;
+                                            transition: 0.5s;
+
+                                            a {
+                                                margin: 0;
+                                                border: 0px none transparent;
+                                                padding: 0.5em 0em;
+                                                background-color: transparent;
+                                                height: fit-content;
+                                                backface-visibility: hidden;
+                                                transition: 0.5s;
+
+                                                span {
+                                                    margin: 0;
+                                                    padding: 0;
+                                                }
+                                            }
+                                        }
+
+                                        li:not(:last-child) {
+                                            margin-right: 0.75em;
+                                        }
+
+                                        li.is-active {
+                                            a {
+                                                color: hsl(0deg, 0%, 21%);
+                                            }
+
+                                            border-bottom: 2px solid var(--accent-color);
+                                            transition: 0.5s;
+                                        }
+                                    }
                                 }
 
                                 .level-item:not(:last-child) {
@@ -870,6 +953,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             >.level-right {
                                 margin: 0px 0px 0px 12px;
 
+                                .field {
+                                    display: flex;
+                                    flex-direction: row;
+                                    align-items: center;
+                                }
+
                                 button.is-rounded {
                                     border-radius: 9999px !important;
                                     padding: 12px !important;
@@ -883,7 +972,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 }
 
                                 button.toggle {
-                                    >span {
+                                    >span.icon {
                                         transform: rotate(180deg);
                                     }
 
@@ -1192,13 +1281,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
             }
         }
 
+        .tabs>ul {
+            margin: 0;
+        }
+
         .has-addons {
             margin: 0;
             border: 1px solid hsl(0deg, 0%, 93%);
             border-radius: 4px;
 
             .control>input {
-                border: 0px none transparent;
+                border: 0px none transparent !important;
             }
 
             .control>button {
@@ -1278,7 +1371,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     >a {
                                         display: flex;
                                         justify-content: center;
-                                        
+
                                         >span {
                                             padding-left: 0em;
                                             padding-top: 0.5em;
