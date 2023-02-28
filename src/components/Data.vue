@@ -23,20 +23,6 @@ const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
 const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "ID", value: "id", width: "10%" }, { name: "", value: "url", width: "10%" }, { name: "Description", value: "description", width: "50%" }, { name: "Type", value: "type", width: "30%" }] }/*, { name: "Categories", checked: false }*/]);
 const dataItemsRef = ref([]);
-
-
-
-const isUpdatingMediaRef = ref(false);
-const isDragging = ref(false);
-const isLoading = ref(false);
-const isUploadingRef = ref(false);
-const pictures = ref([]);
-const mediaIsCollapsedRef = ref(false);
-
-
-
-
-
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
@@ -133,8 +119,18 @@ const update = async () => {
     isFetchingRef.value = false;
 };
 const next = async () => {
+    if (pageIndexRef.value <= ~~Math.ceil(totalCountRef.value / pageLengthRef.value)) {
+        pageIndexRef.value++;
+
+        await update();
+    }
 };
 const previous = async () => {
+    if (pageIndexRef.value > 0) {
+        pageIndexRef.value--;
+
+        await update();
+    }
 };
 
 const searchMedia = async () => {
