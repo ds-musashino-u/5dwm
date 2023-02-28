@@ -201,7 +201,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     })
 
-                return func.HttpResponse(json.dumps({'count': total_count, 'took': round(datetime.now(timezone.utc).timestamp() - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                end_time = datetime.now(timezone.utc).timestamp()
+
+                return func.HttpResponse(json.dumps({'count': total_count, 'timestamp': end_time, 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
