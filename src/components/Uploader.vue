@@ -702,7 +702,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     <div id="uploader">
         <div class="flyout-left">
             <div class="wrap">
-                <div class="block is-hidden-mobile">
+                <div class="block">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -891,7 +891,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         </div>
         <div class="flyout-left">
             <div class="wrap">
-                <div class="block is-hidden-mobile">
+                <div class="block">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">

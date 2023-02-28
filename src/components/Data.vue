@@ -228,7 +228,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     <div id="data">
         <div class="flyout-left is-hidden">
             <div class="wrap">
-                <div class="block is-hidden-mobile">
+                <div class="block">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -311,7 +311,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         </div>
         <div id="media">
             <div class="wrap">
-                <div class="block is-hidden-mobile" ref="dataRef">
+                <div class="block" ref="dataRef">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">

@@ -943,7 +943,7 @@ const previousResults = (index) => {
   <div id="search">
     <div class="flyout-left">
       <div class="wrap">
-        <div class="block is-hidden-mobile" ref="searchPanelRef">
+        <div class="block" ref="searchPanelRef">
           <nav class="panel">
             <div class="panel-block">
               <div class="block">
@@ -1116,7 +1116,7 @@ const previousResults = (index) => {
       </div>
     </div>
     <div class="flyout-left">
-      <div class="block is-hidden-mobile" ref="previewPanelRef">
+      <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
             <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back" />
