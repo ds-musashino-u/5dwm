@@ -95,7 +95,7 @@ export async function search(token, keywords, categories, types, usernames, imag
             }
         }
 
-        return [resultItems, json.count];
+        return [resultItems, json.count, json.timestamp];
     } else {
         throw new Error(response.statusText);
     }
