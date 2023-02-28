@@ -231,7 +231,7 @@ export default {
 
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
-  <Sidebar :user="user" :items="contents" :index="contentIndex" @reveal="reveal" @select="select" />
+  <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal" @select="select" />
   <div class="wrap">
     <div class="content">
       <keep-alive>
