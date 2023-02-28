@@ -1117,6 +1117,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                 >.panel>.panel-block {
                     table {
+                        z-index: 0;
                         margin: 0;
                         padding: 0;
 
