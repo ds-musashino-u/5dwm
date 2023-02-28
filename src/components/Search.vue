@@ -949,7 +949,7 @@ const previousResults = (index) => {
               <div class="block">
                 <form class="field" @submit.prevent>
                   <div class="control">
-                    <input class="input is-outlined is-size-6 has-text-weight-bold is-size-7" type="text"
+                    <input class="input is-outlined is-size-7 has-text-weight-bold" type="text"
                       placeholder="Keywords" v-model="queryRef" />
                   </div>
                 </form>
