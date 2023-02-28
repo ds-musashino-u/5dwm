@@ -104,7 +104,7 @@ const update = async () => {
         dataItemsRef.value.splice(0);
 
         try {
-            const [resultItems, totalCount] = await searchWorldMap(await getAccessToken(props.auth0), queryRef.value.split(/\s/).reduce((x, y) => {
+            const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), queryRef.value.split(/\s/).reduce((x, y) => {
                 if (y.length > 0) {
                     x.push(y);
                 }
