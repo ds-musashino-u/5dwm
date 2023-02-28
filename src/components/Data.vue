@@ -8,8 +8,6 @@ import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import { getMedia } from "../presenters/media.mjs";
 import { getCategories } from "../presenters/categories.mjs";
-import { getTypes } from "../presenters/types.mjs";
-import ListBox from "./ListBox.vue";
 
 const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
@@ -21,9 +19,8 @@ const isFetchingRef = ref(false);
 const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
-const isForwardingRef = ref(true);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "Name", value: "name", width: "100%" }] }]);
 const dataItemsRef = ref([]);
 const maxCategoriesLength = 10;
 const categoriesIsCollapsedRef = ref(false);
@@ -50,6 +47,12 @@ const selectDataSource = (event, index) => {
             dataSourcesRef.value[i].checked = false;
         }
     }
+
+    pageIndexRef.value = 0;
+    totalCountRef.value = 0;
+    isContinuousRef.value = true;
+
+    update();
 };
 const resetDataSource = (event) => {
     for (const source of dataSourcesRef.value) {
@@ -125,12 +128,36 @@ const update = async () => {
         } catch (error) {
             console.error(error);
         }
+    } else if (dataSource === "Categories" && categoriesItemsRef.value.length <= pageIndexRef.value * pageLengthRef.value) {
+        dataItemsRef.value.splice(0);
+
+        try {
+            const items = await getCategories(
+                pageIndexRef.value * pageLengthRef.value,
+                pageLengthRef.value + 1
+            );
+            let length;
+
+            if (items.length > pageLengthRef.value) {
+                isContinuousRef.value = true;
+                length = pageLengthRef.value;
+            } else {
+                isContinuousRef.value = false;
+                length = items.length;
+            }
+
+            for (let i = 0; i < length; i++) {
+                dataItemsRef.value.push({ data: { id: items[i].id, name: items[i].name, updatedAt: items[i].updatedAt }, checked: false });
+            }
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     isFetchingRef.value = false;
 };
 const next = async () => {
-    if (pageIndexRef.value <= ~~Math.ceil(totalCountRef.value / pageLengthRef.value)) {
+    if (isContinuousRef.value || pageIndexRef.value <= ~~Math.ceil(totalCountRef.value / pageLengthRef.value)) {
         pageIndexRef.value++;
 
         await update();
@@ -139,256 +166,10 @@ const next = async () => {
 const previous = async () => {
     if (pageIndexRef.value > 0) {
         pageIndexRef.value--;
+        isContinuousRef.value = true;
 
         await update();
     }
-};
-
-const searchMedia = async () => {
-    try {
-        const idToken = await props.auth0.getIdTokenClaims();
-        const [resultItems, totalCount] = await searchWorldMap(
-            idToken.__raw,
-            keywords,
-            categories,
-            types,
-            users,
-            image,
-            time.from,
-            time.to,
-            "created_at",
-            "desc",
-            0,
-            null
-        );
-        const bounds = new google.maps.LatLngBounds();
-        let index = 0;
-
-        Object.keys(cachedSearchResults).forEach((key) => {
-            if (cachedSearchResults[key].loaded) {
-                cachedSearchResults[key].layer.setMap(null);
-            }
-
-            delete cachedSearchResults[key];
-        });
-
-        isRooted.value = false;
-        searchResults.splice(0);
-        searchResultsRef.value.splice(0);
-        searchTotalCountRef.value = resultItems.length;
-
-        if (resultItems.some((x) => x.hasScore)) {
-            resultItems.sort(
-                (x, y) => (y.hasScore ? y.score : 0) - (x.hasScore ? x.score : 0)
-            );
-        }
-
-        if (
-            resultItems.length >
-            searchPageIndexRef.value * searchPageLength + searchPageLength
-        ) {
-            for (const resultItem of resultItems.splice(0, searchPageLength)) {
-                if (resultItem.media.location === null) {
-                    searchResults.push({ marker: null, item: resultItem });
-                    searchResultsRef.value.push(resultItem);
-                    cachedSearchResults[
-                        searchPageIndexRef.value * searchPageLength + index
-                    ] = resultItem;
-                } else {
-                    const marker = new google.maps.Marker({
-                        position: {
-                            lat: resultItem.media.location.latitude,
-                            lng: resultItem.media.location.longitude,
-                        },
-                        map: map,
-                        title: resultItem.media.description,
-                        label: String(index + 1),
-                        animation: google.maps.Animation.DROP,
-                    });
-
-                    marker.addListener("click", markerClick);
-                    bounds.extend(
-                        new google.maps.LatLng(
-                            resultItem.media.location.latitude,
-                            resultItem.media.location.longitude
-                        )
-                    );
-
-                    searchResults.push({ marker: marker, item: resultItem });
-                    searchResultsRef.value.push(resultItem);
-                    cachedSearchResults[
-                        searchPageIndexRef.value * searchPageLength + index
-                    ] = resultItem;
-                }
-
-                index++;
-            }
-
-            for (const resultItem of resultItems) {
-                if (
-                    resultItem.media.type.startsWith("kml") ||
-                    resultItem.media.type.startsWith("kmz")
-                ) {
-                    resultItem["loading"] = false;
-                    resultItem["loaded"] = false;
-                }
-
-                cachedSearchResults[
-                    searchPageIndexRef.value * searchPageLength + index
-                ] = resultItem;
-                index++;
-            }
-        } else {
-            for (const resultItem of resultItems) {
-                if (
-                    resultItem.media.type.startsWith("kml") ||
-                    resultItem.media.type.startsWith("kmz")
-                ) {
-                    resultItem["loading"] = false;
-                    resultItem["loaded"] = false;
-                }
-
-                if (resultItem.media.location === null) {
-                    searchResults.push({ marker: null, item: resultItem });
-                    searchResultsRef.value.push(resultItem);
-                    cachedSearchResults[
-                        searchPageIndexRef.value * searchPageLength + index
-                    ] = resultItem;
-                } else {
-                    const marker = new google.maps.Marker({
-                        position: {
-                            lat: resultItem.media.location.latitude,
-                            lng: resultItem.media.location.longitude,
-                        },
-                        map: map,
-                        label: String(index + 1),
-                        animation: google.maps.Animation.DROP,
-                    });
-                    marker.addListener("click", markerClick);
-                    bounds.extend(
-                        new google.maps.LatLng(
-                            resultItem.media.location.latitude,
-                            resultItem.media.location.longitude
-                        )
-                    );
-
-                    searchResults.push({ marker: marker, item: resultItem });
-                    searchResultsRef.value.push(resultItem);
-                    cachedSearchResults[
-                        searchPageIndexRef.value * searchPageLength + index
-                    ] = resultItem;
-                }
-
-                index++;
-            }
-        }
-
-        map.fitBounds(bounds);
-    } catch (error) {
-        console.error(error);
-    }
-};
-
-
-
-const collapseCategories = () => {
-    categoriesIsCollapsedRef.value = !categoriesIsCollapsedRef.value;
-};
-const collapseTypes = () => {
-    typesIsCollapsedRef.value = !typesIsCollapsedRef.value;
-};
-const clearCategories = () => {
-    for (const item of categoriesItemsRef.value) {
-        if (item.checked) {
-            item.checked = false;
-        }
-    }
-};
-const clearTypes = () => {
-    for (const item of typesItemsRef.value) {
-        if (item.checked) {
-            item.checked = false;
-        }
-    }
-};
-const selectCategory = (index) => {
-    categoriesItemsRef.value[index].checked =
-        !categoriesItemsRef.value[index].checked;
-};
-const selectType = (index) => {
-    typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
-};
-const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
-    if (categoriesItemsRef.value.length <= pageIndex * maxCategoriesLength) {
-        isFetchingRef.value = true;
-
-        try {
-            const items = await getCategories(
-                pageIndex * maxCategoriesLength,
-                pageLength
-            );
-            let length;
-
-            if (items.length > maxCategoriesLength) {
-                categoriesIsContinuousRef.value = true;
-                length = maxCategoriesLength;
-            } else {
-                categoriesIsContinuousRef.value = false;
-                length = items.length;
-            }
-
-            for (let i = 0; i < length; i++) {
-                categoriesItemsRef.value.push({ checked: false, name: items[i].name });
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-        isFetchingRef.value = false;
-    }
-
-    categoriesPageIndexRef.value = pageIndex;
-};
-const previousCategories = async (pageIndex) => {
-    categoriesIsContinuousRef.value = true;
-    categoriesPageIndexRef.value = pageIndex;
-};
-const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
-    if (typesItemsRef.value.length <= pageIndex * maxTypesLength) {
-        isFetchingRef.value = true;
-
-        try {
-            const items = await getTypes(
-                null,
-                null,
-                pageIndex * maxTypesLength,
-                pageLength
-            );
-            let length;
-
-            if (items.length > maxTypesLength) {
-                typesIsContinuousRef.value = true;
-                length = maxTypesLength;
-            } else {
-                typesIsContinuousRef.value = false;
-                length = items.length;
-            }
-
-            for (let i = 0; i < length; i++) {
-                typesItemsRef.value.push({ checked: false, name: items[i] });
-            }
-        } catch (error) {
-            console.error(error);
-        }
-
-        isFetchingRef.value = false;
-    }
-
-    typesPageIndexRef.value = pageIndex;
-};
-const previousTypes = async (pageIndex) => {
-    typesIsContinuousRef.value = true;
-    typesPageIndexRef.value = pageIndex;
 };
 const shake = (element) => {
     element.animate(
@@ -553,21 +334,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                         v-if="dataSourcesRef.find(x => x.checked).name === 'Media'"
                                                         :key="dataSourcesRef.find(x => x.checked).name">
                                                         <input class="input is-outlined is-size-7 has-text-weight-bold"
-                                                            type="text" placeholder="Keywords" v-model="queryRef" @input="update()" />
+                                                            type="text" placeholder="Keywords" v-model="queryRef"
+                                                            @input="update()" />
                                                     </div>
                                                 </transition>
                                                 <div class="control">
                                                     <button class="button is-rounded" :disabled="isFetchingRef"
                                                         @click="update">
-                                                        <transition name="fade" mode="out-in">
-                                                            <span class="icon is-small" v-if="isFetchingRef" key="updating">
-                                                                <i class="fa-solid fa-arrows-rotate"
-                                                                    :class="{ loading: isFetchingRef }"></i>
-                                                            </span>
-                                                            <span class="icon is-small" v-else key="updated">
-                                                                <i class="fa-solid fa-search"></i>
-                                                            </span>
-                                                        </transition>
+                                                        <span class="icon is-small">
+                                                            <i class="fa-solid fa-arrows-rotate"
+                                                                :class="{ loading: isFetchingRef }"></i>
+                                                        </span>
                                                     </button>
                                                 </div>
                                             </form>
@@ -577,13 +354,14 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             </nav>
                             <table class="table is-fullwidth is-hoverable">
                                 <thead>
-                                    <tr>
-                                        <th v-for="(column, index) in dataSourcesRef.find(x => x.checked).columns"
-                                            :style="{ width: column.width }" :key="column"><span class="custom"
-                                                v-if="index === 0"></span><span
-                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
-                                                v-text="column.name"></span></th>
-                                    </tr>
+                                    <transition name="fade" mode="out-in">
+                                        <tr :key="dataSourcesRef.find(x => x.checked).name">
+                                            <th v-for="column in dataSourcesRef.find(x => x.checked).columns"
+                                                :style="{ width: column.width }" :key="column"><span
+                                                    class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
+                                                    v-text="column.name"></span></th>
+                                        </tr>
+                                    </transition>
                                 </thead>
                                 <transition name="fade" mode="out-in">
                                     <tbody v-if="!isFetchingRef">
@@ -612,7 +390,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
             </div>
             <transition name="fade">
-                <div class="bottom" v-show="totalCountRef > pageLengthRef || isContinuousRef">
+                <div class="bottom" v-show="totalCountRef > pageLengthRef || pageIndexRef > 0 || isContinuousRef">
                     <div class="block">
                         <div class="panel-block">
                             <div class="control">
@@ -623,8 +401,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 v-bind:disabled="(pageIndexRef === 0 || isFetchingRef)"
                                                 @click="previous($event)">
                                                 <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small" v-if="(!isForwardingRef && isFetchingRef)"
-                                                        key="fetching">
+                                                    <span class="icon is-small" v-if="isFetchingRef" key="fetching">
                                                         <i class="fas fa-spinner updating"></i>
                                                     </span>
                                                     <span class="icon is-small" v-else key="fetched">
@@ -644,11 +421,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-right">
                                         <div class="level-item">
                                             <button class="button is-primary"
-                                                v-bind:disabled="(pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef)"
+                                                v-bind:disabled="(pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef)"
                                                 @click="next($event)">
                                                 <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small" v-if="(isForwardingRef && isFetchingRef)"
-                                                        key="fetching">
+                                                    <span class="icon is-small" v-if="isFetchingRef" key="fetching">
                                                         <i class="fas fa-spinner updating"></i>
                                                     </span>
                                                     <span class="icon is-small" v-else key="fetched">
