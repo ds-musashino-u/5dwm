@@ -231,7 +231,8 @@ export default {
 
 <template>
   <!--<img alt="Vue logo" src="./assets/logo.png" />-->
-  <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal" @select="select" />
+  <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal"
+    @select="select" />
   <div class="wrap">
     <div class="content">
       <keep-alive>
@@ -241,21 +242,24 @@ export default {
     </div>
     <transition name="reveal">
       <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
-        v-bind:is-admin="isAdmin" v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn" @sign-out="signOut"
-        v-if="user === null || isRevealed" />
+        v-bind:is-admin="isAdmin" v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn"
+        @sign-out="signOut" v-if="user === null || isRevealed" />
     </transition>
   </div>
   <div class="left is-hidden-tablet" v-cloak>
     <transition name="fade" mode="out-in">
       <button class="button is-circle" type="button" @click="reveal" key="menu">
-        <span class="icon is-small">
-          <i class="fas fa-bars"></i>
-        </span>
+        <transition name="fade" mode="out-in">
+          <span class="icon is-small" v-if="isRevealed" key="open">
+            <i class="fa-solid fa-xmark"></i>
+          </span>
+          <span class="icon is-small" v-else key="close">
+            <i class="fas fa-bars"></i>
+          </span>
+        </transition>
       </button>
     </transition>
   </div>
 </template>
 
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>
