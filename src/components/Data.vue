@@ -21,7 +21,7 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(calc(1.5em + calc(0.75rem * 1.5)) + 0.5em)" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "calc(calc(30% - calc(1.5em + calc(0.75rem * 1.5))) + 0.5em)" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5rem + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "calc(30% - calc(1.5rem + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
 const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
 const props = defineProps({
@@ -1124,7 +1124,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                         thead>tr {
                             height: calc(1.0rem + 24px);
-                            
+
                             >th {
                                 border-bottom: 1px solid hsl(0deg, 0%, 93%);
                                 padding-left: 0.75em;
@@ -1158,11 +1158,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                                     >a {
                                         display: flex;
-                                        justify-content: center;
+                                        margin: 0em 0em 0em -0.75em;
+                                        width: 100%;
+                                        height: 100%;
+                                        align-items: center;
+                                        justify-content: flex-start;
 
                                         >span {
-                                            margin: 0em 0em 0em calc(-0.75em / 2);
+                                            margin: 0em 0em 0em calc(calc(calc(1.5rem + calc(0.75rem * 1.5)) - 1rem) / 2);
                                             padding: 0;
+                                            flex-shrink: 0;
+                                            flex-grow: 0;
                                         }
 
                                         >span.is-small {
@@ -1173,26 +1179,25 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                                         >picture {
                                             display: block;
-                                            margin: -0.5em 0em -0.5em -0.75em;
+                                            margin: -0.5em 0em -0.5em 0em;
                                             padding: 0;
                                             height: 100%;
-
+                                            overflow: hidden;
+                                            flex-shrink: 0;
+                                            flex-grow: 0;
+                                            
                                             >img {
                                                 object-fit: cover;
                                                 display: block;
                                                 margin: 0;
                                                 padding: 0;
                                                 aspect-ratio: 1 / 1;
-                                                height: calc(calc(1.5em + calc(0.75rem * 1.5)) + 0.5em);
+                                                width: calc(1.5rem + calc(0.75rem * 1.5));
+                                                overflow: hidden;
                                             }
                                         }
                                     }
                                 }
-
-                                /*>td:first-of-type {
-                                    text-align: center;
-                                    vertical-align: middle;
-                                }*/
 
                                 >td:last-of-type {
                                     padding-right: 0.75em;
