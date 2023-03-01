@@ -21,18 +21,9 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5em + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "10%" }, { name: "Type", value: "type", width: "10%" }, { name: "Description", value: "description", width: "calc(80% - calc(1.5em + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "50%" }] }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(calc(1.5em + calc(0.75rem * 1.5)) + 0.5em)" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "calc(calc(30% - calc(1.5em + calc(0.75rem * 1.5))) + 0.5em)" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
 const dataItemsRef = ref([]);
-const maxCategoriesLength = 10;
-const categoriesIsCollapsedRef = ref(false);
-const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
-const categoriesPageIndexRef = ref(0);
-const maxTypesLength = 25;
-const typesIsCollapsedRef = ref(false);
-const typesIsContinuousRef = ref(false);
-const typesItemsRef = ref([]);
-const typesPageIndexRef = ref(0);
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -120,7 +111,7 @@ const update = async () => {
 
             if (query === queryRef.value && timestamp > lastUpdatedRef.value) {
                 for (const resultItem of resultItems) {
-                    dataItemsRef.value.push({ data: resultItem.media, checked: false });
+                    dataItemsRef.value.push({ data: { id: resultItem.media.id, url: resultItem.media.url, type: resultItem.media.type, categories: resultItem.media.categories, longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address, createdAt: resultItem.media.createdAt, description: resultItem.media.description, username: resultItem.media.username }, checked: false });
                 }
 
                 totalCountRef.value = totalCount;
@@ -177,10 +168,12 @@ const previous = async () => {
 const format = (obj) => {
     if (typeof (obj) === "string") {
         return obj.substring(0, 100);
+    } else if (Array.isArray(obj)) {
+        return obj.join(", ");
     } else if (typeof (obj) === "object" && "toLocaleString" in obj) {
         return obj.toLocaleString();
     }
-    
+
     return obj;
 };
 const shake = (element) => {
@@ -368,10 +361,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <thead>
                                     <transition name="fade" mode="out-in">
                                         <tr :key="dataSourcesRef.find(x => x.checked).name">
-                                            <th v-for="column in dataSourcesRef.find(x => x.checked).columns"
-                                                :style="{ width: column.width }" :key="column"><span
-                                                    class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
-                                                    v-text="column.name"></span></th>
+                                            <th class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
+                                                v-for="column in dataSourcesRef.find(x => x.checked).columns"
+                                                :style="{ width: column.width }" v-text="column.name" :key="column"></th>
                                         </tr>
                                     </transition>
                                 </thead>
@@ -379,20 +371,28 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <tbody v-if="!isFetchingRef">
                                         <tr v-for="(item, index) in dataItemsRef" v-bind:key="item"
                                             :class="{ 'is-selected': item.checked }" @click="selectMedia($event, index)">
-                                            <td v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
-                                                :style="{ width: 'width' in column ? column.width : 'auto' }" :key="column">
-                                                <span class="is-size-7 has-text-weight-bold" v-if="column.value !== 'url'"
-                                                    v-text="format(item.data[column.value])"></span>
-                                                <a :href="item.data.url" target="_blank"
+                                            <template v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
+                                                :key="column">
+                                                <td class="is-size-7 has-text-weight-bold"
+                                                    :style="{ width: 'width' in column ? column.width : 'auto' }"
+                                                    v-text="format(item.data[column.value])" v-if="column.value !== 'url'">
+                                                </td>
+                                                <td class="is-size-7 has-text-weight-bold"
+                                                    :style="{ width: 'width' in column ? column.width : 'auto' }"
                                                     v-else-if="item.data.type.startsWith('image')">
-                                                    <picture><img :src="item.data.url" :alt="item.data.id"></picture>
-                                                </a>
-                                                <a :href="item.data.url" target="_blank" v-else>
-                                                    <span class="icon is-small">
-                                                        <i class="fa-solid fa-link"></i>
-                                                    </span>
-                                                </a>
-                                            </td>
+                                                    <a :href="item.data.url" target="_blank">
+                                                        <picture><img :src="item.data.url" :alt="item.data.id"></picture>
+                                                    </a>
+                                                </td>
+                                                <td class="is-size-7 has-text-weight-bold"
+                                                    :style="{ width: 'width' in column ? column.width : 'auto' }" v-else>
+                                                    <a :href="item.data.url" target="_blank">
+                                                        <span class="icon is-small">
+                                                            <i class="fa-solid fa-link"></i>
+                                                        </span>
+                                                    </a>
+                                                </td>
+                                            </template>
                                         </tr>
                                     </tbody>
                                 </transition>
@@ -1120,57 +1120,49 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         z-index: 0;
                         margin: 0;
                         padding: 0;
+                        table-layout: fixed;
 
                         thead>tr {
+                            height: calc(1.0rem + 24px);
+                            
                             >th {
                                 border-bottom: 1px solid hsl(0deg, 0%, 93%);
-                                padding-left: 0;
+                                padding-left: 0.75em;
                                 padding-top: 0.5em;
                                 padding-right: 0;
                                 padding-bottom: 0.5em;
-
-                                >span {
-                                    padding-left: 0.75em;
-                                }
+                                vertical-align: middle;
                             }
 
-                            >th:last-of-type>span {
+                            >th:last-of-type {
                                 padding-right: 0.75em;
                             }
                         }
 
                         tbody {
                             >tr {
+                                height: calc(1.5em + calc(0.75rem * 1.5));
                                 background-color: transparent;
                                 transition: .5s;
 
                                 >td {
                                     border-bottom: 0px solid transparent;
-                                    padding: 0;
+                                    padding-left: 0.75em;
+                                    padding-top: 0.5em;
+                                    padding-right: 0;
+                                    padding-bottom: 0.5em;
                                     vertical-align: middle;
-                                    height: calc(1.5em + calc(0.75rem * 1.5));
-
-                                    >span {
-                                        display: flex;
-                                        padding-left: 0.75em;
-                                        padding-top: 0.5em;
-                                        padding-right: 0;
-                                        padding-bottom: 0.5em;
-                                        white-space: nowrap;
-                                        text-overflow: ellipsis;
-                                        overflow: hidden;
-                                        align-items: center;
-                                    }
+                                    white-space: nowrap;
+                                    text-overflow: ellipsis;
+                                    overflow: hidden;
 
                                     >a {
                                         display: flex;
                                         justify-content: center;
 
                                         >span {
-                                            padding-left: 0em;
-                                            padding-top: 0.5em;
-                                            padding-right: 0;
-                                            padding-bottom: 0.5em;
+                                            margin: 0em 0em 0em calc(-0.75em / 2);
+                                            padding: 0;
                                         }
 
                                         >span.is-small {
@@ -1181,7 +1173,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                                         >picture {
                                             display: block;
-                                            margin: 0;
+                                            margin: -0.5em 0em -0.5em -0.75em;
                                             padding: 0;
                                             height: 100%;
 
@@ -1191,18 +1183,18 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 margin: 0;
                                                 padding: 0;
                                                 aspect-ratio: 1 / 1;
-                                                width: calc(1.5em + calc(0.75rem * 1.5));
+                                                height: calc(calc(1.5em + calc(0.75rem * 1.5)) + 0.5em);
                                             }
                                         }
                                     }
                                 }
 
-                                >td:first-of-type {
+                                /*>td:first-of-type {
                                     text-align: center;
                                     vertical-align: middle;
-                                }
+                                }*/
 
-                                >td:last-of-type>span {
+                                >td:last-of-type {
                                     padding-right: 0.75em;
                                 }
                             }
