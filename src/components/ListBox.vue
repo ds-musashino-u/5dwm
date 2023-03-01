@@ -95,7 +95,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     </transition>
     <transition name="fade">
       <div class="control" v-show="!isCollapsed && (pageIndexRef > 0 || isContinuous)">
-        <nav class="level">
+        <nav class="level is-mobile">
           <div class="level-left">
             <div class="level-item">
               <button class="button" v-bind:disabled="
