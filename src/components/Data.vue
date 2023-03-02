@@ -412,14 +412,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             <button class="button is-primary"
                                                 v-bind:disabled="(pageIndexRef === 0 || isFetchingRef)"
                                                 @click="previous($event)">
-                                                <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small" v-if="isFetchingRef" key="fetching">
-                                                        <i class="fas fa-spinner updating"></i>
-                                                    </span>
-                                                    <span class="icon is-small" v-else key="fetched">
-                                                        <i class="fa-solid fa-chevron-left"></i>
-                                                    </span>
-                                                </transition>
+                                                <span class="icon is-small">
+                                                    <i class="fa-solid fa-chevron-left"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </div>
@@ -435,14 +430,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             <button class="button is-primary"
                                                 v-bind:disabled="(pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef)"
                                                 @click="next($event)">
-                                                <transition name="fade" mode="out-in">
-                                                    <span class="icon is-small" v-if="isFetchingRef" key="fetching">
-                                                        <i class="fas fa-spinner updating"></i>
-                                                    </span>
-                                                    <span class="icon is-small" v-else key="fetched">
-                                                        <i class="fa-solid fa-chevron-right"></i>
-                                                    </span>
-                                                </transition>
+                                                <span class="icon is-small">
+                                                    <i class="fa-solid fa-chevron-right"></i>
+                                                </span>
                                             </button>
                                         </div>
                                     </div>
@@ -1185,7 +1175,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             overflow: hidden;
                                             flex-shrink: 0;
                                             flex-grow: 0;
-                                            
+
                                             >img {
                                                 object-fit: cover;
                                                 display: block;
