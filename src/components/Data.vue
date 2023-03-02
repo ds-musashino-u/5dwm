@@ -21,9 +21,10 @@ const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
 const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
-const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5rem + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "calc(30% - calc(1.5rem + calc(0.75rem * 1.5)))" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
+const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5rem + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "auto" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
 const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
+const isOverlayedRef = ref(false);
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -337,10 +338,17 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 <transition name="fade" mode="out-in">
                                                     <div class="control"
                                                         v-if="dataSourcesRef.find(x => x.checked).name === 'Media'"
-                                                        :key="dataSourcesRef.find(x => x.checked).name">
+                                                        key="Media">
                                                         <input class="input is-outlined is-size-7 has-text-weight-bold"
                                                             type="text" placeholder="Keywords" v-model="queryRef"
                                                             @input="update()" />
+                                                    </div>
+                                                    <div class="control" v-else key="Categories">
+                                                        <button class="button is-rounded" @click="">
+                                                            <span class="icon is-small">
+                                                                <i class="fa-solid fa-plus"></i>
+                                                            </span>
+                                                        </button>
                                                     </div>
                                                 </transition>
                                                 <div class="control">
@@ -443,6 +451,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
             </transition>
         </div>
+        <transition name="slide">
+            <div id="overlay" v-if="isOverlayedRef" key="overlay">
+            </div>
+        </transition>
     </div>
 </template>
 
@@ -460,38 +472,22 @@ watch(isEnabledRef, (newValue, oldValue) => {
     justify-content: flex-start;
     background: #ffffff;
 
-    #map {
+    #overlay {
+        z-index: 1;
+        position: absolute;
         display: flex;
-        position: relative;
+        margin: 0;
+        padding: 0;
         width: 100%;
-        aspect-ratio: 1 / 1;
-        justify-content: center;
-        align-items: center;
-
-        button {
-            border-radius: 0 !important;
-        }
-
-        .content {
-            display: block;
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .crosshairs {
-            display: block;
-            position: absolute;
-            margin: 0;
-            width: 1.0rem;
-            height: 1.0rem;
-            font-size: 1.0rem;
-            line-height: 1.0rem;
-            left: 50%;
-            right: 50%;
-            transform-origin: 0% 0%;
-            transform: translate(-50%, -50%);
-        }
+        height: 100%;
+        overflow: hidden;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        background: var(--menu-background-color);
+        -webkit-backdrop-filter: blur(8px);
+        backdrop-filter: blur(8px);
+        transition: 0.5s;
     }
 
     #media,
