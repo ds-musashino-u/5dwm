@@ -1175,7 +1175,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                 .panel {
                     background: rgba(255, 255, 255, 0.9);
-                    border-radius: 8px;
+                    border-radius: 4px;
                     box-shadow: none;
 
                     .panel-block {
@@ -1266,7 +1266,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             padding: 4px;
                             width: 100%;
                             aspect-ratio: 16 / 9;
-                            border-radius: 8px;
+                            border-radius: 4px;
                             flex-direction: column;
                             align-items: center;
                             justify-content: center;
@@ -1286,7 +1286,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             div.image {
                                 display: flex;
                                 margin: 0;
-                                border-radius: 8px;
+                                border-radius: 4px;
                                 padding: 0;
                                 width: 100%;
                                 height: 100%;
@@ -1301,7 +1301,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                                 >picture {
                                     height: 100%;
-                                    border-radius: 8px;
+                                    border-radius: 4px;
                                     overflow: hidden;
 
                                     >img {
@@ -1369,7 +1369,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 }
 
                 button {
-                    border-radius: 8px;
+                    border-radius: 4px;
                     box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
                         0 0px 0 1px rgb(10 10 10 / 2%) !important;
                 }
@@ -1386,7 +1386,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
             .panel {
                 background: rgba(255, 255, 255, 0.9);
-                border-radius: 8px;
+                border-radius: 4px;
                 box-shadow: none;
             }
         }
@@ -1435,7 +1435,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                 .panel {
                     background: rgba(255, 255, 255, 0.9);
-                    border-radius: 8px;
+                    border-radius: 4px;
                     box-shadow: none;
 
                     .panel-block {
@@ -1448,7 +1448,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                 button {
                     box-sizing: border-box;
-                    border-radius: 8px;
+                    border-radius: 4px;
                     height: fit-content;
                     box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
                         0 0px 0 1px rgb(10 10 10 / 2%) !important;

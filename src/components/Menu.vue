@@ -185,7 +185,7 @@ const signOut = (event) => {
         >.block {
           .panel {
             background: #ffffff !important;
-            border-radius: 8px !important;
+            border-radius: 4px !important;
             box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
               0 0px 0 1px rgb(10 10 10 / 2%) !important;
 
@@ -260,7 +260,7 @@ const signOut = (event) => {
 
           button {
             border: 0px solid transparent !important;
-            border-radius: 8px !important;
+            border-radius: 4px !important;
             box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
               0 0px 0 1px rgb(10 10 10 / 2%) !important;
           }

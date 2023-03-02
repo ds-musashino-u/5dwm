@@ -671,4 +671,14 @@ watch(toDateRef, (newValue, oldValue) => {
 .panel-block:not(:last-child) {
   border-bottom: 1px solid hsl(0deg, 0%, 93%);
 }
+
+.tabs.is-toggle li:first-child a {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+
+.tabs.is-toggle li:last-child a {
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
 </style>

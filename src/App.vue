@@ -254,7 +254,7 @@ export default {
             <i class="fa-solid fa-xmark"></i>
           </span>
           <span class="icon is-small" v-else key="close">
-            <i class="fas fa-bars"></i>
+            <i class="fa-solid fa-bars"></i>
           </span>
         </transition>
       </button>

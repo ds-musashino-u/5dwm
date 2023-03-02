@@ -229,7 +229,7 @@ const back = (event) => {
     }
 
     .button.is-primary {
-      border-radius: 8px;
+      border-radius: 4px;
       box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
         0 0px 0 1px rgb(10 10 10 / 2%) !important;
     }
@@ -451,7 +451,7 @@ const back = (event) => {
     box-sizing: border-box;
 
     button {
-      border-radius: 8px;
+      border-radius: 4px;
       box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
         0 0px 0 1px rgb(10 10 10 / 2%) !important;
     }
