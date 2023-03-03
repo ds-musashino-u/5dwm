@@ -24,7 +24,7 @@ const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: 
 const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5rem + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "auto" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
 const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
-const isOverlayedRef = ref(false);
+const editingItemRef = ref(null);
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -112,7 +112,7 @@ const update = async () => {
 
             if (query === queryRef.value && timestamp > lastUpdatedRef.value) {
                 for (const resultItem of resultItems) {
-                    dataItemsRef.value.push({ data: { id: resultItem.media.id, url: resultItem.media.url, type: resultItem.media.type, categories: resultItem.media.categories, longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address, createdAt: resultItem.media.createdAt, description: resultItem.media.description, username: resultItem.media.username }, checked: false });
+                    dataItemsRef.value.push({ data: Object.assign(resultItem.media, { longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address }), checked: false });
                 }
 
                 totalCountRef.value = totalCount;
@@ -166,6 +166,16 @@ const previous = async () => {
         await update();
     }
 };
+const add = () => {
+    const dataSource = dataSourcesRef.value.find(x => x.checked).name;
+
+    if (dataSource === "Categories") {
+        editingItemRef.value = { type: dataSource, data: { name: "" } };
+    }
+}
+const close = () => {
+    editingItemRef.value = null;
+}
 const format = (obj) => {
     if (typeof (obj) === "string") {
         return obj.substring(0, 100);
@@ -344,7 +354,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                             @input="update()" />
                                                     </div>
                                                     <div class="control" v-else key="Categories">
-                                                        <button class="button is-rounded" @click="">
+                                                        <button class="button is-rounded" @click="add()">
                                                             <span class="icon is-small">
                                                                 <i class="fa-solid fa-plus"></i>
                                                             </span>
@@ -452,7 +462,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             </transition>
         </div>
         <transition name="slide">
-            <div id="overlay" v-if="isOverlayedRef" key="overlay">
+            <div id="overlay" v-if="editingItemRef !== null" :key="editingItemRef">
             </div>
         </transition>
     </div>
