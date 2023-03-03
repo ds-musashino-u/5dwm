@@ -25,6 +25,8 @@ const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: ""
 const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
 const editingItemRef = ref(null);
+const isSavingRef = ref(false);
+const isSavedRef = ref(false);
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -81,8 +83,18 @@ const selectUser = (event, index) => {
         }
     }
 };
-const selectMedia = (event, index) => {
+const selectItem = (event, index) => {
     dataItemsRef.value[index].checked = !dataItemsRef.value[index].checked;
+
+    if (dataItemsRef.value[index].checked) {
+        const dataSource = dataSourcesRef.value.find(x => x.checked).name;
+
+        if (dataSource === "Media") {
+
+        } else if (dataSource === "Categories") {
+            editingItemRef.value = { insert: false, update: true, delete: true, source: dataSource, schemes: [{ name: "name", label: "Name", ignore: false }], data: Object.assign({}, dataItemsRef.value[index].data) };
+        }
+    }
 
     for (let i = 0; i < dataItemsRef.value.length; i++) {
         if (index !== i && dataItemsRef.value[i].checked) {
@@ -92,8 +104,14 @@ const selectMedia = (event, index) => {
 
     emit("select", dataItemsRef.value[index], pageIndexRef.value * pageLengthRef.value + index);
 };
-const update = async () => {
+const update = async (event, reset = false) => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
+
+    if (reset) {
+        pageIndexRef.value = 0;
+        totalCountRef.value = 0;
+        isContinuousRef.value = true;
+    }
 
     isFetchingRef.value = true;
 
@@ -170,12 +188,31 @@ const add = () => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
 
     if (dataSource === "Categories") {
-        editingItemRef.value = { type: dataSource, data: { name: "" } };
+        editingItemRef.value = { insert: true, update: false, delete: false, schemes: [{ name: "name", label: "Name", ignore: false }], source: dataSource, data: { name: "" } };
     }
-}
-const close = () => {
+};
+const save = async () => {
+    if (editingItemRef.value.type === "Insert") {
+
+    } else if (editingItemRef.value.type === "Update") {
+
+    } else if (editingItemRef.value.type === "Delete") {
+
+    }
+
+    for (let i = 0; i < dataItemsRef.value.length; i++) {
+        dataItemsRef.value[i].checked = false;
+    }
+
     editingItemRef.value = null;
-}
+};
+const close = () => {
+    for (let i = 0; i < dataItemsRef.value.length; i++) {
+        dataItemsRef.value[i].checked = false;
+    }
+
+    editingItemRef.value = null;
+};
 const format = (obj) => {
     if (typeof (obj) === "string") {
         return obj.substring(0, 100);
@@ -351,10 +388,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                         key="Media">
                                                         <input class="input is-outlined is-size-7 has-text-weight-bold"
                                                             type="text" placeholder="Keywords" v-model="queryRef"
-                                                            @input="update()" />
+                                                            @input="update($event, true)" />
                                                     </div>
                                                     <div class="control" v-else key="Categories">
-                                                        <button class="button is-rounded" @click="add()">
+                                                        <button class="button is-rounded" @click="add($event)">
                                                             <span class="icon is-small">
                                                                 <i class="fa-solid fa-plus"></i>
                                                             </span>
@@ -388,7 +425,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <transition name="fade" mode="out-in">
                                     <tbody v-if="!isFetchingRef">
                                         <tr v-for="(item, index) in dataItemsRef" v-bind:key="item"
-                                            :class="{ 'is-selected': item.checked }" @click="selectMedia($event, index)">
+                                            :class="{ 'is-selected': item.checked }" @click="selectItem($event, index)">
                                             <template v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
                                                 :key="column">
                                                 <td class="is-size-7 has-text-weight-bold"
@@ -463,6 +500,83 @@ watch(isEnabledRef, (newValue, oldValue) => {
         </div>
         <transition name="slide">
             <div id="overlay" v-if="editingItemRef !== null" :key="editingItemRef">
+                <div class="flyout-left" v-if="editingItemRef.source === 'Categories'">
+                    <div class="wrap">
+                        <div class="block">
+                            <nav class="panel">
+                                <div class="panel-block">
+                                    <nav class="level is-mobile">
+                                        <div class="level-left">
+                                            <div class="level-item">
+                                                <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                                                    Add a category
+                                                </h3>
+                                            </div>
+                                        </div>
+                                        <div class="level-right">
+                                            <div class="level-item">
+                                                <button class="button toggle is-rounded" @click="close()">
+                                                    <span class="icon is-small">
+                                                        <i class="fa-solid fa-xmark"></i>
+                                                    </span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </nav>
+                                </div>
+                                <template v-for="scheme in editingItemRef.schemes" :key="scheme">
+                                    <div class="panel-block">
+                                        <nav class="level is-mobile">
+                                            <div class="level-left">
+                                                <div class="level-item">
+                                                    <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                                                        {{ scheme.label }}
+                                                    </h3>
+                                                </div>
+                                            </div>
+                                        </nav>
+                                        <div class="block" v-if="'ignore' in scheme === false || !scheme.ignore">
+                                            <div class="control">
+                                                <div class="field has-addons">
+                                                    <div class="control is-expanded">
+                                                        <input class="input is-size-7 has-text-weight-bold" type="text"
+                                                            :placeholder="'Enter a ' + scheme.label"
+                                                            v-model="editingItemRef.data[scheme.name]" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </nav>
+                        </div>
+                    </div>
+                    <div class="bottom">
+                        <div class="block">
+                            <div class="panel-block">
+                                <div class="control">
+                                    <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
+                                        type="submit"
+                                        v-bind:disabled="user === null || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0)"
+                                        @click="save($event)">
+                                        <transition name="fade" mode="out-in">
+                                            <span class="icon" v-if="isSavingRef" key="saved">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
+                                            <span class="icon" v-else-if="isSavedRef" key="saving">
+                                                <i class="fas fa-spinner updating"></i>
+                                            </span>
+                                            <span class="icon" v-else key="ready">
+                                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                            </span>
+                                        </transition>
+                                        <span class="is-uppercase has-text-weight-bold">Save</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </transition>
     </div>
@@ -498,6 +612,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
         -webkit-backdrop-filter: blur(8px);
         backdrop-filter: blur(8px);
         transition: 0.5s;
+
+        .wrap>.block .panel>.panel-block:not(:first-of-type) .panel-heading {
+            padding: 0.5em 0em;
+        }
     }
 
     #media,
@@ -531,7 +649,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 height: fit-content;
 
                 .panel {
-                    background: rgba(255, 255, 255, 0.9);
+                    background: transparent;
                     border-radius: 4px;
                     box-shadow: none;
 
@@ -644,13 +762,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                         >.block {
                             margin: 0;
-                            padding: 0em 0.75em;
+                            padding: 0em 0.75em 0em 0.5em;
                             width: 100%;
                         }
 
-                        >.block:last-child {
-                            margin: 0;
-                            padding: 0.5em 0.75em;
+                        >.block:not(:first-of-type) {
+                            padding: 0.5em 0.75em 0em 0.5em;
                         }
 
                         >.level {
@@ -998,6 +1115,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
         .field {
             width: 100%;
+            background: #ffffff;
 
             input.is-outlined,
             select {
