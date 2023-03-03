@@ -92,7 +92,7 @@ const selectItem = (event, index) => {
         if (dataSource === "Media") {
 
         } else if (dataSource === "Categories") {
-            editingItemRef.value = { insert: false, update: true, delete: true, source: dataSource, schemes: [{ name: "name", label: "Name", ignore: false }], data: Object.assign({}, dataItemsRef.value[index].data) };
+            editingItemRef.value = { insert: false, update: true, delete: true, source: dataSource, schemes: [{ key: "id", name: "ID", ignore: true }, { key: "name", name: "Name", ignore: false }, { key: "updatedAt", name: "Updated", ignore: true }], data: Object.assign({}, dataItemsRef.value[index].data) };
         }
     }
 
@@ -128,7 +128,7 @@ const update = async (event, reset = false) => {
                 return x;
             }, []), [], [], props.isAdmin ? [] : [props.user.email.split("@")[0]], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
 
-            if (query === queryRef.value && timestamp > lastUpdatedRef.value) {
+            if (dataSourcesRef.value.find(x => x.checked).name === "Media" && query === queryRef.value && timestamp > lastUpdatedRef.value) {
                 for (const resultItem of resultItems) {
                     dataItemsRef.value.push({ data: Object.assign(resultItem.media, { longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address }), checked: false });
                 }
@@ -150,16 +150,18 @@ const update = async (event, reset = false) => {
             );
             let length;
 
-            if (items.length > pageLengthRef.value) {
-                isContinuousRef.value = true;
-                length = pageLengthRef.value;
-            } else {
-                isContinuousRef.value = false;
-                length = items.length;
-            }
+            if (dataSourcesRef.value.find(x => x.checked).name === "Categories") {
+                if (items.length > pageLengthRef.value) {
+                    isContinuousRef.value = true;
+                    length = pageLengthRef.value;
+                } else {
+                    isContinuousRef.value = false;
+                    length = items.length;
+                }
 
-            for (let i = 0; i < length; i++) {
-                dataItemsRef.value.push({ data: { id: items[i].id, name: items[i].name, updatedAt: items[i].updatedAt }, checked: false });
+                for (let i = 0; i < length; i++) {
+                    dataItemsRef.value.push({ data: { id: items[i].id, name: items[i].name, updatedAt: items[i].updatedAt }, checked: false });
+                }
             }
         } catch (error) {
             shake(dataRef.value);
@@ -188,7 +190,7 @@ const add = () => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
 
     if (dataSource === "Categories") {
-        editingItemRef.value = { insert: true, update: false, delete: false, schemes: [{ name: "name", label: "Name", ignore: false }], source: dataSource, data: { name: "" } };
+        editingItemRef.value = { insert: true, update: false, delete: false, schemes: [{ key: "name", name: "Name", ignore: false }], source: dataSource, data: { name: "" } };
     }
 };
 const save = async () => {
@@ -530,8 +532,16 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             <div class="level-left">
                                                 <div class="level-item">
                                                     <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
-                                                        {{ scheme.label }}
+                                                        {{ scheme.name }}
                                                     </h3>
+                                                </div>
+                                            </div>
+                                            <div class="level-right" v-if="'ignore' in scheme && scheme.ignore">
+                                                <div class="level-item">
+                                                    <span
+                                                        class="is-size-7 has-text-weight-bold has-text-grey has-text-right">
+                                                        {{ format(editingItemRef.data[scheme.key]) }}
+                                                    </span>
                                                 </div>
                                             </div>
                                         </nav>
@@ -541,7 +551,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                     <div class="control is-expanded">
                                                         <input class="input is-size-7 has-text-weight-bold" type="text"
                                                             :placeholder="'Enter a ' + scheme.label"
-                                                            v-model="editingItemRef.data[scheme.name]" />
+                                                            v-model="editingItemRef.data[scheme.key]" />
                                                     </div>
                                                 </div>
                                             </div>
@@ -613,8 +623,36 @@ watch(isEnabledRef, (newValue, oldValue) => {
         backdrop-filter: blur(8px);
         transition: 0.5s;
 
-        .wrap>.block .panel>.panel-block:not(:first-of-type) .panel-heading {
-            padding: 0.5em 0em;
+        .wrap>.block .panel>.panel-block:not(:first-of-type) {
+            .level {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+
+                >.level-left>.level-item>h3 {
+                    line-height: inherit !important;
+                }
+
+                >.level-right {
+                    margin: 0 !important;
+                    width: 50%;
+
+                    >.level-item {
+                        display: flex;
+                        justify-content: flex-end;
+                        align-items: flex-start;
+                        width: 50%;
+
+                        span {
+                            padding: 0.5em 0em;
+                        }
+                    }
+                }
+            }
+
+            .panel-heading {
+                padding: 0.5em 0em;
+            }
         }
     }
 
@@ -762,12 +800,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                         >.block {
                             margin: 0;
-                            padding: 0em 0.75em 0em 0.5em;
+                            padding: 0em 0.75em 0.5em 0.75em;
                             width: 100%;
                         }
 
                         >.block:not(:first-of-type) {
-                            padding: 0.5em 0.75em 0em 0.5em;
+                            padding: 0.5em 0.75em 0.5em 0.5em;
                         }
 
                         >.level {
