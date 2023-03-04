@@ -643,6 +643,23 @@ a:hover {
     transform: translate3d(0.5, 0.5, 1);
 }
 
+.popup-enter-active,
+.popup-leave-active {
+    transition: all 0.5s ease;
+}
+
+.popup-enter-from,
+.popup-leave-to {
+    opacity: 0;
+    transform: scale(0.75, 0.75);
+}
+
+.popup-enter-to,
+.popup-leave-from {
+    opacity: 1;
+    transform: scale(1, 1);
+}
+
 ::-webkit-scrollbar {
     appearance: none;
     width: 8px;
@@ -692,6 +709,18 @@ a:hover {
 
     100% {
         background-position: -24px 0px;
+    }
+}
+
+@keyframes popup {
+    0% {
+        opacity: 0;
+        transform: scale(0.75, 0.75);
+    }
+
+    100% {
+        opacity: 1;
+        transform: scale(1, 1);
     }
 }
 
