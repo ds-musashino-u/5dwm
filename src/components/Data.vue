@@ -560,7 +560,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 <div class="field has-addons">
                                                     <div class="control is-expanded">
                                                         <input class="input is-size-7 has-text-weight-bold" type="text"
-                                                            :placeholder="'Enter a ' + scheme.label"
+                                                            :placeholder="'Enter a ' + scheme.name"
                                                             v-model="editingItemRef.data[scheme.key]" />
                                                     </div>
                                                 </div>
@@ -618,7 +618,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
-                        <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"></div>
+                        <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss" key="background"></div>
                     </transition>
                     <div class="wrap" @animationend="deleteConfirmation.visible = $event.srcElement.className !== 'wrap'" :style="{ animationPlayState: deleteConfirmation.dismiss ? 'running' : 'paused' }">
                         <div class="modal-card"
