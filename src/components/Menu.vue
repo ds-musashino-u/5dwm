@@ -196,6 +196,7 @@ const signOut = (event) => {
               align-items: center;
               margin: 0;
               border-bottom: 1px solid hsl(0deg, 0%, 93%);
+              border-radius: 0;
               padding: 24px 24px 24px 24px;
               background: transparent;
 
@@ -231,12 +232,15 @@ const signOut = (event) => {
               border-bottom: 1px solid hsl(0deg, 0%, 93%);
             }
 
+            >.panel-block {
+              padding: 0.5em 0.75em;
+            }
+
             >.panel-block:nth-of-type(2) {
               display: flex !important;
               flex-direction: column !important;
               justify-content: center !important;
               align-items: center !important;
-              padding: 24px 24px 24px 24px;
 
               .block:first-child {
                 display: flex;
@@ -255,6 +259,11 @@ const signOut = (event) => {
                 margin: 6px 0px 0px 0px;
                 padding: 0;
               }
+            }
+
+            .panel-block:first-child,
+            .panel-block:last-child {
+              border-radius: 0;
             }
           }
 
