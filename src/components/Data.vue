@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onActivated, onDeactivated, watch } from "vue";
+import { ref, reactive, onActivated, onDeactivated, watch } from "vue";
 import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
@@ -27,6 +27,9 @@ const categoriesItemsRef = ref([]);
 const editingItemRef = ref(null);
 const isSavingRef = ref(false);
 const isSavedRef = ref(false);
+const isDeletingRef = ref(false);
+const isDeletedRef = ref(false);
+const deleteConfirmation = reactive({ visible: false, dismiss: false });
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -186,14 +189,14 @@ const previous = async () => {
         await update();
     }
 };
-const add = () => {
+const requestAdd = () => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
 
     if (dataSource === "Categories") {
         editingItemRef.value = { insert: true, update: false, delete: false, schemes: [{ key: "name", name: "Name", ignore: false }], source: dataSource, data: { name: "" } };
     }
 };
-const save = async () => {
+const saveItem = async () => {
     if (editingItemRef.value.type === "Insert") {
 
     } else if (editingItemRef.value.type === "Update") {
@@ -207,6 +210,13 @@ const save = async () => {
     }
 
     editingItemRef.value = null;
+};
+const requestDelete = (event) => {
+    deleteConfirmation.visible = true;
+    deleteConfirmation.dismiss = false;
+};
+const deleteItem = (event) => {
+
 };
 const close = () => {
     for (let i = 0; i < dataItemsRef.value.length; i++) {
@@ -393,7 +403,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                             @input="update($event, true)" />
                                                     </div>
                                                     <div class="control" v-else key="Categories">
-                                                        <button class="button is-rounded" @click="add($event)">
+                                                        <button class="button is-rounded" @click="requestAdd($event)">
                                                             <span class="icon is-small">
                                                                 <i class="fa-solid fa-plus"></i>
                                                             </span>
@@ -568,12 +578,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                         type="submit"
                                         v-bind:disabled="user === null || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0)"
-                                        @click="save($event)">
+                                        @click="saveItem($event)">
                                         <transition name="fade" mode="out-in">
-                                            <span class="icon" v-if="isSavingRef" key="saved">
+                                            <span class="icon" v-if="isSavedRef" key="saved">
                                                 <i class="fa-solid fa-check"></i>
                                             </span>
-                                            <span class="icon" v-else-if="isSavedRef" key="saving">
+                                            <span class="icon" v-else-if="isSavingRef" key="saving">
                                                 <i class="fas fa-spinner updating"></i>
                                             </span>
                                             <span class="icon" v-else key="ready">
@@ -584,6 +594,63 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </button>
                                 </div>
                             </div>
+                            <div class="panel-block" v-if="editingItemRef.delete">
+                                <div class="control">
+                                    <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
+                                        type="submit" v-bind:disabled="user === null" @click="requestDelete($event)">
+                                        <transition name="fade" mode="out-in">
+                                            <span class="icon" v-if="isDeletingRef" key="deleting">
+                                                <i class="fa-solid fa-check"></i>
+                                            </span>
+                                            <span class="icon" v-else-if="isDeletedRef" key="deleted">
+                                                <i class="fas fa-spinner updating"></i>
+                                            </span>
+                                            <span class="icon" v-else key="ready">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </span>
+                                        </transition>
+                                        <span class="is-uppercase has-text-weight-bold">Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
+                    <transition name="fade" mode="out-in">
+                        <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"></div>
+                    </transition>
+                    <div class="wrap" @animationend="deleteConfirmation.visible = $event.srcElement.className !== 'wrap'" :style="{ animationPlayState: deleteConfirmation.dismiss ? 'running' : 'paused' }">
+                        <div class="modal-card"
+                            :style="{ animationPlayState: deleteConfirmation.visible ? 'running' : 'paused' }"
+                            v-if="deleteConfirmation.visible" key="alert">
+                            <header class="modal-card-head">
+                                <p class="modal-card-title is-uppercase is-size-7 has-text-weight-bold">Confirmation</p>
+                            </header>
+                            <section class="modal-card-body">
+                                <p class="modal-card-title is-size-7">Are you sure you wanto to delete
+                                    this?</p>
+                            </section>
+                            <footer class="modal-card-foot">
+                                <div class="field">
+                                    <div class="control">
+                                        <button class="button is-danger">
+                                            <span class="icon">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </span>
+                                            <span class="is-uppercase has-text-weight-bold">Delete</span>
+                                        </button>
+                                    </div>
+                                    <div class="control">
+                                        <button class="button" @click="deleteConfirmation.dismiss = true;">
+                                            <span class="icon">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </span>
+                                            <span class="is-uppercase has-text-weight-bold">Cancel</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </footer>
                         </div>
                     </div>
                 </div>
@@ -1098,9 +1165,20 @@ watch(isEnabledRef, (newValue, oldValue) => {
         }
 
         >.bottom {
-            .panel-block:last-child {
+            .panel-block {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
+                border-bottom: 0px none transparent;
                 border-radius: 0px;
+
+                .is-danger {
+                    background-color: hsl(348, 100%, 61%) !important;
+                    color: #ffffff !important;
+                    transition: 0.5s;
+
+                    span {
+                        color: #ffffff !important;
+                    }
+                }
             }
         }
 
@@ -1370,6 +1448,80 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 color: #ffffff;
                                 background-color: #0e00de;
                                 transition: .5s;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    .modal {
+        .modal-background {
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        .wrap {
+            margin: 0;
+            padding: 0;
+            opacity: 1;
+            transform: scale(1, 1);
+            animation: popup .5s ease forwards reverse 1;
+            animation-play-state: paused;
+
+            .modal-card {
+                border-radius: 4px;
+                width: auto !important;
+                opacity: 1;
+                transform: scale(0.75, 0.75);
+                animation: popup .5s ease forwards 1;
+                animation-play-state: paused;
+
+                >.modal-card-head {
+                    margin: 0;
+                    border-bottom: 0px none transparent;
+                    border-radius: 0;
+                    background: #ffffff;
+                    padding: 0.5em 0.75em 0em 0.75em;
+                }
+
+                section {
+                    padding: 0.5em 0.75em;
+                }
+
+                >.modal-card-foot {
+                    margin: 0;
+                    border-top: 1px solid hsl(0deg, 0%, 93%);
+                    border-radius: 0;
+                    padding: 0;
+                    background: #ffffff;
+
+                    .field {
+                        display: flex;
+                        margin: 0;
+                        padding: 0.5em 0.375em;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        width: 100%;
+
+                        .control {
+                            margin: 0;
+                            padding: 0em 0.375em;
+                            width: 100%;
+                        }
+
+                        .button {
+                            margin: 0;
+                            width: 100%;
+                        }
+
+                        .button.is-danger {
+                            background-color: hsl(348, 100%, 61%) !important;
+                            color: #ffffff !important;
+                            transition: 0.5s;
+
+                            span {
+                                color: #ffffff !important;
                             }
                         }
                     }
