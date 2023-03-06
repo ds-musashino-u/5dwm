@@ -214,7 +214,11 @@ export default {
     const signOut = async () => {
       try {
         isSigningOut.value = true;
-        await auth0.value.logout();
+        await auth0.value.logout({
+          logoutParams: {
+            returnTo: window.location.origin
+          }
+        });
         user.value = null;
       } catch (error) {
         console.error(error);
