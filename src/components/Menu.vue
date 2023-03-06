@@ -233,16 +233,15 @@ const signOut = (event) => {
             }
 
             >.panel-block {
+              display: flex;
               padding: 0.5em 0.75em;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
             }
 
             >.panel-block:nth-of-type(2) {
-              display: flex !important;
-              flex-direction: column !important;
-              justify-content: center !important;
-              align-items: center !important;
-
-              .block:first-child {
+              >.block:first-child {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
@@ -251,7 +250,7 @@ const signOut = (event) => {
                 padding: 0;
               }
 
-              .block:not(:first-child) {
+              >.block:not(:first-child) {
                 display: flex;
                 flex-direction: column;
                 justify-content: center;
