@@ -399,7 +399,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                         v-if="dataSourcesRef.find(x => x.checked).name === 'Media'"
                                                         key="Media">
                                                         <input class="input is-outlined is-size-7 has-text-weight-bold"
-                                                            type="text" placeholder="Keywords" v-model="queryRef"
+                                                            type="text" placeholder="Keywords" size="25" v-model="queryRef"
                                                             @input="update($event, true)" />
                                                     </div>
                                                     <div class="control" v-else key="Categories">
