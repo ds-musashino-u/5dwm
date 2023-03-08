@@ -21,7 +21,7 @@ class Media(Base):
     categories = Column('category', ARRAY(Text()))
     address = Column('place', Text())
     description = Column('description', Text())
-    username = Column('user_cns', String(20))
+    username = Column('user_cns', String(254))
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     created_at = Column('datetaken', DateTime())
@@ -39,7 +39,7 @@ class ImageVector(Base):
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer(), primary_key=True)
-    username = Column('user_cns', String(20))
+    username = Column('user_cns', String(254))
     first_name = Column('firstname', String(20))
     last_name = Column('lastname', String(20))
     updated_at = Column('update_time', DateTime())
