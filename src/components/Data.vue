@@ -477,7 +477,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-left">
                                         <div class="level-item">
                                             <button class="button is-primary"
-                                                v-bind:disabled="(pageIndexRef === 0 || isFetchingRef)"
+                                                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
                                                 @click="previous($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-chevron-left"></i>
