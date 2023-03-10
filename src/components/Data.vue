@@ -679,7 +679,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <footer class="modal-card-foot">
                                 <div class="field">
                                     <div class="control">
-                                        <button class="button is-danger">
+                                        <button class="button is-danger" @click="deleteConfirmation.dismiss = true; deleteItem($event);">
                                             <span class="icon">
                                                 <i class="fa-solid fa-trash"></i>
                                             </span>
