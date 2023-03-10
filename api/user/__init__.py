@@ -15,25 +15,6 @@ engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
     try:
-        if 'Authorization' in req.headers:
-            '''
-            jwt = req.headers['Authorization'].split(' ')[1].split('.') if req.headers['Authorization'].startswith('Bearer ') else req.headers['Authorization'].split('.')
-
-            if json.loads(b64decode(jwt[0] + '=' * (-len(jwt[0]) % 4)))['typ'] == 'JWT' and json.loads(b64decode(jwt[1] + '=' * (-len(jwt[1]) % 4)))['iss'] == 'https://':
-                try:
-                    response = urlopen(Request(
-                        f'https://',
-                        headers={'Content-Type': 'application/json'},
-                        data=json.dumps({'idToken': req.headers['Authorization']}).encode('utf-8')))
-
-                    if response.getcode() != 200:
-                        raise Exception
-
-                except Exception:
-                    return func.HttpResponse(status_code=403, mimetype='', charset='')
-            '''
-            pass
-
         username = req.route_params.get('username')
 
         Session = sessionmaker(bind=engine)
