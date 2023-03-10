@@ -27,9 +27,7 @@ const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
 const editingItemRef = ref(null);
 const isSavingRef = ref(false);
-const isSavedRef = ref(false);
 const isDeletingRef = ref(false);
-const isDeletedRef = ref(false);
 const deleteConfirmation = reactive({ visible: false, dismiss: false });
 const props = defineProps({
     auth0: Object,
