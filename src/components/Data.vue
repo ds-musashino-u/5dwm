@@ -1,12 +1,10 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { Loader } from "@googlemaps/js-api-loader";
 import { ref, reactive, onActivated, onDeactivated, watch } from "vue";
-import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
-import { getMedia } from "../presenters/media.mjs";
+import { Media, getMedia } from "../presenters/media.mjs";
 import { Category, getCategories, insertCategory, updateCategory, deleteCategory } from "../presenters/categories.mjs";
 
 const isActivatedRef = ref(false);
