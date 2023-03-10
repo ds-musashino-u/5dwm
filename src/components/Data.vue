@@ -7,12 +7,13 @@ import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import { getMedia } from "../presenters/media.mjs";
-import { getCategories } from "../presenters/categories.mjs";
+import { Category, getCategories, insertCategory, updateCategory, deleteCategory } from "../presenters/categories.mjs";
 
 const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
 const dataRef = ref(null);
+const overlayRef = ref(null);
 const queryRef = ref("");
 const pageIndexRef = ref(0);
 const pageLengthRef = ref(50);
@@ -20,7 +21,7 @@ const isFetchingRef = ref(false);
 const isContinuousRef = ref(true);
 const totalCountRef = ref(0);
 const lastUpdatedRef = ref(0);
-const usersRef = ref([{ name: "All", checked: true }, { name: "Alice", checked: false }, { name: "Bob", checked: false }]);
+const usersRef = ref([{ name: "All", checked: true }/*, { name: "Alice", checked: false }, { name: "Bob", checked: false }*/]);
 const dataSourcesRef = ref([{ name: "Media", checked: true, columns: [{ name: "", value: "url", width: "calc(1.5rem + calc(0.75rem * 1.5))" }, { name: "ID", value: "id", width: "5%" }, { name: "Type", value: "type", width: "5%" }, { name: "Categories", value: "categories", width: "10%" }, { name: "Longitude", value: "longitude", width: "10%" }, { name: "Latitude", value: "latitude", width: "10%" }, { name: "Address", value: "address", width: "10%" }, { name: "Created", value: "createdAt", width: "10%" }, { name: "User", value: "username", width: "10%" }, { name: "Description", value: "description", width: "auto" }] }, { name: "Categories", checked: false, columns: [{ name: "ID", value: "id", width: "5%" }, { name: "Name", value: "name", width: "50%" }, { name: "Updated", value: "updatedAt", width: "45%" }] }]);
 const dataItemsRef = ref([]);
 const categoriesItemsRef = ref([]);
@@ -197,26 +198,74 @@ const requestAdd = () => {
     }
 };
 const saveItem = async () => {
-    if (editingItemRef.value.type === "Insert") {
+    isSavingRef.value = true;
 
-    } else if (editingItemRef.value.type === "Update") {
+    if (editingItemRef.value.insert) {
+        try {
+            const category = await insertCategory(await getAccessToken(props.auth0), editingItemRef.value.data.name);
 
-    } else if (editingItemRef.value.type === "Delete") {
+            if (category === null) {
+                shake(overlayRef.value);
+            } else {
+                for (let i = 0; i < dataItemsRef.value.length; i++) {
+                    dataItemsRef.value[i].checked = false;
+                }
 
+                editingItemRef.value = null;
+                update();
+            }
+        } catch (error) {
+            shake(overlayRef.value);
+            console.error(error);
+        }
+    } else if (editingItemRef.value.update) {
+        try {
+            const category = await updateCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
+
+            if (category === null) {
+                shake(overlayRef.value);
+            } else {
+                for (let i = 0; i < dataItemsRef.value.length; i++) {
+                    dataItemsRef.value[i].checked = false;
+                }
+
+                editingItemRef.value = null;
+                update();
+            }
+        } catch (error) {
+            shake(overlayRef.value);
+            console.error(error);
+        }
     }
 
-    for (let i = 0; i < dataItemsRef.value.length; i++) {
-        dataItemsRef.value[i].checked = false;
-    }
-
-    editingItemRef.value = null;
+    isSavingRef.value = false;
 };
 const requestDelete = (event) => {
     deleteConfirmation.visible = true;
     deleteConfirmation.dismiss = false;
 };
-const deleteItem = (event) => {
+const deleteItem = async (event) => {
+    isDeletingRef.value = true;
 
+    try {
+        const category = await deleteCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
+
+        if (category === null) {
+            shake(overlayRef.value);
+        } else {
+            for (let i = 0; i < dataItemsRef.value.length; i++) {
+                dataItemsRef.value[i].checked = false;
+            }
+
+            editingItemRef.value = null;
+            update();
+        }
+    } catch (error) {
+        shake(overlayRef.value);
+        console.error(error);
+    }
+
+    isDeletingRef.value = false;
 };
 const close = () => {
     for (let i = 0; i < dataItemsRef.value.length; i++) {
@@ -513,7 +562,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         <transition name="slide">
             <div id="overlay" v-if="editingItemRef !== null" :key="editingItemRef">
                 <div class="flyout-left" v-if="editingItemRef.source === 'Categories'">
-                    <div class="wrap">
+                    <div class="wrap" ref="overlayRef">
                         <div class="block">
                             <nav class="panel">
                                 <div class="panel-block">
@@ -577,13 +626,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                         type="submit"
-                                        v-bind:disabled="user === null || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0)"
+                                        v-bind:disabled="user === null || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0) || isSavingRef || isDeletingRef"
                                         @click="saveItem($event)">
                                         <transition name="fade" mode="out-in">
-                                            <span class="icon" v-if="isSavedRef" key="saved">
-                                                <i class="fa-solid fa-check"></i>
-                                            </span>
-                                            <span class="icon" v-else-if="isSavingRef" key="saving">
+                                            <span class="icon" v-if="isSavingRef" key="saving">
                                                 <i class="fas fa-spinner updating"></i>
                                             </span>
                                             <span class="icon" v-else key="ready">
@@ -597,12 +643,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <div class="panel-block" v-if="editingItemRef.delete">
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
-                                        type="submit" v-bind:disabled="user === null" @click="requestDelete($event)">
+                                        type="submit" v-bind:disabled="user === null || isSavingRef || isDeletingRef" @click="requestDelete($event)">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
-                                                <i class="fa-solid fa-check"></i>
-                                            </span>
-                                            <span class="icon" v-else-if="isDeletedRef" key="deleted">
                                                 <i class="fas fa-spinner updating"></i>
                                             </span>
                                             <span class="icon" v-else key="ready">
@@ -618,9 +661,11 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
-                        <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss" key="background"></div>
+                        <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
+                            key="background"></div>
                     </transition>
-                    <div class="wrap" @animationend="deleteConfirmation.visible = $event.srcElement.className !== 'wrap'" :style="{ animationPlayState: deleteConfirmation.dismiss ? 'running' : 'paused' }">
+                    <div class="wrap" @animationend="deleteConfirmation.visible = $event.srcElement.className !== 'wrap'"
+                        :style="{ animationPlayState: deleteConfirmation.dismiss ? 'running' : 'paused' }">
                         <div class="modal-card"
                             :style="{ animationPlayState: deleteConfirmation.visible ? 'running' : 'paused' }"
                             v-if="deleteConfirmation.visible" key="alert">
