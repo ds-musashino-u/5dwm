@@ -6,6 +6,7 @@ import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import { Media, getMedia } from "../presenters/media.mjs";
 import { Category, getCategories, insertCategory, updateCategory, deleteCategory } from "../presenters/categories.mjs";
+import Uploader from "./Uploader.vue";
 
 const isActivatedRef = ref(false);
 const isEnabledRef = ref(true);
@@ -655,6 +656,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         </div>
                     </div>
                 </div>
+                <Uploader v-else-if="editingItemRef.source === 'Media'" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
