@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -62,6 +63,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     category = session.query(Category).filter(
                         Category.id == id).one()
                     category.name = name
+                    category.updated_at = datetime.now(timezone.utc)
 
                     session.commit()
 
