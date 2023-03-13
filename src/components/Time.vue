@@ -498,6 +498,14 @@ watch(toDateRef, (newValue, oldValue) => {
 
       >.tabs>ul {
         margin: 0;
+
+        >li>a {
+          transition: 0.5s;
+        }
+
+        >li:not(.is-active)>a {
+          background: #ffffff;
+        }
       }
     }
   }
@@ -552,7 +560,7 @@ watch(toDateRef, (newValue, oldValue) => {
         .field>.control {
           >input {
             border: 1px solid hsl(0deg, 0%, 93%) !important;
-            background: transparent;
+            background: #ffffff;
             font-size: 0.75rem !important;
             width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
           }
@@ -564,7 +572,7 @@ watch(toDateRef, (newValue, oldValue) => {
 
           >.select>select {
             border: 1px solid hsl(0deg, 0%, 93%) !important;
-            background: transparent;
+            background: #ffffff;
           }
 
           >span {
