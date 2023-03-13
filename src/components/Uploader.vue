@@ -17,6 +17,7 @@ const props = defineProps({
     user: Object,
     text: String,
     isAdmin: Boolean,
+    isClosable: { type: Boolean, required: false, default: false },
     media: { type: Object, required: false, default: null },
 });
 const mapRef = ref(null);
@@ -82,7 +83,7 @@ if (props.media !== null) {
     }
 }
 
-const emit = defineEmits(["completed", "updated"]);
+const emit = defineEmits(["close", "completed", "updated"]);
 const resizeImage = async (dataURL, length) => {
     try {
         return await new Promise(async (resolve1, reject1) => {
