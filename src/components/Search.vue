@@ -114,6 +114,8 @@ onMounted(async () => {
     rotateControl: true,
     fullscreenControl: false,
   });
+
+  search();
 });
 onUnmounted(() => {
   isInitializedRef.value = false;
@@ -139,6 +141,8 @@ onActivated(async () => {
       rotateControl: true,
       fullscreenControl: false,
     });
+
+    search();
   }
 
   try {
