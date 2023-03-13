@@ -1502,6 +1502,7 @@ const previousResults = (index) => {
 
     .field {
       width: 100%;
+      background: #ffffff;
 
       .control {
         margin: 0;
