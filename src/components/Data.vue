@@ -1,14 +1,14 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, onActivated, onDeactivated, watch } from "vue";
+import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 import { Media, getMedia } from "../presenters/media.mjs";
 import { Category, getCategories, insertCategory, updateCategory, deleteCategory } from "../presenters/categories.mjs";
 import Uploader from "./Uploader.vue";
 
-const isActivatedRef = ref(false);
+const isInitializedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
 const dataRef = ref(null);
@@ -91,9 +91,9 @@ const selectItem = (event, index) => {
         const dataSource = dataSourcesRef.value.find(x => x.checked).name;
 
         if (dataSource === "Media") {
-
+            editingItemRef.value = { source: dataSource, data: Object.assign({}, dataItemsRef.value[index].data) };
         } else if (dataSource === "Categories") {
-            editingItemRef.value = { insert: false, update: true, delete: true, source: dataSource, schemes: [{ key: "id", name: "ID", ignore: true }, { key: "name", name: "Name", ignore: false }, { key: "updatedAt", name: "Updated", ignore: true }], data: Object.assign({}, dataItemsRef.value[index].data) };
+            editingItemRef.value = { source: dataSource, insert: false, update: true, delete: true, schemes: [{ key: "id", name: "ID", ignore: true }, { key: "name", name: "Name", ignore: false }, { key: "updatedAt", name: "Updated", ignore: true }], data: Object.assign({}, dataItemsRef.value[index].data) };
         }
     }
 
@@ -308,13 +308,23 @@ const shake = (element) => {
     );
 };
 
-onActivated(async () => {
-    isActivatedRef.value = true;
+onMounted(() => {
+    isInitializedRef.value = true;
 
     update();
 });
+onUnmounted(() => {
+    isInitializedRef.value = false;
+});
+onActivated(async () => {
+    if (!isInitializedRef.value) {
+        isInitializedRef.value = true;
+
+        update();
+    }
+});
 onDeactivated(() => {
-    isActivatedRef.value = false;
+    isInitializedRef.value = false;
 });
 watch(isEnabledRef, (newValue, oldValue) => {
     if (newValue !== oldValue && oldValue === false) {
@@ -640,7 +650,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <div class="panel-block" v-if="editingItemRef.delete">
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
-                                        type="submit" v-bind:disabled="user === null || isSavingRef || isDeletingRef" @click="requestDelete($event)">
+                                        type="submit" v-bind:disabled="user === null || isSavingRef || isDeletingRef"
+                                        @click="requestDelete($event)">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
                                                 <i class="fas fa-spinner updating"></i>
@@ -677,7 +688,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <footer class="modal-card-foot">
                                 <div class="field">
                                     <div class="control">
-                                        <button class="button is-danger" @click="deleteConfirmation.dismiss = true; deleteItem($event);">
+                                        <button class="button is-danger"
+                                            @click="deleteConfirmation.dismiss = true; deleteItem($event);">
                                             <span class="icon">
                                                 <i class="fa-solid fa-trash"></i>
                                             </span>
