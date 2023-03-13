@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onActivated, onDeactivated, watch } from "vue";
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
@@ -22,7 +22,7 @@ const props = defineProps({
 const mapRef = ref(null);
 let map = null;
 let geocoder = null;
-const isActivatedRef = ref(false);
+const isInitializedRef = ref(false);
 const isDraggingRef = ref(false);
 const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
@@ -416,7 +416,7 @@ const selectCategory = (index) => {
     }
 };
 const selectType = (index) => {
-    typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;    
+    typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
 
     for (let i = 0; i < typesItemsRef.value.length; i++) {
         if (index !== i && typesItemsRef.value[i].checked) {
@@ -455,7 +455,7 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
             } else {
                 for (let i = 0; i < length; i++) {
                     const category = categoriesRef.value.find(x => x.name === items[i].name);
-                    
+
                     categoriesItemsRef.value.push({ checked: category === undefined ? false : category.checked, name: items[i].name });
                 }
             }
@@ -658,8 +658,8 @@ const upload = async (event) => {
     emit("completed", event, media);
 };
 
-onActivated(async () => {
-    isActivatedRef.value = true;
+onMounted(async () => {
+    isInitializedRef.value = true;
 
     const loader = new Loader({
         apiKey: GoogleMapsConfig.API_KEY,
@@ -688,8 +688,43 @@ onActivated(async () => {
     });
     geocoder = new google.maps.Geocoder();
 });
+onUnmounted(() => {
+    isInitializedRef.value = false;
+});
+onActivated(async () => {
+    if (!isInitializedRef.value) {
+        isInitializedRef.value = true;
+
+        const loader = new Loader({
+            apiKey: GoogleMapsConfig.API_KEY,
+            version: "quarterly",
+            language: navigator.language,
+        });
+
+        await loader.load();
+
+        map = new google.maps.Map(mapRef.value, {
+            center: { lat: 35.6809591, lng: 139.7673068 },
+            zoom: 4,
+            mapTypeId: "terrain",
+            zoomControl: true,
+            mapTypeControl: false,
+            scaleControl: true,
+            streetViewControl: false,
+            rotateControl: true,
+            fullscreenControl: false,
+        });
+        map.addListener("center_changed", () => {
+            const location = map.getCenter();
+
+            latitudeRef.value = String(location.lat());
+            longitudeRef.value = String(location.lng());
+        });
+        geocoder = new google.maps.Geocoder();
+    }
+});
 onDeactivated(() => {
-    isActivatedRef.value = false;
+    isInitializedRef.value = false;
 });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
@@ -729,8 +764,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     <div class="level-item">
                                         <button class="button toggle is-rounded"
                                             @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
-                                            <span class="icon is-small"
-                                                v-bind:class="{ collapsed: mediaIsCollapsedRef }">
+                                            <span class="icon is-small" v-bind:class="{ collapsed: mediaIsCollapsedRef }">
                                                 <i class="fa-solid fa-chevron-up"></i>
                                             </span>
                                         </button>
@@ -742,8 +776,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     <div class="control">
                                         <div class="drop"
                                             v-bind:style="{ animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto' }"
-                                            @dragover.prevent="dragover($event)"
-                                            @dragleave.prevent="isDraggingRef = false"
+                                            @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
                                             @drop.stop.prevent="drop($event)">
                                             <transition name="fade" mode="out-in">
                                                 <div class="image" v-if="mediaFileRef === null" v-bind:key="null">
@@ -791,8 +824,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                 <div class="level-item">
                                                                     <label
                                                                         class="file button is-circle has-text-weight-bold file-label">
-                                                                        <input class="file-input" type="file"
-                                                                            name="upload" style="pointer-events: none"
+                                                                        <input class="file-input" type="file" name="upload"
+                                                                            style="pointer-events: none"
                                                                             v-bind:disabled="isLoadingRef"
                                                                             @change="browse($event)" />
                                                                         <div class="file-cta_">
@@ -840,8 +873,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             </button>
                                         </div>
                                         <div class="control">
-                                            <button type="button" class="button"
-                                                v-bind:disabled="mediaUrlRef.length === 0"
+                                            <button type="button" class="button" v-bind:disabled="mediaUrlRef.length === 0"
                                                 @click="clearImageUrl($event)">
                                                 <span class="icon is-small has-text-danger">
                                                     <i class="fa-solid fa-xmark"></i>
@@ -880,11 +912,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                             </div>
                         </div>
-                        <ListBox name="Types" :page-length="maxTypesLength"
-                            :is-enabled="user !== null && isActivatedRef" :is-collapsed="typesIsCollapsedRef"
-                            :is-continuous="typesIsContinuousRef" :items="typesItemsRef" :page-index="typesPageIndexRef"
-                            :is-badge-visible="false" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
-                            @next="nextTypes" @previous="previousTypes" />
+                        <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isInitializedRef"
+                            :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
+                            :page-index="typesPageIndexRef" :is-badge-visible="false" @collapse="collapseTypes"
+                            @clear="clearTypes" @select="selectType" @next="nextTypes" @previous="previousTypes" />
                     </nav>
                 </div>
             </div>
@@ -904,8 +935,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item">
-                                        <button class="button is-rounded"
-                                            v-bind:disabled="user === null || isLocatingRef" @click="locate">
+                                        <button class="button is-rounded" v-bind:disabled="user === null || isLocatingRef"
+                                            @click="locate">
                                             <transition name="fade" mode="out-in">
                                                 <span class="icon" v-if="isLocatingRef" key="locating">
                                                     <i class="fas fa-spinner updating"></i>
@@ -928,11 +959,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                     <div class="level-right">
                                         <div class="level-item">
-                                            <input
-                                                class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
+                                            <input class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
                                                 type="text" size="16" placeholder="Enter a longitude"
-                                                v-bind:class="{ 'has-error': hasLocationErrorRef }"
-                                                v-model="longitudeRef" @change="longitudeChange" />
+                                                v-bind:class="{ 'has-error': hasLocationErrorRef }" v-model="longitudeRef"
+                                                @change="longitudeChange" />
                                         </div>
                                     </div>
                                 </nav>
@@ -947,11 +977,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                     <div class="level-right">
                                         <div class="level-item">
-                                            <input
-                                                class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
+                                            <input class="input is-size-7 is-outlined has-text-weight-bold has-text-right"
                                                 type="text" size="16" placeholder="Enter a latitude"
-                                                v-bind:class="{ 'has-error': hasLocationErrorRef }"
-                                                v-model="latitudeRef" @change="latitudeChange" />
+                                                v-bind:class="{ 'has-error': hasLocationErrorRef }" v-model="latitudeRef"
+                                                @change="latitudeChange" />
                                         </div>
                                     </div>
                                 </nav>
@@ -996,13 +1025,13 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     <div class="control">
                                         <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
                                             size="4" placeholder="Year" v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                            v-bind:disabled="!isActivatedRef" v-bind:value="timeYearRef"
+                                            v-bind:disabled="!isInitializedRef" v-bind:value="timeYearRef"
                                             @change="timeYearChange" />
                                         <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isActivatedRef" @change="timeMonthChange">
+                                                v-bind:disabled="!isInitializedRef" @change="timeMonthChange">
                                                 <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
                                                     v-bind:selected="i === timeMonthRef" v-text="i + 1"></option>
                                             </select>
@@ -1011,7 +1040,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isActivatedRef" @change="timeDayChange">
+                                                v-bind:disabled="!isInitializedRef" @change="timeDayChange">
                                                 <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
                                                     v-bind:selected="i + 1 === timeDayRef" v-text="i + 1"></option>
                                             </select>
@@ -1019,7 +1048,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isActivatedRef" @change="timeHoursChange">
+                                                v-bind:disabled="!isInitializedRef" @change="timeHoursChange">
                                                 <option v-for="i in [...Array(24).keys()]" v-bind:key="i"
                                                     v-bind:selected="i === timeHoursRef" v-text="i"></option>
                                             </select>
@@ -1028,7 +1057,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isActivatedRef" @change="timeMinutesChange">
+                                                v-bind:disabled="!isInitializedRef" @change="timeMinutesChange">
                                                 <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
                                                     v-bind:selected="i === timeMinutesRef" v-text="i"></option>
                                             </select>
@@ -1037,7 +1066,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isActivatedRef" @change="timeSecondsChange">
+                                                v-bind:disabled="!isInitializedRef" @change="timeSecondsChange">
                                                 <option v-for="i in [...Array(60).keys()]" v-bind:key="i"
                                                     v-bind:selected="i === timeSecondsRef" v-text="i"></option>
                                             </select>
@@ -1047,7 +1076,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             </div>
                         </div>
                         <ListBox name="Categories" :page-length="maxCategoriesLength"
-                            :is-enabled="user !== null && isActivatedRef" :is-collapsed="categoriesIsCollapsedRef"
+                            :is-enabled="user !== null && isInitializedRef" :is-collapsed="categoriesIsCollapsedRef"
                             :is-continuous="categoriesIsContinuousRef" :items="categoriesItemsRef"
                             :page-index="categoriesPageIndexRef" @collapse="collapseCategories" @clear="clearCategories"
                             @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
@@ -1058,8 +1087,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 <div class="block">
                     <div class="panel-block">
                         <div class="control">
-                            <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
-                                type="submit"
+                            <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary" type="submit"
                                 v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
                                 @click="upload($event)">
                                 <transition name="fade" mode="out-in">
@@ -1105,7 +1133,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     flex-direction: row;
     align-items: flex-start;
     justify-content: flex-start;
-    background: #ffffff;
+    background: transparent;
 
     #map {
         display: flex;
@@ -1174,7 +1202,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 height: fit-content;
 
                 .panel {
-                    background: rgba(255, 255, 255, 0.9);
+                    background: transparent;
                     border-radius: 4px;
                     box-shadow: none;
 
@@ -1385,7 +1413,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             height: fit-content;
 
             .panel {
-                background: rgba(255, 255, 255, 0.9);
+                background: transparent;
                 border-radius: 4px;
                 box-shadow: none;
             }
@@ -1434,7 +1462,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 height: fit-content;
 
                 .panel {
-                    background: rgba(255, 255, 255, 0.9);
+                    background: transparent;
                     border-radius: 4px;
                     box-shadow: none;
 
