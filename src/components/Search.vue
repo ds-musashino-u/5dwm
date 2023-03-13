@@ -115,8 +115,6 @@ const initialize = async () => {
     rotateControl: true,
     fullscreenControl: false,
   });
-
-  search();
 };
 onMounted(() => {
   initialize();
