@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onMounted, onActivated, onDeactivated, watch } from "vue";
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
@@ -16,6 +16,7 @@ import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
 import Preview from "./Preview.vue";
 
+const isInitializedRef = ref(false);
 const isRootedRef = ref(true);
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
@@ -91,8 +92,9 @@ defaultToDateRef.value.setSeconds(0);
 defaultToDateRef.value.setMilliseconds(0);
 defaultToDateRef.value.setDate(toDateRef.value.getDate());
 
-onMounted(() => { });
-onActivated(async () => {
+onMounted(async () => {
+  isInitializedRef.value = true;
+
   const loader = new Loader({
     apiKey: GoogleMapsConfig.API_KEY,
     version: "quarterly",
@@ -112,6 +114,32 @@ onActivated(async () => {
     rotateControl: true,
     fullscreenControl: false,
   });
+});
+onUnmounted(() => {
+  isInitializedRef.value = false;
+});
+onActivated(async () => {
+  if (!isInitializedRef.value) {
+    const loader = new Loader({
+      apiKey: GoogleMapsConfig.API_KEY,
+      version: "quarterly",
+      language: navigator.language,
+    });
+
+    await loader.load();
+
+    map = new google.maps.Map(mapRef.value, {
+      center: { lat: 35.6809591, lng: 139.7673068 },
+      zoom: 4,
+      mapTypeId: "terrain",
+      zoomControl: true,
+      mapTypeControl: false,
+      scaleControl: true,
+      streetViewControl: false,
+      rotateControl: true,
+      fullscreenControl: false,
+    });
+  }
 
   try {
     /*const categories = await getCategories();
@@ -171,7 +199,9 @@ onActivated(async () => {
     console.error(error);
   }
 });
-onDeactivated(() => { });
+onDeactivated(() => {
+  isInitializedRef.value = false;
+});
 watch(imageUrlRef, (currentValue, oldValue) => {
   if (currentValue !== null) {
     imageFileRef.value = null;
@@ -679,7 +709,7 @@ const search = async (ignoreCache = true) => {
 
         searchPageIndexRef.value = 0;
         searchTotalCountRef.value = null;
-        
+
         searchcCriteriaIsUpdated = true;
       }
 
@@ -949,8 +979,8 @@ const previousResults = (index) => {
               <div class="block">
                 <form class="field" @submit.prevent>
                   <div class="control">
-                    <input class="input is-outlined is-size-7 has-text-weight-bold" type="text"
-                      placeholder="Keywords" v-model="queryRef" />
+                    <input class="input is-outlined is-size-7 has-text-weight-bold" type="text" placeholder="Keywords"
+                      v-model="queryRef" />
                   </div>
                 </form>
               </div>
@@ -995,12 +1025,12 @@ const previousResults = (index) => {
                           <div class="level">
                             <div class="level-item">
                               <label class="
-                                file
-                                button
-                                is-circle
-                                has-text-weight-bold
-                                file-label
-                              ">
+                                    file
+                                    button
+                                    is-circle
+                                    has-text-weight-bold
+                                    file-label
+                                  ">
                                 <input class="file-input" type="file" name="upload"
                                   accept="image/apng, image/png, image/jpeg, image/webp" style="pointer-events: none"
                                   v-bind:disabled="isLoadingRef" @change="browse($event)" />
@@ -1013,9 +1043,9 @@ const previousResults = (index) => {
                             </div>
                             <div class="level-item">
                               <span class="
-                                is-size-7 is-uppercase
-                                has-text-weight-bold has-text-grey
-                              ">Browse or Drag & Drop</span>
+                                    is-size-7 is-uppercase
+                                    has-text-weight-bold has-text-grey
+                                  ">Browse or Drag & Drop</span>
                             </div>
                           </div>
                         </div>
@@ -1076,19 +1106,19 @@ const previousResults = (index) => {
               :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
               @next="nextTypes" @previous="previousTypes" />
             <!--<ListBox
-              name="Users"
-              :max-length="maxUsersLength"
-              :is-enabled="user !== null"
-              :is-collapsed="usersIsCollapsedRef"
-              :is-continuous="usersIsContinuousRef"
-              :items="usersItemsRef"
-              :page-index="usersPageIndexRef"
-              @collapse="collapseUsers"
-              @clear="clearUsers"
-              @select="selectUser"
-              @next="nextUsers"
-              @previous="previousUsers"
-            />-->
+                  name="Users"
+                  :max-length="maxUsersLength"
+                  :is-enabled="user !== null"
+                  :is-collapsed="usersIsCollapsedRef"
+                  :is-continuous="usersIsContinuousRef"
+                  :items="usersItemsRef"
+                  :page-index="usersPageIndexRef"
+                  @collapse="collapseUsers"
+                  @clear="clearUsers"
+                  @select="selectUser"
+                  @next="nextUsers"
+                  @previous="previousUsers"
+                />-->
           </nav>
         </div>
       </div>
@@ -1097,9 +1127,9 @@ const previousResults = (index) => {
           <div class="panel-block">
             <div class="control">
               <button class="
-                  button
-                  is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
+                      button
+                      is-rounded is-outlined is-fullwidth is-size-7 is-primary
+                    " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearchingRef" key="searching">
                     <i class="fas fa-spinner updating"></i>
@@ -1146,7 +1176,7 @@ const previousResults = (index) => {
   flex-direction: row;
   align-items: flex-start;
   justify-content: flex-start;
-  background: #ffffff;
+  background: transparent;
 
   #map {
     display: block;
@@ -1189,7 +1219,7 @@ const previousResults = (index) => {
         height: fit-content;
 
         .panel {
-          background: rgba(255, 255, 255, 0.9);
+          background: transparent;
           border-radius: 4px;
           box-shadow: none;
           /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
@@ -1382,7 +1412,7 @@ const previousResults = (index) => {
       height: fit-content;
 
       .panel {
-        background: rgba(255, 255, 255, 0.9);
+        background: transparent;
         border-radius: 4px;
         box-shadow: none;
       }
@@ -1435,7 +1465,7 @@ const previousResults = (index) => {
         height: fit-content;
 
         .panel {
-          background: rgba(255, 255, 255, 0.9);
+          background: transparent;
           border-radius: 4px;
           box-shadow: none;
           /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
