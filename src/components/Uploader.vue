@@ -1214,6 +1214,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             margin: 0;
                             padding: 0em 0.75em;
                             width: 100%;
+
+                            >.field {
+                                background: #ffffff;
+                            }
                         }
 
                         >.block:first-of-type:last-of-type {
@@ -1272,6 +1276,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                         >.field {
                             padding: 0em 0.75em;
+
+                            >.level .level-item {
+                                input {
+                                    background: #ffffff;
+                                }
+                            }
                         }
 
                         .field:not(:last-of-type):first-of-type {
@@ -1525,7 +1535,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 margin: 0;
                 border: 1px solid hsl(0deg, 0%, 93%);
                 padding: 12px 12px 12px 12px;
-                background-color: transparent;
+                background-color: #ffffff;
                 box-shadow: none;
             }
 
@@ -1552,7 +1562,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 align-items: center;
 
                 >input[type="number"] {
-                    background: transparent;
+                    background: #ffffff;
                     font-size: 0.75rem !important;
                     width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
                 }
@@ -1563,7 +1573,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 }
 
                 >.select>select {
-                    background: transparent;
+                    background: #ffffff;
                 }
 
                 >span {
