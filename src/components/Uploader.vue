@@ -657,8 +657,7 @@ const upload = async (event) => {
 
     emit("completed", event, media);
 };
-
-onMounted(async () => {
+const initialize = async () => {
     isInitializedRef.value = true;
 
     const loader = new Loader({
@@ -687,40 +686,17 @@ onMounted(async () => {
         longitudeRef.value = String(location.lng());
     });
     geocoder = new google.maps.Geocoder();
+};
+
+onMounted(() => {
+    initialize();
 });
 onUnmounted(() => {
     isInitializedRef.value = false;
 });
-onActivated(async () => {
+onActivated(() => {
     if (!isInitializedRef.value) {
-        isInitializedRef.value = true;
-
-        const loader = new Loader({
-            apiKey: GoogleMapsConfig.API_KEY,
-            version: "quarterly",
-            language: navigator.language,
-        });
-
-        await loader.load();
-
-        map = new google.maps.Map(mapRef.value, {
-            center: { lat: 35.6809591, lng: 139.7673068 },
-            zoom: 4,
-            mapTypeId: "terrain",
-            zoomControl: true,
-            mapTypeControl: false,
-            scaleControl: true,
-            streetViewControl: false,
-            rotateControl: true,
-            fullscreenControl: false,
-        });
-        map.addListener("center_changed", () => {
-            const location = map.getCenter();
-
-            latitudeRef.value = String(location.lat());
-            longitudeRef.value = String(location.lng());
-        });
-        geocoder = new google.maps.Geocoder();
+        initialize();
     }
 });
 onDeactivated(() => {
