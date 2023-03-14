@@ -607,7 +607,7 @@ const upload = async (event, completed) => {
     let thumbnailUrl = null;
 
     isUploadingRef.value = true;
-    
+
     if (mediaFileRef.value !== null) {
         progressRef.value = 0.5;
 
@@ -677,7 +677,7 @@ const deleteItem = async (event) => {
 
     try {
         const media = await deleteMedium(await getAccessToken(props.auth0), mediaIDRef.value);
-        
+
         if (media === null) {
             shake(deleteButtonRef.value);
         } else {
@@ -800,7 +800,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             v-text="mediaIDRef"></span>
                                     </div>
                                     <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaIDRef === null && (mediaFileRef !== null || mediaUrlRef.length > 0)"
+                                        <div class="level-item"
+                                            v-show="mediaIDRef === null && (mediaFileRef !== null || mediaUrlRef.length > 0)"
                                             key="attaced">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-check"></i>
@@ -808,8 +809,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </div>
                                     </transition>
                                 </div>
-                                <div class="level-right is-invisible">
-                                    <div class="level-item">
+                                <div class="level-right">
+                                    <div class="level-item" v-if="mediaIDRef !== null">
+                                        <a class="button is-rounded" target="_blank" v-bind:href="mediaUrlRef"><span
+                                                class="icon is-small"><i class="fa-solid fa-link"></i></span></a>
+                                    </div>
+                                    <div class="level-item is-invisible" v-else>
                                         <button class="button toggle is-rounded"
                                             @click="mediaIsCollapsedRef = !mediaIsCollapsedRef">
                                             <span class="icon is-small" v-bind:class="{ collapsed: mediaIsCollapsedRef }">
@@ -917,7 +922,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 placeholder="URL" v-bind:disabled="mediaIDRef !== null"
                                                 v-model="mediaUrlRef" />
                                         </div>
-                                        <div class="control">
+                                        <div class="control" v-if="mediaIDRef === null">
                                             <button type="button" class="button" v-bind:disabled="mediaIDRef !== null"
                                                 @click="pasteImageUrl($event)">
                                                 <span class="icon is-small">
@@ -925,7 +930,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 </span>
                                             </button>
                                         </div>
-                                        <div class="control">
+                                        <div class="control"  v-if="mediaIDRef === null">
                                             <button type="button" class="button"
                                                 v-bind:disabled="mediaIDRef !== null || mediaUrlRef.length === 0"
                                                 @click="clearImageUrl($event)">
@@ -1368,11 +1373,13 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             >.level-right {
                                 margin: 0px 0px 0px 12px;
 
-                                button {
+                                button,
+                                .button {
                                     background: transparent !important;
                                 }
 
-                                button.is-rounded {
+                                button.is-rounded,
+                                .button.is-rounded {
                                     border-radius: 9999px !important;
                                     padding: 12px !important;
                                     box-shadow: none !important;
@@ -1866,4 +1873,5 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     to {
         background-position: 100% 0%, 0% 100%, 0% 0%, 100% 100%;
     }
-}</style>
+}
+</style>
