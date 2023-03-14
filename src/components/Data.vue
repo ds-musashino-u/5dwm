@@ -668,7 +668,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         </div>
                     </div>
                 </div>
-                <Uploader v-else-if="editingItemRef.source === 'Media'" :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close" />
+                <Uploader v-else-if="editingItemRef.source === 'Media'" :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close" @completed="close" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
