@@ -197,7 +197,12 @@ const drop = async (event) => {
             }
 
             for (const item of typesItemsRef.value) {
-                item.checked = mediaFileRef.value.type.startsWith(item.name);
+                if (mediaFileRef.value.type.startsWith(item.name)) {
+                    item.checked = true;
+                    typeRef.value = item.name;
+                } else {
+                    item.checked = false;
+                }
             }
 
             mediaUrlRef.value = "";
@@ -239,7 +244,12 @@ const browse = async (event) => {
             }
 
             for (const item of typesItemsRef.value) {
-                item.checked = mediaFileRef.value.type.startsWith(item.name);
+                if (mediaFileRef.value.type.startsWith(item.name)) {
+                    item.checked = true;
+                    typeRef.value = item.name;
+                } else {
+                    item.checked = false;
+                }
             }
 
             mediaUrlRef.value = "";
@@ -623,7 +633,7 @@ const upload = async (event, completed) => {
         location = new Location(Number(longitudeRef.value), Number(latitudeRef.value));
 
         if (addressRef.value.length > 0) {
-            locate.address = addressRef.value;
+            location.address = addressRef.value;
         }
     }
 
@@ -666,7 +676,13 @@ const deleteItem = async (event) => {
     isDeletingRef.value = true;
 
     try {
-        console.log("delete");
+        const media = await deleteMedium(await getAccessToken(props.auth0), mediaIDRef.value);
+        
+        if (media === null) {
+            shake(deleteButtonRef.value);
+        } else {
+            emit("completed", event, media);
+        }
     } catch (error) {
         shake(deleteButtonRef.value);
         console.error(error);
