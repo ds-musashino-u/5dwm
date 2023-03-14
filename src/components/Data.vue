@@ -270,6 +270,15 @@ const close = () => {
 
     editingItemRef.value = null;
 };
+const complete = () => {
+    for (let i = 0; i < dataItemsRef.value.length; i++) {
+        dataItemsRef.value[i].checked = false;
+    }
+
+    editingItemRef.value = null;
+
+    update();
+};
 const format = (obj) => {
     if (typeof (obj) === "string") {
         return obj.substring(0, 100);
@@ -666,7 +675,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         </div>
                     </div>
                 </div>
-                <Uploader v-else-if="editingItemRef.source === 'Media'" :auth0="props.auth0" :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close" @completed="close" />
+                <Uploader v-else-if="editingItemRef.source === 'Media'" :auth0="props.auth0" :user="props.user" :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close" @completed="complete" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
