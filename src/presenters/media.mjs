@@ -233,7 +233,7 @@ export async function updateMedium(token, id, url, type, categories, description
  * /api/v1/media/{id}
  * @module deleteMedium
  * @param {!string} token - Access token
- * @param {!number} id - Media identifier
+ * @param {!number} id - Identifier
  * @return {?Media} - Media item
  */
 export async function deleteMedium(token, id) {
