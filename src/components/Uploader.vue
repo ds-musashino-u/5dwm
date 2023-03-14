@@ -7,7 +7,7 @@ import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { Location } from "../presenters/location.mjs";
-import { insertMedium, Media } from "../presenters/media.mjs";
+import { Media, insertMedium, updateMedium, deleteMedium } from "../presenters/media.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import ListBox from "./ListBox.vue";
@@ -597,9 +597,10 @@ const upload = async (event, completed) => {
     let thumbnailUrl = null;
 
     isUploadingRef.value = true;
-    progressRef.value = 0.5;
-
+    
     if (mediaFileRef.value !== null) {
+        progressRef.value = 0.5;
+
         try {
             const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.dataURL);
 
