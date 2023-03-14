@@ -52,7 +52,7 @@ const timeMinutesRef = ref(timeRef.value.getMinutes());
 const timeSecondsRef = ref(timeRef.value.getSeconds());
 const hasTimeErrorRef = ref(false);
 const maxCategoriesLength = 10;
-const categoriesRef = ref(null);
+const categoriesRef = ref([]);
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
@@ -80,7 +80,12 @@ if (props.data !== null) {
     longitudeRef.value = String(props.data.location.longitude);
     latitudeRef.value = String(props.data.location.latitude);
     typeRef.value = props.data.type;
-    categoriesRef.value = props.data.categories === null ? [] : props.data.categories;
+
+    if (props.data.categories !== null) {
+        for (const category of props.data.categories) {
+            categoriesRef.value.push(category);
+        }
+    }
 
     if (props.data.location.address !== null && props.data.location.address.length > 0) {
         addressRef.value = props.data.location.address;
@@ -418,10 +423,7 @@ const clearTypes = () => {
 };
 const selectCategory = (index) => {
     categoriesItemsRef.value[index].checked = !categoriesItemsRef.value[index].checked;
-
-    if (categoriesRef.value !== null) {
-        categoriesRef.value = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
-    }
+    categoriesRef.value = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
 };
 const selectType = (index) => {
     typesItemsRef.value[index].checked = !typesItemsRef.value[index].checked;
@@ -432,12 +434,10 @@ const selectType = (index) => {
         }
     }
 
-    if (typeRef.value !== null) {
-        if (typesItemsRef.value[index].checked) {
-            typeRef.value = typesItemsRef.value[index].name;
-        } else if (typesItemsRef.value.every(x => !x.checked)) {
-            typeRef.value = "";
-        }
+    if (typesItemsRef.value[index].checked) {
+        typeRef.value = typesItemsRef.value[index].name;
+    } else if (typesItemsRef.value.every(x => !x.checked)) {
+        typeRef.value = "";
     }
 };
 const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
@@ -456,16 +456,8 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
                 length = items.length;
             }
 
-            if (categoriesRef.value === null) {
-                for (let i = 0; i < length; i++) {
-                    categoriesItemsRef.value.push({ checked: false, name: items[i].name });
-                }
-            } else {
-                for (let i = 0; i < length; i++) {
-                    const category = categoriesRef.value.find(x => x === items[i].name);
-
-                    categoriesItemsRef.value.push({ checked: category !== undefined, name: items[i].name });
-                }
+            for (let i = 0; i < length; i++) {
+                categoriesItemsRef.value.push({ checked: categoriesRef.value.find(x => x === items[i].name) !== undefined, name: items[i].name });
             }
         } catch (error) {
             console.error(error);
@@ -506,7 +498,12 @@ const nextTypes = async (pageIndex, pageLength, isFetchingRef) => {
                 }
             } else {
                 for (let i = 0; i < length; i++) {
-                    typesItemsRef.value.push({ checked: mediaFileRef.value.type.startsWith(items[i]), name: items[i] });
+                    if (mediaFileRef.value.type.startsWith(items[i])) {
+                        typesItemsRef.value.push({ checked: true, name: items[i] });
+                        typeRef.value = items[i];
+                    } else {
+                        typesItemsRef.value.push({ checked: false, name: items[i] });
+                    }
                 }
             }
         } catch (error) {
@@ -617,19 +614,9 @@ const upload = async (event) => {
 
     progressRef.value = 1;
 
-    const categories = categoriesItemsRef.value.filter(x => x.checked).map(x => x.name);
-    let type = null;
     let location = null;
     let createdDate = null;
     let media = null;
-
-    for (const item of typesItemsRef.value) {
-        if (item.checked) {
-            type = item.name;
-
-            break;
-        }
-    }
 
     if (longitudeRef.value.length > 0 && latitudeRef.value.length > 0 && isFinite(longitudeRef.value) && isFinite(latitudeRef.value)) {
         location = new Location(Number(longitudeRef.value), Number(latitudeRef.value));
@@ -643,11 +630,11 @@ const upload = async (event) => {
         createdDate = new Date(Number(timeYearRef.value), Number(timeMonthRef.value), Number(timeDayRef.value), Number(timeHoursRef.value), Number(timeMinutesRef.value), Number(timeSecondsRef.value));
     }
 
-    if (url === null || type === null || location === null || createdDate === null) {
+    if (url === null || typeRef.value === null || location === null || createdDate === null) {
         shake(event.currentTarget || event.target);
     } else {
         try {
-            media = await insertMedium(await getAccessToken(props.auth0), url, type, categories, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
+            media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
             media.previewImageUrl = thumbnailUrl;
 
             isUploadedRef.value = true;
