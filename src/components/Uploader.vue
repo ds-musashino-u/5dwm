@@ -592,7 +592,7 @@ const locate = async () => {
         });
     }
 };
-const upload = async (event) => {
+const upload = async (event, completed) => {
     let url = null;
     let thumbnailUrl = null;
 
@@ -637,10 +637,11 @@ const upload = async (event) => {
             media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
             media.previewImageUrl = thumbnailUrl;
 
-            isUploadedRef.value = true;
-            window.setTimeout(() => {
-                isUploadedRef.value = false;
-            }, 3000);
+            if (completed !== null) {
+                completed();
+            }
+
+            emit("completed", event, media);
         } catch (error) {
             shake(event.currentTarget || event.target);
             console.error(error);
@@ -649,8 +650,12 @@ const upload = async (event) => {
 
     isUploadingRef.value = false;
     progressRef.value = 0;
-
-    emit("completed", event, media);
+};
+const uploadCompleted = () => {
+    isUploadedRef.value = true;
+    window.setTimeout(() => {
+        isUploadedRef.value = false;
+    }, 3000);
 };
 const requestDelete = (event) => {
     deleteConfirmation.visible = true;
@@ -1115,7 +1120,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary" type="submit"
                                 v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
-                                @click="upload($event)">
+                                @click="upload($event, uploadCompleted)">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadedRef" key="uploaded">
                                         <i class="fa-solid fa-check"></i>
