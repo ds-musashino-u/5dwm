@@ -98,23 +98,13 @@ const initialize = async () => {
 
   const loader = new Loader({
     apiKey: GoogleMapsConfig.API_KEY,
-    version: "quarterly",
+    version: GoogleMapsConfig.VERSION,
     language: navigator.language,
   });
 
   await loader.load();
 
-  map = new google.maps.Map(mapRef.value, {
-    center: { lat: 35.6809591, lng: 139.7673068 },
-    zoom: 4,
-    mapTypeId: "terrain",
-    zoomControl: true,
-    mapTypeControl: false,
-    scaleControl: true,
-    streetViewControl: false,
-    rotateControl: true,
-    fullscreenControl: false,
-  });
+  map = new google.maps.Map(mapRef.value, GoogleMapsConfig.MAP_OPTIONS);
 };
 onMounted(() => {
   initialize();
@@ -1169,6 +1159,7 @@ const previousResults = (index) => {
     position: relative;
     width: 100%;
     height: 100%;
+    background: #f5f5f5;
 
     button {
       border-radius: 0 !important;
