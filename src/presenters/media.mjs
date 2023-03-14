@@ -186,7 +186,6 @@ export async function insertMedium(token, url, type, categories, description, us
  */
 export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt=null) {
     const data = {
-        id: id,
         url: url,
         type: type,
         categories: categories,
@@ -206,7 +205,7 @@ export async function updateMedium(token, id, url, type, categories, description
         data["created_at"] = createdAt.toISOString()
     }
 
-    const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
+    const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
         mode: "cors",
         method: "PUT",
         headers: {
