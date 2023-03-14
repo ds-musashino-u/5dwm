@@ -54,7 +54,7 @@ export async function getCategories(offset = 0, limit = null) {
 /**
  * /api/v1/categories/{id}
  * @module getCategory
- * @param {!number} id - Category identifier
+ * @param {!number} id - Identifier
  * @return {?Category} - Category item
  */
 export async function getCategory(id) {
@@ -114,7 +114,7 @@ export async function insertCategory(token, name) {
  * /api/v1/categories/{id}
  * @module updateCategory
  * @param {!string} token - Access token
- * @param {!number} id - Category identifier
+ * @param {!number} id - Identifier
  * @param {!string} name - Name
  * @return {?Category} - Category item
  */
@@ -146,7 +146,7 @@ export async function updateCategory(token, id, name) {
  * /api/v1/categories/{id}
  * @module deleteCategory
  * @param {!string} token - Access token
- * @param {!number} id - Category identifier
+ * @param {!number} id - Identifier
  * @return {?Category} - Category item
  */
 export async function deleteCategory(token, id) {
