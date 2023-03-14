@@ -616,14 +616,13 @@ const upload = async (event, completed) => {
 
             url = result.url;
             thumbnailUrl = result.thumbnail.url;
+            progressRef.value = 1;
         } catch (error) {
             console.error(error);
         }
     } else if (mediaUrlRef.value.length > 0) {
         url = mediaUrlRef.value;
     }
-
-    progressRef.value = 1;
 
     let location = null;
     let createdDate = null;
