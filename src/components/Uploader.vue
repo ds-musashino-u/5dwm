@@ -1351,6 +1351,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             >.level-right {
                                 margin: 0px 0px 0px 12px;
 
+                                button {
+                                    background: transparent !important;
+                                }
+
                                 button.is-rounded {
                                     border-radius: 9999px !important;
                                     padding: 12px !important;

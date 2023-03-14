@@ -244,7 +244,7 @@ watch(toDateRef, (newValue, oldValue) => {
           <button class="button" @click="
             isCollapsedRef = !isCollapsedRef;
           enabled();
-          ">
+                                  ">
             <transition name="fade" mode="out-in">
               <span class="icon" v-if="isEnabled" key="on">
                 <i class="fa-solid fa-toggle-on"></i>
@@ -442,6 +442,10 @@ watch(toDateRef, (newValue, oldValue) => {
       >.level-item {
         margin: 8px;
 
+        button {
+          background: transparent !important;
+        }
+
         .button.is-rounded {
           border-radius: 9999px !important;
           padding: 12px !important;
@@ -490,6 +494,7 @@ watch(toDateRef, (newValue, oldValue) => {
 
   .level:nth-child(2) {
     padding: 0em 0.75em 1em 0.75em !important;
+
     >.level-item {
       margin: 0;
       display: flex;
@@ -681,12 +686,12 @@ watch(toDateRef, (newValue, oldValue) => {
 }
 
 .tabs.is-toggle li:first-child a {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
+  border-top-left-radius: 4px;
+  border-bottom-left-radius: 4px;
 }
 
 .tabs.is-toggle li:last-child a {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
+  border-top-right-radius: 4px;
+  border-bottom-right-radius: 4px;
 }
 </style>

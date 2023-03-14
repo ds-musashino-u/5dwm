@@ -118,19 +118,19 @@ const back = (event) => {
           </transition>
         </div>
         <div class="panel-block">
-            <div class="level">
-              <div class="level-left">
-                <div class="level-item">
-                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">ID</span>
-                </div>
+          <div class="level">
+            <div class="level-left">
+              <div class="level-item">
+                <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">ID</span>
               </div>
-              <div class="level-right">
-                <div class="level-item">
-                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.id"></span>
-                </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <span class="is-size-7 has-text-weight-bold" v-text="item.media.id"></span>
               </div>
             </div>
           </div>
+        </div>
         <transition name="fade" mode="out-in">
           <div class="panel-block" v-if="!isCollapsed && item.hasScore" key="collapse">
             <div class="level">
@@ -303,10 +303,14 @@ const back = (event) => {
       border-radius: 0;
       width: fit-content;
       box-shadow: none !important;
-    
+
       >.panel-block {
         width: 400px;
         height: fit-content;
+
+        .level>.level-right>.level-item .button {
+          background: transparent !important;
+        }
       }
     }
   }

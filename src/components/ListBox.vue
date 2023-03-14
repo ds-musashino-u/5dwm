@@ -109,8 +109,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
           </div>
           <div class="level-right">
             <div class="level-item">
-              <button class="button" v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef"
-                @click="next($event)">
+              <button class="button" v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef" @click="next($event)">
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-right"></i>
                 </span>
@@ -156,6 +155,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
     >.level-right>.level-item {
       margin: 0px 0px 0px 12px;
+
+      button {
+        background: transparent !important;
+      }
 
       button.is-rounded {
         border-radius: 9999px !important;

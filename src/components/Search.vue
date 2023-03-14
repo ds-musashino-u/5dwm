@@ -1001,12 +1001,12 @@ const previousResults = (index) => {
                           <div class="level">
                             <div class="level-item">
                               <label class="
-                                      file
-                                      button
-                                      is-circle
-                                      has-text-weight-bold
-                                      file-label
-                                    ">
+                                        file
+                                        button
+                                        is-circle
+                                        has-text-weight-bold
+                                        file-label
+                                      ">
                                 <input class="file-input" type="file" name="upload"
                                   accept="image/apng, image/png, image/jpeg, image/webp" style="pointer-events: none"
                                   v-bind:disabled="isLoadingRef" @change="browse($event)" />
@@ -1019,9 +1019,9 @@ const previousResults = (index) => {
                             </div>
                             <div class="level-item">
                               <span class="
-                                      is-size-7 is-uppercase
-                                      has-text-weight-bold has-text-grey
-                                    ">Browse or Drag & Drop</span>
+                                        is-size-7 is-uppercase
+                                        has-text-weight-bold has-text-grey
+                                      ">Browse or Drag & Drop</span>
                             </div>
                           </div>
                         </div>
@@ -1082,19 +1082,19 @@ const previousResults = (index) => {
               :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
               @next="nextTypes" @previous="previousTypes" />
             <!--<ListBox
-                    name="Users"
-                    :max-length="maxUsersLength"
-                    :is-enabled="user !== null"
-                    :is-collapsed="usersIsCollapsedRef"
-                    :is-continuous="usersIsContinuousRef"
-                    :items="usersItemsRef"
-                    :page-index="usersPageIndexRef"
-                    @collapse="collapseUsers"
-                    @clear="clearUsers"
-                    @select="selectUser"
-                    @next="nextUsers"
-                    @previous="previousUsers"
-                  />-->
+                      name="Users"
+                      :max-length="maxUsersLength"
+                      :is-enabled="user !== null"
+                      :is-collapsed="usersIsCollapsedRef"
+                      :is-continuous="usersIsContinuousRef"
+                      :items="usersItemsRef"
+                      :page-index="usersPageIndexRef"
+                      @collapse="collapseUsers"
+                      @clear="clearUsers"
+                      @select="selectUser"
+                      @next="nextUsers"
+                      @previous="previousUsers"
+                    />-->
           </nav>
         </div>
       </div>
@@ -1103,9 +1103,9 @@ const previousResults = (index) => {
           <div class="panel-block">
             <div class="control">
               <button class="
-                        button
-                        is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                      " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
+                          button
+                          is-rounded is-outlined is-fullwidth is-size-7 is-primary
+                        " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearchingRef" key="searching">
                     <i class="fas fa-spinner updating"></i>
@@ -1223,6 +1223,10 @@ const previousResults = (index) => {
 
                 >.level-right {
                   margin: 0px 0px 0px 12px;
+
+                  button {
+                    background: transparent !important;
+                  }
 
                   button.is-rounded {
                     border-radius: 9999px !important;

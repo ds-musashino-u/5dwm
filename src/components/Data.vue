@@ -1026,6 +1026,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     align-items: center;
                                 }
 
+                                button {
+                                    background: transparent !important;
+                                }
+
                                 button.is-rounded {
                                     border-radius: 9999px !important;
                                     padding: 12px !important;
