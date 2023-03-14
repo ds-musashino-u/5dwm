@@ -783,7 +783,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             v-text="mediaIDRef"></span>
                                     </div>
                                     <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaFileRef !== null || mediaUrlRef.length > 0"
+                                        <div class="level-item" v-show="mediaIDRef === null && (mediaFileRef !== null || mediaUrlRef.length > 0)"
                                             key="attaced">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-check"></i>
@@ -802,109 +802,115 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
-                            <transition name="fade" mode="out-in">
-                                <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
-                                    <div class="control">
-                                        <div class="drop"
-                                            v-bind:style="{ animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto' }"
-                                            @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
-                                            @drop.stop.prevent="drop($event)">
-                                            <transition name="fade" mode="out-in">
-                                                <div class="image" v-if="mediaFileRef === null" v-bind:key="null">
-                                                    <div class="level">
-                                                        <div class="level-item">
-                                                            <label
-                                                                class="file button is-circle has-text-weight-bold file-label">
-                                                                <input class="file-input" type="file" name="upload"
-                                                                    style="pointer-events: none"
-                                                                    v-bind:disabled="isLoadingRef || typesIsLoadingRef"
-                                                                    @change="browse($event)" />
-                                                                <div class="file-cta_">
-                                                                    <span class="icon">
-                                                                        <i class="fa-solid fa-file"></i>
-                                                                    </span>
-                                                                </div>
-                                                            </label>
-                                                        </div>
-                                                        <div class="level-item">
-                                                            <span
-                                                                class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Browse
-                                                                or Drag & Drop</span>
+                            <template v-if="mediaIDRef === null">
+                                <transition name="fade" mode="out-in">
+                                    <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
+                                        <div class="control">
+                                            <div class="drop"
+                                                v-bind:style="{ animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto' }"
+                                                @dragover.prevent="dragover($event)"
+                                                @dragleave.prevent="isDraggingRef = false"
+                                                @drop.stop.prevent="drop($event)">
+                                                <transition name="fade" mode="out-in">
+                                                    <div class="image" v-if="mediaFileRef === null" v-bind:key="null">
+                                                        <div class="level">
+                                                            <div class="level-item">
+                                                                <label
+                                                                    class="file button is-circle has-text-weight-bold file-label">
+                                                                    <input class="file-input" type="file" name="upload"
+                                                                        style="pointer-events: none"
+                                                                        v-bind:disabled="isLoadingRef || typesIsLoadingRef"
+                                                                        @change="browse($event)" />
+                                                                    <div class="file-cta_">
+                                                                        <span class="icon">
+                                                                            <i class="fa-solid fa-file"></i>
+                                                                        </span>
+                                                                    </div>
+                                                                </label>
+                                                            </div>
+                                                            <div class="level-item">
+                                                                <span
+                                                                    class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Browse
+                                                                    or Drag & Drop</span>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                                <div class="image" v-else v-bind:key="mediaFileRef.filename">
-                                                    <transition name="fade" mode="out-in">
-                                                        <div class="image" v-if="mediaPreviewRef !== null"
-                                                            :key="mediaFileRef.filename">
-                                                            <picture class="image">
-                                                                <img v-bind:src="mediaPreviewRef"
-                                                                    v-bind:alt="mediaFileRef.filename" />
-                                                            </picture>
-                                                            <div class="control">
-                                                                <button class="button is-circle" type="button"
-                                                                    @click="resetMedia($event)" key="menu">
-                                                                    <span class="icon is-small has-text-danger">
-                                                                        <i class="fa-solid fa-xmark"></i>
-                                                                    </span>
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                        <div class="image" v-else :key="null">
-                                                            <div class="level">
-                                                                <div class="level-item">
-                                                                    <label
-                                                                        class="file button is-circle has-text-weight-bold file-label">
-                                                                        <input class="file-input" type="file" name="upload"
-                                                                            style="pointer-events: none"
-                                                                            v-bind:disabled="isLoadingRef"
-                                                                            @change="browse($event)" />
-                                                                        <div class="file-cta_">
-                                                                            <span class="icon">
-                                                                                <i class="fa-solid fa-file"></i>
-                                                                            </span>
-                                                                        </div>
-                                                                    </label>
-                                                                </div>
-                                                                <div class="level-item">
-                                                                    <span
-                                                                        class="is-size-7 has-text-weight-bold has-text-grey">{{
-                                                                            mediaFileRef.filename
-                                                                        }}</span>
+                                                    <div class="image" v-else v-bind:key="mediaFileRef.filename">
+                                                        <transition name="fade" mode="out-in">
+                                                            <div class="image" v-if="mediaPreviewRef !== null"
+                                                                :key="mediaFileRef.filename">
+                                                                <picture class="image">
+                                                                    <img v-bind:src="mediaPreviewRef"
+                                                                        v-bind:alt="mediaFileRef.filename" />
+                                                                </picture>
+                                                                <div class="control">
+                                                                    <button class="button is-circle" type="button"
+                                                                        @click="resetMedia($event)" key="menu">
+                                                                        <span class="icon is-small has-text-danger">
+                                                                            <i class="fa-solid fa-xmark"></i>
+                                                                        </span>
+                                                                    </button>
                                                                 </div>
                                                             </div>
-                                                            <div class="control">
-                                                                <button class="button is-circle" type="button"
-                                                                    @click="resetMedia($event)" key="menu">
-                                                                    <span class="icon is-small has-text-danger">
-                                                                        <i class="fa-solid fa-xmark"></i>
-                                                                    </span>
-                                                                </button>
+                                                            <div class="image" v-else :key="null">
+                                                                <div class="level">
+                                                                    <div class="level-item">
+                                                                        <label
+                                                                            class="file button is-circle has-text-weight-bold file-label">
+                                                                            <input class="file-input" type="file"
+                                                                                name="upload" style="pointer-events: none"
+                                                                                v-bind:disabled="isLoadingRef"
+                                                                                @change="browse($event)" />
+                                                                            <div class="file-cta_">
+                                                                                <span class="icon">
+                                                                                    <i class="fa-solid fa-file"></i>
+                                                                                </span>
+                                                                            </div>
+                                                                        </label>
+                                                                    </div>
+                                                                    <div class="level-item">
+                                                                        <span
+                                                                            class="is-size-7 has-text-weight-bold has-text-grey">{{
+                                                                                mediaFileRef.filename
+                                                                            }}</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="control">
+                                                                    <button class="button is-circle" type="button"
+                                                                        @click="resetMedia($event)" key="menu">
+                                                                        <span class="icon is-small has-text-danger">
+                                                                            <i class="fa-solid fa-xmark"></i>
+                                                                        </span>
+                                                                    </button>
+                                                                </div>
                                                             </div>
-                                                        </div>
-                                                    </transition>
-                                                </div>
-                                            </transition>
+                                                        </transition>
+                                                    </div>
+                                                </transition>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            </transition>
+                                </transition>
+                            </template>
                             <transition name="fade" mode="out-in">
                                 <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
                                     <div class="field has-addons">
                                         <div class="control is-expanded">
                                             <input class="input is-size-7 has-text-weight-bold" type="text"
-                                                placeholder="URL" v-model="mediaUrlRef" />
+                                                placeholder="URL" v-bind:disabled="mediaIDRef !== null"
+                                                v-model="mediaUrlRef" />
                                         </div>
                                         <div class="control">
-                                            <button type="button" class="button" @click="pasteImageUrl($event)">
+                                            <button type="button" class="button" v-bind:disabled="mediaIDRef !== null"
+                                                @click="pasteImageUrl($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-paste"></i>
                                                 </span>
                                             </button>
                                         </div>
                                         <div class="control">
-                                            <button type="button" class="button" v-bind:disabled="mediaUrlRef.length === 0"
+                                            <button type="button" class="button"
+                                                v-bind:disabled="mediaIDRef !== null || mediaUrlRef.length === 0"
                                                 @click="clearImageUrl($event)">
                                                 <span class="icon is-small has-text-danger">
                                                     <i class="fa-solid fa-xmark"></i>
@@ -1839,5 +1845,4 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     to {
         background-position: 100% 0%, 0% 100%, 0% 0%, 100% 100%;
     }
-}
-</style>
+}</style>
