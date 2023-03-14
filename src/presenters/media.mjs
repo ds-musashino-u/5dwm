@@ -6,7 +6,7 @@ import { Location } from "./location.mjs";
  */
 export class Media {
     /**
-     * @param {!integer} id - Media Identifier
+     * @param {!integer} id - Identifier
      * @param {!string} url - Media URL
      * @param {!string} type - MIME type of Media
      * @param {!Array<string>} categories - Categories
@@ -88,7 +88,7 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
 /**
  * /api/v1/media/{id}
  * @module getMedium
- * @param {!number} id - Media identifier
+ * @param {!number} id - Identifier
  * @return {?Media} - Media item
  */
 export async function getMedium(id) {
@@ -150,6 +150,65 @@ export async function insertMedium(token, url, type, categories, description, us
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
         mode: "cors",
         method: "POST",
+        headers: {
+            "X-Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+        const item = await response.json()
+
+        if (item === null) {
+            return null;
+        }
+
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
+    } else {
+        throw new Error(response.statusText);
+    }
+}
+
+/**
+ * /api/v1/media
+ * @module insertMedium
+ * @param {!string} token - Access token
+ * @param {!number} id - Identifier
+ * @param {!string} url - URL 
+ * @param {!string} type - MIME type
+ * @param {!Array<string>} categories - Categories
+ * @param {!string} description - Description
+ * @param {!string} username - User name
+ * @param {!Location} location - Location
+ * @param {?Date} createdAt - Created date time
+ * @return {?Media} - Media item
+ */
+export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt=null) {
+    const data = {
+        id: id,
+        url: url,
+        type: type,
+        categories: categories,
+        description: description,
+        username: username,
+        location: {
+            type: "Point",
+            coordinates: [location.longitude, location.latitude]
+        }
+    };
+
+    if (location.hasAddress) {
+        data["address"] = location.address;
+    }
+
+    if (createdAt !== null) {
+        data["created_at"] = createdAt.toISOString()
+    }
+
+    const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
+        mode: "cors",
+        method: "PUT",
         headers: {
             "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
