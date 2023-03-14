@@ -663,23 +663,13 @@ const initialize = async () => {
 
     const loader = new Loader({
         apiKey: GoogleMapsConfig.API_KEY,
-        version: "quarterly",
+        version: GoogleMapsConfig.VERSION,
         language: navigator.language,
     });
 
     await loader.load();
 
-    map = new google.maps.Map(mapRef.value, {
-        center: { lat: 35.6809591, lng: 139.7673068 },
-        zoom: 4,
-        mapTypeId: "terrain",
-        zoomControl: true,
-        mapTypeControl: false,
-        scaleControl: true,
-        streetViewControl: false,
-        rotateControl: true,
-        fullscreenControl: false,
-    });
+    map = new google.maps.Map(mapRef.value, GoogleMapsConfig.MAP_OPTIONS);
     map.addListener("center_changed", () => {
         const location = map.getCenter();
 
@@ -687,6 +677,53 @@ const initialize = async () => {
         longitudeRef.value = String(location.lng());
     });
     geocoder = new google.maps.Geocoder();
+
+    if ("permissions" in navigator) {
+        const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
+
+        if (permissionStatus.state == "granted" || permissionStatus.state == "prompt") {
+            isLocatingRef.value = true;
+            navigator.geolocation.getCurrentPosition((position) => {
+                isLocatingRef.value = false;
+                latitudeRef.value = String(position.coords.latitude);
+                longitudeRef.value = String(position.coords.longitude)
+                map.setCenter(
+                    new google.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    )
+                );
+            }, (error) => {
+                isLocatingRef.value = false;
+                console.error(error);
+            }, {
+                enableHighAccuracy: true,
+                timeout: 30000,
+                maximumAge: 0
+            });
+        }
+    } else {
+        isLocatingRef.value = true;
+
+        navigator.geolocation.getCurrentPosition((position) => {
+            isLocatingRef.value = false;
+            latitudeRef.value = String(position.coords.latitude);
+            longitudeRef.value = String(position.coords.longitude)
+            map.setCenter(
+                new google.maps.LatLng(
+                    position.coords.latitude,
+                    position.coords.longitude
+                )
+            );
+        }, (error) => {
+            isLocatingRef.value = false;
+            console.error(error);
+        }, {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        });
+    }
 };
 
 onMounted(() => {
@@ -1120,6 +1157,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         height: 100%;
         justify-content: center;
         align-items: center;
+        background: #f5f5f5;
 
         button {
             border-radius: 0 !important;
@@ -1583,6 +1621,52 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     .flyout-right {
         position: absolute !important;
         right: 0px !important;
+    }
+
+    .right {
+        z-index: 4;
+        position: absolute;
+        right: 0;
+        top: 0;
+        margin: 16px 0px 0px 0px;
+        padding: env(safe-area-inset-top, 0px) 0px 0px calc(env(safe-area-inset-left, 0px) + 16px);
+        touch-action: none;
+
+        button {
+            margin: 0px;
+            border: 0px none transparent !important;
+            padding: 16px;
+            background: #ffffff !important;
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
+            background-clip: padding-box;
+            height: initial;
+
+            >span.icon {
+                margin: 0 !important;
+                width: 1rem !important;
+                height: 1rem !important;
+            }
+        }
+
+        button.is-rounded,
+        .button.is-rounded {
+            padding: 16px;
+        }
+
+        button.is-circle,
+        .button.is-circle {
+            margin: 0px;
+            padding: 16px !important;
+            height: initial;
+            border-radius: 290486px;
+
+            span {
+                margin: 0 !important;
+                width: 0.75rem !important;
+                height: 0.75rem !important;
+                color: var(--accent-color);
+            }
+        }
     }
 }
 
