@@ -2,7 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { Loader } from "@googlemaps/js-api-loader";
-import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
+import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
@@ -18,7 +18,8 @@ const props = defineProps({
     text: String,
     isAdmin: Boolean,
     isClosable: { type: Boolean, required: false, default: false },
-    media: { type: Object, required: false, default: null },
+    isDeletable: { type: Boolean, required: false, default: false },
+    data: { type: Object, required: false, default: null },
 });
 const mapRef = ref(null);
 let map = null;
@@ -29,6 +30,9 @@ const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
 const isUploadedRef = ref(false);
+const isDeletingRef = ref(false);
+const deleteButtonRef = ref(null);
+const deleteConfirmation = reactive({ visible: false, dismiss: false });
 const mediaIDRef = ref(null);
 const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
@@ -62,24 +66,24 @@ const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
 const progressRef = ref(0);
 
-if (props.media !== null) {
-    mediaIDRef.value = props.media.id;
-    mediaUrlRef.value = props.media.url;
-    descriptionRef.value = props.media.description;
-    timeRef.value = props.media.createdAt;
+if (props.data !== null) {
+    mediaIDRef.value = props.data.id;
+    mediaUrlRef.value = props.data.url;
+    descriptionRef.value = props.data.description;
+    timeRef.value = props.data.createdAt;
     timeYearRef.value = timeRef.value.getFullYear();
     timeMonthRef.value = timeRef.value.getMonth();
     timeDayRef.value = timeRef.value.getDate();
     timeHoursRef.value = timeRef.value.getHours();
     timeMinutesRef.value = timeRef.value.getMinutes();
     timeSecondsRef.value = timeRef.value.getSeconds();
-    longitudeRef.value = String(props.media.location.longitude);
-    latitudeRef.value = String(props.media.location.latitude);
-    typeRef.value = props.media.type;
-    categoriesRef.value = props.media.categories === null ? [] : props.media.categories;
+    longitudeRef.value = String(props.data.location.longitude);
+    latitudeRef.value = String(props.data.location.latitude);
+    typeRef.value = props.data.type;
+    categoriesRef.value = props.data.categories === null ? [] : props.data.categories;
 
-    if (props.media.location.hasAddress()) {
-        addressRef.value = props.media.location.address;
+    if (props.data.location.address !== null && props.data.location.address.length > 0) {
+        addressRef.value = props.data.location.address;
     }
 }
 
@@ -149,6 +153,9 @@ const resizeImage = async (dataURL, length) => {
     }
 
     return null;
+};
+const close = (event) => {
+    emit("close");
 };
 const dragover = (event) => {
     isDraggingRef.value = true;
@@ -455,9 +462,9 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
                 }
             } else {
                 for (let i = 0; i < length; i++) {
-                    const category = categoriesRef.value.find(x => x.name === items[i].name);
+                    const category = categoriesRef.value.find(x => x === items[i].name);
 
-                    categoriesItemsRef.value.push({ checked: category === undefined ? false : category.checked, name: items[i].name });
+                    categoriesItemsRef.value.push({ checked: category !== undefined, name: items[i].name });
                 }
             }
         } catch (error) {
@@ -658,6 +665,22 @@ const upload = async (event) => {
 
     emit("completed", event, media);
 };
+const requestDelete = (event) => {
+    deleteConfirmation.visible = true;
+    deleteConfirmation.dismiss = false;
+};
+const deleteItem = async (event) => {
+    isDeletingRef.value = true;
+
+    try {
+        console.log("delete");
+    } catch (error) {
+        shake(deleteButtonRef.value);
+        console.error(error);
+    }
+
+    isDeletingRef.value = false;
+};
 const initialize = async () => {
     isInitializedRef.value = true;
 
@@ -678,11 +701,34 @@ const initialize = async () => {
     });
     geocoder = new google.maps.Geocoder();
 
-    if ("permissions" in navigator) {
-        const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
+    if (props.data === null) {
+        if ("permissions" in navigator) {
+            const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
 
-        if (permissionStatus.state == "granted" || permissionStatus.state == "prompt") {
+            if (permissionStatus.state == "granted" || permissionStatus.state == "prompt") {
+                isLocatingRef.value = true;
+                navigator.geolocation.getCurrentPosition((position) => {
+                    isLocatingRef.value = false;
+                    latitudeRef.value = String(position.coords.latitude);
+                    longitudeRef.value = String(position.coords.longitude)
+                    map.setCenter(
+                        new google.maps.LatLng(
+                            position.coords.latitude,
+                            position.coords.longitude
+                        )
+                    );
+                }, (error) => {
+                    isLocatingRef.value = false;
+                    console.error(error);
+                }, {
+                    enableHighAccuracy: true,
+                    timeout: 30000,
+                    maximumAge: 0
+                });
+            }
+        } else {
             isLocatingRef.value = true;
+
             navigator.geolocation.getCurrentPosition((position) => {
                 isLocatingRef.value = false;
                 latitudeRef.value = String(position.coords.latitude);
@@ -702,27 +748,6 @@ const initialize = async () => {
                 maximumAge: 0
             });
         }
-    } else {
-        isLocatingRef.value = true;
-
-        navigator.geolocation.getCurrentPosition((position) => {
-            isLocatingRef.value = false;
-            latitudeRef.value = String(position.coords.latitude);
-            longitudeRef.value = String(position.coords.longitude)
-            map.setCenter(
-                new google.maps.LatLng(
-                    position.coords.latitude,
-                    position.coords.longitude
-                )
-            );
-        }, (error) => {
-            isLocatingRef.value = false;
-            console.error(error);
-        }, {
-            enableHighAccuracy: true,
-            timeout: 30000,
-            maximumAge: 0
-        });
     }
 };
 
@@ -1115,7 +1140,24 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         <i class="fa-solid fa-cloud-arrow-up"></i>
                                     </span>
                                 </transition>
-                                <span class="is-uppercase has-text-weight-bold">Upload</span>
+                                <span class="is-uppercase has-text-weight-bold">Save</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="panel-block" v-if="props.isDeletable">
+                        <div class="control">
+                            <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger" type="submit"
+                                v-bind:disabled="user === null || isUploadingRef || isDeletingRef"
+                                @click="requestDelete($event)" ref="deleteButtonRef">
+                                <transition name="fade" mode="out-in">
+                                    <span class="icon" v-if="isDeletingRef" key="deleting">
+                                        <i class="fas fa-spinner updating"></i>
+                                    </span>
+                                    <span class="icon" v-else key="ready">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </span>
+                                </transition>
+                                <span class="is-uppercase has-text-weight-bold">Delete</span>
                             </button>
                         </div>
                     </div>
@@ -1125,6 +1167,53 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         <div id="map">
             <div class="content" ref="mapRef"></div>
             <div class="crosshairs icon"><i class="fa-solid fa-crosshairs"></i></div>
+        </div>
+        <div class="right" v-if="props.isClosable">
+            <button class="button is-circle" type="button" @click="close($event)">
+                <span class="icon is-small">
+                    <i class="fa-solid fa-xmark"></i>
+                </span>
+            </button>
+        </div>
+        <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
+            <transition name="fade" mode="out-in">
+                <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
+                    key="background"></div>
+            </transition>
+            <div class="wrap" @animationend="deleteConfirmation.visible = $event.srcElement.className !== 'wrap'"
+                :style="{ animationPlayState: deleteConfirmation.dismiss ? 'running' : 'paused' }">
+                <div class="modal-card" :style="{ animationPlayState: deleteConfirmation.visible ? 'running' : 'paused' }"
+                    v-if="deleteConfirmation.visible" key="alert">
+                    <header class="modal-card-head">
+                        <p class="modal-card-title is-uppercase is-size-7 has-text-weight-bold">Confirmation</p>
+                    </header>
+                    <section class="modal-card-body">
+                        <p class="modal-card-title is-size-7">Are you sure you wanto to delete
+                            this?</p>
+                    </section>
+                    <footer class="modal-card-foot">
+                        <div class="field">
+                            <div class="control">
+                                <button class="button is-danger"
+                                    @click="deleteConfirmation.dismiss = true; deleteItem($event);">
+                                    <span class="icon">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </span>
+                                    <span class="is-uppercase has-text-weight-bold">Delete</span>
+                                </button>
+                            </div>
+                            <div class="control">
+                                <button class="button" @click="deleteConfirmation.dismiss = true;">
+                                    <span class="icon">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </span>
+                                    <span class="is-uppercase has-text-weight-bold">Cancel</span>
+                                </button>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            </div>
         </div>
         <transition name="fade">
             <div class="progress" v-if="progressRef > 0" v-cloak>
@@ -1466,9 +1555,20 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         }
 
         >.bottom {
-            .panel-block:last-child {
+            .panel-block {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
+                border-bottom: 0px none transparent;
                 border-radius: 0px;
+
+                .is-danger {
+                    background-color: hsl(348, 100%, 61%) !important;
+                    color: #ffffff !important;
+                    transition: 0.5s;
+
+                    span {
+                        color: #ffffff !important;
+                    }
+                }
             }
         }
 
@@ -1624,12 +1724,11 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     }
 
     .right {
-        z-index: 4;
         position: absolute;
         right: 0;
         top: 0;
         margin: 16px 0px 0px 0px;
-        padding: env(safe-area-inset-top, 0px) 0px 0px calc(env(safe-area-inset-left, 0px) + 16px);
+        padding: env(safe-area-inset-top, 0px) calc(env(safe-area-inset-right, 0px) + 16px) 0px 0px;
         touch-action: none;
 
         button {
@@ -1665,6 +1764,80 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 width: 0.75rem !important;
                 height: 0.75rem !important;
                 color: var(--accent-color);
+            }
+        }
+    }
+
+    .modal {
+        .modal-background {
+            background: rgba(0, 0, 0, 0.75);
+        }
+
+        .wrap {
+            margin: 0;
+            padding: 0;
+            opacity: 1;
+            transform: scale(1, 1);
+            animation: popup .5s ease forwards reverse 1;
+            animation-play-state: paused;
+
+            .modal-card {
+                border-radius: 4px;
+                width: auto !important;
+                opacity: 1;
+                transform: scale(0.75, 0.75);
+                animation: popup .5s ease forwards 1;
+                animation-play-state: paused;
+
+                >.modal-card-head {
+                    margin: 0;
+                    border-bottom: 0px none transparent;
+                    border-radius: 0;
+                    background: #ffffff;
+                    padding: 0.5em 0.75em 0em 0.75em;
+                }
+
+                section {
+                    padding: 0.5em 0.75em;
+                }
+
+                >.modal-card-foot {
+                    margin: 0;
+                    border-top: 1px solid hsl(0deg, 0%, 93%);
+                    border-radius: 0;
+                    padding: 0;
+                    background: #ffffff;
+
+                    .field {
+                        display: flex;
+                        margin: 0;
+                        padding: 0.5em 0.375em;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        width: 100%;
+
+                        .control {
+                            margin: 0;
+                            padding: 0em 0.375em;
+                            width: 100%;
+                        }
+
+                        .button {
+                            margin: 0;
+                            width: 100%;
+                        }
+
+                        .button.is-danger {
+                            background-color: hsl(348, 100%, 61%) !important;
+                            color: #ffffff !important;
+                            transition: 0.5s;
+
+                            span {
+                                color: #ffffff !important;
+                            }
+                        }
+                    }
+                }
             }
         }
     }
