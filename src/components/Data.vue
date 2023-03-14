@@ -246,9 +246,7 @@ const deleteItem = async (event) => {
     isDeletingRef.value = true;
 
     try {
-        const category = await deleteCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
-
-        if (category === null) {
+        if (await deleteCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id) === null) {
             shake(deleteButtonRef.value);
         } else {
             for (let i = 0; i < dataItemsRef.value.length; i++) {
