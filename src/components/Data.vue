@@ -27,6 +27,7 @@ const categoriesItemsRef = ref([]);
 const editingItemRef = ref(null);
 const isSavingRef = ref(false);
 const isDeletingRef = ref(false);
+const deleteButtonRef = ref(null);
 const deleteConfirmation = reactive({ visible: false, dismiss: false });
 const props = defineProps({
     auth0: Object,
@@ -194,7 +195,7 @@ const requestAdd = () => {
         editingItemRef.value = { insert: true, update: false, delete: false, schemes: [{ key: "name", name: "Name", ignore: false }], source: dataSource, data: { name: "" } };
     }
 };
-const saveItem = async () => {
+const saveItem = async (event) => {
     isSavingRef.value = true;
 
     if (editingItemRef.value.insert) {
@@ -202,7 +203,7 @@ const saveItem = async () => {
             const category = await insertCategory(await getAccessToken(props.auth0), editingItemRef.value.data.name);
 
             if (category === null) {
-                shake(overlayRef.value);
+                shake(event.currentTarget || event.target);
             } else {
                 for (let i = 0; i < dataItemsRef.value.length; i++) {
                     dataItemsRef.value[i].checked = false;
@@ -212,7 +213,7 @@ const saveItem = async () => {
                 update();
             }
         } catch (error) {
-            shake(overlayRef.value);
+            shake(event.currentTarget || event.target);
             console.error(error);
         }
     } else if (editingItemRef.value.update) {
@@ -220,7 +221,7 @@ const saveItem = async () => {
             const category = await updateCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
 
             if (category === null) {
-                shake(overlayRef.value);
+                shake(event.currentTarget || event.target);
             } else {
                 for (let i = 0; i < dataItemsRef.value.length; i++) {
                     dataItemsRef.value[i].checked = false;
@@ -230,7 +231,7 @@ const saveItem = async () => {
                 update();
             }
         } catch (error) {
-            shake(overlayRef.value);
+            shake(event.currentTarget || event.target);
             console.error(error);
         }
     }
@@ -248,7 +249,7 @@ const deleteItem = async (event) => {
         const category = await deleteCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
 
         if (category === null) {
-            shake(overlayRef.value);
+            shake(deleteButtonRef.value);
         } else {
             for (let i = 0; i < dataItemsRef.value.length; i++) {
                 dataItemsRef.value[i].checked = false;
@@ -258,7 +259,7 @@ const deleteItem = async (event) => {
             update();
         }
     } catch (error) {
-        shake(overlayRef.value);
+        shake(deleteButtonRef.value);
         console.error(error);
     }
 
@@ -651,7 +652,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
                                         type="submit" v-bind:disabled="user === null || isSavingRef || isDeletingRef"
-                                        @click="requestDelete($event)">
+                                        @click="requestDelete($event)" ref="deleteButtonRef">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
                                                 <i class="fas fa-spinner updating"></i>
@@ -667,7 +668,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         </div>
                     </div>
                 </div>
-                <Uploader v-else-if="editingItemRef.source === 'Media'" />
+                <Uploader v-else-if="editingItemRef.source === 'Media'" :is-closable="true" @close="close" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
