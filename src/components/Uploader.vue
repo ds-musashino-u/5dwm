@@ -645,8 +645,12 @@ const upload = async (event, completed) => {
         shake(event.currentTarget || event.target);
     } else {
         try {
-            media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
-            media.previewImageUrl = thumbnailUrl;
+            if (mediaIDRef.value === null) {
+                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
+                media.previewImageUrl = thumbnailUrl;
+            } else {
+                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location)
+            }
 
             if (completed !== null) {
                 completed();
