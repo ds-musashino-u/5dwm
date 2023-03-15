@@ -412,6 +412,57 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/User'
+  /upload:
+    post:
+      tags:
+        - Upload
+      summary: Upload media
+      description: Upload media.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Media data
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: string
+                  format: uri
+              required:
+                - data
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    format: uri
+                  type:
+                    type: string
+                    example: "image/png"
+                  took:
+                    type: number
+                    format: double
+                    example: 0.123
+                  thumbnail:
+                    type: object
+                    properties:
+                      url:
+                        type: string
+                        format: uri
+                      type:
+                        type: string
+                        example: "image/png"
+                  created_at:
+                    type: string
+                    format: date-time
 components:
   securitySchemes:
     bearerAuth:
@@ -520,3 +571,4 @@ tags:
   - name: Types
   - name: Media
   - name: Users
+  - name: Upload
