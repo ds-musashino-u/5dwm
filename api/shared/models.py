@@ -64,7 +64,7 @@ class MediaData(Base):
     id = Column('id', Integer())
     value = Column('val', Float())
     time = Column('date', DateTime())
-    location = Column('location', Text())
+    address = Column('location', Text())
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     __table_args__ = (PrimaryKeyConstraint('csv_id', 'id', name='csv_info_pkey'), ForeignKeyConstraint(['csv_id'], ['public.csv_file.csv_file'], name="csv_info_csv_id_fkey", onupdate="CASCADE", ondelete="NO ACTION"))
