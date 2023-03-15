@@ -73,7 +73,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 try:
                     media = session.query(Media).filter(Media.id == id).one()
-                    
+
                     if url is not None:
                         media.url = url
 
@@ -94,7 +94,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media.latitude = location['coordinates'][1]
 
                     if created_at is not None:
-                        media.created_at = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
+                        media.created_at = datetime.fromisoformat(
+                            created_at.replace('Z', '+00:00'))
 
                     session.commit()
 
@@ -138,6 +139,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
                         'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     }
+
+                    if media.type.startswith('csv'):
+                        media_file = session.query(MediaFile).filter(
+                            MediaFile.media_id == id).one_or_none()
+
+                        if media_file is not None:
+                            media_data = session.query(MediaData).filter(
+                                MediaData.file_id == media_file.id).one_or_none()
+
+                            if media_data is not None:
+                                media['data'] = {
+                                    'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                    'value': media_data.value
+                                }
 
                 return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
