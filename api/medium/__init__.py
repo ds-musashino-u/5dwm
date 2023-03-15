@@ -128,7 +128,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     Media.id == id).one_or_none()
 
                 if media is not None:
-                    media = {
+                    item = {
                         'id': media.id,
                         'url': media.url,
                         'type': media.type,
@@ -145,16 +145,22 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             MediaFile.media_id == id).one_or_none()
 
                         if media_file is not None:
+                            data = []
+
                             media_data = session.query(MediaData).filter(
                                 MediaData.file_id == media_file.id).one_or_none()
 
                             if media_data is not None:
-                                media['data'] = {
+                                data.append({
                                     'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                    'address': media_data.address,
+                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                     'value': media_data.value
-                                }
+                                })
 
-                return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
+                            item['data'] = data
+
+                return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
