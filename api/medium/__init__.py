@@ -6,7 +6,7 @@ from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media
+from shared.models import Media, MediaFile, MediaData
 
 import azure.functions as func
 
