@@ -56,8 +56,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         elif req.method == 'POST':
             if req.headers['X-Authorization'].startswith('Bearer '):
-                if verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None:
+                payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
+                
+                if payload is None or 'permissions' in payload and 'create:all' not in payload['permissions']:
                     return func.HttpResponse(status_code=401, mimetype='', charset='')
+
             else:
                 return func.HttpResponse(status_code=401, mimetype='', charset='')
             
