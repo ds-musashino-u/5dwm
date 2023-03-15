@@ -23,7 +23,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         if req.method == 'DELETE':
             if req.headers['X-Authorization'].startswith('Bearer '):
-                payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
+                payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
                 
                 if payload is None or 'permissions' not in payload or 'delete:all' not in payload['permissions']:
                     return func.HttpResponse(status_code=401, mimetype='', charset='')
@@ -54,7 +54,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         elif req.method == 'PUT':
             if req.headers['X-Authorization'].startswith('Bearer '):
-                payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']]) is None and verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
+                payload = verify(req.headers['X-Authorization'].split(' ')[1], os.environ['AUTH0_JWKS_URL'], os.environ['AUTH0_API_AUDIENCE'], os.environ['AUTH0_ISSUER'], [os.environ['AUTH0_ALGORITHM']])
                 
                 if payload is None or 'permissions' not in payload or 'update:all' not in payload['permissions']:
                     return func.HttpResponse(status_code=401, mimetype='', charset='')
