@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint, Integer, Float, String, Text, DateTime
+from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint, ForeignKeyConstraint, Integer, Float, String, Text, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.ext.declarative import declarative_base
@@ -44,3 +44,27 @@ class User(Base):
     last_name = Column('lastname', String(20))
     updated_at = Column('update_time', DateTime())
     email = Column(String(254), default=None, nullable=True)
+
+
+class MediaFile(Base):
+    __tablename__ = 'csv_file'
+    id = Column('csv_id', Integer(), primary_key=True)
+    filename = Column('filename', Text())
+    categories = Column('category', ARRAY(Text()))
+    description = Column('description', Text())
+    username = Column('user_cns', String(254))
+    created_at = Column('datetaken', DateTime())
+    updated_at = Column('update_time', DateTime())
+    media_id = Column('media_id', Integer())
+
+
+class MediaData(Base):
+    __tablename__ = 'csv_info'
+    file_id = Column('csv_id', Integer())
+    id = Column('id', Integer())
+    value = Column('val', Float())
+    time = Column('date', DateTime())
+    location = Column('location', Text())
+    latitude = Column('lat', Float())
+    longitude = Column('lng', Float())
+    __table_args__ = (PrimaryKeyConstraint('csv_id', 'id', name='csv_info_pkey'), ForeignKeyConstraint(['csv_id'], ['public.csv_file.csv_file'], name="csv_info_csv_id_fkey", onupdate="CASCADE", ondelete="NO ACTION"))
