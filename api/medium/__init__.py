@@ -145,11 +145,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             MediaFile.media_id == id).one_or_none()
 
                         if media_file is not None:
-                            media_data = session.query(MediaData).filter(
-                                MediaData.file_id == media_file.id).one_or_none()
                             data = []
-                            
-                            if media_data is not None:
+
+                            for media_data in session.query(MediaData).filter(MediaData.file_id == media_file.id).all():
                                 data.append({
                                     'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                     'address': media_data.address,
