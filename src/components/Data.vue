@@ -324,16 +324,14 @@ onMounted(() => {
 onUnmounted(() => {
     isInitializedRef.value = false;
 });
-onActivated(async () => {
+onActivated(() => {
     if (!isInitializedRef.value) {
         isInitializedRef.value = true;
 
         update();
     }
 });
-onDeactivated(() => {
-    isInitializedRef.value = false;
-});
+onDeactivated(() => { });
 watch(isEnabledRef, (newValue, oldValue) => {
     if (newValue !== oldValue && oldValue === false) {
 
@@ -675,7 +673,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         </div>
                     </div>
                 </div>
-                <Uploader v-else-if="editingItemRef.source === 'Media'" :auth0="props.auth0" :user="props.user" :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close" @completed="complete" />
+                <Uploader v-else-if="editingItemRef.source === 'Media'" :auth0="props.auth0" :user="props.user"
+                    :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close"
+                    @completed="complete" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
