@@ -774,9 +774,7 @@ onActivated(() => {
         initialize();
     }
 });
-onDeactivated(() => {
-    isInitializedRef.value = false;
-});
+onDeactivated(() => { });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
         mediaFileRef.value = null;
@@ -933,7 +931,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                 </span>
                                             </button>
                                         </div>
-                                        <div class="control"  v-if="mediaIDRef === null">
+                                        <div class="control" v-if="mediaIDRef === null">
                                             <button type="button" class="button"
                                                 v-bind:disabled="mediaIDRef !== null || mediaUrlRef.length === 0"
                                                 @click="clearImageUrl($event)">
