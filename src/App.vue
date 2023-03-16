@@ -239,10 +239,13 @@ export default {
     @select="select" />
   <div class="wrap">
     <div class="content">
-      <keep-alive>
-        <component :is="contents[contentIndex].component"
-          v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, isAdmin: isAdmin }"></component>
-      </keep-alive>
+      <transition name="fade">
+        <keep-alive>
+          <component :is="contents[contentIndex].component"
+            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, isAdmin: isAdmin }"
+            :key="contents[contentIndex].name"></component>
+        </keep-alive>
+      </transition>
     </div>
     <transition name="reveal">
       <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
