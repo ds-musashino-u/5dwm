@@ -62,7 +62,7 @@ class MediaData(Base):
     __tablename__ = 'csv_info'
     file_id = Column('csv_id', Integer())
     id = Column('id', Integer())
-    value = Column('val', Float())
+    value = Column('value', Float())
     time = Column('date', DateTime())
     address = Column('location', Text())
     latitude = Column('lat', Float())
