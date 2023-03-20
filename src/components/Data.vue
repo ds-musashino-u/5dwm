@@ -331,7 +331,9 @@ onActivated(() => {
         update();
     }
 });
-onDeactivated(() => { });
+onDeactivated(() => {
+    isInitializedRef.value = false;
+});
 watch(isEnabledRef, (newValue, oldValue) => {
     if (newValue !== oldValue && oldValue === false) {
 
