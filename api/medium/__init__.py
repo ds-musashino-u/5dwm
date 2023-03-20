@@ -1,3 +1,4 @@
+import math
 import json
 import logging
 import os
@@ -145,15 +146,21 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             MediaFile.media_id == id).one_or_none()
 
                         if media_file is not None:
+                            limit = 100
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
+                            total_count = query.count()
                             data = []
 
-                            for media_data in session.query(MediaData).filter(MediaData.file_id == media_file.id).all():
-                                data.append({
-                                    'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                                    'address': media_data.address,
-                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
-                                    'value': media_data.value
-                                })
+                            for i in range(math.ceil(total_count / limit)):
+                                q = q.offset(i * limit)
+                            
+                                for media_data in q.all():
+                                    data.append({
+                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                        'address': media_data.address,
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                        'value': media_data.value
+                                    })
 
                             item['data'] = data
 
