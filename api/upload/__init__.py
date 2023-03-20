@@ -36,9 +36,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 mime_type, encoding, data = match.groups()
             
                 if encoding == 'base64':
-                    container_name = '$web'
+                    container_name = 'media'
                     id = str(uuid4())
-                    path = f'media/{id}'
+                    path = id
                     decoded_data = b64decode(data)
 
                     if len(decoded_data) >= UPLOAD_MAX_FILESIZE:
@@ -48,7 +48,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     container_client = blob_service_client.get_container_client(container_name)
                     
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
-                        thumbnail_path = f'media/thumbnails/{id}'
+                        thumbnail_path = f'thumbnails/{id}'
                         thumbnail_type = 'image/jpeg'
 
                         thumbnail_image = resize_image(Image.open(BytesIO(decoded_data)), 512).convert('RGB')
@@ -58,14 +58,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         blob_client = container_client.get_blob_client(thumbnail_path)
                         blob_client.upload_blob(thumbnail_bytes.getvalue(), blob_type="BlockBlob", content_settings=ContentSettings(content_type=thumbnail_type))
                         
-                        thumbnail = {'url': f'https://5dwm.blob.core.windows.net/{container_name}/{thumbnail_path}', 'type': thumbnail_type}
+                        thumbnail = {'url': f'https://static.5dworldmap.com/{container_name}/{thumbnail_path}', 'type': thumbnail_type}
                     else:
                         thumbnail = None
 
                     blob_client = container_client.get_blob_client(path)
                     blob_client.upload_blob(decoded_data, blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
                     
-                    item = {'id': id, 'pk': id, 'url': f'https://5dwm.blob.core.windows.net/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
+                    item = {'id': id, 'pk': id, 'url': f'https://static.5dworldmap.com/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                     
                     if thumbnail is not None:
                         item["thumbnail"] = thumbnail
