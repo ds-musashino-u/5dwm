@@ -152,7 +152,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             data = []
 
                             for i in range(math.ceil(total_count / limit)):
-                                q = q.offset(i * limit)
+                                q = query.offset(i * limit)
                             
                                 for media_data in q.all():
                                     data.append({
