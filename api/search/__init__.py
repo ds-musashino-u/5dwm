@@ -1,3 +1,4 @@
+import math
 import re
 import json
 import logging
@@ -13,7 +14,7 @@ from sqlalchemy import create_engine, desc, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.imaging import compute_histogram, resize_image, top_k
-from shared.models import Media, ImageVector
+from shared.models import Media, MediaFile, MediaData, ImageVector
 
 import azure.functions as func
 
@@ -158,10 +159,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(Media.created_at >=
                                          datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                 else:
-                    query = query.filter(Media.created_at >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                    query = query.filter(Media.created_at >= datetime.fromisoformat(
+                        from_datetime.replace('Z', '+00:00')))
 
                 if to_datetime is not None:
-                    query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                    query = query.filter(Media.created_at < datetime.fromisoformat(
+                        to_datetime.replace('Z', '+00:00')))
 
                 total_count = query.count()
 
@@ -172,6 +175,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.offset(offset)
 
                 for item in query.all():
+                    medium = {
+                        'id': item.id,
+                        'url': item.url,
+                        'type': item.type,
+                        'categories': item.categories,
+                        'address': item.address,
+                        'description': item.description,
+                        'username': item.username,
+                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
+                        'score': score,
+                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
                     score = None
 
                     if histogram is not None and item.vector is not None:
@@ -188,18 +203,31 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             score = np.dot(np.array(vector1),
                                            np.array(vector2))
 
-                    media.append({
-                        'id': item.id,
-                        'url': item.url,
-                        'type': item.type,
-                        'categories': item.categories,
-                        'address': item.address,
-                        'description': item.description,
-                        'username': item.username,
-                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
-                        'score': score,
-                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    })
+                    if item.type.startswith('csv'):
+                        media_file = session.query(MediaFile).filter(
+                            MediaFile.media_id == item.id).one_or_none()
+
+                        if media_file is not None:
+                            limit = 100
+                            query = session.query(MediaData).filter(
+                                MediaData.file_id == media_file.id).limit(limit)
+                            total_count = query.count()
+                            data = []
+
+                            for i in range(math.ceil(total_count / limit)):
+                                q = query.offset(i * limit)
+
+                                for media_data in q.all():
+                                    data.append({
+                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                        'address': media_data.address,
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                        'value': media_data.value
+                                    })
+
+                            medium['data'] = data
+
+                    media.append(medium)
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
