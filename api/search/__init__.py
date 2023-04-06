@@ -175,18 +175,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.offset(offset)
 
                 for item in query.all():
-                    medium = {
-                        'id': item.id,
-                        'url': item.url,
-                        'type': item.type,
-                        'categories': item.categories,
-                        'address': item.address,
-                        'description': item.description,
-                        'username': item.username,
-                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
-                        'score': score,
-                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    }
                     score = None
 
                     if histogram is not None and item.vector is not None:
@@ -202,6 +190,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if len(vector1) > 0:
                             score = np.dot(np.array(vector1),
                                            np.array(vector2))
+                            
+                    medium = {
+                        'id': item.id,
+                        'url': item.url,
+                        'type': item.type,
+                        'categories': item.categories,
+                        'address': item.address,
+                        'description': item.description,
+                        'username': item.username,
+                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
+                        'score': score,
+                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                    }
 
                     if item.type.startswith('csv'):
                         media_file = session.query(MediaFile).filter(
