@@ -39,9 +39,9 @@ const signOut = (event) => {
                     ">
                       <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
                       <h1 class="
-                          is-primary is-uppercase is-size-4
-                          has-text-weight-bold
-                        " v-if="title !== null">
+                              is-primary is-uppercase is-size-4
+                              has-text-weight-bold
+                            " v-if="title !== null">
                         {{ title }}
                       </h1>
                       <h2 class="is-size-7 has-text-weight-bold" v-if="subtitle !== null">
@@ -51,13 +51,13 @@ const signOut = (event) => {
                     <div class="panel-block">
                       <div class="control">
                         <button class="
-                            button
-                            is-rounded
-                            is-outlined
-                            is-fullwidth
-                            is-size-7
-                            is-primary
-                          " type="button" v-bind:disabled="isLoading" @click="signIn">
+                                button
+                                is-rounded
+                                is-outlined
+                                is-fullwidth
+                                is-size-7
+                                is-primary
+                              " type="button" v-bind:disabled="isLoading" @click="signIn">
                           <transition name="fade" mode="out-in">
                             <span class="icon" v-if="isLoading" key="loading">
                               <i class="fas fa-spinner updating"></i>
@@ -83,9 +83,9 @@ const signOut = (event) => {
                     ">
                       <img v-bind:src="logoUrl" alt="Logo" v-if="logoUrl !== null" />
                       <h1 class="
-                          is-primary is-uppercase is-size-4
-                          has-text-weight-bold
-                        " v-if="title !== null">
+                              is-primary is-uppercase is-size-4
+                              has-text-weight-bold
+                            " v-if="title !== null">
                         {{ title }}
                       </h1>
                       <h2 class="is-size-7 has-text-weight-bold" v-if="subtitle !== null">
@@ -116,19 +116,24 @@ const signOut = (event) => {
                             <i class="fa-solid fa-id-badge"></i>
                           </span>
                           <span class="is-uppercase is-size-7 has-text-weight-bold">Admin</span>
+                          <a href="https://manage.auth0.com/dashboard/jp/5dwm/" target="_blank">
+                            <span class="icon is-small">
+                              <i class="fa-solid fa-users-gear"></i>
+                            </span>
+                          </a>
                         </span>
                       </div>
                     </div>
                     <div class="panel-block is-hidden-tablet" v-for="(item, index) in items" v-bind:key="item">
                       <div class="control">
                         <button class="
-                            button
-                            is-rounded
-                            is-outlined
-                            is-fullwidth
-                            is-size-7
-                            is-primary
-                          " type="button" v-bind:disabled="isLoading" v-bind:data-index="index"
+                                button
+                                is-rounded
+                                is-outlined
+                                is-fullwidth
+                                is-size-7
+                                is-primary
+                              " type="button" v-bind:disabled="isLoading" v-bind:data-index="index"
                           v-bind:data-name="item.name" @click="select">
                           <span class="icon">
                             <i v-bind:class="item.icon"></i>
@@ -142,9 +147,9 @@ const signOut = (event) => {
                     <div class="panel-block">
                       <div class="control">
                         <button class="
-                            button
-                            is-rounded is-outlined is-fullwidth is-size-7
-                          " type="button" v-bind:disabled="isLoading" @click="signOut">
+                                button
+                                is-rounded is-outlined is-fullwidth is-size-7
+                              " type="button" v-bind:disabled="isLoading" @click="signOut">
                           <transition name="fade" mode="out-in">
                             <span class="icon" v-if="isLoading" key="loading">
                               <i class="fas fa-spinner updating"></i>
@@ -238,6 +243,10 @@ const signOut = (event) => {
               flex-direction: column;
               justify-content: center;
               align-items: center;
+
+              .block>.icon-text span+a {
+                margin-left: 0.5em
+              }
             }
 
             >.panel-block:nth-of-type(2) {
