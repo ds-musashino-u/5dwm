@@ -117,8 +117,8 @@ const signOut = (event) => {
                           </span>
                           <span class="is-uppercase is-size-7 has-text-weight-bold">Admin</span>
                           <a href="https://manage.auth0.com/dashboard/jp/5dwm/" target="_blank">
-                            <span class="icon is-small">
-                              <i class="fa-solid fa-users-gear"></i>
+                            <span class="icon">
+                              <i class="fa-solid fa-users-gear fa-xs"></i>
                             </span>
                           </a>
                         </span>
