@@ -1103,7 +1103,7 @@ const previousResults = (index) => {
               <button class="
                                 button
                                 is-rounded is-outlined is-fullwidth is-size-7 is-primary
-                              " type="submit" v-bind:disabled="user === null || isSearchingRef" @click="search()">
+                              " type="submit" v-bind:disabled="user === null || !isInitializedRef || isSearchingRef" @click="search()">
                 <transition name="fade" mode="out-in">
                   <span class="icon" v-if="isSearchingRef" key="searching">
                     <i class="fas fa-spinner updating"></i>

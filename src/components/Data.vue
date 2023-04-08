@@ -328,7 +328,6 @@ onUnmounted(() => {
 });
 onActivated(() => {
     if (!isInitializedRef.value || props.updated > updatedTime) {
-        console.log(isInitializedRef.value);
         isInitializedRef.value = true;
         updatedTime = props.updated;
 
@@ -543,7 +542,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-left">
                                         <div class="level-item">
                                             <button class="button is-primary"
-                                                v-bind:disabled="pageIndexRef === 0 || isFetchingRef"
+                                                v-bind:disabled="!isInitializedRef || pageIndexRef === 0 || isFetchingRef"
                                                 @click="previous($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-chevron-left"></i>
@@ -561,7 +560,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-right">
                                         <div class="level-item">
                                             <button class="button is-primary"
-                                                v-bind:disabled="pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef"
+                                                v-bind:disabled="!isInitializedRef || pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef"
                                                 @click="next($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-chevron-right"></i>
@@ -643,7 +642,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary"
                                         type="submit"
-                                        v-bind:disabled="user === null || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0) || isSavingRef || isDeletingRef"
+                                        v-bind:disabled="user === null || !isInitializedRef || Object.keys(editingItemRef.data).some(x => editingItemRef.data[x].length === 0) || isSavingRef || isDeletingRef"
                                         @click="saveItem($event)">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isSavingRef" key="saving">
@@ -660,7 +659,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <div class="panel-block" v-if="editingItemRef.delete">
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
-                                        type="submit" v-bind:disabled="user === null || isSavingRef || isDeletingRef"
+                                        type="submit" v-bind:disabled="user === null || !isInitializedRef || isSavingRef || isDeletingRef"
                                         @click="requestDelete($event)" ref="deleteButtonRef">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
