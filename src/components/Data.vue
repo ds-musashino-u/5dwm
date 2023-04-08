@@ -1509,7 +1509,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             }
 
                             >tr:hover {
-                                background-color: hsl(0, 0%, 93%);
+                                background-color: hsl(0, 0%, 93%, 0.75);
                                 transition: .5s;
                             }
 
