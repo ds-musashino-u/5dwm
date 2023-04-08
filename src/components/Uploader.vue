@@ -92,7 +92,7 @@ if (props.data !== null) {
     }
 }
 
-const emit = defineEmits(["close", "completed", "updated"]);
+const emit = defineEmits(["close", "updated"]);
 const resizeImage = async (dataURL, length) => {
     try {
         return await new Promise(async (resolve1, reject1) => {
@@ -655,7 +655,7 @@ const upload = async (event, completed) => {
                 completed();
             }
 
-            emit("completed", event, media);
+            emit("updated", event, media);
         } catch (error) {
             shake(event.currentTarget || event.target);
             console.error(error);
@@ -684,7 +684,7 @@ const deleteItem = async (event) => {
         if (media === null) {
             shake(deleteButtonRef.value);
         } else {
-            emit("completed", event, media);
+            emit("updated", event, media);
         }
     } catch (error) {
         shake(deleteButtonRef.value);
@@ -773,6 +773,8 @@ onActivated(() => {
     if (!isInitializedRef.value) {
         initialize();
     }
+
+    emit("updated");
 });
 onDeactivated(() => { });
 watch(mediaUrlRef, (currentValue, oldValue) => {
