@@ -204,7 +204,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     }
 
     label:hover {
-      background-color: hsl(0deg, 0%, 93%);
+      background-color: hsla(0, 0%, 93%, 0.75);
     }
 
     label>span {
