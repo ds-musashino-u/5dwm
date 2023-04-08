@@ -29,10 +29,12 @@ const isSavingRef = ref(false);
 const isDeletingRef = ref(false);
 const deleteButtonRef = ref(null);
 const deleteConfirmation = reactive({ visible: false, dismiss: false });
+let updatedTime = 0;
 const props = defineProps({
     auth0: Object,
     user: Object,
     text: String,
+    updated: Number,
     isAdmin: Boolean
 });
 const emit = defineEmits(["select", "completed", "updated"]);
@@ -325,15 +327,15 @@ onUnmounted(() => {
     isInitializedRef.value = false;
 });
 onActivated(() => {
-    if (!isInitializedRef.value) {
+    if (!isInitializedRef.value || props.updated > updatedTime) {
+        console.log(isInitializedRef.value);
         isInitializedRef.value = true;
+        updatedTime = props.updated;
 
         update();
     }
 });
-onDeactivated(() => {
-    isInitializedRef.value = false;
-});
+onDeactivated(() => {});
 watch(isEnabledRef, (newValue, oldValue) => {
     if (newValue !== oldValue && oldValue === false) {
 
