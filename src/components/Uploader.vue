@@ -915,6 +915,13 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </transition>
                             </template>
+                            <template v-else-if="props.data.type.startsWith('image')">
+                                <div class="image">
+                                    <picture class="image">
+                                        <img v-bind:src="props.data.url" v-bind:alt="props.data.id" />
+                                    </picture>
+                                </div>
+                            </template>
                             <transition name="fade" mode="out-in">
                                 <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
                                     <div class="field has-addons">
