@@ -176,7 +176,8 @@ const toFormattedData = (data) => {
             }
 
             formattedData.push({ id: id, value: value, date: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
-        } else {latitude
+        } else {
+            latitude
             return null;
         }
     }
@@ -868,6 +869,14 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             key="attaced">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-check"></i>
+                                            </span>
+                                        </div>
+                                    </transition>
+                                    <transition name="fade" mode="out-in">
+                                        <div class="level-item" v-show="mediaFileRef !== null && 'data' in mediaFileRef"
+                                            key="data">
+                                            <span class="icon is-primary">
+                                                <i class="fa-solid fa-table"></i>
                                             </span>
                                         </div>
                                     </transition>
