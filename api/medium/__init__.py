@@ -141,7 +141,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     }
 
-                    if media.type.startswith('csv'):
+                    if media.type.endswith('csv'):
                         media_file = session.query(MediaFile).filter(
                             MediaFile.media_id == id).one_or_none()
 
