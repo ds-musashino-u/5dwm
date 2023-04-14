@@ -560,7 +560,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <div class="level-right">
                                         <div class="level-item">
                                             <button class="button is-primary"
-                                                v-bind:disabled="!isInitializedRef || pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef"
+                                                v-bind:disabled="!isInitializedRef || totalCountRef === 0 || pageIndexRef + 1 === ~~Math.ceil(totalCountRef / pageLengthRef) || isFetchingRef || !isContinuousRef"
                                                 @click="next($event)">
                                                 <span class="icon is-small">
                                                     <i class="fa-solid fa-chevron-right"></i>
