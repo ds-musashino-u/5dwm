@@ -10,6 +10,7 @@ import { Location } from "../presenters/location.mjs";
 import { Media, insertMedium, updateMedium, deleteMedium } from "../presenters/media.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
+import { csv } from "csvtojson";
 import ListBox from "./ListBox.vue";
 
 const props = defineProps({
@@ -159,6 +160,9 @@ const resizeImage = async (dataURL, length) => {
 
     return null;
 };
+const isFormattedData = (data) => {
+    return true;
+};
 const close = (event) => {
     emit("close");
 };
@@ -181,7 +185,7 @@ const drop = async (event) => {
                     const reader = new FileReader();
 
                     reader.addEventListener("load", (e) => {
-                        resolve(e.target.result);
+                        resolve(reader.result);
                     });
                     reader.addEventListener("error", (e) => {
                         reject(reader.error);
@@ -193,6 +197,24 @@ const drop = async (event) => {
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
+                if (mediaFileRef.value.type === "text/csv") {
+                    const json = await new Promise(function (resolve, reject) {
+                        const reader = new FileReader();
+
+                        reader.addEventListener("load", async (e) => {
+                            resolve(await csv().fromString(reader.result));
+                        });
+                        reader.addEventListener("error", (e) => {
+                            reject(reader.error);
+                        });
+                        reader.readAsText(file);
+                    });
+
+                    if (isFormattedData(json)) {
+                        mediaFileRef.value["data"] = json;
+                    }
+                }
+
                 mediaPreviewRef.value = null;
             }
 
@@ -240,6 +262,24 @@ const browse = async (event) => {
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
+                if (mediaFileRef.value.type === "text/csv") {
+                    const json = await new Promise(function (resolve, reject) {
+                        const reader = new FileReader();
+
+                        reader.addEventListener("load", async (e) => {
+                            resolve(await csv().fromString(reader.result));
+                        });
+                        reader.addEventListener("error", (e) => {
+                            reject(reader.error);
+                        });
+                        reader.readAsText(file);
+                    });
+
+                    if (isFormattedData(json)) {
+                        mediaFileRef.value["data"] = json;
+                    }
+                }
+
                 mediaPreviewRef.value = null;
             }
 
