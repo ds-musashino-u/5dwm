@@ -68,7 +68,7 @@ const back = (event) => {
                   v-else></h3>
               </div>
             </div>
-            <div class="level-right" :class="{'is-invisible': !isCollapsable}">
+            <div class="level-right" :class="{ 'is-invisible': !isCollapsable }">
               <div class="level-item">
                 <button class="button toggle is-rounded" @click="collapse">
                   <span class="icon is-small" v-bind:class="{ collapsed: isCollapsed }">
@@ -168,10 +168,9 @@ const back = (event) => {
             </transition>
             <div class="level-right">
               <div class="level-item">
-                <button class="button is-primary" v-bind:disabled="
-                  pageIndex + 1 === ~~Math.ceil(count / pageLength) ||
-                  isFetching
-                " @click="next($event)">
+                <button class="button is-primary"
+                  v-bind:disabled="count === 0 || pageIndex + 1 === ~~Math.ceil(count / pageLength) || isFetching"
+                  @click="next($event)">
                   <transition name="fade" mode="out-in">
                     <span class="icon is-small" v-if="isForwardingRef && isFetching" key="fetching">
                       <i class="fas fa-spinner updating"></i>
