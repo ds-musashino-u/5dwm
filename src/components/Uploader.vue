@@ -175,7 +175,7 @@ const toFormattedData = (data) => {
                 return null;
             }
 
-            formattedData.push({ id: id, value: value, date: date, address: row[3], latitude: latitude, longitude: longitude });
+            formattedData.push({ id: id, value: value, date: new Date(row[2]), address: row[3], latitude: latitude, longitude: longitude });
         } else {latitude
             return null;
         }
