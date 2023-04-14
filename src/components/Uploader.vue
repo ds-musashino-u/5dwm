@@ -160,8 +160,28 @@ const resizeImage = async (dataURL, length) => {
 
     return null;
 };
-const isFormattedData = (data) => {
-    return true;
+const toFormattedData = (data) => {
+    const formattedData = [];
+
+    for (const row of data) {
+        if (row.length === 6) {
+            const id = parseInt(row[0]);
+            const value = parseFloat(row[1]);
+            const date = parseDate(row[2]);
+            const latitude = parseFloat(row[4]);
+            const longitude = parseFloat(row[5]);
+
+            if (id === NaN || value === NaN || date === NaN || latitude === NaN || longitude === NaN) {
+                return null;
+            }
+
+            formattedData.push({ id: id, value: value, date: date, address: row[3], latitude: latitude, longitude: longitude });
+        } else {latitude
+            return null;
+        }
+    }
+
+    return formattedData;
 };
 const close = (event) => {
     emit("close");
@@ -198,7 +218,7 @@ const drop = async (event) => {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const json = await new Promise(function (resolve, reject) {
+                    const data = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -208,10 +228,10 @@ const drop = async (event) => {
                             reject(reader.error);
                         });
                         reader.readAsText(file);
-                    });
+                    }));
 
-                    if (isFormattedData(json)) {
-                        mediaFileRef.value["data"] = json;
+                    if (data !== null) {
+                        mediaFileRef.value["data"] = data;
                     }
                 }
 
@@ -263,7 +283,7 @@ const browse = async (event) => {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const json = await new Promise(function (resolve, reject) {
+                    const data = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -273,10 +293,10 @@ const browse = async (event) => {
                             reject(reader.error);
                         });
                         reader.readAsText(file);
-                    });
+                    }));
 
-                    if (isFormattedData(json)) {
-                        mediaFileRef.value["data"] = json;
+                    if (data !== null) {
+                        mediaFileRef.value["data"] = data;
                     }
                 }
 
