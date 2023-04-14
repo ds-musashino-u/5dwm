@@ -167,14 +167,15 @@ const toFormattedData = (data) => {
         if (row.length === 6) {
             const id = parseInt(row[0]);
             const value = parseFloat(row[1]);
+            const date = Date.parse(row[2]);
             const latitude = parseFloat(row[4]);
             const longitude = parseFloat(row[5]);
 
-            if (id === NaN || value === NaN || parseDate(row[2]) === NaN || latitude === NaN || longitude === NaN) {
+            if (id === NaN || value === NaN || date === NaN || latitude === NaN || longitude === NaN) {
                 return null;
             }
 
-            formattedData.push({ id: id, value: value, date: new Date(row[2]), address: row[3], latitude: latitude, longitude: longitude });
+            formattedData.push({ id: id, value: value, date: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
         } else {latitude
             return null;
         }
