@@ -289,6 +289,8 @@ const format = (obj) => {
         return obj.join(", ");
     } else if (typeof (obj) === "object" && "toLocaleString" in obj) {
         return obj.toLocaleString();
+    } else if (typeof (obj) === "number") {
+        return String(obj);
     }
 
     return obj;
@@ -335,7 +337,7 @@ onActivated(() => {
         update();
     }
 });
-onDeactivated(() => {});
+onDeactivated(() => { });
 watch(isEnabledRef, (newValue, oldValue) => {
     if (newValue !== oldValue && oldValue === false) {
 
@@ -660,7 +662,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                             <div class="panel-block" v-if="editingItemRef.delete">
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
-                                        type="submit" v-bind:disabled="user === null || !isInitializedRef || isSavingRef || isDeletingRef"
+                                        type="submit"
+                                        v-bind:disabled="user === null || !isInitializedRef || isSavingRef || isDeletingRef"
                                         @click="requestDelete($event)">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
