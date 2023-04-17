@@ -11,8 +11,9 @@ import Uploader from "./Uploader.vue";
 const isInitializedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
-const dataRef = ref(null);
+const dataPanelRef = ref(null);
 const overlayRef = ref(null);
+const editPanelRef = ref(null);
 const queryRef = ref("");
 const pageIndexRef = ref(0);
 const pageLengthRef = ref(50);
@@ -141,7 +142,7 @@ const update = async (event, reset = false) => {
                 lastUpdatedRef.value = timestamp;
             }
         } catch (error) {
-            shake(dataRef.value);
+            shake(dataPanelRef.value);
             console.error(error);
         }
     } else if (dataSource === "Categories" && categoriesItemsRef.value.length <= pageIndexRef.value * pageLengthRef.value) {
@@ -168,7 +169,7 @@ const update = async (event, reset = false) => {
                 }
             }
         } catch (error) {
-            shake(dataRef.value);
+            shake(dataPanelRef.value);
             console.error(error);
         }
     }
@@ -205,7 +206,7 @@ const saveItem = async (event) => {
             const category = await insertCategory(await getAccessToken(props.auth0), editingItemRef.value.data.name);
 
             if (category === null) {
-                shake(event.currentTarget || event.target);
+                shake(editPanelRef.value);
             } else {
                 for (let i = 0; i < dataItemsRef.value.length; i++) {
                     dataItemsRef.value[i].checked = false;
@@ -215,7 +216,7 @@ const saveItem = async (event) => {
                 update();
             }
         } catch (error) {
-            shake(event.currentTarget || event.target);
+            shake(editPanelRef.value);
             console.error(error);
         }
     } else if (editingItemRef.value.update) {
@@ -223,7 +224,7 @@ const saveItem = async (event) => {
             const category = await updateCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id, editingItemRef.value.data.name);
 
             if (category === null) {
-                shake(event.currentTarget || event.target);
+                shake(editPanelRef.value);
             } else {
                 for (let i = 0; i < dataItemsRef.value.length; i++) {
                     dataItemsRef.value[i].checked = false;
@@ -233,7 +234,7 @@ const saveItem = async (event) => {
                 update();
             }
         } catch (error) {
-            shake(event.currentTarget || event.target);
+            shake(editPanelRef.value);
             console.error(error);
         }
     }
@@ -249,7 +250,7 @@ const deleteItem = async (event) => {
 
     try {
         if (await deleteCategory(await getAccessToken(props.auth0), editingItemRef.value.data.id) === null) {
-            shake(deleteButtonRef.value);
+            shake(editPanelRef.value);
         } else {
             for (let i = 0; i < dataItemsRef.value.length; i++) {
                 dataItemsRef.value[i].checked = false;
@@ -259,7 +260,7 @@ const deleteItem = async (event) => {
             update();
         }
     } catch (error) {
-        shake(deleteButtonRef.value);
+        shake(editPanelRef.value);
         console.error(error);
     }
 
@@ -429,7 +430,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         </div>
         <div id="media">
             <div class="wrap">
-                <div class="block" ref="dataRef">
+                <div class="block" ref="dataPanelRef">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -579,7 +580,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             <div id="overlay" v-if="editingItemRef !== null" :key="editingItemRef">
                 <div class="flyout-left" v-if="editingItemRef.source === 'Categories'">
                     <div class="wrap" ref="overlayRef">
-                        <div class="block">
+                        <div class="block" ref="editPanelRef">
                             <nav class="panel">
                                 <div class="panel-block">
                                     <nav class="level is-mobile">
@@ -660,7 +661,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <div class="control">
                                     <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger"
                                         type="submit" v-bind:disabled="user === null || !isInitializedRef || isSavingRef || isDeletingRef"
-                                        @click="requestDelete($event)" ref="deleteButtonRef">
+                                        @click="requestDelete($event)">
                                         <transition name="fade" mode="out-in">
                                             <span class="icon" v-if="isDeletingRef" key="deleting">
                                                 <i class="fas fa-spinner updating"></i>
