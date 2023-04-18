@@ -273,7 +273,7 @@ const close = () => {
 
     editingItemRef.value = null;
 };
-const complete = () => {
+const updated = () => {
     for (let i = 0; i < dataItemsRef.value.length; i++) {
         dataItemsRef.value[i].checked = false;
     }
@@ -682,7 +682,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 </div>
                 <Uploader v-else-if="editingItemRef.source === 'Media'" :auth0="props.auth0" :user="props.user"
                     :is-closable="true" :is-deletable="true" :data="editingItemRef.data" @close="close"
-                    @completed="complete" />
+                    @updated="updated" />
                 <div class="modal" :class="{ 'is-active': deleteConfirmation.visible }">
                     <transition name="fade" mode="out-in">
                         <div class="modal-background" v-if="deleteConfirmation.visible && !deleteConfirmation.dismiss"
