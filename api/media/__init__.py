@@ -7,7 +7,7 @@ from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media
+from shared.models import Media, MediaFile, MediaData
 
 import azure.functions as func
 
@@ -124,8 +124,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 session.add(media)
                 session.commit()
-
-                return func.HttpResponse(json.dumps({
+                item = {
                     'id': media.id,
                     'url': media.url,
                     'type': media.type,
@@ -135,7 +134,44 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=201, mimetype='application/json', charset='utf-8')
+                }
+
+                if media.type.endswith('csv') and 'data' in data:
+                    media_file = MediaFile()
+
+                    if 'filename' in data:
+                        media_file.filename = data['filename']
+
+                    media_file.categories = categories
+                    media_file.description = description
+                    media_file.username = username
+                    media_file.created_at = created_at
+                    media_file.updated_at = created_at
+                    media_file.media_id = media.id
+                    
+                    session.add(media_file)
+                    session.commit()
+                    item['data'] = []
+
+                    for data_item in data['data']:
+                        media_data = MediaData()
+                        media_data.file_id = media_file.id
+                        media_data.value = data_item['value']
+                        media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                        media_data.address = data_item['address'] if 'address' in data_item else ''
+                        media_data.longitude = data_item['location']['coordinates'][0]
+                        media_data.latitude = data_item['location']['coordinates'][1]
+                        session.add(media_file)
+                        session.commit()
+                        item['data'] = {
+                            'id': media_data.id,
+                            'value': media_data.value,
+                            'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                            'address': media_data.address,
+                            'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                        }
+
+                return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
 
             except Exception as e:
                 session.rollback()

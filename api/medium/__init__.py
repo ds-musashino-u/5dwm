@@ -31,11 +31,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = session.query(Media).filter(Media.id == id).one()
-
                 session.delete(media)
-                session.commit()
-
-                return func.HttpResponse(json.dumps({
+                item = {
                     'id': media.id,
                     'url': media.url,
                     'type': media.type,
@@ -45,7 +42,33 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }), status_code=200, mimetype='application/json', charset='utf-8')
+                }
+
+                if media.type.endswith('csv'):
+                    media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
+
+                    if media_file is not None:
+                        limit = 100
+                        session.delete(media_file)
+                        query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
+                        total_count = query.count()
+                        data = []
+
+                        for i in range(math.ceil(total_count / limit)):
+                            for media_data in query.offset(i * limit).all():
+                                session.delete(media_data)
+                                data.append({
+                                    'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                    'address': media_data.address,
+                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                    'value': media_data.value
+                                })
+
+                        item['data'] = data
+
+                session.commit()
+
+                return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
             except Exception as e:
                 session.rollback()
@@ -97,10 +120,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if created_at is not None:
                         media.created_at = datetime.fromisoformat(
                             created_at.replace('Z', '+00:00'))
-
+                    
                     session.commit()
-
-                    return func.HttpResponse(json.dumps({
+                    item = {
                         'id': media.id,
                         'url': media.url,
                         'type': media.type,
@@ -110,7 +132,55 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'username': media.username,
                         'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
                         'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    }), status_code=200, mimetype='application/json', charset='utf-8')
+                    }
+
+                    if media.type.endswith('csv') and 'data' in data:
+                        media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
+
+                        if media_file is not None:
+                            updated_at = data.get('updated_at')
+
+                            if 'filename' in data:
+                                media_file.filename = data['filename']
+
+                            media_file.categories = categories
+                            media_file.description = description
+                            media_file.username = media.username
+
+                            if updated_at is not None:
+                                media_file.updated_at = updated_at
+                            
+                            session.commit()
+
+                            limit = 100
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
+                            total_count = query.count()
+                            
+                            for i in range(math.ceil(total_count / limit)):
+                                for media_data in query.offset(i * limit).all():
+                                    session.delete(media_data)
+
+                            item['data'] = []
+
+                            for data_item in data['data']:
+                                media_data = MediaData()
+                                media_data.file_id = media_file.id
+                                media_data.value = data_item['value']
+                                media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                                media_data.address = data_item['address'] if 'address' in data_item else ''
+                                media_data.longitude = data_item['location']['coordinates'][0]
+                                media_data.latitude = data_item['location']['coordinates'][1]
+                                session.add(media_file)
+                                session.commit()
+                                item['data'] = {
+                                    'id': media_data.id,
+                                    'value': media_data.value,
+                                    'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                    'address': media_data.address,
+                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                }
+
+                    return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
                 except Exception as e:
                     session.rollback()
@@ -152,9 +222,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             data = []
 
                             for i in range(math.ceil(total_count / limit)):
-                                q = query.offset(i * limit)
-                            
-                                for media_data in q.all():
+                                for media_data in query.offset(i * limit).all():
                                     data.append({
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
