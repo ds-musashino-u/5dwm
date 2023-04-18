@@ -22,7 +22,7 @@ export default {
   data() {
     return {
       isRevealed: false,
-      updated: 0,
+      updatedTime: 0,
       contentIndex: 0,
       contents: [
         {
@@ -52,7 +52,7 @@ export default {
       this.isRevealed = false;
     },
     updated() {
-      this.updated = Math.floor(new Date() / 1000);
+      this.updatedTime = Math.floor(new Date() / 1000);
     }
   },
   setup(props) {
@@ -245,7 +245,7 @@ export default {
       <transition name="fade">
         <keep-alive>
           <component :is="contents[contentIndex].component"
-            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updated: updated, isAdmin: isAdmin }" v-on="{ updated: updated }"
+            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updatedTime: updatedTime, isAdmin: isAdmin }" v-on="{ updated: updated }"
             :key="contents[contentIndex].name"></component>
         </keep-alive>
       </transition>

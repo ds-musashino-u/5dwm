@@ -35,7 +35,7 @@ const props = defineProps({
     auth0: Object,
     user: Object,
     text: String,
-    updated: Number,
+    updatedTime: Number,
     isAdmin: Boolean
 });
 const emit = defineEmits(["select", "completed", "updated"]);
@@ -330,9 +330,9 @@ onUnmounted(() => {
     isInitializedRef.value = false;
 });
 onActivated(() => {
-    if (!isInitializedRef.value || props.updated > updatedTime) {
+    if (!isInitializedRef.value || props.updatedTime > updatedTime) {
         isInitializedRef.value = true;
-        updatedTime = props.updated;
+        updatedTime = props.updatedTime;
 
         update();
     }

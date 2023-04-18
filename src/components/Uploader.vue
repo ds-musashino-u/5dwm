@@ -744,7 +744,7 @@ const deleteItem = async (event) => {
         if (media === null) {
             shake(deleteButtonRef.value);
         } else {
-            emit("updated", event, media);
+            emit("updated", event, null);
         }
     } catch (error) {
         shake(deleteButtonRef.value);
@@ -833,8 +833,6 @@ onActivated(() => {
     if (!isInitializedRef.value) {
         initialize();
     }
-
-    emit("updated");
 });
 onDeactivated(() => { });
 watch(mediaUrlRef, (currentValue, oldValue) => {
