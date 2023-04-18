@@ -177,7 +177,6 @@ const toFormattedData = (data) => {
 
             formattedData.push({ id: id, value: value, date: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
         } else {
-            latitude
             return null;
         }
     }
@@ -223,7 +222,7 @@ const drop = async (event) => {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
-                            resolve(await csv().fromString(reader.result));
+                            resolve(await csv({ output: "csv", noheader: true }).fromString(reader.result));
                         });
                         reader.addEventListener("error", (e) => {
                             reject(reader.error);
@@ -288,7 +287,7 @@ const browse = async (event) => {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
-                            resolve(await csv().fromString(reader.result));
+                            resolve(await csv({ output: "csv", noheader: true }).fromString(reader.result));
                         });
                         reader.addEventListener("error", (e) => {
                             reject(reader.error);
@@ -924,7 +923,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                             </div>
                                                             <div class="level-item">
                                                                 <span
-                                                                    class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Browse
+                                                                    class="is-size-7 is-uppercase has-text-weight-bold has-text-centered has-text-grey">Browse
                                                                     or Drag & Drop</span>
                                                             </div>
                                                         </div>
@@ -964,7 +963,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                     </div>
                                                                     <div class="level-item">
                                                                         <span
-                                                                            class="is-size-7 has-text-weight-bold has-text-grey">{{
+                                                                            class="is-size-7 has-text-weight-bold has-text-centered has-text-grey">{{
                                                                                 mediaFileRef.filename
                                                                             }}</span>
                                                                     </div>
