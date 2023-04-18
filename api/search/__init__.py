@@ -216,9 +216,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             data = []
 
                             for i in range(math.ceil(total_count / limit)):
-                                q = query.offset(i * limit)
-
-                                for media_data in q.all():
+                                for media_data in query.offset(i * limit).all():
                                     data.append({
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
