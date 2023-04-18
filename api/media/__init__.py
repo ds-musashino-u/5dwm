@@ -139,9 +139,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if media.type.endswith('csv') and 'data' in data:
                     media_file = MediaFile()
 
-                    if 'filename' in data:
-                        media_file.filename = data['filename']
-
+                    media_file.filename = media.url
                     media_file.categories = categories
                     media_file.description = description
                     media_file.username = username
