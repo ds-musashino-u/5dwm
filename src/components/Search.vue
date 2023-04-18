@@ -1018,7 +1018,7 @@ const previousResults = (index) => {
                             <div class="level-item">
                               <span class="
                                                 is-size-7 is-uppercase
-                                                has-text-weight-bold has-text-grey
+                                                has-text-weight-bold has-text-centered has-text-grey
                                               ">Browse or Drag & Drop</span>
                             </div>
                           </div>
