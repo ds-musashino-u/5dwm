@@ -2,7 +2,7 @@ import math
 import json
 import logging
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -147,7 +147,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             media_file.description = description
                             media_file.username = media.username
 
-                            if updated_at is not None:
+                            if updated_at is None:
+                                media_file.updated_at = datetime.now(timezone.utc)
+                            else:
                                 media_file.updated_at = updated_at
                             
                             session.commit()
