@@ -39,6 +39,7 @@ const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaPreviewRef = ref(null);
 const mediaUrlRef = ref("");
+const mediaDataRef = ref(null);
 const descriptionRef = ref("");
 const latitudeRef = ref("");
 const longitudeRef = ref("");
@@ -81,6 +82,10 @@ if (props.data !== null) {
     longitudeRef.value = String(props.data.location.longitude);
     latitudeRef.value = String(props.data.location.latitude);
     typeRef.value = props.data.type;
+
+    if ("data" in props.data) {
+        mediaDataRef.value = props.data.data;
+    }
 
     if (props.data.categories !== null) {
         for (const category of props.data.categories) {
@@ -213,6 +218,7 @@ const drop = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+            mediaDataRef.value = null;
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
@@ -231,7 +237,7 @@ const drop = async (event) => {
                     }));
 
                     if (data !== null) {
-                        mediaFileRef.value["data"] = data;
+                        mediaDataRef.value = data;
                     }
                 }
 
@@ -278,6 +284,7 @@ const browse = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+            mediaDataRef.value = null;
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
@@ -296,7 +303,7 @@ const browse = async (event) => {
                     }));
 
                     if (data !== null) {
-                        mediaFileRef.value["data"] = data;
+                        mediaDataRef.value = data;
                     }
                 }
 
@@ -324,6 +331,7 @@ const browse = async (event) => {
 };
 const resetMedia = (event) => {
     mediaFileRef.value = null;
+    mediaDataRef.value = null;
     mediaPreviewRef.value = null;
 
     for (const item of typesItemsRef.value) {
@@ -838,6 +846,7 @@ onDeactivated(() => { });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
         mediaFileRef.value = null;
+        mediaDataRef.value = null;
     }
 });
 </script>
@@ -870,7 +879,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </div>
                                     </transition>
                                     <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaFileRef !== null && 'data' in mediaFileRef"
+                                        <div class="level-item" v-show="mediaDataRef !== null"
                                             key="data">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-table"></i>
