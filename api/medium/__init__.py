@@ -165,7 +165,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                             for data_item in data['data']:
                                 media_data = MediaData()
-                                media_data.id = data_item['id']
+                                media_data.id = int(data_item['id'])
                                 media_data.file_id = media_file.id
                                 media_data.value = data_item['value']
                                 media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
