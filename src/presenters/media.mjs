@@ -167,8 +167,6 @@ export async function insertMedium(token, url, type, categories, description, us
         }
     }
 
-    console.log(content);
-
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
         mode: "cors",
         method: "POST",
@@ -185,8 +183,6 @@ export async function insertMedium(token, url, type, categories, description, us
         if (item === null) {
             return null;
         }
-
-        console.log(item);
 
         return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null);
     } else {
