@@ -153,6 +153,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     for data_item in data['data']:
                         media_data = MediaData()
+                        media_data.id = data_item['id']
                         media_data.file_id = media_file.id
                         media_data.value = data_item['value']
                         media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
@@ -161,13 +162,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_data.latitude = data_item['location']['coordinates'][1]
                         session.add(media_file)
                         session.commit()
-                        item['data'] = {
+                        item['data'].append({
                             'id': media_data.id,
                             'value': media_data.value,
                             'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                             'address': media_data.address,
                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
-                        }
+                        })
 
                 return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
 
