@@ -180,7 +180,7 @@ const toFormattedData = (data) => {
                 return null;
             }
 
-            formattedData.push({ id: id, value: value, date: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
+            formattedData.push({ id: id, value: value, time: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
         } else {
             return null;
         }
@@ -683,7 +683,11 @@ const upload = async (event, completed) => {
             const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.dataURL);
 
             url = result.url;
-            thumbnailUrl = result.thumbnail.url;
+
+            if ("thumbnail" in result) {
+                thumbnailUrl = result.thumbnail.url;
+            }
+
             progressRef.value = 1;
         } catch (error) {
             console.error(error);
@@ -713,10 +717,10 @@ const upload = async (event, completed) => {
     } else {
         try {
             if (mediaIDRef.value === null) {
-                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate)
+                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate, mediaDataRef.value === null ? null : mediaDataRef.value)
                 media.previewImageUrl = thumbnailUrl;
             } else {
-                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location)
+                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, null, mediaDataRef.value === null ? null : mediaDataRef.value)
             }
 
             if (completed !== null) {
