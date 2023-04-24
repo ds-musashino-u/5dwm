@@ -215,7 +215,7 @@ export async function insertMedium(token, url, type, categories, description, us
         if ("data" in item) {
             mediaData = [];
 
-            for (const record of data) {
+            for (const record of item.data) {
                 mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
             }
         }
@@ -303,7 +303,7 @@ export async function updateMedium(token, id, url, type, categories, description
         if ("data" in item) {
             mediaData = [];
 
-            for (const record of data) {
+            for (const record of item.data) {
                 mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
             }
         }
@@ -343,7 +343,7 @@ export async function deleteMedium(token, id) {
         if ("data" in item) {
             mediaData = [];
 
-            for (const record of data) {
+            for (const record of item.data) {
                 mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
             }
         }
