@@ -189,7 +189,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_data.longitude = data_item['location']['coordinates'][0]
                         media_data.latitude = data_item['location']['coordinates'][1]
                         session.add(media_data)
-                        session.commit()
                         item['data'].append({
                             'id': media_data.id,
                             'value': media_data.value,
@@ -197,6 +196,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'address': media_data.address,
                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                         })
+
+                    session.commit()
 
                 return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
 
