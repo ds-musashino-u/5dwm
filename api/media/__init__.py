@@ -62,8 +62,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
-                query.filter(Media.created_at >= datetime(
-                    MINYEAR, 1, 1, 0, 0, 0, 0))
+                query = query.filter(Media.created_at >=
+                                     datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
 
                 if limit is not None:
                     query = query.limit(limit)
