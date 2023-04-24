@@ -213,18 +213,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             query = session.query(MediaData).filter(
                                 MediaData.file_id == media_file.id).limit(limit)
                             total_count = query.count()
-                            data = []
+                            medium['data'] = []
 
                             for i in range(math.ceil(total_count / limit)):
                                 for media_data in query.offset(i * limit).all():
-                                    data.append({
+                                    medium['data'].append({
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
                                         'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                         'value': media_data.value
                                     })
-
-                            medium['data'] = data
 
                     media.append(medium)
 

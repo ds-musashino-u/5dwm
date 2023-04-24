@@ -1,4 +1,4 @@
-import imp
+import math
 import json
 import logging
 import os
@@ -69,7 +69,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.offset(offset)
 
                 for item in query.all():
-                    media.append({
+                    medium = {
                         'id': item.id,
                         'url': item.url,
                         'type': item.type,
@@ -79,7 +79,29 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]},
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    })
+                    }
+
+                    if item.type.endswith('csv'):
+                        media_file = session.query(MediaFile).filter(
+                            MediaFile.media_id == item.id).one_or_none()
+
+                        if media_file is not None:
+                            limit = 100
+                            query = session.query(MediaData).filter(
+                                MediaData.file_id == media_file.id).limit(limit)
+                            total_count = query.count()
+                            medium['data'] = []
+
+                            for i in range(math.ceil(total_count / limit)):
+                                for media_data in query.offset(i * limit).all():
+                                    medium['data'].append({
+                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                        'address': media_data.address,
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                        'value': media_data.value
+                                    })
+
+                    media.append(medium)
 
                 return func.HttpResponse(json.dumps(media), status_code=200, mimetype='application/json', charset='utf-8')
 
@@ -161,7 +183,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_data.longitude = data_item['location']['coordinates'][0]
                         media_data.latitude = data_item['location']['coordinates'][1]
                         session.add(media_file)
-                        session.commit()
                         item['data'].append({
                             'id': media_data.id,
                             'value': media_data.value,
@@ -169,6 +190,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'address': media_data.address,
                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                         })
+                    
+                    session.commit()
 
                 return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
 

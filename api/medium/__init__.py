@@ -172,7 +172,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 media_data.longitude = data_item['location']['coordinates'][0]
                                 media_data.latitude = data_item['location']['coordinates'][1]
                                 session.add(media_file)
-                                session.commit()
                                 item['data'].append({
                                     'id': media_data.id,
                                     'value': media_data.value,
@@ -180,6 +179,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     'address': media_data.address,
                                     'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                 })
+
+                            session.commit()
 
                     return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
@@ -220,18 +221,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             limit = 100
                             query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
                             total_count = query.count()
-                            data = []
+                            item['data'] = []
 
                             for i in range(math.ceil(total_count / limit)):
                                 for media_data in query.offset(i * limit).all():
-                                    data.append({
+                                    item['data'].append({
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
                                         'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                         'value': media_data.value
                                     })
-
-                            item['data'] = data
 
                 return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
