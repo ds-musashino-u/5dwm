@@ -2,7 +2,7 @@ import math
 import json
 import logging
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, MINYEAR
 from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
@@ -61,6 +61,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
+
+                query.filter(Media.created_at >= datetime(
+                    MINYEAR, 1, 1, 0, 0, 0, 0))
 
                 if limit is not None:
                     query = query.limit(limit)
@@ -124,11 +127,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             username = data['username']
             longitude = data['location']['coordinates'][0]
             latitude = data['location']['coordinates'][1]
-            created_at = datetime.fromisoformat(data['created_at'].replace('Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
+            created_at = datetime.fromisoformat(data['created_at'].replace(
+                'Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
 
             if type(url) is not str or type(mime_type) is not str or type(categories) is not list or type(address) is not str or type(description) is not str or type(username) is not str or data['location']['type'] != 'Point':
                 return func.HttpResponse(status_code=400, mimetype='', charset='')
-            
+
             Session = sessionmaker(bind=engine)
             session = Session()
 
@@ -168,7 +172,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     media_file.created_at = created_at
                     media_file.updated_at = created_at
                     media_file.media_id = media.id
-                    
+
                     session.add(media_file)
                     session.commit()
                     item['data'] = []
@@ -178,7 +182,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_data.id = data_item['id']
                         media_data.file_id = media_file.id
                         media_data.value = data_item['value']
-                        media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                        media_data.time = datetime.fromisoformat(
+                            data_item['time'].replace('Z', '+00:00'))
                         media_data.address = data_item['address'] if 'address' in data_item else ''
                         media_data.longitude = data_item['location']['coordinates'][0]
                         media_data.latitude = data_item['location']['coordinates'][1]
@@ -190,7 +195,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'address': media_data.address,
                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                         })
-                    
+
                     session.commit()
 
                 return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
