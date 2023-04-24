@@ -59,10 +59,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 session.delete(media_data)
                                 data.append({
                                     'id': media_data.id,
+                                    'value': media_data.value,
                                     'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                     'address': media_data.address,
-                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
-                                    'value': media_data.value
+                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                 })
 
                         item['data'] = data
@@ -178,7 +178,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     'value': media_data.value,
                                     'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                     'address': media_data.address,
-                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                    'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                 })
 
                             session.commit()
@@ -228,10 +228,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 for media_data in query.offset(i * limit).all():
                                     item['data'].append({
                                         'id': media_data.id,
+                                        'value': media_data.value,
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
-                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
-                                        'value': media_data.value
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                     })
 
                 return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
