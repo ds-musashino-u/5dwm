@@ -14,9 +14,10 @@ export class Media {
      * @param {!string} username - User name
      * @param {?Location} location - Location
      * @param {!string} createdAt - Updated date time (ISO 8601)
+     * @param {?object} data - Data
      * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(id, url, type, categories, description, username, location, createdAt, previewImageUrl = null) {
+    constructor(id, url, type, categories, description, username, location, createdAt, data = null, previewImageUrl = null) {
         this.id = id;
         this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
@@ -25,7 +26,12 @@ export class Media {
         this.username = username;
         this.location = location;
         this.createdAt = new Date(createdAt);
+        this.data = data;
         this.previewImageUrl = previewImageUrl;
+    }
+
+    get hasData() {
+        return this.data !== null;
     }
 
     get hasPreviewImageUrl() {
@@ -75,7 +81,7 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
 
         for (const item of await response.json()) {
             if (item.location.type === "Point") {
-                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at));
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null));
             }
         }
 
@@ -107,7 +113,7 @@ export async function getMedium(id) {
             return null;
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null);
     } else {
         throw new Error(response.statusText);
     }
@@ -124,10 +130,11 @@ export async function getMedium(id) {
  * @param {!string} username - User name
  * @param {!Location} location - Location
  * @param {?Date} createdAt - Created date time
+ * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function insertMedium(token, url, type, categories, description, username, location, createdAt=null) {
-    const data = {
+export async function insertMedium(token, url, type, categories, description, username, location, createdAt = null, data = null) {
+    const content = {
         url: url,
         type: type,
         categories: categories,
@@ -140,12 +147,27 @@ export async function insertMedium(token, url, type, categories, description, us
     };
 
     if (location.hasAddress) {
-        data["address"] = location.address;
+        content["address"] = location.address;
     }
 
     if (createdAt !== null) {
-        data["created_at"] = createdAt.toISOString()
+        content["created_at"] = createdAt.toISOString();
     }
+
+    if (data !== null && Array.isArray(data)) {
+        content["data"] = [];
+
+        for (const record of data) {
+            content["data"].push({
+                id: record.id, value: record.value, time: record.time.toISOString(), location: {
+                    type: "Point",
+                    coordinates: [record.longitude, record.latitude]
+                }, address: record.address
+            });
+        }
+    }
+
+    console.log(content);
 
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
         mode: "cors",
@@ -154,7 +176,7 @@ export async function insertMedium(token, url, type, categories, description, us
             "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(content)
     });
 
     if (response.ok) {
@@ -164,7 +186,9 @@ export async function insertMedium(token, url, type, categories, description, us
             return null;
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
+        console.log(item);
+
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null);
     } else {
         throw new Error(response.statusText);
     }
@@ -182,10 +206,11 @@ export async function insertMedium(token, url, type, categories, description, us
  * @param {!string} username - User name
  * @param {!Location} location - Location
  * @param {?Date} createdAt - Created date time
+ * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt=null) {
-    const data = {
+export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt = null, data = null) {
+    const content = {
         url: url,
         type: type,
         categories: categories,
@@ -198,11 +223,24 @@ export async function updateMedium(token, id, url, type, categories, description
     };
 
     if (location.hasAddress) {
-        data["address"] = location.address;
+        content["address"] = location.address;
     }
 
     if (createdAt !== null) {
-        data["created_at"] = createdAt.toISOString()
+        content["created_at"] = createdAt.toISOString();
+    }
+
+    if (data !== null && Array.isArray()) {
+        content["data"] = [];
+
+        for (const record of data) {
+            content["data"].push({
+                id: record.id, value: record.value, time: record.time.toISOString(), location: {
+                    type: "Point",
+                    coordinates: [record.longitude, record.latitude]
+                }, address: record.address
+            });
+        }
     }
 
     const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
@@ -212,7 +250,7 @@ export async function updateMedium(token, id, url, type, categories, description
             "X-Authorization": `Bearer ${token}`,
             "Content-Type": "application/json",
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(content)
     });
 
     if (response.ok) {
@@ -222,7 +260,7 @@ export async function updateMedium(token, id, url, type, categories, description
             return null;
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null);
     } else {
         throw new Error(response.statusText);
     }
@@ -252,7 +290,7 @@ export async function deleteMedium(token, id) {
             return null;
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null);
     } else {
         throw new Error(response.statusText);
     }
