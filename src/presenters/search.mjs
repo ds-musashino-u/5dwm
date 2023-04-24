@@ -80,6 +80,8 @@ export async function search(token, keywords, categories, types, usernames, imag
         const json = await response.json();
 
         for (const item of json.items) {
+            let mediaData = null;
+
             if (!/^https?:\/\//.test(item.url)) {
                 if (item.type.startsWith("kml") || item.type.startsWith("kmz")) {
                     item.url = `https://www.5dwm.mydns.jp/5dtest/upload/kmlkmz/${item.url}`;
@@ -88,10 +90,18 @@ export async function search(token, keywords, categories, types, usernames, imag
                 }
             }
 
+            if ("data" in item) {
+                mediaData = [];
+
+                for (const record of data) {
+                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                }
+            }
+
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData)));
             } else {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, "data" in item ? item.data : null)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaData)));
             }
         }
 
