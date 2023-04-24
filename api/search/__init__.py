@@ -218,6 +218,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             for i in range(math.ceil(total_count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     medium['data'].append({
+                                        'id': media_data.id,
                                         'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                         'address': media_data.address,
                                         'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
