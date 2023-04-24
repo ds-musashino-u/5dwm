@@ -89,9 +89,9 @@ export async function search(token, keywords, categories, types, usernames, imag
             }
 
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, "data" in item ? item.data : null)));
             } else {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, "data" in item ? item.data : null)));
             }
         }
 
