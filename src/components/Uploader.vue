@@ -84,7 +84,11 @@ if (props.data !== null) {
     typeRef.value = props.data.type;
 
     if ("data" in props.data) {
-        mediaDataRef.value = props.data.data;
+        mediaDataRef.value = [];
+
+        for (const mediaDataItem of props.data.data) {
+            mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+        }
     }
 
     if (props.data.categories !== null) {
@@ -180,7 +184,7 @@ const toFormattedData = (data) => {
                 return null;
             }
 
-            formattedData.push({ id: id, value: value, time: new Date(date), address: row[3], latitude: latitude, longitude: longitude });
+            formattedData.push({ id: id, value: value, time: new Date(date), location: new Location(longitude, latitude, row[3]) });
         } else {
             return null;
         }
@@ -891,8 +895,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                         </div>
                                     </transition>
                                     <transition name="fade" mode="out-in">
-                                        <div class="level-item" v-show="mediaDataRef !== null"
-                                            key="data">
+                                        <div class="level-item" v-show="mediaDataRef !== null" key="data">
                                             <span class="icon is-primary">
                                                 <i class="fa-solid fa-table"></i>
                                             </span>
@@ -1320,7 +1323,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </button>
                             </div>
                             <div class="control">
-                                <button class="button" @click="deleteConfirmation.dismiss = true;">
+                                <button class="button" @click=" deleteConfirmation.dismiss = true; ">
                                     <span class="icon">
                                         <i class="fa-solid fa-xmark"></i>
                                     </span>
@@ -1333,8 +1336,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             </div>
         </div>
         <transition name="fade">
-            <div class="progress" v-if="progressRef > 0" v-cloak>
-                <div class="bar animating" v-bind:style="{ width: String(Math.floor(100.0 * progressRef)) + '%' }">
+            <div class="progress" v-if=" progressRef > 0 " v-cloak>
+                <div class="bar animating" v-bind:style=" { width: String(Math.floor(100.0 * progressRef)) + '%' } ">
                 </div>
             </div>
         </transition>
