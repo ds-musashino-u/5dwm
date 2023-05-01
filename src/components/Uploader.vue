@@ -20,7 +20,7 @@ const props = defineProps({
     isAdmin: Boolean,
     isClosable: { type: Boolean, required: false, default: false },
     isDeletable: { type: Boolean, required: false, default: false },
-    data: { type: Object, required: false, default: null },
+    media: { type: Object, required: false, default: null },
 });
 const mapRef = ref(null);
 let map = null;
@@ -68,37 +68,37 @@ const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
 const progressRef = ref(0);
 
-if (props.data !== null) {
-    mediaIDRef.value = props.data.id;
-    mediaUrlRef.value = props.data.url;
-    descriptionRef.value = props.data.description;
-    timeRef.value = props.data.createdAt;
+if (props.media !== null) {
+    mediaIDRef.value = props.media.id;
+    mediaUrlRef.value = props.media.url;
+    descriptionRef.value = props.media.description;
+    timeRef.value = props.media.createdAt;
     timeYearRef.value = timeRef.value.getFullYear();
     timeMonthRef.value = timeRef.value.getMonth();
     timeDayRef.value = timeRef.value.getDate();
     timeHoursRef.value = timeRef.value.getHours();
     timeMinutesRef.value = timeRef.value.getMinutes();
     timeSecondsRef.value = timeRef.value.getSeconds();
-    longitudeRef.value = String(props.data.location.longitude);
-    latitudeRef.value = String(props.data.location.latitude);
-    typeRef.value = props.data.type;
+    longitudeRef.value = String(props.media.location.longitude);
+    latitudeRef.value = String(props.media.location.latitude);
+    typeRef.value = props.media.type;
 
-    if ("data" in props.data) {
+    if ("data" in props.media && props.media.data !== null) {
         mediaDataRef.value = [];
 
-        for (const mediaDataItem of props.data.data) {
+        for (const mediaDataItem of props.media.data) {
             mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
         }
     }
 
-    if (props.data.categories !== null) {
-        for (const category of props.data.categories) {
+    if (props.media.categories !== null) {
+        for (const category of props.media.categories) {
             categoriesRef.value.push(category);
         }
     }
 
-    if (props.data.location.address !== null && props.data.location.address.length > 0) {
-        addressRef.value = props.data.location.address;
+    if (props.media.location.address !== null && props.media.location.address.length > 0) {
+        addressRef.value = props.media.location.address;
     }
 }
 
@@ -797,7 +797,7 @@ const initialize = async () => {
     });
     geocoder = new google.maps.Geocoder();
 
-    if (props.data === null) {
+    if (props.media === null) {
         if ("permissions" in navigator) {
             const permissionStatus = await navigator.permissions.query({ name: "geolocation" });
 
@@ -1007,10 +1007,10 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </transition>
                             </template>
-                            <template v-else-if="props.data.type.startsWith('image')">
+                            <template v-else-if="props.media.type.startsWith('image')">
                                 <div class="image">
                                     <picture class="image">
-                                        <img v-bind:src="props.data.url" v-bind:alt="props.data.id" />
+                                        <img v-bind:src="props.media.url" v-bind:alt="props.media.id" />
                                     </picture>
                                 </div>
                             </template>
