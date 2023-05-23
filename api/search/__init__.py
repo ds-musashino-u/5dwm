@@ -232,12 +232,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if media_file is not None:
                             limit = 100
                             query = session.query(MediaData).filter(
-                                MediaData.file_id == media_file.id, Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                                MediaData.file_id == media_file.id, MediaData.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
                         
                             if to_datetime is not None:
-                                query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                                query = query.filter(MediaData.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
 
-                            query.limit(limit)
+                            query = query.limit(limit)
                             total_count = query.count()
                             medium['data'] = []
 
