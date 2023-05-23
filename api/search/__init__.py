@@ -181,12 +181,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         
                 else:
                     operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
-                    from_datetime = datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))
-
-                    if to_datetime is not None:
-                        query = query.filter(Media.created_at >= from_datetime, Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
+                    
+                    if to_datetime is None:
+                        query = query.filter(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), operators)
                     else:
-                        query = query.filter(Media.created_at >= from_datetime, Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
+                        query = query.filter(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
                     
                 total_count = query.count()
 
@@ -233,7 +232,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if media_file is not None:
                             limit = 100
                             query = session.query(MediaData).filter(
-                                MediaData.file_id == media_file.id).limit(limit)
+                                MediaData.file_id == media_file.id, Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                        
+                            if to_datetime is not None:
+                                query = query.filter(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+
+                            query.limit(limit)
                             total_count = query.count()
                             medium['data'] = []
 
