@@ -153,7 +153,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
                     
                     if 'csv' in types:
-                        subquery = session.query(MediaData.file_id)
+                        subquery = session.query(MediaData.file_id.distinct())
 
                         if from_datetime is None:
                             subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
