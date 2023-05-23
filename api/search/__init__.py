@@ -155,10 +155,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if 'csv' in types:
                         subquery = session.query(MediaData.file_id)
 
+                        subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                        '''
                         if from_datetime is None:
                             subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                         else:
                             subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                        '''
                         '''
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
