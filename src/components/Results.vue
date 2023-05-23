@@ -99,14 +99,16 @@ const back = (event) => {
                 <div class="stack">
                   <button class="button image is-64x64" type="button"
                     @click="select($event, pageIndex * pageLength + index, item)">
-                    <picture class="image" v-if="
-                      item.media.type.startsWith('image') &&
+                    <picture class="image" v-if="item.media.type.startsWith('image') &&
                       item.media.url.startsWith('https://')
-                    ">
+                      ">
                       <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                     </picture>
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <span class="icon is-small" v-if="item.media.type.startsWith('image')">
+                    <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
+                      <i class="fa-solid fa-table"></i>
+                    </span>
+                    <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
                       <i class="fa-solid fa-file-image"></i>
                     </span>
                     <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
