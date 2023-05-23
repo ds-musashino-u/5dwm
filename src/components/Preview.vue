@@ -47,7 +47,10 @@ const back = (event) => {
           <nav class="level is-mobile">
             <div class="level-left">
               <div class="level-item">
-                <span class="icon is-small" v-if="item.media.type.startsWith('image')">
+                <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
+                  <i class="fa-solid fa-table"></i>
+                </span>
+                <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
                   <i class="fa-solid fa-file-image"></i>
                 </span>
                 <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
