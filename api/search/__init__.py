@@ -10,7 +10,7 @@ from datetime import datetime, timezone, MINYEAR
 from base64 import b64decode
 from urllib.request import urlopen, Request
 from PIL import Image
-from sqlalchemy import create_engine, desc, or_
+from sqlalchemy import create_engine, desc, and_, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.imaging import compute_histogram, resize_image, top_k
@@ -153,7 +153,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
                     
                     if 'csv' in types:
-                        subquery = session.query(MediaData.file_id.distinct())
+                        subquery = session.query(MediaData.file_id)
 
                         if from_datetime is None:
                             subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
@@ -183,9 +183,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
                     
                     if to_datetime is None:
-                        query = query.filter(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), operators)
+                        query = query.filter(or_(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), operators))
                     else:
-                        query = query.filter(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
+                        query = query.filter(or_(and_(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))), Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators))
                     
                 total_count = query.count()
 
