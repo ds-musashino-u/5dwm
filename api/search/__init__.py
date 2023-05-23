@@ -152,6 +152,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(
                         or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
                     
+                    '''
                     if 'csv' in types:
                         subquery = session.query(MediaData.file_id)
 
@@ -162,7 +163,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-
+                    '''
                 if usernames is not None and len(usernames) > 0:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
