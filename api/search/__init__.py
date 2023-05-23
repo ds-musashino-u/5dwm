@@ -184,12 +184,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         
                 else:
                     operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
-                    
+                    '''
                     if to_datetime is None:
                         query = query.filter(or_(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')), operators))
                     else:
                         query = query.filter(or_(and_(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))), Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators))
-                    
+                    '''
                 total_count = query.count()
 
                 if limit is not None:
