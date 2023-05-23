@@ -115,6 +115,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             try:
                 media = []
                 query = session.query(Media)
+                subquery = None
 
                 if sort == 'created_at':
                     if order is None:
@@ -146,26 +147,47 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if categories is not None and len(categories) > 0:
                     query = query.filter(or_(
                         *list(map(lambda category: Media.categories.contains([category]), categories))))
-
+                    
                 if types is not None and len(types) > 0:
                     query = query.filter(
                         or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
+                    
+                    if 'csv' in types:
+                        subquery = session.query(MediaData.file_id.distinct())
+
+                        if from_datetime is None:
+                            subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                        else:
+                            subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+
+                        if to_datetime is not None:
+                            subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
 
                 if usernames is not None and len(usernames) > 0:
                     query = query.filter(
                         or_(*list(map(lambda username: Media.username == username, usernames))))
 
-                if from_datetime is None:
-                    query = query.filter(Media.created_at >=
-                                         datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                if subquery is None:
+                    if from_datetime is None:
+                        query = query.filter(Media.created_at >=
+                                            datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                    else:
+                        query = query.filter(Media.created_at >= datetime.fromisoformat(
+                            from_datetime.replace('Z', '+00:00')))
+
+                    if to_datetime is not None:
+                        query = query.filter(Media.created_at < datetime.fromisoformat(
+                            to_datetime.replace('Z', '+00:00')))
+                        
                 else:
-                    query = query.filter(Media.created_at >= datetime.fromisoformat(
-                        from_datetime.replace('Z', '+00:00')))
+                    operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
+                    from_datetime = datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))
 
-                if to_datetime is not None:
-                    query = query.filter(Media.created_at < datetime.fromisoformat(
-                        to_datetime.replace('Z', '+00:00')))
-
+                    if to_datetime is not None:
+                        query = query.filter(Media.created_at >= from_datetime, Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
+                    else:
+                        query = query.filter(Media.created_at >= from_datetime, Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')), operators)
+                    
                 total_count = query.count()
 
                 if limit is not None:
