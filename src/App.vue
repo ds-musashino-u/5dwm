@@ -154,23 +154,47 @@ export default {
       }
     });
 
-    const signIn = async (e) => {
-      const callbackUrl = new URL(window.location.origin);
+    const signIn = async (forcePopup) => {
+      if (forcePopup) {
+        try {
+          isSigningIn.value = true;
 
-      callbackUrl.pathname = "/callback/";
+          const accessToken = await auth0.value.getTokenWithPopup({
+            authorizationParams: {
+              audience: Auth0Config.AUDIENCE
+            }
+          });
 
-      try {
-        isSigningIn.value = true;
+          const decoded = jwt_decode(accessToken);
 
-        await auth0.value.loginWithRedirect({
-          authorizationParams: {
-            redirect_uri: callbackUrl.toString()
+          if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
+            isAdmin.value = true;
           }
-        });
-      } catch (error) {
-        console.error(error);
-      } finally {
-        isSigningIn.value = false;
+
+          user.value = await auth0.value.getUser();
+        } catch (error) {
+          console.error(error);
+        } finally {
+          isSigningIn.value = false;
+        }
+      } else {
+        const callbackUrl = new URL(window.location.origin);
+
+        callbackUrl.pathname = "/callback/";
+
+        try {
+          isSigningIn.value = true;
+
+          await auth0.value.loginWithRedirect({
+            authorizationParams: {
+              redirect_uri: callbackUrl.toString()
+            }
+          });
+        } catch (error) {
+          console.error(error);
+        } finally {
+          isSigningIn.value = false;
+        }
       }
       /*if (window.navigator.userAgent.indexOf("Safari") > -1 && !/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
         try {
@@ -245,8 +269,8 @@ export default {
       <transition name="fade">
         <keep-alive>
           <component :is="contents[contentIndex].component"
-            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updatedTime: updatedTime, isAdmin: isAdmin }" v-on="{ updated: updated }"
-            :key="contents[contentIndex].name"></component>
+            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updatedTime: updatedTime, isAdmin: isAdmin }"
+            v-on="{ updated: updated }" :key="contents[contentIndex].name"></component>
         </keep-alive>
       </transition>
     </div>

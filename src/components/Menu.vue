@@ -16,8 +16,8 @@ const emit = defineEmits(["reveal", "select", "signIn", "signOut"]);
 const select = (event) => {
   emit("select", event.target.dataset);
 };
-const signIn = (event) => {
-  emit("signIn");
+const signIn = (event, forcePopup) => {
+  emit("signIn", forcePopup);
 };
 const signOut = (event) => {
   emit("signOut");
@@ -57,7 +57,7 @@ const signOut = (event) => {
                                 is-fullwidth
                                 is-size-7
                                 is-primary
-                              " type="button" v-bind:disabled="isLoading" @click="signIn">
+                              " type="button" v-bind:disabled="isLoading" @click="signIn($event, false)">
                           <transition name="fade" mode="out-in">
                             <span class="icon" v-if="isLoading" key="loading">
                               <i class="fas fa-spinner updating"></i>
@@ -67,6 +67,27 @@ const signOut = (event) => {
                             </span>
                           </transition>
                           <span class="is-uppercase has-text-weight-bold">Sign In</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="panel-block">
+                      <div class="control">
+                        <button class="
+                                button
+                                is-rounded
+                                is-outlined
+                                is-fullwidth
+                                is-size-7
+                              " type="button" v-bind:disabled="isLoading" @click="signIn($event, true)">
+                          <transition name="fade" mode="out-in">
+                            <span class="icon" v-if="isLoading" key="loading">
+                              <i class="fas fa-spinner updating"></i>
+                            </span>
+                            <span class="icon" v-else key="loaded">
+                              <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                            </span>
+                          </transition>
+                          <span class="is-uppercase has-text-weight-bold">Sign In with Popup</span>
                         </button>
                       </div>
                     </div>
