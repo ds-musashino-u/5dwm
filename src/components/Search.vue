@@ -606,6 +606,10 @@ const search = async (ignoreCache = true) => {
         if (result.marker !== null) {
           result.marker.setMap(null);
         }
+
+        if ("graph" in result && result.graph !== null) {
+          result.graph.setMap(null);
+        }
       }
 
       searchResults.splice(0);
@@ -692,6 +696,10 @@ const search = async (ignoreCache = true) => {
           if (result.marker !== null) {
             result.marker.setMap(null);
           }
+
+          if ("graph" in result && result.graph !== null) {
+            result.graph.setMap(null);
+          }
         }
 
         searchResults.splice(0);
@@ -768,7 +776,35 @@ const search = async (ignoreCache = true) => {
                   )
                 );
 
-                searchResults.push({ marker: marker, item: resultItem });
+                /*const circle = new google.maps.Circle({
+                  strokeColor: "#FF0000",
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2,
+                  fillColor: "#FF0000",
+                  fillOpacity: 0.25,
+                  map,
+                  center: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  radius: 1000,
+                });*/
+                /*const circle = new google.maps.Marker({
+                  position: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    strokeWeight: 1,
+                    fillColor: 'blue',
+                    fillOpacity: .5
+                  },
+                  map: map
+                });*/
+
+                searchResults.push({ marker: marker, item: resultItem/*, graph: circle*/ });
                 searchResultsRef.value.push(resultItem);
                 cachedSearchResults[
                   searchPageIndexRef.value * searchPageLength + index
@@ -826,7 +862,35 @@ const search = async (ignoreCache = true) => {
                   )
                 );
 
-                searchResults.push({ marker: marker, item: resultItem });
+                /*const circle = new google.maps.Circle({
+                  strokeColor: "#FF0000",
+                  strokeOpacity: 1.0,
+                  strokeWeight: 2,
+                  fillColor: "#FF0000",
+                  fillOpacity: 0.25,
+                  map,
+                  center: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  radius: 1000,
+                });*/
+                /*const circle = new google.maps.Marker({
+                  position: {
+                    lat: resultItem.media.location.latitude,
+                    lng: resultItem.media.location.longitude,
+                  },
+                  icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 10,
+                    strokeWeight: 1,
+                    fillColor: 'blue',
+                    fillOpacity: .5
+                  },
+                  map: map
+                });*/
+
+                searchResults.push({ marker: marker, item: resultItem/*, graph: circle*/ });
                 searchResultsRef.value.push(resultItem);
                 cachedSearchResults[
                   searchPageIndexRef.value * searchPageLength + index
