@@ -237,10 +237,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 query = query.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
 
                             query = query.limit(limit)
-                            total_count = query.count()
+                            count = query.count()
                             medium['data'] = []
 
-                            for i in range(math.ceil(total_count / limit)):
+                            for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     medium['data'].append({
                                         'id': media_data.id,
