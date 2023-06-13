@@ -92,10 +92,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             limit = 100
                             query = session.query(MediaData).filter(
                                 MediaData.file_id == media_file.id).limit(limit)
-                            total_count = query.count()
+                            count = query.count()
                             medium['data'] = []
 
-                            for i in range(math.ceil(total_count / limit)):
+                            for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     medium['data'].append({
                                         'id': media_data.id,

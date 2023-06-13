@@ -51,10 +51,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         limit = 100
                         session.delete(media_file)
                         query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                        total_count = query.count()
+                        count = query.count()
                         data = []
 
-                        for i in range(math.ceil(total_count / limit)):
+                        for i in range(math.ceil(count / limit)):
                             for media_data in query.offset(i * limit).all():
                                 session.delete(media_data)
                                 data.append({
@@ -155,9 +155,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                             limit = 100
                             query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                            total_count = query.count()
+                            count = query.count()
                             
-                            for i in range(math.ceil(total_count / limit)):
+                            for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     session.delete(media_data)
 
@@ -221,10 +221,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if media_file is not None:
                             limit = 100
                             query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                            total_count = query.count()
+                            count = query.count()
                             item['data'] = []
 
-                            for i in range(math.ceil(total_count / limit)):
+                            for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     item['data'].append({
                                         'id': media_data.id,
