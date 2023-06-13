@@ -89,7 +89,7 @@ const signOut = (event) => {
                           </transition>
                           <span class="is-uppercase has-text-weight-bold">Sign In with Popup</span>
                           <span class="icon">
-                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <i class="fa-solid fa-window-restore"></i>
                           </span>
                         </button>
                       </div>
