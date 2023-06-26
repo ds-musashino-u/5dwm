@@ -652,8 +652,7 @@ const search = async (ignoreCache = true) => {
             },
             map: map,
             title: item.media.description,
-            label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
-            animation: google.maps.Animation.DROP,
+            label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
           });
 
           marker.addListener("click", markerClick);
@@ -785,8 +784,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map: map,
                   title: resultItem.media.description,
-                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
-                  animation: google.maps.Animation.DROP,
+                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
                 });
 
                 marker.addListener("click", markerClick);
@@ -908,8 +906,7 @@ const search = async (ignoreCache = true) => {
                     lng: resultItem.media.location.longitude,
                   },
                   map: map,
-                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
-                  animation: google.maps.Animation.DROP,
+                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
                 });
                 marker.addListener("click", markerClick);
                 bounds.extend(
