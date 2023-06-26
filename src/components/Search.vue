@@ -832,7 +832,9 @@ const search = async (ignoreCache = true) => {
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
+                  const min = pinnedItem.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
                   const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  const span = Math.abs(min) + max;
 
                   for (const marker of pinnedItem.graph) {
                     marker.setMap(null);
@@ -842,7 +844,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of pinnedItem.item.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
                   }
 
                   resultItem["loaded"] = true;
@@ -869,7 +871,9 @@ const search = async (ignoreCache = true) => {
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
+                  const min = pinnedItem.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
                   const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  const span = Math.abs(min) + max;
 
                   for (const marker of pinnedItem.graph) {
                     marker.setMap(null);
@@ -879,7 +883,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of pinnedItem.item.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
                   }
 
                   resultItem["loaded"] = true;
@@ -998,10 +1002,12 @@ const loadItem = async (item) => {
     };
   } else if ("data" in item.media && item.media.data !== null) {
     const graph = [];
+    const min = item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
     const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+    const span = Math.abs(min) + max;
 
     for (const dataItem of item.media.data) {
-      graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
+      graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
     }
 
     pinnedItems.push({ item: item, graph: graph });
