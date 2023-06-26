@@ -70,6 +70,7 @@ const searchcCriteria = {
   time: null,
 };
 const cachedSearchResults = {};
+const pinnedItems = [];
 
 fromDateRef.value.setFullYear(fromDateRef.value.getFullYear() - 1);
 fromDateRef.value.setHours(0);
@@ -91,7 +92,6 @@ defaultToDateRef.value.setMinutes(0);
 defaultToDateRef.value.setSeconds(0);
 defaultToDateRef.value.setMilliseconds(0);
 defaultToDateRef.value.setDate(toDateRef.value.getDate());
-
 
 const initialize = async () => {
   isInitializedRef.value = true;
@@ -550,6 +550,23 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
+const createDataMarker = (location, value, label) => {
+  return new google.maps.Marker({
+    position: {
+      lat: location.latitude,
+      lng: location.longitude,
+    },
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: value,
+      strokeWeight: 1,
+      fillColor: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color"),
+      fillOpacity: .75
+    },
+    label: { text: label, fontWeight: "bold", color: "#ffffff" },
+    map: map
+  });
+};
 const search = async (ignoreCache = true) => {
   if (ignoreCache) {
     searchcCriteria.keywords.splice(0);
@@ -560,7 +577,7 @@ const search = async (ignoreCache = true) => {
     searchcCriteria.time = null;
 
     Object.keys(cachedSearchResults).forEach((key) => {
-      if (cachedSearchResults[key].loaded) {
+      if ("layer" in cachedSearchResults[key]) {
         cachedSearchResults[key].layer.setMap(null);
       }
 
@@ -606,10 +623,6 @@ const search = async (ignoreCache = true) => {
         if (result.marker !== null) {
           result.marker.setMap(null);
         }
-
-        if ("graph" in result && result.graph !== null) {
-          result.graph.setMap(null);
-        }
       }
 
       searchResults.splice(0);
@@ -627,7 +640,7 @@ const search = async (ignoreCache = true) => {
             },
             map: map,
             title: item.media.description,
-            label: String(index + 1),
+            label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
             animation: google.maps.Animation.DROP,
           });
 
@@ -696,10 +709,6 @@ const search = async (ignoreCache = true) => {
           if (result.marker !== null) {
             result.marker.setMap(null);
           }
-
-          if ("graph" in result && result.graph !== null) {
-            result.graph.setMap(null);
-          }
         }
 
         searchResults.splice(0);
@@ -727,7 +736,7 @@ const search = async (ignoreCache = true) => {
           let index = 0;
 
           Object.keys(cachedSearchResults).forEach((key) => {
-            if (cachedSearchResults[key].loaded) {
+            if ("layer" in cachedSearchResults[key]) {
               cachedSearchResults[key].layer.setMap(null);
             }
 
@@ -764,7 +773,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map: map,
                   title: resultItem.media.description,
-                  label: String(index + 1),
+                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
                   animation: google.maps.Animation.DROP,
                 });
 
@@ -789,20 +798,6 @@ const search = async (ignoreCache = true) => {
                   },
                   radius: 1000,
                 });*/
-                /*const circle = new google.maps.Marker({
-                  position: {
-                    lat: resultItem.media.location.latitude,
-                    lng: resultItem.media.location.longitude,
-                  },
-                  icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 10,
-                    strokeWeight: 1,
-                    fillColor: 'blue',
-                    fillOpacity: .5
-                  },
-                  map: map
-                });*/
 
                 searchResults.push({ marker: marker, item: resultItem/*, graph: circle*/ });
                 searchResultsRef.value.push(resultItem);
@@ -817,10 +812,35 @@ const search = async (ignoreCache = true) => {
             for (const resultItem of resultItems) {
               if (
                 resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz")
+                resultItem.media.type.startsWith("kmz") ||
+                "data" in resultItem.media && resultItem.media.data !== null
               ) {
+                const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
+
                 resultItem["loading"] = false;
-                resultItem["loaded"] = false;
+
+                if (pinnedItem === undefined) {
+                  resultItem["loaded"] = false;
+                } else {
+                  const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+
+                  for (const marker of pinnedItem.graph) {
+                    marker.setMap(null);
+                  }
+
+                  pinnedItem.item = resultItem;
+                  pinnedItem.graph.splice(0);
+
+                  for (const dataItem of item.media.data) {
+                    max = Math.max(max, dataItem.value);
+                  }
+
+                  for (const dataItem of item.media.data) {
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
+                  }
+
+                  resultItem["loaded"] = true;
+                }
               }
 
               cachedSearchResults[
@@ -832,10 +852,13 @@ const search = async (ignoreCache = true) => {
             for (const resultItem of resultItems) {
               if (
                 resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz")
+                resultItem.media.type.startsWith("kmz") ||
+                "data" in resultItem.media && resultItem.media.data !== null
               ) {
+                const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
+
                 resultItem["loading"] = false;
-                resultItem["loaded"] = false;
+                resultItem["loaded"] = pinnedItem !== undefined;
               }
 
               if (resultItem.media.location === null) {
@@ -851,7 +874,7 @@ const search = async (ignoreCache = true) => {
                     lng: resultItem.media.location.longitude,
                   },
                   map: map,
-                  label: String(index + 1),
+                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" },
                   animation: google.maps.Animation.DROP,
                 });
                 marker.addListener("click", markerClick);
@@ -932,21 +955,34 @@ const selectItem = (index, item) => {
   );
 };
 const loadItem = async (item) => {
-  item.loading = true;
-  item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${item.media.url}`, {
-    suppressInfoWindows: false,
-    preserveViewport: false,
-    map: map,
-  });
-  item.layer.status_changed = () => {
-    item.loading = false;
+  if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
+    item.loading = true;
+    item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${item.media.url}`, {
+      suppressInfoWindows: false,
+      preserveViewport: false,
+      map: map
+    });
+    item.layer.status_changed = () => {
+      item.loading = false;
 
-    if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
-      item.loaded = true;
-    } else {
-      shake(previewPanelRef.value);
+      if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
+        item.loaded = true;
+      } else {
+        shake(previewPanelRef.value);
+      }
+    };
+  } else if ("data" in item.media && item.media.data !== null) {
+    const graph = [];
+    const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+
+    for (const dataItem of item.media.data) {
+      graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
     }
-  };
+
+    pinnedItems.push({ item: item, graph: graph });
+    item.loaded = true;
+  }
+
   /*item.layer.addListener("click", (event) => {
     const content = event.featureData.infoWindowHtml;
   });*/
@@ -992,7 +1028,21 @@ const loadItem = async (item) => {
   }*/
 };
 const unloadItem = (item) => {
-  item.layer.setMap(null);
+  if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
+    item.layer.setMap(null);
+  } else if ("data" in item.media && item.media.data !== null) {
+    const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
+
+    if (index >= 0) {
+      for (const marker of pinnedItems[index].graph) {
+        marker.setMap(null);
+      }
+
+      pinnedItems[index].graph.splice(0);
+      pinnedItems.splice(index, 1);
+    }
+  }
+
   item.loaded = false;
 };
 const nextResults = (index) => {
