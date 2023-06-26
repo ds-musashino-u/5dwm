@@ -832,8 +832,8 @@ const search = async (ignoreCache = true) => {
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
-                  const min = pinnedItem.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-                  const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
+                  const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
                   const span = Math.abs(min) + max;
 
                   for (const marker of pinnedItem.graph) {
@@ -843,7 +843,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.item = resultItem;
                   pinnedItem.graph.splice(0);
 
-                  for (const dataItem of pinnedItem.item.media.data) {
+                  for (const dataItem of resultItem.media.data) {
                     pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
                   }
 
@@ -871,8 +871,8 @@ const search = async (ignoreCache = true) => {
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
-                  const min = pinnedItem.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-                  const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
+                  const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
                   const span = Math.abs(min) + max;
 
                   for (const marker of pinnedItem.graph) {
@@ -882,7 +882,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.item = resultItem;
                   pinnedItem.graph.splice(0);
 
-                  for (const dataItem of pinnedItem.item.media.data) {
+                  for (const dataItem of resultItem.media.data) {
                     pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
                   }
 
