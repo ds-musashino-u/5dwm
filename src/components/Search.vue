@@ -269,7 +269,13 @@ const markerClick = (event) => {
       event.latLng.lng === x.marker.position.lng
   );
 
-  if (element !== undefined) {
+  if (element === undefined) {
+    const pinnedItem = pinnedItems.find(x => x.graph.find(y => event.latLng.lat === y.position.lat && event.latLng.lng === y.position.lng) !== undefined);
+    
+    if (pinnedItem !== undefined) {
+      selectedItemRef.value = pinnedItem.item;
+    }
+  } else {
     selectedItemRef.value = element.item;
   }
 };
@@ -551,7 +557,7 @@ const shake = (element) => {
   );
 };
 const createDataMarker = (location, value, label) => {
-  return new google.maps.Marker({
+  const marker = new google.maps.Marker({
     position: {
       lat: location.latitude,
       lng: location.longitude,
@@ -566,6 +572,9 @@ const createDataMarker = (location, value, label) => {
     label: { text: label, fontWeight: "bold", color: "#ffffff" },
     map: map
   });
+  marker.addListener("click", markerClick);
+
+  return marker;
 };
 const search = async (ignoreCache = true) => {
   if (ignoreCache) {
