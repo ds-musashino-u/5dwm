@@ -1271,7 +1271,7 @@ const previousResults = (index) => {
     <div class="flyout-left">
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
-          <nav class="panel" v-if="selectedItemRef !== null" key="selectedItemRef">
+          <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
             <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back" />
           </nav>
           <nav class="panel" v-else key="results">
