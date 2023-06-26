@@ -248,7 +248,8 @@ a:hover {
     padding: env(safe-area-inset-top, 0px) 0px 0px calc(env(safe-area-inset-left, 0px) + 16px);
     touch-action: none;
 
-    button .button {
+    button,
+    .button {
         margin: 0px;
         border: 0px none transparent !important;
         padding: 16px;
