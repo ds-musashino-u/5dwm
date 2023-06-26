@@ -71,6 +71,7 @@ const searchcCriteria = {
 };
 const cachedSearchResults = {};
 const pinnedItems = [];
+const appearance = {};
 
 fromDateRef.value.setFullYear(fromDateRef.value.getFullYear() - 1);
 fromDateRef.value.setHours(0);
@@ -556,7 +557,7 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
-const createDataMarker = (location, value, label) => {
+const createDataMarker = (location, value, label, color) => {
   const marker = new google.maps.Marker({
     position: {
       lat: location.latitude,
@@ -565,8 +566,10 @@ const createDataMarker = (location, value, label) => {
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: value,
+      strokeColor: color,
+      strokeOpacity: 1,
       strokeWeight: 1,
-      fillColor: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color"),
+      fillColor: color,
       fillOpacity: .75
     },
     label: { text: label, fontWeight: "bold", color: "#ffffff" },
@@ -835,6 +838,7 @@ const search = async (ignoreCache = true) => {
                   const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
                   const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
                   const span = Math.abs(min) + max;
+                  const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
                   for (const marker of pinnedItem.graph) {
                     marker.setMap(null);
@@ -844,7 +848,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of resultItem.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
                   }
 
                   resultItem["loaded"] = true;
@@ -874,6 +878,7 @@ const search = async (ignoreCache = true) => {
                   const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
                   const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
                   const span = Math.abs(min) + max;
+                  const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
                   for (const marker of pinnedItem.graph) {
                     marker.setMap(null);
@@ -883,7 +888,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of resultItem.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
                   }
 
                   resultItem["loaded"] = true;
@@ -1005,9 +1010,10 @@ const loadItem = async (item) => {
     const min = item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
     const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
     const span = Math.abs(min) + max;
+    const color = item.media.id in appearance ? appearance[item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
     for (const dataItem of item.media.data) {
-      graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value)));
+      graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
     }
 
     pinnedItems.push({ item: item, graph: graph });
