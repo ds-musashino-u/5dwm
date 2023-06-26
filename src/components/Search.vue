@@ -271,7 +271,7 @@ const markerClick = (event) => {
 
   if (element === undefined) {
     const pinnedItem = pinnedItems.find(x => x.graph.find(y => event.latLng.lat === y.position.lat && event.latLng.lng === y.position.lng) !== undefined);
-    
+
     if (pinnedItem !== undefined) {
       selectedItemRef.value = pinnedItem.item;
     }
@@ -821,9 +821,10 @@ const search = async (ignoreCache = true) => {
             for (const resultItem of resultItems) {
               if (
                 resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz") ||
-                "data" in resultItem.media && resultItem.media.data !== null
-              ) {
+                resultItem.media.type.startsWith("kmz")) {
+                resultItem["loading"] = false;
+                resultItem["loaded"] = false;
+              } else if ("data" in resultItem.media && resultItem.media.data !== null) {
                 const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
 
                 resultItem["loading"] = false;
@@ -831,7 +832,7 @@ const search = async (ignoreCache = true) => {
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
-                  const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
 
                   for (const marker of pinnedItem.graph) {
                     marker.setMap(null);
@@ -840,11 +841,7 @@ const search = async (ignoreCache = true) => {
                   pinnedItem.item = resultItem;
                   pinnedItem.graph.splice(0);
 
-                  for (const dataItem of item.media.data) {
-                    max = Math.max(max, dataItem.value);
-                  }
-
-                  for (const dataItem of item.media.data) {
+                  for (const dataItem of pinnedItem.item.media.data) {
                     pinnedItem.graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
                   }
 
@@ -861,13 +858,32 @@ const search = async (ignoreCache = true) => {
             for (const resultItem of resultItems) {
               if (
                 resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz") ||
-                "data" in resultItem.media && resultItem.media.data !== null
-              ) {
+                resultItem.media.type.startsWith("kmz")) {
+                resultItem["loading"] = false;
+                resultItem["loaded"] = false;
+              } else if ("data" in resultItem.media && resultItem.media.data !== null) {
                 const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
 
                 resultItem["loading"] = false;
-                resultItem["loaded"] = pinnedItem !== undefined;
+
+                if (pinnedItem === undefined) {
+                  resultItem["loaded"] = false;
+                } else {
+                  const max = pinnedItem.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+
+                  for (const marker of pinnedItem.graph) {
+                    marker.setMap(null);
+                  }
+
+                  pinnedItem.item = resultItem;
+                  pinnedItem.graph.splice(0);
+
+                  for (const dataItem of pinnedItem.item.media.data) {
+                    pinnedItem.graph.push(createDataMarker(dataItem.location, dataItem.value / max * 32.0, String(dataItem.value)));
+                  }
+
+                  resultItem["loaded"] = true;
+                }
               }
 
               if (resultItem.media.location === null) {
