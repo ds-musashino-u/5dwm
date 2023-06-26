@@ -73,7 +73,7 @@ const back = (event) => {
               </div>
               <div class="level-item">
                 <button class="button toggle" type="button" v-bind:disabled="item.loading"
-                  v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz')"
+                  v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
                   @click="item.loaded ? unload($event, item) : load($event, item)">
                   <transition name="fade" mode="out-in">
                     <span class="icon" v-if="item.loaded" key="on">
