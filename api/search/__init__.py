@@ -115,6 +115,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             try:
                 media = []
                 query = session.query(Media)
+                filters = []
                 subquery = None
 
                 if sort == 'created_at':
@@ -141,16 +142,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if keywords is not None:
                     for keyword in keywords:
-                        query = query.filter(
-                            Media.description.like(f'%{keyword}%'))
+                        filters.append(Media.description.like(f'%{keyword}%'))
 
                 if categories is not None and len(categories) > 0:
-                    query = query.filter(or_(
-                        *list(map(lambda category: Media.categories.contains([category]), categories))))
+                    filters.append(or_(*list(map(lambda category: Media.categories.contains([category]), categories))))
                     
                 if types is not None and len(types) > 0:
-                    query = query.filter(
-                        or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
+                    filters.append(or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
                     
                     if 'csv' in types:
                         subquery = session.query(MediaData.file_id.distinct())
@@ -177,30 +175,26 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 '''
 
                 if usernames is not None and len(usernames) > 0:
-                    query = query.filter(
-                        or_(*list(map(lambda username: Media.username == username, usernames))))
+                    filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
 
                 if subquery is None:
                     if from_datetime is None:
-                        query = query.filter(Media.created_at >=
-                                            datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                        filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                     else:
-                        query = query.filter(Media.created_at >= datetime.fromisoformat(
-                            from_datetime.replace('Z', '+00:00')))
+                        filters.append(Media.created_at >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
 
                     if to_datetime is not None:
-                        query = query.filter(Media.created_at < datetime.fromisoformat(
-                            to_datetime.replace('Z', '+00:00')))
+                        filters.append(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                         
                 else:
                     operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
 
                     if to_datetime is None:
-                        query = query.filter(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
-                        query = or_(query, operators)
+                        filters.append(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
+                        query = query.filter(or_(and_(*filters), operators))
                     else:
-                        query = query.filter(and_(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))), Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
-                        query = or_(query, operators)
+                        filters.append(and_(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))), Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
+                        query = query.filter(or_(and_(*filters), operators))
                     
                 total_count = query.count()
 
