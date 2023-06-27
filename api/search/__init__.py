@@ -185,6 +185,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if to_datetime is not None:
                         filters.append(Media.created_at < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+
+                    query = query.filter(and_(*filters))
                         
                 else:
                     operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
