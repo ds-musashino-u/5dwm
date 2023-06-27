@@ -1292,7 +1292,7 @@ const colorChanged = (item, colorCode) => {
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
-              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" @select="selectItem"
+              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" :appearance="appearance" @select="selectItem"
               @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem" @back="back"
               v-if="selectedItemRef === null" key="results" />
           </nav>
