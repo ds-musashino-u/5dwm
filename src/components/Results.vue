@@ -124,12 +124,23 @@ const back = (event) => {
                       <i class="fa-solid fa-file fa-lg"></i>
                     </span>
                   </button>
-                  <div class="heading">
-                    <span class="badge is-size-7 has-text-weight-bold"
-                      :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">{{
-                        pageIndex * pageLength + index + 1 }}</span>
-                    <span class="badge is-size-7 has-text-weight-bold" v-else>{{ pageIndex * pageLength + index + 1
-                    }}</span>
+                  <div class="heading" :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">
+                    <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
+                    <button class="button toggle" type="button" v-bind:disabled="item.loading"
+                      v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
+                      @click="item.loaded ? unload($event, item) : load($event, item)">
+                      <transition name="fade" mode="out-in">
+                        <span class="icon" v-if="item.loaded" key="on">
+                          <i class="fa-solid fa-toggle-on"></i>
+                        </span>
+                        <span class="icon" v-else key="off">
+                          <i class="fa-solid fa-toggle-off"></i>
+                        </span>
+                      </transition>
+                    </button>
+                  </div>
+                  <div class="heading" v-else>
+                    <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
                     <button class="button toggle" type="button" v-bind:disabled="item.loading"
                       v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
                       @click="item.loaded ? unload($event, item) : load($event, item)">
