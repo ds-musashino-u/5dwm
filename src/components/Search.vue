@@ -722,6 +722,18 @@ const search = async (ignoreCache = true) => {
           }
         }
 
+        if (!categories.some(x => x === 'csv')) {
+          for (const pinnedItem of pinnedItems) {
+            for (const marker of pinnedItem.graph) {
+              marker.setMap(null);
+            }
+
+            pinnedItem.graph.splice(0);
+          }
+
+          pinnedItems.splice(0);
+        }
+
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
         selectedItemRef.value = null;
