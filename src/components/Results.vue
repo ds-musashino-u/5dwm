@@ -105,8 +105,6 @@ const back = (event) => {
                       ">
                       <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                     </picture>
-                    <span class="badge is-size-7 has-text-weight-bold" :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <span class="badge is-size-7 has-text-weight-bold" v-else>{{ pageIndex * pageLength + index + 1 }}</span>
                     <span class="icon" v-if="'data' in item.media && item.media.data !== null">
                       <i class="fa-solid fa-table fa-lg"></i>
                     </span>
@@ -126,18 +124,25 @@ const back = (event) => {
                       <i class="fa-solid fa-file fa-lg"></i>
                     </span>
                   </button>
-                  <button class="button toggle" type="button" v-bind:disabled="item.loading"
-                    v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
-                    @click="item.loaded ? unload($event, item) : load($event, item)">
-                    <transition name="fade" mode="out-in">
-                      <span class="icon" v-if="item.loaded" key="on">
-                        <i class="fa-solid fa-toggle-on"></i>
-                      </span>
-                      <span class="icon" v-else key="off">
-                        <i class="fa-solid fa-toggle-off"></i>
-                      </span>
-                    </transition>
-                  </button>
+                  <div class="heading">
+                    <span class="badge is-size-7 has-text-weight-bold"
+                      :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">{{
+                        pageIndex * pageLength + index + 1 }}</span>
+                    <span class="badge is-size-7 has-text-weight-bold" v-else>{{ pageIndex * pageLength + index + 1
+                    }}</span>
+                    <button class="button toggle" type="button" v-bind:disabled="item.loading"
+                      v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
+                      @click="item.loaded ? unload($event, item) : load($event, item)">
+                      <transition name="fade" mode="out-in">
+                        <span class="icon" v-if="item.loaded" key="on">
+                          <i class="fa-solid fa-toggle-on"></i>
+                        </span>
+                        <span class="icon" v-else key="off">
+                          <i class="fa-solid fa-toggle-off"></i>
+                        </span>
+                      </transition>
+                    </button>
+                  </div>
                 </div>
               </div>
             </article>
@@ -349,11 +354,33 @@ const back = (event) => {
               }
             }
 
-            button.toggle {
+            .heading {
+              z-index: 1;
               position: absolute;
+              display: flex;
+              flex-direction: row;
+              justify-content: flex-start;
+              align-items: center;
+              top: 0%;
+              left: 0%;
+              margin: 0;
+              padding: 0;
+              background: var(--accent-color);
+
+              .badge {
+                position: relative !important;
+                margin: 0 !important;
+                border-radius: 0px 0px 0px 0px;
+                padding: 4px 8px 4px 8px;
+                color: #ffffff;
+              }
+            }
+
+            button.toggle {
+              position: relative;
               z-index: 1;
               top: 0%;
-              right: 0%;
+              left: 0%;
               margin: 0 !important;
               padding: 2px 8px 2px 8px !important;
               width: fit-content !important;
@@ -368,6 +395,10 @@ const back = (event) => {
                 height: 1.5rem !important;
                 font-size: 1.5rem !important;
                 line-height: 1.5rem !important;
+
+                >i {
+                  color: #ffffff !important;
+                }
               }
             }
           }
@@ -459,5 +490,4 @@ const back = (event) => {
         0 0px 0 1px rgb(10 10 10 / 2%) !important;
     }
   }
-}
-</style>
+}</style>
