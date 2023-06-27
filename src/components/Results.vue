@@ -12,6 +12,7 @@ const props = defineProps({
   pageIndex: { type: Number, required: false, default: 0 },
   pageLength: { type: Number, required: false, default: 10 },
   canBack: { type: Boolean, required: false, default: true },
+  appearance: { type: Object, required: false, default: {} }
 });
 const emit = defineEmits(["select", "next", "previous", "load", "unload", "back"]);
 const isForwardingRef = ref(true);
@@ -104,7 +105,8 @@ const back = (event) => {
                       ">
                       <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                     </picture>
-                    <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
+                    <span class="badge is-size-7 has-text-weight-bold" :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">{{ pageIndex * pageLength + index + 1 }}</span>
+                    <span class="badge is-size-7 has-text-weight-bold" v-else>{{ pageIndex * pageLength + index + 1 }}</span>
                     <span class="icon" v-if="'data' in item.media && item.media.data !== null">
                       <i class="fa-solid fa-table fa-lg"></i>
                     </span>
