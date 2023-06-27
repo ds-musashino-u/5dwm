@@ -12,7 +12,7 @@ const props = defineProps({
 });
 const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
 const inputColorCodeRef = ref(props.colorCode);
-const colorCodeRef = ref(props.colorCode);
+const selectedColorCodeRef = ref(props.colorCode);
 
 const load = (event, item) => {
   emit("load", item);
@@ -24,15 +24,15 @@ const back = (event) => {
   emit("back");
 };
 const resetColor = (event) => {
-  colorCodeRef.value = inputColorCodeRef.value = window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+  selectedColorCodeRef.value = inputColorCodeRef.value = window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
-  emit("colorChanged", props.item, colorCodeRef.value);
+  emit("colorChanged", props.item, selectedColorCodeRef.value);
 };
 const colorChanged = (event) => {
   if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorCodeRef.value)) {
-    colorCodeRef.value = inputColorCodeRef.value
+    selectedColorCodeRef.value = inputColorCodeRef.value
     
-    emit("colorChanged", props.item, colorCodeRef.value);
+    emit("colorChanged", props.item, selectedColorCodeRef.value);
   }
 };
 </script>
@@ -139,7 +139,7 @@ const colorChanged = (event) => {
             <div class="level-left">
               <div class="level-item">
                 <button class="button is-flat" type="button" @click="resetColor($event)">
-                  <span class="icon is-small" :style="{ color: colorCodeRef }">
+                  <span class="icon is-small" :style="{ color: selectedColorCodeRef }">
                     <i class="fa-sharp fa-solid fa-brush"></i>
                   </span>
                 </button>
