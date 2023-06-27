@@ -8,8 +8,11 @@ const props = defineProps({
   isExpandable: { type: Boolean, required: false, default: false },
   item: { type: Object, required: false, default: null },
   canBack: { type: Boolean, required: false, default: true },
+  colorCode: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") }
 });
-const emit = defineEmits(["load", "unload", "back"]);
+const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
+const inputColorCodeRef = ref(props.colorCode);
+const colorCodeRef = ref(props.colorCode);
 
 const load = (event, item) => {
   emit("load", item);
@@ -19,6 +22,18 @@ const unload = (event, item) => {
 };
 const back = (event) => {
   emit("back");
+};
+const resetColor = (event) => {
+  colorCodeRef.value = inputColorCodeRef.value = props.colorCode;
+
+  emit("colorChanged", props.item, colorCodeRef.value);
+};
+const colorChanged = (event) => {
+  if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorCodeRef.value)) {
+    colorCodeRef.value = inputColorCodeRef.value
+    
+    emit("colorChanged", props.item, colorCodeRef.value);
+  }
 };
 </script>
 
@@ -101,11 +116,10 @@ const back = (event) => {
             </div>
           </nav>
           <transition name="fade" mode="out-in">
-            <div class="control" v-if="
-              !isCollapsed &&
+            <div class="control" v-if="!isCollapsed &&
               item.media.type.startsWith('image') &&
               item.media.url.startsWith('https://')
-            " key="collapse">
+              " key="collapse">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -119,6 +133,27 @@ const back = (event) => {
               </nav>
             </div>
           </transition>
+        </div>
+        <div class="panel-block" v-if="'data' in item.media && item.media.data !== null">
+          <div class="level is-align-items-center">
+            <div class="level-left">
+              <div class="level-item">
+                <button class="button is-flat" type="button" @click="resetColor($event)">
+                  <span class="icon is-small" :style="{ color: colorCodeRef }">
+                    <i class="fa-sharp fa-solid fa-brush"></i>
+                  </span>
+                </button>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="level-item">
+                <div class="control is-flex-direction-row">
+                  <input class="input is-outlined is-size-7 has-text-weight-bold" type="text"
+                    :placeholder="props.colorCode" size="7" v-model="inputColorCodeRef" @input="colorChanged($event, item)" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="panel-block">
           <div class="level">
@@ -183,11 +218,10 @@ const back = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="
-            !isCollapsed &&
+          <div class="panel-block" v-if="!isCollapsed &&
             item.media.location !== null &&
             item.media.location.hasAddress
-          " key="collapse">
+            " key="collapse">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -267,11 +301,10 @@ const back = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="
-            !isCollapsed &&
+          <div class="panel-block" v-if="!isCollapsed &&
             item.media.description !== null &&
             item.media.description.length > 0
-          " key="collapse">
+            " key="collapse">
             <div class="content">
               <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Description</span>
               <p class="is-size-7 has-text-weight-bold" v-text="item.media.description"></p>
@@ -406,20 +439,39 @@ const back = (event) => {
         text-align: center;
       }
 
-      >.level-left>.level-item>button.toggle {
-        width: fit-content !important;
-        height: fit-content !important;
-        padding: 8px !important;
-        box-shadow: none !important;
-        line-height: 1.5rem !important;
-        background: transparent !important;
+      >.level-left>.level-item> {
+        button.is-flat {
+          width: fit-content !important;
+          height: fit-content !important;
+          padding: 0px !important;
+          box-shadow: none !important;
+          line-height: 1.0rem !important;
+          background: transparent !important;
 
-        >span.icon {
-          margin: 0 !important;
-          width: 1.5rem !important;
-          height: 1.5rem !important;
-          font-size: 1.5rem !important;
+          >span.icon {
+            margin: 0 !important;
+            width: 1.0rem !important;
+            height: 1.0rem !important;
+            font-size: 1.0rem !important;
+            line-height: 1.0rem !important;
+          }
+        }
+
+        button.toggle {
+          width: fit-content !important;
+          height: fit-content !important;
+          padding: 8px !important;
+          box-shadow: none !important;
           line-height: 1.5rem !important;
+          background: transparent !important;
+
+          >span.icon {
+            margin: 0 !important;
+            width: 1.5rem !important;
+            height: 1.5rem !important;
+            font-size: 1.5rem !important;
+            line-height: 1.5rem !important;
+          }
         }
       }
 
@@ -447,6 +499,18 @@ const back = (event) => {
             >span.collapsed {
               transition: transform 0.5s ease;
               transform: rotate(0deg);
+            }
+          }
+
+          .control {
+            justify-content: flex-end;
+
+            >input {
+              width: auto;
+            }
+
+            >span+input {
+              margin: 0px 0px 0px 4px;
             }
           }
         }
