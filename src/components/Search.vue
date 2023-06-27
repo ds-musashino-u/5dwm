@@ -722,7 +722,7 @@ const search = async (ignoreCache = true) => {
           }
         }
 
-        if (!categories.some(x => x === 'csv')) {
+        if (types.length > 0 && !types.some(x => x === 'csv')) {
           for (const pinnedItem of pinnedItems) {
             for (const marker of pinnedItem.graph) {
               marker.setMap(null);
