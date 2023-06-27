@@ -24,7 +24,7 @@ const back = (event) => {
   emit("back");
 };
 const resetColor = (event) => {
-  colorCodeRef.value = inputColorCodeRef.value = props.colorCode;
+  colorCodeRef.value = inputColorCodeRef.value = window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
   emit("colorChanged", props.item, colorCodeRef.value);
 };
