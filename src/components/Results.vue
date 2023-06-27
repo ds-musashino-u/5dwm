@@ -105,23 +105,23 @@ const back = (event) => {
                       <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                     </picture>
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
-                      <i class="fa-solid fa-table"></i>
+                    <span class="icon" v-if="'data' in item.media && item.media.data !== null">
+                      <i class="fa-solid fa-table fa-lg"></i>
                     </span>
-                    <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
-                      <i class="fa-solid fa-file-image"></i>
+                    <span class="icon" v-else-if="item.media.type.startsWith('image')">
+                      <i class="fa-solid fa-file-image fa-lg"></i>
                     </span>
-                    <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
-                      <i class="fa-solid fa-file-video"></i>
+                    <span class="icon" v-else-if="item.media.type.startsWith('video')">
+                      <i class="fa-solid fa-file-video fa-lg"></i>
                     </span>
-                    <span class="icon is-small" v-else-if="item.media.type.startsWith('audio')">
-                      <i class="fa-solid fa-file-audio"></i>
+                    <span class="icon" v-else-if="item.media.type.startsWith('audio')">
+                      <i class="fa-solid fa-file-audio fa-lg"></i>
                     </span>
-                    <span class="icon is-small" v-else-if="item.media.type.startsWith('text')">
-                      <i class="fa-solid fa-file-lines"></i>
+                    <span class="icon" v-else-if="item.media.type.startsWith('text')">
+                      <i class="fa-solid fa-file-lines fa-lg"></i>
                     </span>
-                    <span class="icon is-small" v-else>
-                      <i class="fa-solid fa-file"></i>
+                    <span class="icon" v-else>
+                      <i class="fa-solid fa-file fa-lg"></i>
                     </span>
                   </button>
                   <button class="button toggle" type="button" v-bind:disabled="item.loading"
@@ -350,15 +350,15 @@ const back = (event) => {
             button.toggle {
               position: absolute;
               z-index: 1;
-              bottom: 0;
-              left: 50%;
+              top: 0%;
+              right: 0%;
+              margin: 0 !important;
+              padding: 2px 8px 2px 8px !important;
               width: fit-content !important;
               height: fit-content !important;
-              padding: 8px !important;
               box-shadow: none !important;
               line-height: 1.5rem !important;
               background: transparent !important;
-              transform: translate3d(-50%, 0, 0);
 
               >span.icon {
                 margin: 0 !important;
