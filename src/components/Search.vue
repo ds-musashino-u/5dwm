@@ -1101,7 +1101,8 @@ const colorChanged = (item, colorCode) => {
       icon.strokeColor = colorCode;
       icon.fillColor = colorCode;
 
-      marker.setIcon(icon);
+      marker.setIcon(null);
+      marker.setIcon(Object.assign({}, icon));
     }
   }
 };
