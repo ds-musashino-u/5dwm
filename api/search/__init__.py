@@ -161,7 +161,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                 
-                '''
                 else:
                     subquery = session.query(MediaData.file_id.distinct())
 
@@ -172,8 +171,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     if to_datetime is not None:
                         subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-                '''
-
+                
                 if usernames is not None and len(usernames) > 0:
                     filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
 
