@@ -1089,6 +1089,22 @@ const previousResults = (index) => {
 
   search(false);
 };
+const colorChanged = (item, colorCode) => {
+  const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
+
+  appearance[item.media.id] = colorCode;
+
+  if (index >= 0) {
+    for (const marker of pinnedItems[index].graph) {
+      const icon = marker.getIcon();
+
+      icon.strokeColor = colorCode;
+      icon.fillColor = colorCode;
+
+      marker.setIcon(icon);
+    }
+  }
+};
 </script>
 
 <template>
@@ -1269,7 +1285,10 @@ const previousResults = (index) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back" />
+            <Preview :item="selectedItemRef" :colorCode="appearance[selectedItemRef.media.id]" @load="loadItem" @unload="unloadItem" @back="back"
+              @colorChanged="colorChanged" v-if="selectedItemRef.media.id in appearance" />
+            <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back"
+              @colorChanged="colorChanged" />
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
