@@ -70,7 +70,7 @@ const signOut = (event) => {
                         </button>
                       </div>
                     </div>
-                    <div class="panel-block">
+                    <div class="panel-block is-hidden">
                       <div class="control">
                         <button class="
                                 button
