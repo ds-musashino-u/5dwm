@@ -11,6 +11,7 @@ import { Media, insertMedium, updateMedium, deleteMedium } from "../presenters/m
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { csv } from "csvtojson";
+import { EXIF } from "exif-js";
 import ListBox from "./ListBox.vue";
 
 const props = defineProps({
@@ -214,6 +215,45 @@ const drop = async (event) => {
                     const reader = new FileReader();
 
                     reader.addEventListener("load", (e) => {
+                        if (file.type === "image/jpeg") {
+                            const image = new Image();
+
+                            image.onload = () => {
+                                EXIF.getData(image, function () {
+                                    const tags = EXIF.getAllTags(image);
+
+                                    if ("DateTimeOriginal" in tags) {
+                                        timeRef.value = new Date(tags["DateTimeOriginal"].replace(/^(\d{4}):(\d{2}):(\d{2})\s(\d{2}):(\d{2}):(\d{2})$/g, "$1/$2/$3 $4:$5:$6"));
+                                        timeYearRef.value = timeRef.value.getFullYear();
+                                        timeMonthRef.value = timeRef.value.getMonth();
+                                        timeDayRef.value = timeRef.value.getDate();
+                                        timeHoursRef.value = timeRef.value.getHours();
+                                        timeMinutesRef.value = timeRef.value.getMinutes();
+                                        timeSecondsRef.value = timeRef.value.getSeconds();
+                                    }
+
+                                    if ("GPSLatitude" in tags && "GPSLatitudeRef" in tags && "GPSLongitude" in tags && "GPSLongitudeRef" in tags) {
+                                        let latitude = tags["GPSLatitude"][0] / 1.0 + tags["GPSLatitude"][1] / 60.0 + tags["GPSLatitude"][2] / 3600.0;
+                                        let longitude = tags["GPSLongitude"][0] / 1.0 + tags["GPSLongitude"][1] / 60.0 + tags["GPSLongitude"][2] / 3600.0;
+
+                                        if ("S" === tags["GPSLatitudeRef"]) {
+                                            latitude *= -1
+                                        }
+
+                                        if ("W" === tags["GPSLongitudeRef"]) {
+                                            longitude *= -1
+                                        }
+
+                                        latitudeRef.value = String(latitude);
+                                        longitudeRef.value = String(longitude);
+
+                                        map.panTo(new google.maps.LatLng(latitude, longitude));
+                                    }
+                                });
+                            };
+                            image.src = reader.result;
+                        }
+
                         resolve(reader.result);
                     });
                     reader.addEventListener("error", (e) => {
@@ -288,6 +328,45 @@ const browse = async (event) => {
                     const reader = new FileReader();
 
                     reader.onload = () => {
+                        if (file.type === "image/jpeg") {
+                            const image = new Image();
+
+                            image.onload = () => {
+                                EXIF.getData(image, function () {
+                                    const tags = EXIF.getAllTags(image);
+
+                                    if ("DateTimeOriginal" in tags) {
+                                        timeRef.value = new Date(tags["DateTimeOriginal"].replace(/^(\d{4}):(\d{2}):(\d{2})\s(\d{2}):(\d{2}):(\d{2})$/g, "$1/$2/$3 $4:$5:$6"));
+                                        timeYearRef.value = timeRef.value.getFullYear();
+                                        timeMonthRef.value = timeRef.value.getMonth();
+                                        timeDayRef.value = timeRef.value.getDate();
+                                        timeHoursRef.value = timeRef.value.getHours();
+                                        timeMinutesRef.value = timeRef.value.getMinutes();
+                                        timeSecondsRef.value = timeRef.value.getSeconds();
+                                    }
+
+                                    if ("GPSLatitude" in tags && "GPSLatitudeRef" in tags && "GPSLongitude" in tags && "GPSLongitudeRef" in tags) {
+                                        let latitude = tags["GPSLatitude"][0] / 1.0 + tags["GPSLatitude"][1] / 60.0 + tags["GPSLatitude"][2] / 3600.0;
+                                        let longitude = tags["GPSLongitude"][0] / 1.0 + tags["GPSLongitude"][1] / 60.0 + tags["GPSLongitude"][2] / 3600.0;
+
+                                        if ("S" === tags["GPSLatitudeRef"]) {
+                                            latitude *= -1
+                                        }
+
+                                        if ("W" === tags["GPSLongitudeRef"]) {
+                                            longitude *= -1
+                                        }
+
+                                        latitudeRef.value = String(latitude);
+                                        longitudeRef.value = String(longitude);
+
+                                        map.panTo(new google.maps.LatLng(latitude, longitude));
+                                    }
+                                });
+                            };
+                            image.src = reader.result;
+                        }
+                        
                         resolve(reader.result);
                     };
                     reader.onerror = () => {
@@ -1323,7 +1402,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </button>
                             </div>
                             <div class="control">
-                                <button class="button" @click=" deleteConfirmation.dismiss = true; ">
+                                <button class="button" @click=" deleteConfirmation.dismiss = true;">
                                     <span class="icon">
                                         <i class="fa-solid fa-xmark"></i>
                                     </span>
@@ -1336,8 +1415,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             </div>
         </div>
         <transition name="fade">
-            <div class="progress" v-if=" progressRef > 0 " v-cloak>
-                <div class="bar animating" v-bind:style=" { width: String(Math.floor(100.0 * progressRef)) + '%' } ">
+            <div class="progress" v-if="progressRef > 0" v-cloak>
+                <div class="bar animating" v-bind:style="{ width: String(Math.floor(100.0 * progressRef)) + '%' }">
                 </div>
             </div>
         </transition>

@@ -24,6 +24,7 @@
     "@googlemaps/js-api-loader": "^1.14.3",
     "bulma": "^0.9.4",
     "csvtojson": "^2.0.10",
+    "exif-js": "github:exif-js/exif-js",
     "jwt-decode": "^3.1.2",
     "vue": "^3.2.37"
   },
