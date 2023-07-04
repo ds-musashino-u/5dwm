@@ -244,13 +244,10 @@ const drop = async (event) => {
                                             longitude *= -1
                                         }
 
-                                        latitude = latitude.toFixed(5);
-                                        longitude = longitude.toFixed(5);
-
                                         map.panTo(new google.maps.LatLng(latitude, longitude));
 
-                                        latitudeRef.value = String(latitude);
-                                        longitudeRef.value = String(longitude);
+                                        latitudeRef.value = latitude.toFixed(5);
+                                        longitudeRef.value = longitude.toFixed(5);
 
                                         try {
                                             const response = await geocoder.geocode({
@@ -376,13 +373,10 @@ const browse = async (event) => {
                                             longitude *= -1
                                         }
 
-                                        latitude = latitude.toFixed(5);
-                                        longitude = longitude.toFixed(5);
-
                                         map.panTo(new google.maps.LatLng(latitude, longitude));
 
-                                        latitudeRef.value = String(latitude);
-                                        longitudeRef.value = String(longitude);
+                                        latitudeRef.value = latitude.toFixed(5);
+                                        longitudeRef.value = longitude.toFixed(5);
 
                                         try {
                                             const response = await geocoder.geocode({
