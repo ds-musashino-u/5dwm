@@ -126,7 +126,7 @@ const back = (event) => {
                   </button>
                   <div class="heading" :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <button class="button toggle" type="button" v-bind:disabled="item.loading"
+                    <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
                       v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
                       @click="item.loaded ? unload($event, item) : load($event, item)">
                       <transition name="fade" mode="out-in">
@@ -141,7 +141,7 @@ const back = (event) => {
                   </div>
                   <div class="heading" v-else>
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <button class="button toggle" type="button" v-bind:disabled="item.loading"
+                    <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
                       v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
                       @click="item.loaded ? unload($event, item) : load($event, item)">
                       <transition name="fade" mode="out-in">
