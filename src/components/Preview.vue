@@ -344,7 +344,7 @@ const colorChanged = (event) => {
           border: 2px solid var(--accent-color) !important;
           border-radius: 290486px !important;
           padding: 0;
-          width: calc(12px + 0.75rem) !important;
+          width: 1.0rem !important;
           aspect-ratio: 1;
           box-shadow: none;
           overflow: hidden;
