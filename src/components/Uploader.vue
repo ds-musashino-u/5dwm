@@ -955,6 +955,16 @@ const initialize = async () => {
                 maximumAge: 0
             });
         }
+    } else {
+        map.setCenter(
+            new google.maps.LatLng(
+                props.media.location.latitude,
+                props.media.location.longitude
+            )
+        );
+
+        longitudeRef.value = String(props.media.location.longitude);
+        latitudeRef.value = String(props.media.location.latitude);
     }
 };
 
