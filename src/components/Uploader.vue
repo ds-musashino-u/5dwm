@@ -219,7 +219,7 @@ const drop = async (event) => {
                             const image = new Image();
 
                             image.onload = () => {
-                                EXIF.getData(image, function () {
+                                EXIF.getData(image, async () => {
                                     const tags = EXIF.getAllTags(image);
 
                                     if ("DateTimeOriginal" in tags) {
@@ -248,6 +248,22 @@ const drop = async (event) => {
                                         longitudeRef.value = String(longitude);
 
                                         map.panTo(new google.maps.LatLng(latitude, longitude));
+
+                                        try {
+                                            const response = await geocoder.geocode({
+                                                location: {
+                                                    lat: latitude,
+                                                    lng: longitude,
+                                                },
+                                                language: "en"
+                                            });
+
+                                            if (response.results.length > 0) {
+                                                addressRef.value = response.results[0].formatted_address;
+                                            }
+                                        } catch (error) {
+                                            console.error(error);
+                                        }
                                     }
                                 });
                             };
@@ -332,7 +348,7 @@ const browse = async (event) => {
                             const image = new Image();
 
                             image.onload = () => {
-                                EXIF.getData(image, function () {
+                                EXIF.getData(image, async () => {
                                     const tags = EXIF.getAllTags(image);
 
                                     if ("DateTimeOriginal" in tags) {
@@ -361,12 +377,28 @@ const browse = async (event) => {
                                         longitudeRef.value = String(longitude);
 
                                         map.panTo(new google.maps.LatLng(latitude, longitude));
+
+                                        try {
+                                            const response = await geocoder.geocode({
+                                                location: {
+                                                    lat: latitude,
+                                                    lng: longitude,
+                                                },
+                                                language: "en"
+                                            });
+
+                                            if (response.results.length > 0) {
+                                                addressRef.value = response.results[0].formatted_address;
+                                            }
+                                        } catch (error) {
+                                            console.error(error);
+                                        }
                                     }
                                 });
                             };
                             image.src = reader.result;
                         }
-                        
+
                         resolve(reader.result);
                     };
                     reader.onerror = () => {
@@ -491,7 +523,7 @@ const longitudeChange = (event) => {
 const geocode = async (event) => {
     if (addressRef.value.length > 0) {
         try {
-            const response = await geocoder.geocode({ address: addressRef.value })
+            const response = await geocoder.geocode({ address: addressRef.value });
 
             if (response.results.length > 0) {
                 const location = response.results[0].geometry.location;
