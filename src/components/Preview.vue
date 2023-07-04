@@ -31,7 +31,7 @@ const resetColor = (event) => {
 const colorChanged = (event) => {
   if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorCodeRef.value)) {
     selectedColorCodeRef.value = inputColorCodeRef.value
-    
+
     emit("colorChanged", props.item, selectedColorCodeRef.value);
   }
 };
@@ -100,6 +100,17 @@ const colorChanged = (event) => {
                   </transition>
                 </button>
               </div>
+              <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
+                <button class="button is-flat" type="button" @click="resetColor($event)">
+                  <span class="icon is-small has-text-dark">
+                    <i class="fa-solid fa-palette"></i>
+                  </span>
+                </button>
+              </div>
+              <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
+                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-model="inputColorCodeRef"
+                    @input="colorChanged($event, item)" />
+              </div>
             </div>
             <div class="level-right">
               <div class="level-item">
@@ -133,27 +144,6 @@ const colorChanged = (event) => {
               </nav>
             </div>
           </transition>
-        </div>
-        <div class="panel-block" v-if="'data' in item.media && item.media.data !== null">
-          <div class="level is-align-items-center">
-            <div class="level-left">
-              <div class="level-item">
-                <button class="button is-flat" type="button" @click="resetColor($event)">
-                  <span class="icon is-small" :style="{ color: selectedColorCodeRef }">
-                    <i class="fa-sharp fa-solid fa-brush"></i>
-                  </span>
-                </button>
-              </div>
-            </div>
-            <div class="level-right">
-              <div class="level-item">
-                <div class="control is-flex-direction-row">
-                  <input class="input is-outlined is-size-7 has-text-weight-bold" type="text"
-                    :placeholder="props.colorCode" size="7" v-model="inputColorCodeRef" @input="colorChanged($event, item)" />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
         <div class="panel-block">
           <div class="level">
@@ -346,6 +336,27 @@ const colorChanged = (event) => {
 
         .level>.level-right>.level-item .button {
           background: transparent !important;
+        }
+
+        input[type="color"] {
+          appearance: none;
+          margin: 0 !important;
+          border: 2px solid var(--accent-color) !important;
+          border-radius: 290486px !important;
+          padding: 0;
+          width: calc(12px + 0.75rem) !important;
+          aspect-ratio: 1;
+          box-shadow: none;
+          overflow: hidden;
+          block-size: auto;
+        }
+
+        input[type="color"]::-webkit-color-swatch-wrapper {
+          padding: 0;
+        }
+
+        input[type="color"]::-webkit-color-swatch {
+          border: none;
         }
       }
     }
