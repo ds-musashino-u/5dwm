@@ -105,7 +105,7 @@ const back = (event) => {
                       ">
                       <img v-bind:src="item.media.url" v-bind:alt="String(index)" />
                     </picture>
-                    <span class="icon" v-if="'data' in item.media && item.media.data !== null">
+                    <span class="icon" :style="{ color: item.media.id in appearance ? appearance[item.media.id] : false }" v-if="'data' in item.media && item.media.data !== null">
                       <i class="fa-solid fa-table fa-lg"></i>
                     </span>
                     <span class="icon" v-else-if="item.media.type.startsWith('image')">
