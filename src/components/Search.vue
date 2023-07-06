@@ -999,34 +999,42 @@ const selectItem = (index, item) => {
 };
 const loadItem = async (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    item.loading = true;
-    item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${item.media.url}`, {
-      suppressInfoWindows: false,
-      preserveViewport: false,
-      map: map
-    });
-    item.layer.status_changed = () => {
-      item.loading = false;
+    const result = searchResults.find(x => x.item.media.id === item.media.id);
 
-      if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
-        item.loaded = true;
-      } else {
-        shake(previewPanelRef.value);
-      }
-    };
-  } else if ("data" in item.media && item.media.data !== null) {
-    const graph = [];
-    const min = item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-    const max = item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
-    const span = Math.abs(min) + max;
-    const color = item.media.id in appearance ? appearance[item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+    if (result !== undefined) {
+      result.item.loading = item.loading = true;
+      result.item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${result.item.media.url}`, {
+        suppressInfoWindows: false,
+        preserveViewport: false,
+        map: map
+      });
+      result.item.layer.status_changed = () => {
+        result.item.loading = item.loading = false;
 
-    for (const dataItem of item.media.data) {
-      graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
+        if (google.maps.KmlLayerStatus.OK === result.item.layer.getStatus()) {
+          result.item.loaded = item.loaded = true;
+        } else {
+          shake(previewPanelRef.value);
+        }
+      };
     }
+  } else if ("data" in item.media && item.media.data !== null) {
+    const result = searchResults.find(x => x.item.media.id === item.media.id);
 
-    pinnedItems.push({ item: item, graph: graph });
-    item.loaded = true;
+    if (result !== undefined) {
+      const graph = [];
+      const min = result.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
+      const max = result.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+      const span = Math.abs(min) + max;
+      const color = result.item.media.id in appearance ? appearance[result.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+
+      for (const dataItem of result.item.media.data) {
+        graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
+      }
+
+      pinnedItems.push({ item: result.item, graph: graph });
+      result.item.loaded = item.loaded = true;
+    }
   }
 
   /*item.layer.addListener("click", (event) => {
@@ -1075,7 +1083,12 @@ const loadItem = async (item) => {
 };
 const unloadItem = (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    item.layer.setMap(null);
+    const result = searchResults.find(x => x.item.media.id === item.media.id);
+
+    if (result !== undefined) {
+      result.item.layer.setMap(null);
+      result.item.loaded = item.loaded = false;
+    }
   } else if ("data" in item.media && item.media.data !== null) {
     const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
 
@@ -1085,11 +1098,10 @@ const unloadItem = (item) => {
       }
 
       pinnedItems[index].graph.splice(0);
+      pinnedItems[index].item.loaded = item.loaded = false;
       pinnedItems.splice(index, 1);
     }
   }
-
-  item.loaded = false;
 };
 const nextResults = (index) => {
   searchPageIndexRef.value = index;
@@ -1298,16 +1310,17 @@ const colorChanged = (item, color) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :item="selectedItemRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem" @unload="unloadItem" @back="back"
-              @colorChanged="colorChanged" v-if="selectedItemRef.media.id in appearance" />
+            <Preview :item="selectedItemRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
+              @unload="unloadItem" @back="back" @colorChanged="colorChanged"
+              v-if="selectedItemRef.media.id in appearance" />
             <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back"
               @colorChanged="colorChanged" />
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
-              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" :appearance="appearance" @select="selectItem"
-              @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem" @back="back"
-              v-if="selectedItemRef === null" key="results" />
+              :page-index="searchPageIndexRef" :page-length="searchPageLength" :can-back="false" :appearance="appearance"
+              @select="selectItem" @next="nextResults" @previous="previousResults" @load="loadItem" @unload="unloadItem"
+              @back="back" v-if="selectedItemRef === null" key="results" />
           </nav>
         </transition>
       </div>
