@@ -8,11 +8,11 @@ const props = defineProps({
   isExpandable: { type: Boolean, required: false, default: false },
   item: { type: Object, required: false, default: null },
   canBack: { type: Boolean, required: false, default: true },
-  colorCode: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") }
+  color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") }
 });
 const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
-const inputColorCodeRef = ref(props.colorCode);
-const selectedColorCodeRef = ref(props.colorCode);
+const inputColorRef = ref(props.color);
+const selectedColorRef = ref(props.color);
 
 const load = (event, item) => {
   emit("load", item);
@@ -24,15 +24,16 @@ const back = (event) => {
   emit("back");
 };
 const resetColor = (event) => {
-  selectedColorCodeRef.value = inputColorCodeRef.value = window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+  selectedColorRef.value = inputColorRef.value = window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
 
-  emit("colorChanged", props.item, selectedColorCodeRef.value);
+  emit("colorChanged", props.item, selectedColorRef.value);
 };
 const colorChanged = (event) => {
-  if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorCodeRef.value)) {
-    selectedColorCodeRef.value = inputColorCodeRef.value
+  console.log(inputColorRef.value);
+  if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorRef.value)) {
+    selectedColorRef.value = inputColorRef.value;
 
-    emit("colorChanged", props.item, selectedColorCodeRef.value);
+    emit("colorChanged", props.item, selectedColorRef.value);
   }
 };
 </script>
@@ -108,7 +109,7 @@ const colorChanged = (event) => {
                 </button>
               </div>
               <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
-                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-model="inputColorCodeRef"
+                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-model="inputColorRef"
                     @input="colorChanged($event, item)" />
               </div>
             </div>
