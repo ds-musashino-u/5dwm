@@ -1101,17 +1101,17 @@ const previousResults = (index) => {
 
   search(false);
 };
-const colorChanged = (item, colorCode) => {
+const colorChanged = (item, color) => {
   const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
 
-  appearance[item.media.id] = colorCode;
+  appearance[item.media.id] = color;
 
   if (index >= 0) {
     for (const marker of pinnedItems[index].graph) {
       const icon = marker.getIcon();
 
-      icon.strokeColor = colorCode;
-      icon.fillColor = colorCode;
+      icon.strokeColor = color;
+      icon.fillColor = color;
 
       marker.setIcon(null);
       marker.setIcon(Object.assign({}, icon));
@@ -1298,7 +1298,7 @@ const colorChanged = (item, colorCode) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :item="selectedItemRef" :colorCode="appearance[selectedItemRef.media.id]" @load="loadItem" @unload="unloadItem" @back="back"
+            <Preview :item="selectedItemRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem" @unload="unloadItem" @back="back"
               @colorChanged="colorChanged" v-if="selectedItemRef.media.id in appearance" />
             <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back"
               @colorChanged="colorChanged" />
