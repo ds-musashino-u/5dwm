@@ -264,7 +264,7 @@ const resizeImage = async (dataURL, length) => {
 };
 const markerClick = (event) => {
   const element = searchResults.find(
-    (x) =>
+    x =>
       x.marker !== null &&
       event.latLng.lat === x.marker.position.lat &&
       event.latLng.lng === x.marker.position.lng
@@ -274,10 +274,22 @@ const markerClick = (event) => {
     const pinnedItem = pinnedItems.find(x => x.graph.find(y => event.latLng.lat === y.position.lat && event.latLng.lng === y.position.lng) !== undefined);
 
     if (pinnedItem !== undefined) {
-      selectedItemRef.value = pinnedItem.item;
+      const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === pinnedItem.item.media.id);
+
+      if (index === undefined) {
+        selectedItemRef.value = Object.assign({}, pinnedItem.item);
+      } else {
+        selectedItemRef.value = Object.assign({ index: Number(index) }, pinnedItem.item);
+      }
     }
   } else {
-    selectedItemRef.value = element.item;
+    const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === element.item.media.id);
+
+    if (index === undefined) {
+      selectedItemRef.value = Object.assign({}, element.item);
+    } else {
+      selectedItemRef.value = Object.assign({ index: Number(index) }, element.item);
+    }
   }
 };
 const timeEnabled = (value) => {
@@ -652,7 +664,7 @@ const search = async (ignoreCache = true) => {
             },
             map: map,
             title: item.media.description,
-            label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
+            label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
           });
 
           marker.addListener("click", markerClick);
@@ -796,7 +808,7 @@ const search = async (ignoreCache = true) => {
                   },
                   map: map,
                   title: resultItem.media.description,
-                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
+                  label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
                 });
 
                 marker.addListener("click", markerClick);
@@ -918,7 +930,7 @@ const search = async (ignoreCache = true) => {
                     lng: resultItem.media.location.longitude,
                   },
                   map: map,
-                  label: { text: String(index + 1), fontWeight: "bold", color: "#ffffff" }
+                  label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
                 });
                 marker.addListener("click", markerClick);
                 bounds.extend(
