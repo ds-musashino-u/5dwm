@@ -988,7 +988,7 @@ const back = (event) => {
   }
 };
 const selectItem = (index, item) => {
-  selectedItemRef.value = Object.assign({ index: index }, item);;
+  selectedItemRef.value = Object.assign({ index: index }, item);
 
   map.panTo(
     new google.maps.LatLng(
