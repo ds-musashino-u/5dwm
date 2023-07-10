@@ -1560,7 +1560,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             padding: 0em 0.75em;
                             width: 100%;
 
-                            >.field {
+                            >.field.has-addons {
                                 background: #ffffff;
                             }
                         }
