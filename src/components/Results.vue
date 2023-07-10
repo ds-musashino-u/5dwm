@@ -124,7 +124,7 @@ const back = (event) => {
                       <i class="fa-solid fa-file fa-lg"></i>
                     </span>
                   </button>
-                  <div class="heading" :style="{ backgroundColor: appearance[item.media.id] }" v-if="item.media.id in appearance">
+                  <div class="heading" :class="{ 'is-selected': (item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null) && item.loaded }" v-if="item.media.id in appearance">
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
                     <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
                       v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
@@ -139,7 +139,7 @@ const back = (event) => {
                       </transition>
                     </button>
                   </div>
-                  <div class="heading" v-else>
+                  <div class="heading" :class="{ 'is-selected': (item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null) && item.loaded }" v-else>
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
                     <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
                       v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
@@ -384,6 +384,14 @@ const back = (event) => {
                 border-radius: 0px 0px 0px 0px;
                 padding: 4px 8px 4px 8px;
                 color: #ffffff;
+              }
+            }
+
+            .heading.is-selected {
+              background: #ffffff;
+
+              .badge {
+                color: var(--accent-color);
               }
             }
 
