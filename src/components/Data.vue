@@ -516,7 +516,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                     :style="{ width: 'width' in column ? column.width : 'auto' }"
                                                     v-else-if="item.data.type.startsWith('image')">
                                                     <a :href="item.data.url" target="_blank">
-                                                        <picture><img :src="'previewImageUrl' in item.data ? item.data.previewImageUrl : item.data.url" :alt="item.data.id"></picture>
+                                                        <picture><img :src="'thumbnailUrl' in item.data ? item.data.thumbnailUrl : item.data.url" :alt="item.data.id"></picture>
                                                     </a>
                                                 </td>
                                                 <td class="is-size-7 has-text-weight-bold"

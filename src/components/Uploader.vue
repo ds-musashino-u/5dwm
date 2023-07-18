@@ -841,7 +841,7 @@ const upload = async (event, completed) => {
         try {
             if (mediaIDRef.value === null) {
                 media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate, mediaDataRef.value === null ? null : mediaDataRef.value)
-                media.previewImageUrl = thumbnailUrl;
+                media.thumbnailUrl = thumbnailUrl;
             } else {
                 media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, null, mediaDataRef.value === null ? null : mediaDataRef.value)
             }
@@ -1131,7 +1131,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <template v-else-if="props.media.type.startsWith('image')">
                                 <div class="image">
                                     <picture class="image">
-                                        <img v-bind:src="'previewImageUrl' in props.media ? props.media.previewImageUrl : props.media.url" v-bind:alt="props.media.id" />
+                                        <img v-bind:src="'thumbnailUrl' in props.media ? props.media.thumbnailUrl : props.media.url" v-bind:alt="props.media.id" />
                                     </picture>
                                 </div>
                             </template>

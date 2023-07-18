@@ -17,7 +17,7 @@ export class Media {
      * @param {?object} data - Data
      * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(id, url, type, categories, description, username, location, createdAt, data = null, previewImageUrl = null) {
+    constructor(id, url, type, categories, description, username, location, createdAt, data = null, thumbnailUrl = null) {
         this.id = id;
         this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
@@ -27,15 +27,15 @@ export class Media {
         this.location = location;
         this.createdAt = new Date(createdAt);
         this.data = data;
-        this.previewImageUrl = previewImageUrl;
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     get hasData() {
         return this.data !== null;
     }
 
-    get hasPreviewImageUrl() {
-        return this.previewImageUrl !== null;
+    get hasThumbnailUrl() {
+        return this.thumbnailUrl !== null;
     }
 }
 
