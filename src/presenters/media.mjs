@@ -35,7 +35,7 @@ export class Media {
     }
 
     get hasPreviewImageUrl() {
-        return this.hasPreviewImageUrl !== null;
+        return this.previewImageUrl !== null;
     }
 }
 
