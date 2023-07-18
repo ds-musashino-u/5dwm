@@ -81,6 +81,8 @@ export async function search(token, keywords, categories, types, usernames, imag
 
         for (const item of json.items) {
             let mediaData = null;
+            const regex = /^(https:\/\/static.5dworldmap.com\/media\/)(\S+)$/g;
+            const previewImageUrl = regex.test(item.url) ? item.url.replace(regex, "$1thumbnails/$2") : null;
 
             if (!/^https?:\/\//.test(item.url)) {
                 if (item.type.startsWith("kml") || item.type.startsWith("kmz")) {
@@ -99,9 +101,9 @@ export async function search(token, keywords, categories, types, usernames, imag
             }
 
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData, previewImageUrl)));
             } else {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaData)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaData, previewImageUrl)));
             }
         }
 
