@@ -1131,7 +1131,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <template v-else-if="props.media.type.startsWith('image')">
                                 <div class="image">
                                     <picture class="image">
-                                        <img v-bind:src="props.media.url" v-bind:alt="props.media.id" />
+                                        <img v-bind:src="'previewImageUrl' in props.media ? props.media.previewImageUrl : props.media.url" v-bind:alt="props.media.id" />
                                     </picture>
                                 </div>
                             </template>
