@@ -306,7 +306,7 @@ const back = (event) => {
         margin: 2px 2px 2px 2px;
         border: 0px none transparent !important;
         padding: 0;
-        width: calc(25% - 4px);
+        width: calc(20% - 4px);
 
         .media-content {
           border-radius: 0px;
