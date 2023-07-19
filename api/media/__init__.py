@@ -2,15 +2,23 @@ import math
 import json
 import logging
 import os
+import numpy as np
+from io import BytesIO
 from datetime import datetime, timezone, MINYEAR
+from base64 import b64decode
 from urllib.request import urlopen, Request
+from PIL import Image
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media, MediaFile, MediaData
+from shared.imaging import compute_histogram, resize_image, top_k
+from shared.models import Media, MediaFile, MediaData, ImageVector
 
 import azure.functions as func
 
+
+IMAGE_HISTOGRAM_TOP_K = 15
+MAX_IMAGE_RESOLUTION = 512
 
 engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
                        'sslmode': 'require'}, pool_recycle=60)
@@ -163,7 +171,32 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 
-                if media.type.endswith('csv') and 'data' in data:
+                if media.type.startswith('image'):
+                    try:
+                        response = urlopen(Request(media.url))
+
+                        if response.getcode() == 200:
+                            image_data = BytesIO(response.read())
+                        else:
+                            image_data = None
+
+                    except:
+                        image_data = None
+
+                    if image_data is not None:
+                        histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(Image.open(
+                            image_data), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+
+                        for index, value in histogram:
+                            imageVector = ImageVector()
+                            imageVector.id = media.id
+                            imageVector.feature == f'f{index}'
+                            imageVector.value = value
+
+                            session.add(imageVector)
+                            session.commit()
+
+                elif media.type.endswith('csv') and 'data' in data:
                     media_file = MediaFile()
 
                     media_file.filename = media.url
