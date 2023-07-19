@@ -134,11 +134,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 if histogram is not None:
-                    #query = query.join(ImageVector, Media.id == ImageVector.id)
+                    query = query.join(ImageVector, Media.id == ImageVector.id)
                     filters.append(Media.id.in_(session.query(ImageVector.id.distinct()).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
-
-                    if limit is None:
-                        limit = 15 * 100
+                    limit = 15 * 100
 
                 if keywords is not None:
                     for keyword in keywords:
@@ -198,6 +196,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         query = query.filter(or_(and_(*filters), operators))
                     
                 total_count = query.count()
+
+                if histogram is not None and total_count > limit:
+                    total_count = limit
 
                 if limit is not None:
                     query = query.limit(limit)
