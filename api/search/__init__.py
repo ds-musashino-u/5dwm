@@ -114,7 +114,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
-                query = session.query(Media)
+                query = session.query(Media.distinct())
                 filters = []
                 subquery = None
 
