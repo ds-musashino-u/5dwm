@@ -7,7 +7,7 @@ from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media, MediaFile, MediaData
+from shared.models import Media, MediaFile, MediaData, ImageVector
 
 import azure.functions as func
 
@@ -44,7 +44,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 
-                if media.type.endswith('csv'):
+                if media.type.startswith('image'):
+                    for image_vector in session.query(MediaData).filter(ImageVector.id == id).all():
+                        session.delete(image_vector)
+                        session.commit()
+
+                elif media.type.endswith('csv'):
                     media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
 
                     if media_file is not None:
