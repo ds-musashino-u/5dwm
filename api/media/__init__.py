@@ -190,7 +190,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         for index, value in histogram:
                             imageVector = ImageVector()
                             imageVector.id = media.id
-                            imageVector.feature == f'f{index}'
+                            imageVector.feature = f'f{index}'
                             imageVector.value = value
 
                             session.add(imageVector)
