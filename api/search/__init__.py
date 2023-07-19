@@ -20,6 +20,7 @@ import azure.functions as func
 
 
 UPLOAD_MAX_FILESIZE = int(os.environ.get('UPLOAD_MAX_FILESIZE', '5000000'))
+IMAGE_HISTOGRAM_TOP_K = 15
 
 ssl._create_default_https_context = ssl._create_unverified_context
 engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
@@ -61,7 +62,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='l1') * 100, 15)))
+                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
@@ -136,7 +137,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if histogram is not None:
                     query = query.join(ImageVector, Media.id == ImageVector.id)
                     filters.append(Media.id.in_(session.query(ImageVector.id.distinct()).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
-                    limit = 15 * 100
+                    limit = IMAGE_HISTOGRAM_TOP_K * 100
 
                 if keywords is not None:
                     for keyword in keywords:
@@ -198,7 +199,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 total_count = query.count()
 
                 if histogram is not None and total_count > limit:
-                    total_count = limit
+                    total_count = limit / IMAGE_HISTOGRAM_TOP_K
 
                 if limit is not None:
                     query = query.limit(limit)
