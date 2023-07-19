@@ -21,6 +21,7 @@ import azure.functions as func
 
 UPLOAD_MAX_FILESIZE = int(os.environ.get('UPLOAD_MAX_FILESIZE', '5000000'))
 IMAGE_HISTOGRAM_TOP_K = 15
+IMAGE_SEARCH_MAX_RESULTS = 100
 
 ssl._create_default_https_context = ssl._create_unverified_context
 engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={
@@ -137,7 +138,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if histogram is not None:
                     query = query.join(ImageVector, Media.id == ImageVector.id)
                     filters.append(Media.id.in_(session.query(ImageVector.id.distinct()).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
-                    limit = 100 * IMAGE_HISTOGRAM_TOP_K
+                    limit = IMAGE_SEARCH_MAX_RESULTS * IMAGE_HISTOGRAM_TOP_K
 
                 if keywords is not None:
                     for keyword in keywords:
