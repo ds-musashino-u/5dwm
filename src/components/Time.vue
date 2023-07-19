@@ -21,8 +21,8 @@ const TimeUnits = {
 const isEnabledRef = toRef(props, "isEnabled");
 const isCollapsedRef = ref(props.isCollapsed);
 const currentUnitRef = ref(TimeUnits.Year);
-const fromDateRef = toRef(props, "fromDate");
-const toDateRef = toRef(props, "toDate");
+const fromDateRef = ref(new Date(props.fromDate));
+const toDateRef = ref(new Date(props.toDate));
 const fromYearRef = ref(props.fromDate.getFullYear());
 const fromMonthRef = ref(props.fromDate.getMonth());
 const fromDayRef = ref(props.fromDate.getDate());
@@ -103,30 +103,39 @@ const hasBackward = ref(
   validateBackward(addTime(props.fromDate, currentUnitRef.value, -1))
 );
 const reset = (event) => {
+  fromDateRef.value = new Date(props.defaultFromDate);
+  toDateRef.value = new Date(props.defaultToDate);
+
   emit("changed", props.defaultFromDate, props.defaultToDate);
 };
 const enabled = (event) => {
   emit("enabled");
 };
 const forward = (event) => {
-  const fromDate = addTime(props.fromDate, currentUnitRef.value, 1);
-  const toDate = addTime(fromDate, currentUnitRef.value, 1);
+  const fromDate = addTime(fromDateRef.value, currentUnitRef.value, 1);
+  const toDate = addTime(toDateRef.value, currentUnitRef.value, 1);
 
   hasForward.value = validateForward(
     addTime(toDate, currentUnitRef.value, 1)
   );
-  hasBackward.value = validateBackward(props.fromDate);
+  hasBackward.value = validateBackward(fromDateRef.value);
+
+  fromDateRef.value = fromDate;
+  toDateRef.value = toDate;
 
   emit("changed", fromDate, toDate);
 };
 const backward = (event) => {
-  const fromDate = addTime(props.fromDate, currentUnitRef.value, -1);
-  const toDate = addTime(fromDate, currentUnitRef.value, 1);
+  const fromDate = addTime(fromDateRef.value, currentUnitRef.value, -1);
+  const toDate = addTime(toDateRef.value, currentUnitRef.value, -1);
 
   hasForward.value = validateForward(toDate);
   hasBackward.value = validateBackward(
     addTime(fromDate, currentUnitRef.value, -1)
   );
+
+  fromDateRef.value = fromDate;
+  toDateRef.value = toDate;
 
   emit("changed", fromDate, toDate);
 };
