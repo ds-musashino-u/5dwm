@@ -46,7 +46,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if media.type.startswith('image'):
                     for image_vector in session.query(MediaData).filter(ImageVector.id == id).all():
                         session.delete(image_vector)
-                        session.commit()
+
+                    session.commit()
+
+                    media = session.query(Media).filter(Media.id == id).one()
 
                 elif media.type.endswith('csv'):
                     media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
