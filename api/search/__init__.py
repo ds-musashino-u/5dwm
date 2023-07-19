@@ -134,11 +134,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 if histogram is not None:
-                    #query = query.join(ImageVector, Media.id == ImageVector.id)
+                    query = query.join(ImageVector, Media.id == ImageVector.id)
                     filters.append(Media.id.in_(session.query(ImageVector.id.distinct()).filter(or_(*list(map(lambda data: ImageVector.feature == f'f{data[0]}', histogram))))))
 
                     if limit is None:
-                        limit = 100
+                        limit = 15 * 100
 
                 if keywords is not None:
                     for keyword in keywords:
@@ -206,61 +206,62 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.offset(offset)
 
                 for item in query.all():
-                    score = None
+                    if next((m for m in media if m['id'] == item.id), None) is None:
+                        score = None
 
-                    if histogram is not None and item.vector is not None:
-                        vector1 = []
-                        vector2 = []
+                        if histogram is not None and item.vector is not None:
+                            vector1 = []
+                            vector2 = []
 
-                        for (index, value) in histogram:
-                            for element in item.vector:
-                                if element.value > 0.0 and f'f{index}' == element.feature:
-                                    vector1.append(value)
-                                    vector2.append(element.value)
+                            for (index, value) in histogram:
+                                for element in item.vector:
+                                    if element.value > 0.0 and f'f{index}' == element.feature:
+                                        vector1.append(value)
+                                        vector2.append(element.value)
 
-                        if len(vector1) > 0:
-                            score = np.dot(np.array(vector1),
-                                           np.array(vector2))
+                            if len(vector1) > 0:
+                                score = np.dot(np.array(vector1),
+                                            np.array(vector2))
+                                
+                        medium = {
+                            'id': item.id,
+                            'url': item.url,
+                            'type': item.type,
+                            'categories': item.categories,
+                            'address': item.address,
+                            'description': item.description,
+                            'username': item.username,
+                            'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
+                            'score': score,
+                            'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                        }
+
+                        if item.type.endswith('csv'):
+                            media_file = session.query(MediaFile).filter(
+                                MediaFile.media_id == item.id).one_or_none()
+
+                            if media_file is not None:
+                                limit = 100
+                                query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
-                    medium = {
-                        'id': item.id,
-                        'url': item.url,
-                        'type': item.type,
-                        'categories': item.categories,
-                        'address': item.address,
-                        'description': item.description,
-                        'username': item.username,
-                        'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
-                        'score': score,
-                        'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                    }
+                                if to_datetime is not None:
+                                    query = query.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
 
-                    if item.type.endswith('csv'):
-                        media_file = session.query(MediaFile).filter(
-                            MediaFile.media_id == item.id).one_or_none()
+                                query = query.limit(limit)
+                                count = query.count()
+                                medium['data'] = []
 
-                        if media_file is not None:
-                            limit = 100
-                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
-                        
-                            if to_datetime is not None:
-                                query = query.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                                for i in range(math.ceil(count / limit)):
+                                    for media_data in query.offset(i * limit).all():
+                                        medium['data'].append({
+                                            'id': media_data.id,
+                                            'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                            'address': media_data.address,
+                                            'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
+                                            'value': media_data.value
+                                        })
 
-                            query = query.limit(limit)
-                            count = query.count()
-                            medium['data'] = []
-
-                            for i in range(math.ceil(count / limit)):
-                                for media_data in query.offset(i * limit).all():
-                                    medium['data'].append({
-                                        'id': media_data.id,
-                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                                        'address': media_data.address,
-                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
-                                        'value': media_data.value
-                                    })
-
-                    media.append(medium)
+                        media.append(medium)
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
