@@ -30,19 +30,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(status_code=401, mimetype='', charset='')
 
             try:
-                media = session.query(Media).filter(Media.id == id).one()
-                session.delete(media)
-                item = {
-                    'id': media.id,
-                    'url': media.url,
-                    'type': media.type,
-                    'categories': media.categories,
-                    'address': media.address,
-                    'description': media.description,
-                    'username': media.username,
-                    'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
-                    'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
-                }
+                data = None
 
                 if media.type.startswith('image'):
                     for image_vector in session.query(MediaData).filter(ImageVector.id == id).all():
@@ -70,8 +58,23 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                 })
 
-                        item['data'] = data
+                media = session.query(Media).filter(Media.id == id).one()
+                item = {
+                    'id': media.id,
+                    'url': media.url,
+                    'type': media.type,
+                    'categories': media.categories,
+                    'address': media.address,
+                    'description': media.description,
+                    'username': media.username,
+                    'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                    'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
+                }
 
+                if data is not None:
+                    item['data'] = data
+
+                session.delete(media)
                 session.commit()
 
                 return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
