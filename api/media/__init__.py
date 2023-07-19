@@ -188,12 +188,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             image_data), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         for index, value in histogram:
-                            imageVector = ImageVector()
-                            imageVector.id = media.id
-                            imageVector.feature = f'f{index}'
-                            imageVector.value = value
+                            image_vector = ImageVector()
+                            image_vector.id = media.id
+                            image_vector.feature = f'f{index}'
+                            image_vector.value = value
 
-                            session.add(imageVector)
+                            session.add(image_vector)
                             session.commit()
 
                 elif media.type.endswith('csv') and 'data' in data:
