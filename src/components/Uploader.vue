@@ -1368,7 +1368,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     <div class="panel-block">
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary" type="submit"
-                                v-bind:disabled="user === null || isUploadingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
+                                v-bind:disabled="user === null || isUploadingRef || isDeletingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
                                 @click="upload($event, uploadCompleted)">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadedRef" key="uploaded">
