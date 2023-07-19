@@ -137,7 +137,7 @@ const colorChanged = (event) => {
                   <article class="media">
                     <div class="media-content">
                       <picture class="image">
-                        <img v-bind:src="'thumbnailUrl' in item.media ? item.media.thumbnailUrl : item.media.url" v-bind:alt="item.media.id" />
+                        <img v-bind:src="'thumbnailUrl' in item.media && item.media.thumbnailUrl !== null ? item.media.thumbnailUrl : item.media.url" v-bind:alt="item.media.id" />
                       </picture>
                     </div>
                   </article>

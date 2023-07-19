@@ -103,7 +103,7 @@ const back = (event) => {
                     <picture class="image" v-if="item.media.type.startsWith('image') &&
                       item.media.url.startsWith('https://')
                       ">
-                      <img v-bind:src="'thumbnailUrl' in item.media ? item.media.thumbnailUrl : item.media.url" v-bind:alt="String(index)" />
+                      <img v-bind:src="'thumbnailUrl' in item.media && item.media.thumbnailUrl !== null ? item.media.thumbnailUrl : item.media.url" v-bind:alt="String(index)" />
                     </picture>
                     <span class="icon" :style="{ color: item.media.id in appearance ? appearance[item.media.id] : false }" v-if="'data' in item.media && item.media.data !== null">
                       <i class="fa-solid fa-table fa-lg"></i>
