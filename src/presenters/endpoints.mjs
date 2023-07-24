@@ -5,5 +5,5 @@ export class Endpoints {
     static MEDIA_URL = "https://5dworldmap.com/api/v1/media";
     static USERS_URL = "https://5dworldmap.com/api/v1/users";
     static UPLOAD_URL = "https://5dworldmap.com/api/v1/upload";
-    static ECHO_URL = "https://5dworldmap.com/api/v1/echo";
+    static TUNNEL_URL = "https://5dworldmap.com/api/v1/tunnel";
 }
