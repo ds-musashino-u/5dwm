@@ -64,7 +64,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), 512).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                            Image.open(BytesIO(b64decode(data))), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
@@ -79,7 +79,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 if response.getcode() == 200:
                                     temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                        Image.open(BytesIO(response.read())), 512).convert('RGB')), normalize='l1') * 100, 15)))
+                                        Image.open(BytesIO(response.read())), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
@@ -98,7 +98,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 if bytes.getbuffer().nbytes < UPLOAD_MAX_FILESIZE:
                                     temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(
-                                        resize_image(Image.open(bytes), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, 15)))
+                                        resize_image(Image.open(bytes), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
@@ -200,9 +200,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                 total_count = query.count()
 
-                if histogram is not None:
-                    total_count = total_count // IMAGE_HISTOGRAM_TOP_K
-
                 if limit is not None:
                     query = query.limit(limit)
 
@@ -226,6 +223,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             if len(vector1) > 0:
                                 score = np.dot(np.array(vector1),
                                             np.array(vector2))
+                                
+                            total_count -= len(item.vector) - 1
                                 
                         medium = {
                             'id': item.id,
