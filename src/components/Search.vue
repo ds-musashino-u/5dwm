@@ -1015,7 +1015,7 @@ const loadItem = async (item) => {
 
     if (result !== undefined) {
       result.item.loading = item.loading = true;
-      result.item.layer = new google.maps.KmlLayer(`${Endpoints.ECHO_URL}?url=${result.item.media.url}`, {
+      result.item.layer = new google.maps.KmlLayer(`${Endpoints.TUNNEL_URL}?url=${result.item.media.url}`, {
         suppressInfoWindows: false,
         preserveViewport: false,
         map: map
