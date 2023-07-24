@@ -200,7 +200,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                 total_count = query.count()
 
-                if histogram is not None and total_count > limit:
+                if histogram is not None:
                     total_count = limit // IMAGE_HISTOGRAM_TOP_K
 
                 if limit is not None:
