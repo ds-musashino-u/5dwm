@@ -200,6 +200,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                 total_count = query.count()
 
+                if histogram is not None:
+                    total_count = total_count // IMAGE_HISTOGRAM_TOP_K
+
                 if limit is not None:
                     query = query.limit(limit)
 
@@ -263,9 +266,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                         })
 
                         media.append(medium)
-
-                    if item.vector is not None:
-                        total_count -= len(item.vector) - 1
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
