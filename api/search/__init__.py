@@ -200,9 +200,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                 total_count = query.count()
 
-                if histogram is not None:
-                    total_count = min(total_count // IMAGE_HISTOGRAM_TOP_K, MAX_IMAGE_SEARCH_RESULTS)
-
                 if limit is not None:
                     query = query.limit(limit)
 
@@ -226,6 +223,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             if len(vector1) > 0:
                                 score = np.dot(np.array(vector1),
                                             np.array(vector2))
+                                
+                            total_count -= len(item.vector) - 1
                                 
                         medium = {
                             'id': item.id,
@@ -266,6 +265,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                         })
 
                         media.append(medium)
+
+                    elif item.vector is not None:
+                        total_count -= len(item.vector)
+
+                    else:
+                        total_count -= 1
+
+                if histogram is not None:
+                    total_count = min(total_count, MAX_IMAGE_SEARCH_RESULTS)
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
