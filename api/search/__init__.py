@@ -224,8 +224,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 score = np.dot(np.array(vector1),
                                             np.array(vector2))
                                 
-                            total_count -= len(item.vector) - 1
-                                
                         medium = {
                             'id': item.id,
                             'url': item.url,
@@ -265,6 +263,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                         })
 
                         media.append(medium)
+
+                    if item.vector is not None:
+                        total_count -= len(item.vector) - 1
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
