@@ -8,7 +8,8 @@ const props = defineProps({
   isExpandable: { type: Boolean, required: false, default: false },
   item: { type: Object, required: false, default: null },
   canBack: { type: Boolean, required: false, default: true },
-  color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") }
+  color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") },
+  error: { type: Object, required: false, default: null }
 });
 const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
 const inputColorRef = ref(props.color);
@@ -127,6 +128,23 @@ const colorChanged = (event) => {
               </div>
             </div>
           </nav>
+          <transition name="fade" mode="out-in">
+            <div class="level is-mobile has-background-danger" v-if="props.error !== null">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="icon is-small has-text-white">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                  </span>
+                </div>
+                <div class="level-item" v-if="'url' in props.error && props.error.url !== null">
+                  <a :href="props.error.url" target="_blank" class="is-size-7 is-uppercase is-underlined has-text-weight-bold has-text-white" :title="props.error.message">{{ props.error.message }}</a>
+                </div>
+                <div class="level-item" v-else>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-white">{{ props.error.message }}</span>
+                </div>
+              </div>
+            </div>
+          </transition>
           <transition name="fade" mode="out-in">
             <div class="control" v-if="!isCollapsed &&
               item.media.type.startsWith('image') &&
@@ -555,6 +573,30 @@ const colorChanged = (event) => {
         .level-item:not(:last-child) {
           margin: 0px 0px 0.5em 0px;
         }
+      }
+    }
+
+    .level.has-background-danger>.level-left {
+      flex-direction: row;
+      padding: 0.5em 0em;
+
+      >.level-item:not(:last-child) {
+        margin: 0px 0.5em 0px 0px;
+      }
+
+      a,
+      a:focus,
+      a:link,
+      a:visited,
+      a:active {
+        color: #ffffff !important;
+        transition: .5s;
+      }
+
+      a:hover {
+        opacity: 0.5;
+        color: #ffffff !important;
+        transition: .5s;
       }
     }
 
