@@ -52,6 +52,7 @@ const searchTotalCountRef = ref(null);
 const searchResultsRef = ref([]);
 const selectedItemRef = ref(null);
 const previewPanelRef = ref(null);
+const errorRef = ref(null);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -181,6 +182,9 @@ watch(imageUrlRef, (currentValue, oldValue) => {
   if (currentValue !== null) {
     imageFileRef.value = null;
   }
+});
+watch(selectedItemRef, (currentValue, oldValue) => {
+    errorRef.value = null;
 });
 
 const sequenceEqual = (first, second) => {
@@ -1020,12 +1024,13 @@ const loadItem = async (item) => {
         preserveViewport: false,
         map: map
       });
-      result.item.layer.status_changed = () => {
+      result.item.layer.status_changed = (e) => {
         result.item.loading = item.loading = false;
 
         if (google.maps.KmlLayerStatus.OK === result.item.layer.getStatus()) {
           result.item.loaded = item.loaded = true;
         } else {
+          errorRef.value = { message: result.item.layer.getStatus(), url: "https://developers.google.com/maps/documentation/javascript/kmllayer" };
           shake(previewPanelRef.value);
         }
       };
@@ -1322,10 +1327,10 @@ const colorChanged = (item, color) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :item="selectedItemRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
+            <Preview :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
               @unload="unloadItem" @back="back" @colorChanged="colorChanged"
               v-if="selectedItemRef.media.id in appearance" />
-            <Preview :item="selectedItemRef" @load="loadItem" @unload="unloadItem" @back="back"
+            <Preview :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
               @colorChanged="colorChanged" />
           </nav>
           <nav class="panel" v-else key="results">
