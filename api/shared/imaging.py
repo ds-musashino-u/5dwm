@@ -38,7 +38,7 @@ def compute_histogram(rgb_image, r=0.1, r1=0.85, normalize=None):
             histogram[round(hue * MULT_FCTR)] += wh
             histogram[round(2 * np.pi * MULT_FCTR) + round(value / DIV_FCTR)] += wi
             # Paper code
-            # histogram[round(2 * np.pi * MULT_FCTR) + 1 + round(v / DIV_FCTR)] += wi
+            # histogram[round(2 * np.pi * MULT_FCTR) + 1 + round(value / DIV_FCTR)] += wi
 
     if normalize == 'l1':
         histogram = histogram / np.sum(histogram)
