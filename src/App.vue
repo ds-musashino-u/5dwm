@@ -8,8 +8,8 @@ import Search from "./components/Search.vue";
 import Data from "./components/Data.vue";
 import Uploader from "./components/Uploader.vue";
 import { Auth0Config } from "./presenters/auth0-config.mjs";
-import { createAuth0Client } from '@auth0/auth0-spa-js';
-import jwt_decode from 'jwt-decode';
+import { createAuth0Client } from "@auth0/auth0-spa-js";
+import { jwtDecode } from "jwt-decode";
 
 export default {
   components: {
@@ -86,7 +86,7 @@ export default {
             }
           });
 
-          const decoded = jwt_decode(accessToken);
+          const decoded = jwtDecode(accessToken);
 
           if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
             isAdmin.value = true;
@@ -94,7 +94,7 @@ export default {
 
           user.value = await auth0.value.getUser();
 
-          console.log(jwt_decode(accessToken));
+          console.log(jwtDecode(accessToken));
           console.log(await auth0.value.getIdTokenClaims());
           console.log(user.value);
         } else {
@@ -135,7 +135,7 @@ export default {
               });
             }
 
-            const decoded = jwt_decode(accessToken);
+            const decoded = jwtDecode(accessToken);
 
             if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
               isAdmin.value = true;
@@ -165,7 +165,7 @@ export default {
             }
           });
 
-          const decoded = jwt_decode(accessToken);
+          const decoded = jwtDecode(accessToken);
 
           if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
             isAdmin.value = true;
@@ -207,7 +207,7 @@ export default {
             }
           });
 
-          const decoded = jwt_decode(accessToken);
+          const decoded = jwtDecode(accessToken);
 
           if ("permissions" in decoded && decoded["permissions"].some(x => x.endsWith(":all"))) {
             isAdmin.value = true;
