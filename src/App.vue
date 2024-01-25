@@ -32,7 +32,7 @@ export default {
         },
         {
           icon: "fa-solid fa-database",
-          name: "Data",
+          name: "My Data",
           component: "Data",
         },
         {
