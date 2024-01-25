@@ -139,22 +139,12 @@ const backward = (event) => {
 
   emit("changed", fromDate, toDate);
 };
-const fromYearChange = (event) => {
-  fromDateRef.value.setFullYear(Number(event.currentTarget.value));
+const fromDateChange = (event) => {
+  const date = new Date(event.currentTarget.value);
 
-  updateFromDate(fromDateRef.value);
-
-  emit("changed", fromDateRef.value, toDateRef.value);
-};
-const fromMonthChange = (event) => {
-  fromDateRef.value.setMonth(Number(event.currentTarget.value) - 1);
-
-  updateFromDate(fromDateRef.value);
-
-  emit("changed", fromDateRef.value, toDateRef.value);
-};
-const fromDayChange = (event) => {
-  fromDateRef.value.setDate(Number(event.currentTarget.value));
+  fromDateRef.value.setFullYear(date.getFullYear());
+  fromDateRef.value.setMonth(date.getMonth());
+  fromDateRef.value.setDate(date.getDate());
 
   updateFromDate(fromDateRef.value);
 
@@ -174,22 +164,12 @@ const fromMinutesChange = (event) => {
 
   emit("changed", fromDateRef.value, toDateRef.value);
 };
-const toYearChange = (event) => {
-  toDateRef.value.setFullYear(Number(event.currentTarget.value));
+const toDateChange = (event) => {
+  const date = new Date(event.currentTarget.value);
 
-  updateToDate(toDateRef.value);
-
-  emit("changed", fromDateRef.value, toDateRef.value);
-};
-const toMonthChange = (event) => {
-  toDateRef.value.setMonth(Number(event.currentTarget.value) - 1);
-
-  updateToDate(toDateRef.value);
-
-  emit("changed", fromDateRef.value, toDateRef.value);
-};
-const toDayChange = (event) => {
-  toDateRef.value.setDate(Number(event.currentTarget.value));
+  toDateRef.value.setFullYear(date.getFullYear());
+  toDateRef.value.setMonth(date.getMonth());
+  toDateRef.value.setDate(date.getDate());
 
   updateToDate(toDateRef.value);
 
@@ -327,25 +307,9 @@ watch(toDateRef, (newValue, oldValue) => {
           <div class="level-item">
             <div class="field">
               <div class="control">
-                <input class="input is-size-7 has-text-weight-bold" type="number" size="4" placeholder="Year"
-                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="fromYearRef"
-                  @change="fromYearChange" />
-                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                <div class="select is-normal">
-                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled" @change="fromMonthChange">
-                    <option v-for="i in [...Array(12).keys()]" v-bind:key="i" v-bind:selected="i === fromMonthRef"
-                      v-text="i + 1"></option>
-                  </select>
-                </div>
-                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                <div class="select is-normal">
-                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled" @change="fromDayChange">
-                    <option v-for="i in [...Array(31).keys()]" v-bind:key="i" v-bind:selected="i + 1 === fromDayRef"
-                      v-text="i + 1"></option>
-                  </select>
-                </div>
+                <input class="input is-size-7 has-text-weight-bold" type="date"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + fromYearRef).slice(-4) + '-' + (Array(2).join('0') + fromMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + fromDayRef).slice(-2)"
+                  @change="fromDateChange" />
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
                     v-bind:disabled="!isEnabled" @change="fromHoursChange">
@@ -378,25 +342,9 @@ watch(toDateRef, (newValue, oldValue) => {
           <div class="level-item">
             <div class="field">
               <div class="control">
-                <input class="input is-size-7 has-text-weight-bold" type="number" size="4" placeholder="Year"
-                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="toYearRef"
-                  @change="toYearChange" />
-                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                <div class="select is-normal">
-                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled" @change="toMonthChange">
-                    <option v-for="i in [...Array(12).keys()]" v-bind:key="i" v-bind:selected="i === toMonthRef"
-                      v-text="i + 1"></option>
-                  </select>
-                </div>
-                <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                <div class="select is-normal">
-                  <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
-                    v-bind:disabled="!isEnabled" @change="toDayChange">
-                    <option v-for="i in [...Array(31).keys()]" v-bind:key="i" v-bind:selected="i + 1 === toDayRef"
-                      v-text="i + 1"></option>
-                  </select>
-                </div>
+                <input class="input is-size-7 has-text-weight-bold" type="date"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + toYearRef).slice(-4) + '-' + (Array(2).join('0') + toMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + toDayRef).slice(-2)"
+                  @change="toDateChange" />
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
                     v-bind:disabled="!isEnabled" @change="toHoursChange">
@@ -577,6 +525,17 @@ watch(toDateRef, (newValue, oldValue) => {
             background: #ffffff;
             font-size: 0.75rem !important;
             width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
+          }
+
+          >input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]) {
+            color: #000000;
+            margin: 0px 8px 0px 0px;
+            border: 1px solid hsl(0deg, 0%, 93%) !important;
+            background: #ffffff;
+            font-size: 0.75rem !important;
+            width: fit-content;
+            justify-content: center;
+            align-items: center;
           }
 
           >.select:nth-of-type(2):not(:last-of-type) {
