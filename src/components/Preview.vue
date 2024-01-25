@@ -350,7 +350,7 @@ const colorChanged = (event) => {
       box-shadow: none !important;
 
       >.panel-block {
-        width: 400px;
+        width: 320px;
         height: fit-content;
 
         .level>.level-right>.level-item .button {
@@ -396,7 +396,7 @@ const colorChanged = (event) => {
 
     .panel-block {
       border-radius: 0;
-      width: 400px;
+      width: 320px;
       box-shadow: none !important;
 
       >.level {
@@ -606,7 +606,7 @@ const colorChanged = (event) => {
       justify-content: flex-start;
       align-items: center;
       padding: 0 !important;
-      width: 400px;
+      width: 320px;
 
       .level {
         padding: 0;
@@ -630,7 +630,7 @@ const colorChanged = (event) => {
 
               img {
                 object-fit: contain;
-                width: 400px;
+                width: 320px;
               }
             }
           }
