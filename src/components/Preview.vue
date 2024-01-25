@@ -47,7 +47,7 @@ const colorChanged = (event) => {
           <nav class="level is-mobile">
             <div class="level-left">
               <div class="level-item">
-                <button class="button is-rounded" v-bind:disabled="!canBack" @click="back($event)">
+                <button class="button is-rounded is-primary" v-bind:disabled="!canBack" @click="back($event)">
                   <span class="icon is-small">
                     <i class="fa-solid fa-arrow-left"></i>
                   </span>
