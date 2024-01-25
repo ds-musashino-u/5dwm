@@ -566,11 +566,15 @@ function timeIsValid(d, m, y) {
 
     return m >= 0 && m < 12 && d > 0 && d <= daysInMonth(m, y);
 }
-const timeYearChange = (event) => {
-    hasTimeErrorRef.value = !timeIsValid(timeRef.value.getDate(), timeRef.value.getMonth(), Number(event.currentTarget.value));
+const timeDateChange = (event) => {
+    const date = new Date(event.currentTarget.value);
+
+    hasTimeErrorRef.value = !timeIsValid(date.getDate(), date.getMonth(), date.getFullYear());
 
     if (!hasTimeErrorRef.value) {
-        timeRef.value.setFullYear(Number(event.currentTarget.value));
+        timeRef.value.setFullYear(date.getFullYear());
+        timeRef.value.setMonth(date.getMonth());
+        timeRef.value.setDate(date.getDate());
     }
 };
 const timeMonthChange = (event) => {
@@ -1303,28 +1307,9 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <div class="block">
                                 <div class="field">
                                     <div class="control">
-                                        <input class="input is-size-7 is-outlined has-text-weight-bold" type="number"
-                                            size="4" placeholder="Year" v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                            v-bind:disabled="!isInitializedRef" v-bind:value="timeYearRef"
-                                            @change="timeYearChange" />
-                                        <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                        <div class="select is-normal">
-                                            <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isInitializedRef" @change="timeMonthChange">
-                                                <option v-for="i in [...Array(12).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i === timeMonthRef" v-text="i + 1"></option>
-                                            </select>
-                                        </div>
-                                        <span class="is-size-7 is-uppercase has-text-weight-bold">/</span>
-                                        <div class="select is-normal">
-                                            <select class="is-size-7 has-text-weight-bold"
-                                                v-bind:class="{ 'has-error': hasTimeErrorRef }"
-                                                v-bind:disabled="!isInitializedRef" @change="timeDayChange">
-                                                <option v-for="i in [...Array(31).keys()]" v-bind:key="i"
-                                                    v-bind:selected="i + 1 === timeDayRef" v-text="i + 1"></option>
-                                            </select>
-                                        </div>
+                                        <input class="input is-size-7 has-text-weight-bold" type="date"
+                                            v-bind:class="{ 'has-error': hasTimeErrorRef }" v-bind:disabled="!isInitializedRef" v-bind:value="(Array(4).join('0') + timeYearRef).slice(-4) + '-' + (Array(2).join('0') + timeMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + timeDayRef).slice(-2)"
+                                            @change="timeDateChange" />
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
                                                 v-bind:class="{ 'has-error': hasTimeErrorRef }"
@@ -1929,9 +1914,15 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     width: calc(calc(0.75rem * 4) + calc(calc(0.75em - 1px) * 2));
                 }
 
-                >.select:nth-of-type(2):not(:last-of-type) {
+                >input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]) {
+                    color: #000000;
                     margin: 0px 8px 0px 0px;
-                    padding: 0;
+                    border: 1px solid hsl(0deg, 0%, 93%) !important;
+                    background: #ffffff;
+                    font-size: 0.75rem !important;
+                    width: fit-content;
+                    justify-content: center;
+                    align-items: center;
                 }
 
                 >.select>select {
