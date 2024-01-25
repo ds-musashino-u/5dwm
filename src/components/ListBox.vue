@@ -197,7 +197,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     }
 
     label {
-      padding: 0.5em 0.75em;
+      padding: 0.25em 0.75em;
       width: 100%;
       background-color: transparent;
       transition: background-color 0.5s;
