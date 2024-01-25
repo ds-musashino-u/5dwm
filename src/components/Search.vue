@@ -26,7 +26,7 @@ const isLoadingRef = ref(false);
 const imageIsCollapsedRef = ref(true);
 const imageFileRef = ref(null);
 const imageUrlRef = ref("");
-const timeIsEnabledRef = ref(true);
+const timeIsEnabledRef = ref(false);
 const fromDateRef = ref(new Date());
 const toDateRef = ref(new Date());
 const defaultFromDateRef = ref(new Date());
@@ -1276,7 +1276,7 @@ const colorChanged = (item, color) => {
             </div>
             <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
               :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
-              @changed="timeChanged" />
+              @changed="timeChanged" isCollapsed="true" />
             <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
