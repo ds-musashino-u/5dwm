@@ -820,7 +820,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             overflow-y: auto;
 
             >.block {
-                width: 400px;
+                width: 320px;
                 height: fit-content;
 
                 .panel {
@@ -1207,7 +1207,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         }
 
         >.block {
-            width: 400px;
+            width: 320px;
             height: fit-content;
 
             .panel {
