@@ -98,7 +98,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         <nav class="level is-mobile">
           <div class="level-left">
             <div class="level-item">
-              <button class="button" v-bind:disabled="
+              <button class="button is-primary" v-bind:disabled="
                 !isEnabled || pageIndexRef === 0 || isFetchingRef
               " @click="previous($event)">
                 <span class="icon is-small">
@@ -109,7 +109,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
           </div>
           <div class="level-right">
             <div class="level-item">
-              <button class="button" v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef" @click="next($event)">
+              <button class="button is-primary" v-bind:disabled="!isEnabled || !isContinuous || isFetchingRef" @click="next($event)">
                 <span class="icon is-small">
                   <i class="fa-solid fa-chevron-right"></i>
                 </span>
