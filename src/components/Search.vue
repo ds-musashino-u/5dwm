@@ -1276,7 +1276,7 @@ const colorChanged = (item, color) => {
             </div>
             <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
               :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
-              @changed="timeChanged" isCollapsed="true" />
+              @changed="timeChanged" :isCollapsed="true" />
             <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
