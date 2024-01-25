@@ -88,19 +88,26 @@ const colorChanged = (event) => {
                   <span class="is-size-7 is-uppercase has-text-weight-bold">{{ item.index + 1 }}</span>
                 </span>
               </div>
-              <div class="level-item">
-                <button class="button toggle" type="button" v-bind:disabled="item.loading"
-                  v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
-                  @click="item.loaded ? unload($event, item) : load($event, item)">
-                  <transition name="fade" mode="out-in">
-                    <span class="icon" v-if="item.loaded" key="on">
-                      <i class="fa-solid fa-toggle-on"></i>
-                    </span>
-                    <span class="icon" v-else key="off">
-                      <i class="fa-solid fa-toggle-off"></i>
-                    </span>
-                  </transition>
-                </button>
+              <div class="level-item" v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null">
+                <span class="icon is-small has-text-dark">
+                  <i class="fa-solid fa-chart-simple"></i>
+                </span>
+                <div class="control">
+                  <div class="tabs is-toggle">
+                    <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
+                      <li :class="{ 'is-active': !item.loaded }" >
+                        <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                          <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
+                        </a>
+                      </li>
+                      <li :class="{ 'is-active': item.loaded }">
+                        <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                          <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
               </div>
               <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
                 <button class="button is-flat" type="button" @click="resetColor($event)">
@@ -485,6 +492,29 @@ const colorChanged = (event) => {
             font-size: 1.0rem !important;
             line-height: 1.0rem !important;
           }
+        }
+
+        .control {
+          width: fit-content;
+
+          >.tabs.is-toggle {
+            ul {
+              margin: 0;
+
+              >li>a {
+                padding: 0.25em 0.5em;
+                transition: 0.5s;
+              }
+
+              >li:not(.is-active)>a {
+                background: #ffffff;
+              }
+            }
+          }
+        }
+
+        span.icon+.control {
+          margin-left: 0.75rem;
         }
 
         button.toggle {
