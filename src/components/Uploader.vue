@@ -1410,7 +1410,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             <div class="crosshairs icon"><i class="fa-solid fa-crosshairs"></i></div>
         </div>
         <div class="right" v-if="props.isClosable">
-            <button class="button is-circle" type="button" @click="close($event)">
+            <button class="button is-primary" type="button" @click="close($event)">
                 <span class="icon is-small">
                     <i class="fa-solid fa-xmark"></i>
                 </span>
@@ -1543,7 +1543,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             overflow-y: auto;
 
             >.block {
-                width: 400px;
+                width: 320px;
                 height: fit-content;
 
                 .panel {
@@ -1770,7 +1770,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         }
 
         >.block {
-            width: 400px;
+            width: 320px;
             height: fit-content;
 
             .panel {
@@ -1830,7 +1830,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             box-sizing: border-box;
 
             >.block {
-                width: 400px;
+                width: 320px;
                 height: fit-content;
 
                 .panel {
@@ -1981,11 +1981,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         button {
             margin: 0px;
             border: 0px none transparent !important;
-            padding: 16px;
+            padding: 12px !important;
             background: #ffffff !important;
             box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1) !important;
             background-clip: padding-box;
             height: initial;
+            color: #ffffff !important;
 
             >span.icon {
                 margin: 0 !important;
