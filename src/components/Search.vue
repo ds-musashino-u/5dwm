@@ -1398,7 +1398,7 @@ const colorChanged = (item, color) => {
       overflow-y: auto;
 
       >.block {
-        width: 400px;
+        width: 320px;
         height: fit-content;
 
         .panel {
@@ -1595,7 +1595,7 @@ const colorChanged = (item, color) => {
     }
 
     >.block {
-      width: 400px;
+      width: 320px;
       height: fit-content;
 
       .panel {
@@ -1648,7 +1648,7 @@ const colorChanged = (item, color) => {
       box-sizing: border-box;
 
       >.block {
-        width: 400px;
+        width: 320px;
         height: fit-content;
 
         .panel {
