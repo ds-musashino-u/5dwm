@@ -673,12 +673,15 @@ const search = async (ignoreCache = true) => {
           });
 
           marker.addListener("click", markerClick);
-          bounds.extend(
-            new google.maps.LatLng(
-              item.media.location.latitude,
-              item.media.location.longitude
-            )
-          );
+
+          if (-90 <= item.media.location.latitude && item.media.location.latitude <= 90 && -180 <= item.media.location.longitude && item.media.location.longitude <= 180) {
+            bounds.extend(
+              new google.maps.LatLng(
+                item.media.location.latitude,
+                item.media.location.longitude
+              )
+            );
+          }
 
           searchResults.push({ marker: marker, item: item });
         } else {
@@ -817,12 +820,15 @@ const search = async (ignoreCache = true) => {
                 });
 
                 marker.addListener("click", markerClick);
-                bounds.extend(
-                  new google.maps.LatLng(
-                    resultItem.media.location.latitude,
-                    resultItem.media.location.longitude
-                  )
-                );
+
+                if (-90 <= resultItem.media.location.latitude && resultItem.media.location.latitude <= 90 && -180 <= resultItem.media.location.longitude && resultItem.media.location.longitude <= 180) {
+                  bounds.extend(
+                    new google.maps.LatLng(
+                      resultItem.media.location.latitude,
+                      resultItem.media.location.longitude
+                    )
+                  );
+                }
 
                 /*const circle = new google.maps.Circle({
                   strokeColor: "#FF0000",
@@ -938,12 +944,15 @@ const search = async (ignoreCache = true) => {
                   label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
                 });
                 marker.addListener("click", markerClick);
-                bounds.extend(
-                  new google.maps.LatLng(
-                    resultItem.media.location.latitude,
-                    resultItem.media.location.longitude
-                  )
-                );
+
+                if (-90 <= resultItem.media.location.latitude && resultItem.media.location.latitude <= 90 && -180 <= resultItem.media.location.longitude && resultItem.media.location.longitude <= 180) {
+                  bounds.extend(
+                    new google.maps.LatLng(
+                      resultItem.media.location.latitude,
+                      resultItem.media.location.longitude
+                    )
+                  );
+                }
 
                 /*const circle = new google.maps.Circle({
                   strokeColor: "#FF0000",
