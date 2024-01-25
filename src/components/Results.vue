@@ -283,7 +283,7 @@ const back = (event) => {
     justify-content: flex-start;
     align-items: center;
     padding: 0em 0.75em;
-    width: 400px;
+    width: 320px;
     height: fit-content;
 
     .level {
@@ -472,7 +472,7 @@ const back = (event) => {
 
       >.panel-block:not(:last-child) {
         border-bottom: 1px solid hsl(0deg, 0%, 93%);
-        width: 400px;
+        width: 320px;
 
         >.level {
           padding: 0.5em 0.75em;
