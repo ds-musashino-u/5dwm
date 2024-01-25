@@ -48,7 +48,7 @@ const back = (event) => {
           <nav class="level is-mobile">
             <div class="level-left">
               <div class="level-item">
-                <button class="button is-rounded" v-bind:disabled="!canBack" @click="back($event)">
+                <button class="button is-rounded is-primary" v-bind:disabled="!canBack" @click="back($event)">
                   <span class="icon is-small">
                     <i class="fa-solid fa-arrow-left"></i>
                   </span>
@@ -294,7 +294,7 @@ const back = (event) => {
     .gallery {
       display: flex;
       flex-shrink: 0;
-      margin: -2px -2px -2px -2px;
+      margin: -4px -2px 0px -2px;
       flex-direction: row;
       flex-wrap: wrap;
       justify-content: start;
@@ -303,7 +303,7 @@ const back = (event) => {
 
       .media {
         display: inline-block;
-        margin: 2px 2px 2px 2px;
+        margin: 4px 2px 0px 2px;
         border: 0px none transparent !important;
         padding: 0;
         width: calc(20% - 4px);
