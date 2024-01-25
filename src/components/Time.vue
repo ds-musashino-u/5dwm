@@ -230,10 +230,23 @@ watch(toDateRef, (newValue, oldValue) => {
           </button>
         </div>
         <div class="level-item">
-          <button class="button" @click="
-            isCollapsedRef = !isCollapsedRef;
-          enabled();
-                                  ">
+          <div class="control">
+            <div class="tabs is-toggle">
+              <ul>
+                <li :class="{ 'is-active': !isEnabled }">
+                  <a @click="isCollapsedRef = !isCollapsedRef; enabled();">
+                    <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
+                  </a>
+                </li>
+                <li :class="{ 'is-active': isEnabled }">
+                  <a @click="isCollapsedRef = !isCollapsedRef; enabled();">
+                    <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+          <!--<button class="button" @click="isCollapsedRef = !isCollapsedRef; enabled();">
             <transition name="fade" mode="out-in">
               <span class="icon" v-if="isEnabled" key="on">
                 <i class="fa-solid fa-toggle-on"></i>
@@ -242,7 +255,7 @@ watch(toDateRef, (newValue, oldValue) => {
                 <i class="fa-solid fa-toggle-off"></i>
               </span>
             </transition>
-          </button>
+          </button>-->
         </div>
         <div class="level-item is-hidden">
           <button class="button toggle is-rounded" @click="isCollapsedRef = !isCollapsedRef">
@@ -394,7 +407,7 @@ watch(toDateRef, (newValue, oldValue) => {
     >.level-right {
       margin: -8px;
       flex-direction: row;
-      align-items: flex-end;
+      align-items: center;
 
       >.level-item {
         margin: 8px;
@@ -412,6 +425,21 @@ watch(toDateRef, (newValue, oldValue) => {
             margin: 0 !important;
             width: 1rem !important;
             height: 1rem !important;
+          }
+        }
+
+        .control>.tabs.is-toggle {
+          ul {
+            margin: 0;
+
+            >li>a {
+              padding: 0.25em 0.5em;
+              transition: 0.5s;
+            }
+
+            >li:not(.is-active)>a {
+              background: #ffffff;
+            }
           }
         }
 
@@ -462,6 +490,7 @@ watch(toDateRef, (newValue, oldValue) => {
         margin: 0;
 
         >li>a {
+          padding: 0.5em 0.5em;
           transition: 0.5s;
         }
 
