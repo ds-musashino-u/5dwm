@@ -61,5 +61,13 @@ watchEffect(() => (selectedIndex.value = propsIndexRef.value));
 <style lang="scss" scoped>
 #sidebar {
   border-right: 1px solid hsl(0deg, 0%, 93%);
+
+  .level-item>button {
+      transition: 0.5s;
+  }
+
+  .level-item>button:not(.has-text-primary) {
+    color: #000000 !important;
+  }
 }
 </style>
