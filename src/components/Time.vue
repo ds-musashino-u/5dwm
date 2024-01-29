@@ -6,6 +6,8 @@ const props = defineProps({
   name: { type: String, required: false, default: null },
   isEnabled: { type: Boolean, required: false, default: true },
   isCollapsed: { type: Boolean, required: false, default: false },
+  isForwardEnabled: { type: Boolean, required: false, default: true },
+  isBackwardEnabled: { type: Boolean, required: false, default: true },
   item: { type: Object, required: false, default: null },
   fromDate: { type: Object, required: false, default: new Date() },
   toDate: { type: Object, required: false, default: new Date() },
@@ -270,7 +272,7 @@ watch(toDateRef, (newValue, oldValue) => {
       <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
         <div class="level-left">
           <div class="level-item">
-            <button class="button is-primary" v-bind:disabled="!isEnabled || !hasBackward" @click="backward($event)">
+            <button class="button is-primary" v-bind:disabled="!isEnabled || !isBackwardEnabled || !hasBackward" @click="backward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-left"></i>
               </span>
@@ -300,7 +302,7 @@ watch(toDateRef, (newValue, oldValue) => {
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button is-primary" v-bind:disabled="!isEnabled || !hasForward" @click="forward($event)">
+            <button class="button is-primary" v-bind:disabled="!isEnabled || !isForwardEnabled || !hasForward" @click="forward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-right"></i>
               </span>
