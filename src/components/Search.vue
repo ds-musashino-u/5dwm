@@ -303,6 +303,10 @@ const timeEnabled = (value) => {
 const timeChanged = (fromDate, toDate) => {
   fromDateRef.value = fromDate;
   toDateRef.value = toDate;
+
+  if (searchTotalCountRef.value !== null) {
+    search(true);
+  }
 };
 const dragover = (event) => {
   isDraggingRef.value = true;
@@ -1286,7 +1290,7 @@ const colorChanged = (item, color) => {
             </div>
             <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
               :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
-              @changed="timeChanged" :isCollapsed="true" />
+              @changed="timeChanged" :isCollapsed="true" :isBackwardEnabled="!isSearchingRef" :isForwardEnabled="!isSearchingRef" />
             <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
