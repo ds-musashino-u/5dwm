@@ -270,7 +270,7 @@ watch(toDateRef, (newValue, oldValue) => {
       <nav class="level is-mobile" v-if="!isCollapsedRef" key="collapse">
         <div class="level-left">
           <div class="level-item">
-            <button class="button" v-bind:disabled="!isEnabled || !hasBackward" @click="backward($event)">
+            <button class="button is-primary" v-bind:disabled="!isEnabled || !hasBackward" @click="backward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-left"></i>
               </span>
@@ -300,7 +300,7 @@ watch(toDateRef, (newValue, oldValue) => {
         </div>
         <div class="level-right">
           <div class="level-item">
-            <button class="button" v-bind:disabled="!isEnabled || !hasForward" @click="forward($event)">
+            <button class="button is-primary" v-bind:disabled="!isEnabled || !hasForward" @click="forward($event)">
               <span class="icon is-small">
                 <i class="fa-solid fa-chevron-right"></i>
               </span>
