@@ -23,7 +23,7 @@ html {
     height: -webkit-fill-available;
     overflow: hidden;
     scroll-behavior: smooth;
-    background: #ffffff;
+    background: #f4f4f2;
     transition: 0.5s;
     overscroll-behavior-x: none;
     overscroll-behavior-y: none;
@@ -142,98 +142,127 @@ a:hover {
     justify-content: flex-start;
 
     >.wrap {
-        position: relative;
+        position: absolute;
         margin: 0;
         padding: 0;
         width: 100%;
-        max-width: 100% !important;
         height: 100%;
+        min-height: 100%;
         overflow: hidden;
-
-        >.content {
-            position: absolute;
+        box-sizing: border-box;
+        backface-visibility: hidden;
+        transition: 0.5s;
+        
+        >.frame {
+            position: relative;
+            display: flex;
             margin: 0;
             padding: 0;
+            border-radius: 0px;
             width: 100%;
+            max-width: 100% !important;
             height: 100%;
-            min-height: 100%;
-            overflow: hidden;
+            background-color: #ffffff;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: flex-start;
+            transition: 0.5s;
 
-            button,
-            .button {
-                display: flex;
-                align-items: center;
+            >.wrap {
+                position: relative;
                 margin: 0;
-                padding: 8px 16px 8px 16px;
-                border: 0px none transparent;
-                background: #ffffff;
-                background-clip: padding-box;
-                height: fit-content;
-                font-size: 0.75rem;
-                line-height: calc(0.75rem * 1.0);
-                backface-visibility: hidden;
-                color: #000000;
-                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
-
-                .icon {
-                    color: var(--accent-color);
-                    transition: 0.5s;
-                }
-
-                span+.icon:last-of-type {
-                    color: var(--accent-color);
-                    transition: 0.5s;
-                }
-
-                .icon:first-child:not(:last-child) {
-                    margin: 0;
-                }
-
-                span:not(:first-child) {
-                    margin: 0px 0px 0px 8px;
-                }
-
-                span {
-                    pointer-events: none;
-                }
-            }
-
-            button.is-primary,
-            .button.is-primary {
-                background-color: var(--accent-color) !important;
-                color: #ffffff !important;
-                transition: 0.5s;
-
-                span {
-                    color: #ffffff !important;
-                }
-            }
-
-            button.is-circle,
-            .button.is-circle {
-                margin: 0px;
-                padding: 16px !important;
-                height: initial;
-                border-radius: 290486px;
-
-                span {
-                    margin: 0 !important;
-                    width: 0.75rem !important;
-                    height: 0.75rem !important;
-                    color: var(--accent-color);
-                }
-            }
-
-            button.is-primary.is-circle,
-            .button.is-primary.is-circle {
-                border-radius: 290486px;
+                padding: 0;
+                width: 100%;
+                max-width: 100% !important;
+                height: 100%;
                 overflow: hidden;
-                background-color: var(--primary-background-color) !important;
-                color: #ffffff !important;
-                transition: 0.5s;
 
-                span {
-                    color: #ffffff !important;
+                >.content {
+                    position: absolute;
+                    margin: 0;
+                    padding: 0;
+                    width: 100%;
+                    height: 100%;
+                    min-height: 100%;
+                    overflow: hidden;
+        
+                    button,
+                    .button {
+                        display: flex;
+                        align-items: center;
+                        margin: 0;
+                        padding: 8px 16px 8px 16px;
+                        border: 0px none transparent;
+                        background: #ffffff;
+                        background-clip: padding-box;
+                        height: fit-content;
+                        font-size: 0.75rem;
+                        line-height: calc(0.75rem * 1.0);
+                        backface-visibility: hidden;
+                        color: #000000;
+                        box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+        
+                        .icon {
+                            color: var(--accent-color);
+                            transition: 0.5s;
+                        }
+        
+                        span+.icon:last-of-type {
+                            color: var(--accent-color);
+                            transition: 0.5s;
+                        }
+        
+                        .icon:first-child:not(:last-child) {
+                            margin: 0;
+                        }
+        
+                        span:not(:first-child) {
+                            margin: 0px 0px 0px 8px;
+                        }
+        
+                        span {
+                            pointer-events: none;
+                        }
+                    }
+        
+                    button.is-primary,
+                    .button.is-primary {
+                        background-color: var(--accent-color) !important;
+                        color: #ffffff !important;
+                        transition: 0.5s;
+        
+                        span {
+                            color: #ffffff !important;
+                        }
+                    }
+        
+                    button.is-circle,
+                    .button.is-circle {
+                        margin: 0px;
+                        padding: 16px !important;
+                        height: initial;
+                        border-radius: 290486px;
+        
+                        span {
+                            margin: 0 !important;
+                            width: 0.75rem !important;
+                            height: 0.75rem !important;
+                            color: var(--accent-color);
+                        }
+                    }
+        
+                    button.is-primary.is-circle,
+                    .button.is-primary.is-circle {
+                        border-radius: 290486px;
+                        overflow: hidden;
+                        background-color: var(--primary-background-color) !important;
+                        color: #ffffff !important;
+                        transition: 0.5s;
+        
+                        span {
+                            color: #ffffff !important;
+                        }
+                    }
                 }
             }
         }
@@ -292,7 +321,7 @@ a:hover {
     padding: env(safe-area-inset-top, 0px) 0px env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     width: fit-content;
     height: 100%;
-    background: #ffffff;
+    background-color: #f4f4f2;
     overflow: hidden;
 
     button,
@@ -336,6 +365,8 @@ a:hover {
 
                     button,
                     .button {
+                        background-color: transparent;
+                        
                         >span.icon {
                             margin: 0 !important;
                             width: 1rem !important;
@@ -354,6 +385,7 @@ a:hover {
                         align-items: center;
                         margin: 0;
                         padding: 0;
+                        background-color: transparent;
                         background-clip: padding-box;
                         height: fit-content;
                         backface-visibility: hidden;
@@ -740,5 +772,25 @@ a:hover {
         background: url('/images/stripes@3x.png') 0 0 repeat;
         background-color: var(--accent-color);
         background-size: 24px 24px;
+    }
+}
+
+@media screen and (min-width: 769px) and (min-height: 769px) {
+    #app>.wrap {
+        padding: 16px 16px 16px 0px;
+        transition: 0.5s;
+
+        >.frame {
+            transition: 0.5s;
+
+            >.wrap {
+                border: 1px solid hsl(0, 0%, 93%);
+                box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+            }
+        }
+    }
+
+    #sidebar {
+        border-right: 0px solid transparent !important;
     }
 }
