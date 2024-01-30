@@ -262,6 +262,9 @@ export default {
 </script>
 
 <template>
+  <div class="header">
+    <h1 class="is-uppercase is-size-7 has-text-weight-bold">5D World Map</h1>
+  </div>
   <div class="wrap">
     <div class="frame">
       <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal" @select="select" />
