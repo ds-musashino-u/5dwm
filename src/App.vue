@@ -262,37 +262,40 @@ export default {
 </script>
 
 <template>
-  <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal"
-    @select="select" />
   <div class="wrap">
-    <div class="content">
-      <transition name="fade">
-        <keep-alive>
-          <component :is="contents[contentIndex].component"
-            v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updatedTime: updatedTime, isAdmin: isAdmin }"
-            v-on="{ updated: updated }" :key="contents[contentIndex].name"></component>
-        </keep-alive>
-      </transition>
-    </div>
-    <transition name="reveal">
-      <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
-        v-bind:is-admin="isAdmin" v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn"
-        @sign-out="signOut" v-if="user === null || isRevealed" />
-    </transition>
-  </div>
-  <div class="left is-hidden-tablet" v-cloak>
-    <transition name="fade" mode="out-in">
-      <button class="button is-circle" type="button" @click="reveal" key="menu">
-        <transition name="fade" mode="out-in">
-          <span class="icon is-small" v-if="isRevealed" key="open">
-            <i class="fa-solid fa-xmark"></i>
-          </span>
-          <span class="icon is-small" v-else key="close">
-            <i class="fa-solid fa-bars"></i>
-          </span>
+    <div class="frame">
+      <Sidebar :user="user" :items="contents" :index="contentIndex" :is-revealed="isRevealed" @reveal="reveal" @select="select" />
+      <div class="wrap">
+        <div class="content">
+          <transition name="fade">
+            <keep-alive>
+              <component :is="contents[contentIndex].component"
+                v-bind="{ auth0: auth0, user: user, text: contents[contentIndex].name, updatedTime: updatedTime, isAdmin: isAdmin }"
+                v-on="{ updated: updated }" :key="contents[contentIndex].name"></component>
+            </keep-alive>
+          </transition>
+        </div>
+        <transition name="reveal">
+          <Menu logo-url="/images/logo.png" subtitle="5dworldmap.com" v-bind:is-loading="isSigningIn || isSigningOut"
+            v-bind:is-admin="isAdmin" v-bind:user="user" v-bind:items="contents" @select="select" @sign-in="signIn"
+            @sign-out="signOut" v-if="user === null || isRevealed" />
         </transition>
-      </button>
-    </transition>
+      </div>
+      <div class="left is-hidden-tablet" v-cloak>
+        <transition name="fade" mode="out-in">
+          <button class="button is-circle" type="button" @click="reveal" key="menu">
+            <transition name="fade" mode="out-in">
+              <span class="icon is-small" v-if="isRevealed" key="open">
+                <i class="fa-solid fa-xmark"></i>
+              </span>
+              <span class="icon is-small" v-else key="close">
+                <i class="fa-solid fa-bars"></i>
+              </span>
+            </transition>
+          </button>
+        </transition>
+      </div>
+    </div>  
   </div>
 </template>
 
