@@ -263,7 +263,7 @@ export default {
 
 <template>
   <div class="header">
-    <h1 class="is-uppercase is-size-7 has-text-weight-bold">5D World Map</h1>
+    <h1 class="is-uppercase is-size-7 has-text-weight-bold">5D World Map System</h1>
   </div>
   <div class="wrap">
     <div class="frame">
