@@ -141,7 +141,7 @@ a:hover {
     align-items: flex-start;
     justify-content: flex-start;
 
-    >h1 {
+    >.header {
         display: flex;
         opacity: 0;
         position: absolute;
@@ -790,7 +790,7 @@ a:hover {
 
 @media screen and (min-width: 769px) and (min-height: 769px) {
     #app {
-        >h1 {
+        >.header {
             opacity: 1;
             transition: 0.5s;
         }
