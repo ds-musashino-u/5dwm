@@ -1425,17 +1425,22 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         margin: 0;
                         padding: 0;
                         table-layout: fixed;
+                        border-collapse: separate;
 
                         thead>tr {
                             height: calc(1.0rem + 24px);
 
                             >th {
+                                z-index: 1;
+                                position: sticky;
+                                top: 0;
                                 border-bottom: 1px solid hsl(0deg, 0%, 93%);
                                 padding-left: 0.75em;
                                 padding-top: 0.5em;
                                 padding-right: 0;
                                 padding-bottom: 0.5em;
                                 vertical-align: middle;
+                                background-color: #ffffff;
                             }
 
                             >th:last-of-type {
