@@ -30,7 +30,6 @@ const resetColor = (event) => {
   emit("colorChanged", props.item, selectedColorRef.value);
 };
 const colorChanged = (event) => {
-  console.log(inputColorRef.value);
   if (/^#(?:[0-9a-f]{3}){1,2}$/i.test(inputColorRef.value)) {
     selectedColorRef.value = inputColorRef.value;
 
