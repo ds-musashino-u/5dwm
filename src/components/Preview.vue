@@ -211,6 +211,42 @@ const resizeImage = async (url, length) => {
               </nav>
             </div>
           </transition>
+          <transition name="fade" mode="out-in">
+            <div class="control" v-if="!isCollapsed &&
+              item.media.type.startsWith('video') &&
+              item.media.url.startsWith('https://')
+              " key="collapse">
+              <nav class="level">
+                <div class="level-item">
+                  <article class="media">
+                    <div class="media-content">
+                      <video controls crossorigin="anonymous">
+                        <source :src="item.media.url" />
+                      </video>
+                    </div>
+                  </article>
+                </div>
+              </nav>
+            </div>
+          </transition>
+          <transition name="fade" mode="out-in">
+            <div class="control" v-if="!isCollapsed &&
+              item.media.type.startsWith('audio') &&
+              item.media.url.startsWith('https://')
+              " key="collapse">
+              <nav class="level">
+                <div class="level-item">
+                  <article class="media">
+                    <div class="media-content">
+                      <audio controls crossorigin="anonymous">
+                        <source :src="item.media.url" />
+                      </audio>
+                    </div>
+                  </article>
+                </div>
+              </nav>
+            </div>
+          </transition>
         </div>
         <div class="panel-block">
           <div class="level">
@@ -703,6 +739,12 @@ const resizeImage = async (url, length) => {
                 object-fit: contain;
                 width: 320px;
               }
+            }
+
+            video, audio {
+              margin: 0;
+              padding: 0;
+              widows: 100%;
             }
           }
         }
