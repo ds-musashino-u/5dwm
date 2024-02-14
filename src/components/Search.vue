@@ -1474,6 +1474,21 @@ const colorChanged = (item, color) => {
             }
           }
 
+          .panel-block:nth-of-type(2) {
+            >.block:first-child {
+              background: hsl(0, 0%, 96%);
+            }
+
+            >.block:nth-child(2) {
+              border-top: 1px solid hsl(0deg, 0%, 93%);
+              padding-top: 0.5em;
+            }
+          }
+
+          .panel-block:last-of-type {
+            border-bottom: 1px solid hsl(0deg, 0%, 93%);
+          }
+
           .panel-tabs:not(:last-child),
           .panel-block:not(:last-child) {
             border-bottom: 1px solid hsl(0deg, 0%, 93%);
