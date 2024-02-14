@@ -262,7 +262,7 @@ export default {
 </script>
 
 <template>
-  <div class="header">
+  <div class="header is-hidden">
     <h1 class="is-uppercase is-size-7 has-text-weight-bold">5D World Map</h1>
   </div>
   <div class="wrap">
