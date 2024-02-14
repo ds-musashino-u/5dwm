@@ -433,6 +433,10 @@ const resizeImage = async (url, length) => {
       width: fit-content;
       box-shadow: none !important;
 
+      >.panel-block:nth-of-type(1)>nav.level:first-child {
+        background: hsl(0, 0%, 96%);
+      }
+
       >.panel-block {
         width: 320px;
         height: fit-content;
@@ -476,6 +480,10 @@ const resizeImage = async (url, length) => {
       border-radius: 0;
       width: fit-content;
       box-shadow: none !important;
+
+      >.panel-block:nth-of-type(1)>nav.level:first-child {
+        background: hsl(0, 0%, 96%);
+      }
     }
 
     .panel-block {
