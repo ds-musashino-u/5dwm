@@ -432,7 +432,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
         </div>
         <div id="media">
             <div class="wrap">
-                <div class="block" ref="dataPanelRef">
+                <div class="block">
                     <nav class="panel">
                         <div class="panel-block">
                             <nav class="level is-mobile">
@@ -492,7 +492,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     </div>
                                 </div>
                             </nav>
-                            <table class="table is-fullwidth is-hoverable">
+                            <table class="table is-fullwidth is-hoverable" ref="dataPanelRef">
                                 <thead>
                                     <transition name="fade" mode="out-in">
                                         <tr :key="dataSourcesRef.find(x => x.checked).name">
@@ -831,6 +831,19 @@ watch(isEnabledRef, (newValue, oldValue) => {
                     .panel-block {
                         flex-direction: column;
                         padding: 0;
+                        background: hsl(0, 0%, 96%);
+
+                        nav.level {
+                            padding: 0em 0em 0em 0.75em !important;
+                        }
+
+                        .field {
+                            background: transparent !important;
+
+                            form input {
+                                background: #ffffff !important;
+                            }
+                        }
 
                         .control {
                             display: flex;
@@ -1427,24 +1440,27 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         table-layout: fixed;
                         border-collapse: separate;
 
-                        thead>tr {
-                            height: calc(1.0rem + 24px);
+                        thead {
+                            background: hsl(0, 0%, 96%);
 
-                            >th {
-                                z-index: 1;
-                                position: sticky;
-                                top: 0;
-                                border-bottom: 1px solid hsl(0deg, 0%, 93%);
-                                padding-left: 0.75em;
-                                padding-top: 0.5em;
-                                padding-right: 0;
-                                padding-bottom: 0.5em;
-                                vertical-align: middle;
-                                background-color: #ffffff;
-                            }
+                            >tr {
+                                height: calc(1.0rem + 24px);
 
-                            >th:last-of-type {
-                                padding-right: 0.75em;
+                                >th {
+                                    z-index: 1;
+                                    position: sticky;
+                                    top: 0;
+                                    border-bottom: 1px solid hsl(0deg, 0%, 93%);
+                                    padding-left: 0.75em;
+                                    padding-top: 0.5em;
+                                    padding-right: 0;
+                                    padding-bottom: 0.5em;
+                                    vertical-align: middle;
+                                }
+
+                                >th:last-of-type {
+                                    padding-right: 0.75em;
+                                }
                             }
                         }
 
