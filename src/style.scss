@@ -10,7 +10,7 @@ $family-sans-serif: "Barlow", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Not
 @import "bulma/bulma";
 
 :root {
-    --menu-background-color: rgba(255, 255, 255, 0.75);
+    --menu-background-color: hsla(0, 0%, 96%, 0.75);
     --accent-color: #{$primary};
     --error-color: #{$danger};
 }
