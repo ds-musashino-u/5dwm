@@ -390,6 +390,10 @@ watch(toDateRef, (newValue, oldValue) => {
   align-items: flex-start;
   padding: 0;
 
+  >nav.level:first-child {
+    background: hsl(0, 0%, 96%);
+  }
+
   .level:first-child {
     margin: 0;
     padding: 0em 0.75em;
@@ -480,7 +484,8 @@ watch(toDateRef, (newValue, oldValue) => {
   }
 
   .level:nth-child(2) {
-    padding: 0em 0.75em 1em 0.75em !important;
+    border-top: 1px solid hsl(0deg, 0%, 93%);
+    padding: 0.5em 0.75em 0.5em 0.75em !important;
 
     >.level-item {
       margin: 0;
