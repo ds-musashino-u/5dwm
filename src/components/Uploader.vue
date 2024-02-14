@@ -1532,7 +1532,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 background: hsl(0, 0%, 96%);
             }
 
-            .field:nth-of-type(1) {
+            >.field:nth-of-type(1) {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
                 padding-top: 0.5em !important;
             }
