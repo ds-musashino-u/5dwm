@@ -262,6 +262,17 @@ const resizeImage = async (url, length) => {
   height: 100%;
   max-height: 100%;
 
+  .top>.panel {
+    >.panel-block:nth-of-type(1)>nav.level:first-child {
+      background: hsl(0, 0%, 96%);
+    }
+
+    >.panel-block:nth-of-type(2)>nav.level:first-child {
+      background: hsl(0, 0%, 96%);
+      border-bottom: 1px solid hsl(0deg, 0%, 93%);
+    }
+  }
+
   .level {
     margin: 0;
     padding: 0em 0.75em;
