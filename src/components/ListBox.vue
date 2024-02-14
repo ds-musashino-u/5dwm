@@ -128,6 +128,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
   align-items: flex-start;
   padding: 0.5em 0em;
 
+  >nav.level:first-child {
+    background: hsl(0, 0%, 96%);
+  }
+
   .level {
     margin: 0;
     padding: 0em 0.75em;
@@ -241,6 +245,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
       color: var(--accent-color);
       transition: 0.5s;
     }
+  }
+
+  >.control:first-of-type {
+    border-top: 1px solid hsl(0deg, 0%, 93%);
   }
 
   .control:last-child {
