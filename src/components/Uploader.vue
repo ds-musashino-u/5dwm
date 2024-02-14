@@ -1512,10 +1512,6 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
                 padding-top: 0.5em !important;
             }
-
-            .block:nth-of-type(2) {
-                padding-top: calc(0.5em - 2px) !important;
-            }
         }
 
         >.panel-block:nth-of-type(2) {
