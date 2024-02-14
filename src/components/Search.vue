@@ -1474,6 +1474,10 @@ const colorChanged = (item, color) => {
             }
           }
 
+          .panel-block:nth-of-type(1)>.block:first-child {
+            background: hsl(0, 0%, 96%);
+          }
+
           .panel-block:nth-of-type(2) {
             >.block:first-child {
               background: hsl(0, 0%, 96%);
