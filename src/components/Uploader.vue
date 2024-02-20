@@ -1504,6 +1504,8 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
     .flyout-left:nth-of-type(1)>.wrap>.block>.panel {
         >.panel-block:nth-of-type(1) {
+            border-bottom: 0px none transparent;
+
             >nav.level {
                 background: hsl(0, 0%, 96%);
             }
@@ -1515,12 +1517,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         }
 
         >.panel-block:nth-of-type(2) {
-            >nav.level {
+            /*>nav.level {
                 background: hsl(0, 0%, 96%);
-            }
+            }*/
 
             .block:nth-of-type(1) {
-                border-top: 1px solid hsl(0deg, 0%, 93%);
+                /*border-top: 1px solid hsl(0deg, 0%, 93%);*/
                 padding-top: 0.5em !important;
             }
         }
