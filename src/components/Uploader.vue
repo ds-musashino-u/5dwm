@@ -1736,6 +1736,15 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     }
                                 }
 
+                                label {
+                                    transition: 0.5s;
+                                }
+
+                                label:hover {
+                                    background-color: hsl(0deg, 0%, 93%, 0.75);
+                                    transition: 0.5s;
+                                }
+
                                 .control {
                                     position: absolute;
                                     top: 0;
