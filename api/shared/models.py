@@ -95,8 +95,6 @@ class MediaDataEx(Base):
     longitude = Column('lon', Float())
     __table_args__ = (PrimaryKeyConstraint('csv_id', 'id'), ForeignKeyConstraint(['csv_id'], ['multi_csv_file.csv_id']))
 
-
-'''
 CREATE TABLE multi_csv_file
 (
   csv_id bigserial PRIMARY KEY,
