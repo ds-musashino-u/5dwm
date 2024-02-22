@@ -982,7 +982,9 @@ const search = async (ignoreCache = true) => {
             }
           }
 
-          map.fitBounds(bounds);
+          if (resultItems.length > 0) {
+            map.fitBounds(bounds);
+          }
         } catch (error) {
           shake(searchPanelRef.value);
           console.error(error);
