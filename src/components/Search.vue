@@ -31,7 +31,7 @@ const fromDateRef = ref(new Date());
 const toDateRef = ref(new Date());
 const defaultFromDateRef = ref(new Date());
 const defaultToDateRef = ref(new Date());
-const maxCategoriesLength = 10;
+const maxCategoriesLength = 100;
 const categoriesIsCollapsedRef = ref(false);
 const categoriesIsContinuousRef = ref(false);
 const categoriesItemsRef = ref([]);
@@ -1282,14 +1282,14 @@ const colorChanged = (item, color) => {
             <Time name="Time" :isEnabled="timeIsEnabledRef" :fromDate="fromDateRef" :toDate="toDateRef"
               :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @enabled="timeEnabled"
               @changed="timeChanged" :isCollapsed="true" :isBackwardEnabled="!isSearchingRef" :isForwardEnabled="!isSearchingRef" />
-            <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
-              :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
-              :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
-              @clear="clearCategories" @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
             <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null"
               :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
               :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
               @next="nextTypes" @previous="previousTypes" />
+            <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
+              :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
+              :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
+              @clear="clearCategories" @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
             <!--<ListBox
                               name="Users"
                               :max-length="maxUsersLength"
