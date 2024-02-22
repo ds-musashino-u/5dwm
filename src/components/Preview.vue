@@ -220,9 +220,7 @@ const resizeImage = async (url, length) => {
                 <div class="level-item">
                   <article class="media">
                     <div class="media-content">
-                      <video controls crossorigin="anonymous">
-                        <source :src="item.media.url" />
-                      </video>
+                      <video controls :src="item.media.url"></video>
                     </div>
                   </article>
                 </div>
@@ -238,9 +236,7 @@ const resizeImage = async (url, length) => {
                 <div class="level-item">
                   <article class="media">
                     <div class="media-content">
-                      <audio controls crossorigin="anonymous">
-                        <source :src="item.media.url" />
-                      </audio>
+                      <audio controls :src="item.media.url"></audio>
                     </div>
                   </article>
                 </div>
@@ -735,6 +731,7 @@ const resizeImage = async (url, length) => {
           width: 100%;
 
           .media-content {
+            display: flex;
             width: 100%;
 
             picture {
@@ -752,7 +749,7 @@ const resizeImage = async (url, length) => {
             video, audio {
               margin: 0;
               padding: 0;
-              widows: 100%;
+              width: 100%;
             }
           }
         }
