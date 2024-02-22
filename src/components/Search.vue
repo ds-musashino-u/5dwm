@@ -296,8 +296,8 @@ const markerClick = (event) => {
       selectedItemRef.value = Object.assign({ index: Number(index) }, element.item);
     }
 
-    if ("infowindow" in item) {
-      item.infowindow.open({ anchor: item.marker, map });
+    if ("infowindow" in element) {
+      element.infowindow.open({ anchor: element.marker, map });
     }
   }
 };
