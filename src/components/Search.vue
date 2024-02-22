@@ -1491,10 +1491,6 @@ const colorChanged = (item, color) => {
             }
           }
 
-          .panel-block:last-of-type {
-            border-bottom: 1px solid hsl(0deg, 0%, 93%);
-          }
-
           .panel-tabs:not(:last-child),
           .panel-block:not(:last-child) {
             border-bottom: 1px solid hsl(0deg, 0%, 93%);
