@@ -485,6 +485,10 @@ const nextCategories = async (pageIndex, pageLength, isFetchingRef) => {
     }
 
     isFetchingRef.value = false;
+  } else if ((pageIndex + 1) * maxCategoriesLength >= categoriesItemsRef.value.length) {
+    categoriesIsContinuousRef.value = false;
+  } else {
+    categoriesIsContinuousRef.value = true;
   }
 
   categoriesPageIndexRef.value = pageIndex;
