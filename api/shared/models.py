@@ -1,7 +1,6 @@
 from sqlalchemy import Column, ForeignKey, PrimaryKeyConstraint, ForeignKeyConstraint, Integer, Float, String, Text, DateTime
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.dialects.postgresql import ARRAY
-from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
@@ -70,7 +69,6 @@ class MediaData(Base):
     __table_args__ = (PrimaryKeyConstraint('csv_id', 'id', name='csv_info_pkey'), ForeignKeyConstraint(['csv_id'], ['csv_file.csv_id'], name="csv_info_csv_id_fkey", onupdate="CASCADE", ondelete="NO ACTION"))
 
 
-'''
 class MediaFileEx(Base):
     __tablename__ = 'multi_csv_file'
     id = Column('csv_id', Integer(), primary_key=True)
@@ -94,30 +92,3 @@ class MediaDataEx(Base):
     latitude = Column('lat', Float())
     longitude = Column('lon', Float())
     __table_args__ = (PrimaryKeyConstraint('csv_id', 'id'), ForeignKeyConstraint(['csv_id'], ['multi_csv_file.csv_id']))
-
-CREATE TABLE multi_csv_file
-(
-  csv_id bigserial PRIMARY KEY,
-  filename text,
-  data_types text[],
-  category text[],
-  datetaken timestamp(6) without time zone,
-  description text,
-  user_cns character varying(20),
-  update_time timestamp(6) without time zone NOT NULL DEFAULT '2014-06-22 15:29:00'::timestamp without time zone,
-  media_id bigint -- its id in media table
-);
-DROP TABLE IF EXISTS multi_csv_info;
-CREATE TABLE multi_csv_info
-(
-  csv_id integer NOT NULL REFERENCES multi_csv_file (csv_id),
-  id integer NOT NULL,
-  values double precision[] NOT NULL,
-  date timestamp without time zone NOT NULL,
-  location text,
-  lat double precision NOT NULL,
-  lon double precision NOT NULL,
-  PRIMARY KEY (csv_id, id)
-);
-
-'''
