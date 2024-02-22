@@ -1445,7 +1445,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                             >tr {
                                 height: calc(1.0rem + 24px);
-
+                                
                                 >th {
                                     z-index: 1;
                                     position: sticky;
@@ -1456,6 +1456,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     padding-right: 0;
                                     padding-bottom: 0.5em;
                                     vertical-align: middle;
+                                    background: hsl(0, 0%, 96%);
                                 }
 
                                 >th:last-of-type {
