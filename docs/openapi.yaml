@@ -341,6 +341,34 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Media'
+    put:
+      tags:
+        - Media
+      summary: Update media
+      description: Update media.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          description: Media identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Media data
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Media'
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Media'
     delete:
       tags:
         - Media
