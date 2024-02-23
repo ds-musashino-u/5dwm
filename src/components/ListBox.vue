@@ -148,8 +148,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
       border-radius: 290486px;
       width: 0.75rem !important;
       height: 0.75rem !important;
-      background: var(--accent-color);
-      color: #ffffff !important;
+      background: hsl(0deg, 0%, 93%);
+      color: hsl(0, 0%, 48%) !important;
       font-size: 0.75rem;
       line-height: 100%;
       overflow: hidden;
