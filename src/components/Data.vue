@@ -755,10 +755,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
         flex-direction: row;
         align-items: flex-start;
         justify-content: flex-start;
-        background: var(--menu-background-color);
-        -webkit-backdrop-filter: blur(8px);
-        backdrop-filter: blur(8px);
+        background: #ffffff;
         transition: 0.5s;
+
+        .wrap>.block .panel>.panel-block:first-of-type {
+            background: hsl(0, 0%, 96%);
+        }
 
         .wrap>.block .panel>.panel-block:not(:first-of-type) {
             .level {
@@ -790,6 +792,14 @@ watch(isEnabledRef, (newValue, oldValue) => {
             .panel-heading {
                 padding: 0.5em 0em;
             }
+        }
+    }
+    
+    #media>.wrap>.block .panel>.panel-block {
+        background: hsl(0, 0%, 96%);
+
+        nav.level {
+            padding: 0em 0em 0em 0.75em !important;
         }
     }
 
@@ -831,11 +841,6 @@ watch(isEnabledRef, (newValue, oldValue) => {
                     .panel-block {
                         flex-direction: column;
                         padding: 0;
-                        background: hsl(0, 0%, 96%);
-
-                        nav.level {
-                            padding: 0em 0em 0em 0.75em !important;
-                        }
 
                         .field {
                             background: transparent !important;
@@ -1542,7 +1547,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                             >tr.is-selected {
                                 color: #ffffff;
-                                background-color: #0e00de;
+                                background-color: var(--accent-color);
                                 transition: .5s;
                             }
                         }
