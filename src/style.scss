@@ -54,7 +54,7 @@ button {
 
 a,
 a:hover {
-    color: #0e00de;
+    color: var(--accent-color);
 }
 
 .button:focus:not(:active),
