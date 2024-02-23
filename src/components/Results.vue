@@ -356,12 +356,13 @@ const back = (event) => {
 
               .icon {
                 position: absolute;
-                top: 50%;
-                left: 50%;
+                top: 100%;
+                left: 100%;
                 margin: 0 !important;
                 width: 1rem !important;
                 height: 1rem !important;
-                transform: translate(-50%, -50%);
+                transform: translate(-100%, -100%);
+                padding: 0px 8px 8px 0px;
               }
 
               .badge {
