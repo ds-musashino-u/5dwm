@@ -36,48 +36,6 @@ const colorChanged = (event) => {
     emit("colorChanged", props.item, selectedColorRef.value);
   }
 };
-const resizeImage = async (url, length) => {
-  return await new Promise(async (resolve, reject) => {
-    const image = new Image();
-
-    image.onload = () => {
-      const canvas = document.createElement("canvas");
-
-      if (image.width < image.height) {
-        if (image.width > length) {
-          canvas.width = length;
-          canvas.height = Math.floor(length / image.width * image.height);
-        } else {
-          canvas.width = image.width;
-          canvas.height = image.height;
-        }
-      } else if (image.height > length) {
-        canvas.width = Math.floor(length / image.height * image.width);
-        canvas.height = length;
-      } else {
-        canvas.width = image.width;
-        canvas.height = image.height;
-      }
-
-      const ctx = canvas.getContext("2d");
-
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = "high";
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      ctx.canvas.toBlob(async (blob) => {
-        resolve(blob);
-
-        ctx.canvas.width = ctx.canvas.height = 0;
-      }, "image/png");
-    };
-    image.onerror = (error) => {
-      reject(error);
-    };
-    image.crossOrigin = "anonymous";
-    image.src = url;
-  });
-};
 </script>
 
 <template>
@@ -203,7 +161,7 @@ const resizeImage = async (url, length) => {
                   <article class="media">
                     <div class="media-content">
                       <picture class="image">
-                        <img v-bind:src="'thumbnailUrl' in item.media && item.media.thumbnailUrl !== null ? item.media.thumbnailUrl : resizeImage(item.media.url, Math.floor(512 * window.devicePixelRatio))" v-bind:alt="item.media.id" />
+                        <img v-bind:src="'thumbnailUrl' in item.media && item.media.thumbnailUrl !== null ? item.media.thumbnailUrl : item.media.url" v-bind:alt="item.media.id" />
                       </picture>
                     </div>
                   </article>
