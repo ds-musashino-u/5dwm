@@ -368,7 +368,7 @@ const colorChanged = (event) => {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
-  align-items: flex-end;
+  align-items: flex-start;
   padding: 0;
   width: fit-content;
   height: 100%;
