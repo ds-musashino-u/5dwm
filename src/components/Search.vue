@@ -1003,6 +1003,12 @@ const search = async (ignoreCache = true) => {
 };
 const back = (event) => {
   if (selectedItemRef.value !== null) {
+    const element = searchResults.find(x => selectedItemRef.value.media.id === x.item.media.id);
+
+    if (element !== undefined && "infowindow" in element) {
+      element.infowindow.close();
+    }
+    
     selectedItemRef.value = null;
   } else if (searchTotalCountRef.value !== null) {
     isRootedRef.value = true;
