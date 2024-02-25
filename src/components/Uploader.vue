@@ -1006,10 +1006,6 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                             Media
                                         </h3>
                                     </div>
-                                    <div class="level-item" v-if="mediaIDRef !== null">
-                                        <span class="is-size-7 has-text-weight-bold has-text-grey"
-                                            v-text="mediaIDRef"></span>
-                                    </div>
                                     <transition name="fade" mode="out-in">
                                         <div class="level-item"
                                             v-show="mediaIDRef === null && (mediaFileRef !== null || mediaUrlRef.length > 0)"
@@ -1021,11 +1017,15 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </transition>
                                     <transition name="fade" mode="out-in">
                                         <div class="level-item" v-show="mediaDataRef !== null" key="data">
-                                            <span class="icon is-primary">
+                                            <span class="icon">
                                                 <i class="fa-solid fa-table"></i>
                                             </span>
                                         </div>
                                     </transition>
+                                    <div class="level-item" v-if="mediaIDRef !== null">
+                                        <span class="is-size-7 has-text-weight-bold has-text-grey"
+                                            v-text="mediaIDRef"></span>
+                                    </div>
                                 </div>
                                 <div class="level-right">
                                     <div class="level-item" v-if="mediaIDRef !== null">
