@@ -323,7 +323,7 @@ watch(toDateRef, (newValue, oldValue) => {
             <div class="field">
               <div class="control">
                 <input class="input is-size-7 has-text-weight-bold" type="date"
-                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + fromYearRef).slice(-4) + '-' + (Array(2).join('0') + fromMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + fromDayRef).slice(-2)"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + fromYearRef).slice(-4) + '-' + (Array(2).join('0') + (fromMonthRef + 1)).slice(-2) + '-' + (Array(2).join('0') + fromDayRef).slice(-2)"
                   @change="fromDateChange" />
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
@@ -358,7 +358,7 @@ watch(toDateRef, (newValue, oldValue) => {
             <div class="field">
               <div class="control">
                 <input class="input is-size-7 has-text-weight-bold" type="date"
-                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + toYearRef).slice(-4) + '-' + (Array(2).join('0') + toMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + toDayRef).slice(-2)"
+                  v-bind:class="{ 'has-error': hasErrorRef }" v-bind:disabled="!isEnabled" v-bind:value="(Array(4).join('0') + toYearRef).slice(-4) + '-' + (Array(2).join('0') + (toMonthRef + 1)).slice(-2) + '-' + (Array(2).join('0') + toDayRef).slice(-2)"
                   @change="toDateChange" />
                 <div class="select is-normal">
                   <select class="is-size-7 has-text-weight-bold" v-bind:class="{ 'has-error': hasErrorRef }"
