@@ -708,16 +708,19 @@ a:hover {
 
 ::-webkit-scrollbar {
     appearance: none;
-    width: 8px;
+    width: 4px;
     overflow-x: hidden;
 }
 
 ::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: #757575;
     border: 0px solid transparent;
     box-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
     box-sizing: border-box;
+}
+
+::-webkit-scrollbar-track {
+    background-color: #ebebeb;
 }
 
 .no-spin::-webkit-inner-spin-button,
