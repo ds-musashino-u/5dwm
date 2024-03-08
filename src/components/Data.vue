@@ -828,6 +828,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             max-height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
+            background: hsl(0, 0%, 96%);
 
             >.block {
                 width: 320px;
@@ -1444,6 +1445,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         padding: 0;
                         table-layout: fixed;
                         border-collapse: separate;
+                        background: #ffffff;
 
                         thead {
                             background: hsl(0, 0%, 96%);
