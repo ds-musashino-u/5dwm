@@ -799,14 +799,14 @@ a:hover {
         }
 
         >.wrap {
-            padding: 16px 16px 16px 0px;
+            padding: 0;
             transition: 0.5s;
 
             >.frame {
                 transition: 0.5s;
 
                 >.wrap {
-                    border: 1px solid hsl(0, 0%, 93%);
+                    border: 0px solid hsl(0, 0%, 93%);
                     box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
                 }
             }
