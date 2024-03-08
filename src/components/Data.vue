@@ -828,7 +828,6 @@ watch(isEnabledRef, (newValue, oldValue) => {
             max-height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
-            background: hsl(0, 0%, 96%);
 
             >.block {
                 width: 320px;
