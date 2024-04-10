@@ -730,5 +730,9 @@ const colorChanged = (event) => {
       }
     }
   }
+
+  .panel-block:not(:last-child) {
+    border-bottom: 1px solid hsl(0deg, 0%, 93%);
+  }
 }
 </style>
