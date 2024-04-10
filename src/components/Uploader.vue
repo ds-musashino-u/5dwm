@@ -1666,6 +1666,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             >.level .level-item {
                                 input {
                                     background: #ffffff;
+                                    color: #000000
                                 }
                             }
                         }
@@ -1850,6 +1851,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
                 border-bottom: 0px none transparent;
                 border-radius: 0px;
+                padding: 0.5em 0.75em;
 
                 .is-danger {
                     background-color: hsl(348, 100%, 61%) !important;
@@ -1935,6 +1937,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 box-shadow: none;
                 backface-visibility: hidden;
                 /*border: 1px solid hsl(0deg, 0%, 93%);*/
+                color: #000000;
             }
 
             textarea {
@@ -1943,6 +1946,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 padding: 12px 12px 12px 12px;
                 background-color: #ffffff;
                 box-shadow: none;
+                color: #000000;
             }
 
             .textarea:not([rows]) {
