@@ -221,6 +221,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     #    filters.append(Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
                     
                     #query = query.filter(or_(and_(*filters), operators, operators_ex))
+                    query = query.filter(and_(*filters))
                         
                 total_count = query.count()
 
