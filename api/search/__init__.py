@@ -222,7 +222,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     #query = query.filter(or_(and_(*filters), operators, operators_ex))
                     query = query.filter(and_(*filters))
-                        
+                
                 total_count = query.count()
 
                 if limit is not None:
