@@ -242,7 +242,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
     label input[type="checkbox"]:checked+.custom:before,
     label input[type="radio"]:checked+.custom:before {
-      color: var(--accent-color);
+      color: var(--accent-color) !important;
       transition: 0.5s;
     }
   }
