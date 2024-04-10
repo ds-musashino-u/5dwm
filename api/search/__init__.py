@@ -260,10 +260,34 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
 
                         if item.type.endswith('csv'):
-                            media_file = session.query(MediaFile).filter(
-                                MediaFile.media_id == item.id).one_or_none()
+                            media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
+                            
+                            if media_file is None:
+                                media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
 
-                            if media_file is not None:
+                                if media_file is not None:
+                                    limit = 100
+                                    query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id, MediaDataEx.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
+                            
+                                    if to_datetime is not None:
+                                        query = query.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+
+                                    query = query.limit(limit)
+                                    count = query.count()
+                                    item['data_types'] = media_file.types
+                                    item['data'] = []
+                                    
+                                    for i in range(math.ceil(count / limit)):
+                                        for media_data in query.offset(i * limit).all():
+                                            item['data'].append({
+                                                'id': media_data.id,
+                                                'values': list(map(lambda x: None if math.isnan(x) else x, media_data.values)),
+                                                'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                                'address': media_data.address,
+                                                'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                                            })
+
+                            else:
                                 limit = 100
                                 query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
