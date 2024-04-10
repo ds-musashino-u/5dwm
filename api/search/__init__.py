@@ -161,7 +161,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-                
+                '''
                 else:
                     subquery = session.query(MediaData.file_id.distinct())
 
@@ -172,7 +172,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     if to_datetime is not None:
                         subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-                
+                '''
                 if usernames is not None and len(usernames) > 0:
                     filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
 
@@ -277,7 +277,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
-                return func.HttpResponse(json.dumps({'keywords': keywords, 'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
