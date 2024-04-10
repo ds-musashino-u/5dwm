@@ -340,9 +340,19 @@ a:hover {
     button,
     .button {
         border: 0px none transparent;
+        box-shadow: none;
 
+        
         span {
             pointer-events: none;
+            transition: 0.5s !important;
+        }
+    }
+
+    .button.has-text-primary {
+        span {
+            color: var(--accent-color) !important;
+            transition: 0.5s !important;
         }
     }
 
