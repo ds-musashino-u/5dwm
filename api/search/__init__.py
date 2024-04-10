@@ -269,6 +269,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
                             
                             if media_file is None:
+                                '''
                                 media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == item.id).one_or_none()
 
                                 if media_file is not None:
@@ -292,7 +293,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                                 'address': media_data.address,
                                                 'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                             })
-
+                                '''
                             else:
                                 limit = 100
                                 query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
