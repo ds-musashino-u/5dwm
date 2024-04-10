@@ -60,7 +60,7 @@ const props = defineProps({
   isAdmin: Boolean
 });
 let map = null;
-const searchPageLength = 50;
+const searchPageLength = 100;
 const searchResults = [];
 const searchcCriteria = {
   keywords: [],
