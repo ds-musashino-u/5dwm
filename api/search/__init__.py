@@ -154,38 +154,38 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     if 'csv' in types:
                         subquery = session.query(MediaData.file_id.distinct())
-                        #subquery_ex = session.query(MediaDataEx.file_id.distinct())
+                        subquery_ex = session.query(MediaDataEx.file_id.distinct())
 
                         if from_datetime is None:
                             subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
-                            #subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                         else:
                             subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
-                            #subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
                         
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-                            #subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                 
                 else:
                     subquery = session.query(MediaData.file_id.distinct())
-                    #subquery_ex = session.query(MediaDataEx.file_id.distinct())
+                    subquery_ex = session.query(MediaDataEx.file_id.distinct())
 
                     if from_datetime is None:
                         subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
-                        #subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                     else:
                         subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
-                        #subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
                     
                     if to_datetime is not None:
                         subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
-                        #subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                 
                 if usernames is not None and len(usernames) > 0:
                     filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
 
-                if subquery is None and subquery_ex is None:
+                if subquery is None:
                     if from_datetime is None:
                         filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                     else:
@@ -199,25 +199,16 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     if keywords is not None:
                         for keyword in keywords:
-                            if subquery is not None:
-                                subquery = subquery.filter(MediaFile.description.ilike(f'%{keyword}%'))
-
-                            if subquery_ex is not None:
-                                subquery_ex = subquery_ex.filter(MediaFileEx.description.ilike(f'%{keyword}%'))
+                            subquery = subquery.filter(MediaFile.description.ilike(f'%{keyword}%'))
+                            subquery_ex = subquery_ex.filter(MediaFileEx.description.ilike(f'%{keyword}%'))
 
                     if categories is not None and len(categories) > 0:
-                        if subquery is not None:
-                            subquery = subquery.filter(or_(*list(map(lambda category: MediaFile.categories.contains([category]), categories))))
-
-                        if subquery_ex is not None:
-                            subquery_ex = subquery_ex.filter(or_(*list(map(lambda category: MediaFileEx.categories.contains([category]), categories))))
+                        subquery = subquery.filter(or_(*list(map(lambda category: MediaFile.categories.contains([category]), categories))))
+                        subquery_ex = subquery_ex.filter(or_(*list(map(lambda category: MediaFileEx.categories.contains([category]), categories))))
 
                     if usernames is not None and len(usernames) > 0:
-                        if subquery is not None:
-                            subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
-
-                        if subquery_ex is not None:
-                            subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
+                        subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
+                        subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
 
                     if to_datetime is None:
                         filters.append(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
@@ -225,12 +216,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         filters.append(and_(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))))
                         filters.append(Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
                     
-                    if subquery is None:
-                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex)))))
-                    elif subquery_ex is None:
-                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))))
-                    else:
-                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex)))))
+                    query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex)))))
                         
                 total_count = query.count()
 
