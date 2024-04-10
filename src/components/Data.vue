@@ -847,6 +847,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                             form input {
                                 background: #ffffff !important;
+                                color: #000000;
                             }
                         }
 
@@ -1261,6 +1262,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 border-top: 1px solid hsl(0deg, 0%, 93%);
                 border-bottom: 0px none transparent;
                 border-radius: 0px;
+                padding: 0.5em 0.75em;
 
                 .is-danger {
                     background-color: hsl(348, 100%, 61%) !important;
@@ -1338,6 +1340,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                 box-shadow: none;
                 backface-visibility: hidden;
                 /*border: 1px solid hsl(0deg, 0%, 93%);*/
+                color: #000000;
             }
 
             textarea {
@@ -1463,6 +1466,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     padding-bottom: 0.5em;
                                     vertical-align: middle;
                                     background: hsl(0, 0%, 96%);
+                                    color: hsl(0, 0%, 21%) !important;
                                 }
 
                                 >th:last-of-type {
@@ -1487,6 +1491,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     white-space: nowrap;
                                     text-overflow: ellipsis;
                                     overflow: hidden;
+                                    color: #000000;
 
                                     >a {
                                         display: flex;
