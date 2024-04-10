@@ -121,8 +121,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 filters = []
                 subquery = None
                 subquery_ex = None
-                test = None
-
+                
                 if sort == 'created_at':
                     if order is None:
                         query = query.order_by(desc(Media.created_at))
@@ -232,8 +231,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))))
                     else:
                         query = query.filter(or_(and_(*filters), and_(Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex))))))
-                        test = "ok"
-
+                        
                 total_count = query.count()
 
                 if limit is not None:
@@ -313,7 +311,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
-                return func.HttpResponse(json.dumps({'test': test, 'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
