@@ -14,7 +14,7 @@ from sqlalchemy import create_engine, desc, and_, or_
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.imaging import compute_histogram, resize_image, top_k
-from shared.models import Media, MediaFile, MediaData, ImageVector
+from shared.models import Media, MediaFile, MediaData, MediaFileEx, MediaDataEx, ImageVector
 
 import azure.functions as func
 
@@ -120,6 +120,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 query = session.query(Media)
                 filters = []
                 subquery = None
+                subquery_ex = None
+                test = None
 
                 if sort == 'created_at':
                     if order is None:
@@ -153,30 +155,38 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                     if 'csv' in types:
                         subquery = session.query(MediaData.file_id.distinct())
+                        subquery_ex = session.query(MediaDataEx.file_id.distinct())
 
                         if from_datetime is None:
                             subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                         else:
                             subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
                         
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                            subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                 
                 else:
                     subquery = session.query(MediaData.file_id.distinct())
+                    subquery_ex = session.query(MediaDataEx.file_id.distinct())
 
                     if from_datetime is None:
                         subquery = subquery.filter(MediaData.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                     else:
                         subquery = subquery.filter(MediaData.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time >= datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))
                     
                     if to_datetime is not None:
                         subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                        subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                 
                 if usernames is not None and len(usernames) > 0:
                     filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
 
-                if subquery is None:
+                if subquery is None and subquery_ex is None:
                     if from_datetime is None:
                         filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
                     else:
@@ -190,12 +200,33 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 else:
                     if keywords is not None:
                         for keyword in keywords:
-                            subquery = subquery.filter(MediaFile.description.ilike(f'%{keyword}%'))
+                            if subquery is not None:
+                                subquery = subquery.filter(MediaFile.description.ilike(f'%{keyword}%'))
+
+                            if subquery_ex is not None:
+                                subquery_ex = subquery_ex.filter(MediaFileEx.description.ilike(f'%{keyword}%'))
 
                     if categories is not None and len(categories) > 0:
-                        subquery = subquery.filter(or_(*list(map(lambda category: MediaFile.categories.contains([category]), categories))))
+                        if subquery is not None:
+                            subquery = subquery.filter(or_(*list(map(lambda category: MediaFile.categories.contains([category]), categories))))
 
-                    operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
+                        if subquery_ex is not None:
+                            subquery_ex = subquery_ex.filter(or_(*list(map(lambda category: MediaFileEx.categories.contains([category]), categories))))
+
+                    if usernames is not None and len(usernames) > 0:
+                        if subquery is not None:
+                            subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
+
+                        if subquery_ex is not None:
+                            subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
+
+                    if subquery is None:
+                        operators = Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))
+                    elif subquery_ex is None:
+                        operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
+                    else:
+                        operators = Media.id.in_(and_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))
+                        test = "ok"
 
                     if to_datetime is None:
                         filters.append(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
@@ -284,7 +315,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
-                return func.HttpResponse(json.dumps({'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'test': test, 'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
