@@ -143,7 +143,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if keywords is not None:
                     for keyword in keywords:
-                        filters.append(Media.description.ilike(f'%{keyword}%'))
+                        filters.append(Media.description.like(f'%{keyword}%'))
 
                 if categories is not None and len(categories) > 0:
                     filters.append(or_(*list(map(lambda category: Media.categories.contains([category]), categories))))
