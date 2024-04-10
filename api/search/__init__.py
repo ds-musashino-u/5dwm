@@ -277,7 +277,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
-                return func.HttpResponse(json.dumps({'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
+                return func.HttpResponse(json.dumps({'keywords': keywords, 'count': total_count, 'timestamp': int(end_time), 'took': round(end_time - start_time, 3), 'items': media}), status_code=200, mimetype='application/json', charset='utf-8')
 
             finally:
                 session.close()
