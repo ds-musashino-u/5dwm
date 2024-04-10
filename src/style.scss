@@ -91,6 +91,10 @@ a:hover {
     transition: 0.5s;
 }
 
+.tabs.is-toggle li a {
+    border: 1px solid hsl(0deg, 0%, 93%);
+}
+
 .tabs.is-toggle li.is-active a {
     background-color: var(--accent-color);
     border-color: var(--accent-color);
@@ -350,7 +354,6 @@ a:hover {
         border: 0px none transparent;
         box-shadow: none;
 
-        
         span {
             pointer-events: none;
             transition: 0.5s !important;
@@ -408,7 +411,7 @@ a:hover {
 
                 >.level-item:not(:first-child) {
                     margin: 0;
-                    padding: 2.0em 0px 0px 0px;
+                    padding: 1.5em 0px 0px 0px;
 
                     button,
                     .button {
