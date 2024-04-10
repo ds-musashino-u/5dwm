@@ -86,7 +86,7 @@ class MediaDataEx(Base):
     __tablename__ = 'multi_csv_info'
     file_id = Column('csv_id', Integer())
     id = Column('id', Integer())
-    values = Column('value', ARRAY(Float()))
+    values = Column('values', ARRAY(Float()))
     time = Column('date', DateTime())
     address = Column('location', Text())
     latitude = Column('lat', Float())
