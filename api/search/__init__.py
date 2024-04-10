@@ -206,9 +206,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         subquery = subquery.filter(or_(*list(map(lambda category: MediaFile.categories.contains([category]), categories))))
                         subquery_ex = subquery_ex.filter(or_(*list(map(lambda category: MediaFileEx.categories.contains([category]), categories))))
 
-                    #if usernames is not None and len(usernames) > 0:
-                    #    subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
-                    #    subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
+                    if usernames is not None and len(usernames) > 0:
+                        subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
+                        subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
 
                     if to_datetime is None:
                         filters.append(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
@@ -263,7 +263,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
                             
                             if media_file is None:
-                                media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
+                                media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == item.id).one_or_none()
 
                                 if media_file is not None:
                                     limit = 100
