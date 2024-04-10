@@ -7,7 +7,7 @@ from urllib.request import urlopen, Request
 from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
-from shared.models import Media, MediaFile, MediaData, ImageVector
+from shared.models import Media, MediaFile, MediaData, MediaFileEx, MediaDataEx, ImageVector
 
 import azure.functions as func
 
@@ -224,7 +224,27 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_file = session.query(MediaFile).filter(
                             MediaFile.media_id == id).one_or_none()
 
-                        if media_file is not None:
+                        if media_file is None:
+                            media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
+
+                            if media_file is not None:
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
+                                count = query.count()
+                                item['data_types'] = media_file.types
+                                item['data'] = []
+
+                                for i in range(math.ceil(count / limit)):
+                                    for media_data in query.offset(i * limit).all():
+                                        item['data'].append({
+                                            'id': media_data.id,
+                                            'values': media_data.values,
+                                            'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                            'address': media_data.address,
+                                            'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                                        })
+
+                        else:
                             limit = 100
                             query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
                             count = query.count()
