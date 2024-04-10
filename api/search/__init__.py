@@ -220,22 +220,20 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if subquery_ex is not None:
                             subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
 
-                    if subquery is None:
-                        operators = Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))
-                    elif subquery_ex is None:
-                        operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
-                    else:
-                        operators = Media.id.in_(and_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))
-                        test = "ok"
-
                     if to_datetime is None:
                         filters.append(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
-                        query = query.filter(or_(and_(*filters), operators))
                     else:
                         filters.append(and_(Media.created_at >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00')))))
                         filters.append(Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
-                        query = query.filter(or_(and_(*filters), operators))
                     
+                    if subquery is None:
+                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))))
+                    elif subquery_ex is None:
+                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))))
+                    else:
+                        query = query.filter(or_(and_(*filters), and_(Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery))))))
+                        test = "ok"
+
                 total_count = query.count()
 
                 if limit is not None:
