@@ -227,11 +227,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         filters.append(Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
                     
                     if subquery is None:
-                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery)))))
+                        query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex)))))
                     elif subquery_ex is None:
                         query = query.filter(or_(and_(*filters), Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))))
                     else:
-                        query = query.filter(or_(and_(*filters), and_(Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery))))))
+                        query = query.filter(or_(and_(*filters), and_(Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery))), Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex))))))
                         test = "ok"
 
                 total_count = query.count()
