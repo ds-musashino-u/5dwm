@@ -1665,6 +1665,7 @@ const colorChanged = (item, color) => {
       .panel-block:last-child {
         border-top: 1px solid hsl(0deg, 0%, 93%);
         border-radius: 0px;
+        padding: .5em 0.75em !important;
       }
 
       >.control>.level {
