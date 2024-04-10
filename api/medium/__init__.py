@@ -233,12 +233,12 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 count = query.count()
                                 item['data_types'] = media_file.types
                                 item['data'] = []
-
+                                
                                 for i in range(math.ceil(count / limit)):
                                     for media_data in query.offset(i * limit).all():
                                         item['data'].append({
                                             'id': media_data.id,
-                                            'values': media_data.values,
+                                            'values': list(map(lambda x: None if math.isnan(x) else x, media_data.values)),
                                             'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                             'address': media_data.address,
                                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
