@@ -275,7 +275,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 if media_file is not None:
                                     medium['data_types'] = media_file.types
-                                    medium['data'] = None
+                                    medium['data'] = []
 
                                     '''
                                     limit = 100
@@ -301,7 +301,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     '''
 
                             else:
-                                medium['data'] = None
+                                medium['data'] = []
                                 '''
                                 limit = 100
                                 query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
