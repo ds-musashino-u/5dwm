@@ -1387,7 +1387,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             </button>
                         </div>
                     </div>
-                    <div class="panel-block" v-if="props.isDeletable">
+                    <div class="panel-block" v-if="props.isClosable">
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7" v-bind:disabled="user === null" @click="close($event)">
                                 <span class="icon">
@@ -1404,7 +1404,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             <div class="content" ref="mapRef"></div>
             <div class="crosshairs icon"><i class="fa-solid fa-crosshairs"></i></div>
         </div>
-        <div class="right" v-if="props.isClosable">
+        <div class="right is-hidden" v-if="props.isClosable">
             <button class="button is-primary" type="button" @click="close($event)">
                 <span class="icon is-small">
                     <i class="fa-solid fa-xmark"></i>
