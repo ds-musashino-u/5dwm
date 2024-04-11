@@ -1978,14 +1978,14 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                 }
 
                 >input:is([type="date"], [type="time"], [type="datetime-local"], [type="month"], [type="week"]) {
+                    display: inline-block;
                     color: #000000;
                     margin: 0px 8px 0px 0px;
                     border: 1px solid hsl(0deg, 0%, 93%) !important;
                     background: #ffffff;
                     font-size: 0.75rem !important;
-                    width: fit-content;
-                    justify-content: center;
-                    align-items: center;
+                    line-height: 0.75rem;
+                    text-align: center;
                 }
 
                 >.select>select {
@@ -2149,5 +2149,9 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
     to {
         background-position: 100% 0%, 0% 100%, 0% 0%, 100% 100%;
     }
+}
+
+::-webkit-full-page-media, :future, :root .class_name{
+    /* ここに書く */
 }
 </style>
