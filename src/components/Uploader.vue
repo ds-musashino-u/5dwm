@@ -1308,7 +1308,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 <div class="field">
                                     <div class="control">
                                         <input class="input is-size-7 has-text-weight-bold" type="date"
-                                            v-bind:class="{ 'has-error': hasTimeErrorRef }" v-bind:disabled="!isInitializedRef" v-bind:value="(Array(4).join('0') + timeYearRef).slice(-4) + '-' + (Array(2).join('0') + timeMonthRef + 1).slice(-2) + '-' + (Array(2).join('0') + timeDayRef).slice(-2)"
+                                            v-bind:class="{ 'has-error': hasTimeErrorRef }" v-bind:disabled="!isInitializedRef" v-bind:value="(Array(4).join('0') + timeYearRef).slice(-4) + '-' + (Array(2).join('0') + (timeMonthRef + 1)).slice(-2) + '-' + (Array(2).join('0') + timeDayRef).slice(-2)"
                                             @change="timeDateChange" />
                                         <div class="select is-normal">
                                             <select class="is-size-7 has-text-weight-bold"
