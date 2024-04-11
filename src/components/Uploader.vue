@@ -1387,6 +1387,16 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             </button>
                         </div>
                     </div>
+                    <div class="panel-block" v-if="props.isDeletable">
+                        <div class="control">
+                            <button class="button is-rounded is-outlined is-fullwidth is-size-7" v-bind:disabled="user === null" @click="close($event)">
+                                <span class="icon">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </span>
+                                <span class="is-uppercase has-text-weight-bold">Close</span>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
