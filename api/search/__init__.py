@@ -197,7 +197,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     query = query.filter(and_(*filters))
                         
                 else:
-                    '''
                     if keywords is not None:
                         for keyword in keywords:
                             subquery = subquery.filter(MediaFile.description.ilike(f'%{keyword}%'))
@@ -211,7 +210,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         subquery = subquery.filter(or_(*list(map(lambda username: MediaFile.username == username, usernames))))
                         subquery_ex = subquery_ex.filter(or_(*list(map(lambda username: MediaFileEx.username == username, usernames))))
 
-                    operators = Media.id.in_(session.query(MediaFile.media_id).filter(MediaFile.id.in_(subquery)))
+                    operators = Media.id.in_(session.query(MediaFile.media_id.distinct()).filter(MediaFile.id.in_(subquery)))
                     operators_ex = Media.id.in_(session.query(MediaFileEx.media_id).filter(MediaFileEx.id.in_(subquery_ex)))
                     
                     if to_datetime is None:
@@ -221,9 +220,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         filters.append(Media.created_at < (datetime.fromisoformat(to_datetime.replace('Z', '+00:00'))))
                     
                     query = query.filter(or_(and_(*filters), operators))
-                    '''
-                    filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
-                    query = query.filter(and_(*filters))
+                    #filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
+                    #query = query.filter(and_(*filters))
                 
                 total_count = query.count()
 
