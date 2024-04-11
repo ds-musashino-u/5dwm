@@ -1,13 +1,15 @@
 @charset "UTF-8";
-@import "@fortawesome/fontawesome-free/css/all.css";
 
 $primary: #ff8138;
 $danger: hsl(348, 100%, 61%);
-$family-sans-serif: "Barlow", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", BlinkMacSystemFont, -apple-system,
-    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica",
-    "Arial", sans-serif;
+$family-sans-serif: "Barlow", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
 
-@import "bulma/bulma";
+@forward "@fortawesome/fontawesome-free/css/all.css";
+@use "bulma/sass" with (
+    $family-primary: $family-sans-serif,
+    $primary: $primary,
+    $danger: $danger
+);
 
 :root {
     --menu-background-color: hsla(0, 0%, 96%, 0.75);
