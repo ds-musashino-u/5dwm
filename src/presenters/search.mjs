@@ -80,6 +80,7 @@ export async function search(token, keywords, categories, types, usernames, imag
         const json = await response.json();
 
         for (const item of json.items) {
+            let mediaDataTypes = null;
             let mediaData = null;
             const regex = /^(https:\/\/static.5dworldmap.com\/media\/)(\S+)$/g;
             const thumbnailUrl = regex.test(item.url) ? item.url.replace(regex, "$1thumbnails/$2") : null;
@@ -90,6 +91,10 @@ export async function search(token, keywords, categories, types, usernames, imag
                 } else {
                     item.url = `https://www.5dwm.mydns.jp/5dtest/upload/images/${item.url}`;
                 }
+            }
+
+            if ("data_types" in item) {
+                mediaDataTypes = item.data_types;
             }
 
             if ("data" in item) {
@@ -105,9 +110,9 @@ export async function search(token, keywords, categories, types, usernames, imag
             }
 
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData, thumbnailUrl)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
             } else {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaData, thumbnailUrl)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
             }
         }
 
