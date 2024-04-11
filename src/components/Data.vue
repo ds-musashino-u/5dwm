@@ -496,7 +496,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                 <thead>
                                     <transition name="fade" mode="out-in">
                                         <tr :key="dataSourcesRef.find(x => x.checked).name">
-                                            <th class="is-size-7 is-uppercase has-text-weight-bold has-text-grey"
+                                            <th class="is-size-7 has-text-weight-bold has-text-grey"
                                                 v-for="column in dataSourcesRef.find(x => x.checked).columns"
                                                 :style="{ width: column.width }" v-text="column.name" :key="column"></th>
                                         </tr>
