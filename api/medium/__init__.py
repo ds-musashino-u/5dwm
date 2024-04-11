@@ -52,7 +52,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 elif media.type.endswith('csv'):
                     media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
 
-                    if media_file is not None:
+                    if media_file is None:
+                        media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
+
+                        if media_file is not None:
+                            limit = 100
+                            session.delete(media_file)
+                            query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
+                            count = query.count()
+                            data = []
+
+                            for i in range(math.ceil(count / limit)):
+                                for media_data in query.offset(i * limit).all():
+                                    session.delete(media_data)
+                                    data.append({
+                                        'id': media_data.id,
+                                        'values': list(map(lambda x: None if math.isnan(x) else x, media_data.values)),
+                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                        'address': media_data.address,
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                                    })
+
+                            item['data'] = data
+
+                    else:
                         limit = 100
                         session.delete(media_file)
                         query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
@@ -144,7 +167,59 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if media.type.endswith('csv') and 'data' in data:
                         media_file = session.query(MediaFile).filter(MediaFile.media_id == id).one_or_none()
 
-                        if media_file is not None:
+                        if media_file is None:
+                            media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
+
+                            if media_file is not None:
+                                updated_at = data.get('updated_at')
+                                data_types = data.get('data_types')
+
+                                media_file.filename = media.url
+                                media_file.categories = categories
+                                media_file.description = description
+                                media_file.username = media.username
+
+                                if data_types is not None:
+                                    media_file.types = data_types
+
+                                if updated_at is None:
+                                    media_file.updated_at = datetime.now(timezone.utc)
+                                else:
+                                    media_file.updated_at = updated_at
+
+                                session.commit()
+
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
+                                count = query.count()
+
+                                for i in range(math.ceil(count / limit)):
+                                    for media_data in query.offset(i * limit).all():
+                                        session.delete(media_data)
+
+                                item['data'] = []
+
+                                for data_item in data['data']:
+                                    media_data = MediaDataEx()
+                                    media_data.id = int(data_item['id'])
+                                    media_data.file_id = media_file.id
+                                    media_data.values = list(map(lambda x: float('nan') if x is None else x, data_item['values']))
+                                    media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                                    media_data.address = data_item['address'] if 'address' in data_item else ''
+                                    media_data.longitude = data_item['location']['coordinates'][0]
+                                    media_data.latitude = data_item['location']['coordinates'][1]
+                                    session.add(media_data)
+                                    item['data'].append({
+                                        'id': media_data.id,
+                                        'values': list(map(lambda x: None if math.isnan(x) else x, media_data.values)),
+                                        'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                        'address': media_data.address,
+                                        'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                                    })
+
+                                session.commit()
+
+                        else:
                             updated_at = data.get('updated_at')
 
                             media_file.filename = media.url
