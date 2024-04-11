@@ -151,7 +151,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     
                 if types is not None and len(types) > 0:
                     filters.append(or_(*list(map(lambda type: Media.type.like(f'{type}%'), types))))
-                    
+                    '''
                     if 'csv' in types and len(types) == 1:
                         subquery = session.query(MediaData.file_id.distinct())
                         subquery_ex = session.query(MediaDataEx.file_id.distinct())
@@ -166,6 +166,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if to_datetime is not None:
                             subquery = subquery.filter(MediaData.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
                             subquery_ex = subquery_ex.filter(MediaDataEx.time < datetime.fromisoformat(to_datetime.replace('Z', '+00:00')))
+                    '''
                 '''
                 else:
                     subquery = session.query(MediaData.file_id.distinct())
@@ -266,7 +267,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                         }
 
-                        '''
                         if item.type.endswith('csv'):
                             media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
                             
@@ -274,6 +274,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == item.id).one_or_none()
 
                                 if media_file is not None:
+                                    medium['data_types'] = media_file.types
+                                    medium['data'] = None
+
+                                    '''
                                     limit = 100
                                     query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id, MediaDataEx.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
@@ -294,8 +298,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                                 'address': media_data.address,
                                                 'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                             })
+                                    '''
 
                             else:
+                                medium['data'] = None
+                                '''
                                 limit = 100
                                 query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
@@ -315,8 +322,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                             'value': media_data.value
                                         })
-                        '''
-
+                                '''
+                        
                         media.append(medium)
 
                     elif item.vector is not None:
