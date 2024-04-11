@@ -12,7 +12,7 @@ from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.imaging import compute_histogram, resize_image, top_k
-from shared.models import Media, MediaFile, MediaData, ImageVector
+from shared.models import Media, MediaFile, MediaData, MediaFileEx, MediaDataEx, ImageVector
 
 import azure.functions as func
 
@@ -93,13 +93,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     }
 
                     if item.type.endswith('csv'):
-                        media_file = session.query(MediaFile).filter(
-                            MediaFile.media_id == item.id).one_or_none()
+                        media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
+                        
+                        if media_file is None:
+                            media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == item.id).one_or_none()
 
-                        if media_file is not None:
+                            if media_file is not None:
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
+                                count = query.count()
+                                medium['data'] = []
+
+                                for i in range(math.ceil(count / limit)):
+                                    for media_data in query.offset(i * limit).all():
+                                        medium['data'].append({
+                                            'id': media_data.id,
+                                            'value': media_data.value,
+                                            'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                            'address': media_data.address,
+                                            'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                                        })
+
+                        else:
                             limit = 100
-                            query = session.query(MediaData).filter(
-                                MediaData.file_id == media_file.id).limit(limit)
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
                             count = query.count()
                             medium['data'] = []
 
@@ -197,40 +214,74 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             session.commit()
 
                 elif media.type.endswith('csv') and 'data' in data:
-                    media_file = MediaFile()
+                    if 'data_types' in data:
+                        media_file = MediaFileEx()
+                        media_file.filename = media.url
+                        media_file.types = data['data_types']
+                        media_file.categories = categories
+                        media_file.description = description
+                        media_file.username = username
+                        media_file.created_at = created_at
+                        media_file.updated_at = created_at
+                        media_file.media_id = media.id
 
-                    media_file.filename = media.url
-                    media_file.categories = categories
-                    media_file.description = description
-                    media_file.username = username
-                    media_file.created_at = created_at
-                    media_file.updated_at = created_at
-                    media_file.media_id = media.id
+                        session.add(media_file)
+                        session.commit()
+                        item['data'] = []
 
-                    session.add(media_file)
-                    session.commit()
-                    item['data'] = []
+                        for data_item in data['data']:
+                            media_data = MediaDataEx()
+                            media_data.id = int(data_item['id'])
+                            media_data.file_id = media_file.id
+                            media_data.value = list(map(lambda x: float('nan') if x is None else x, data_item['values']))
+                            media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                            media_data.address = data_item['address'] if 'address' in data_item else ''
+                            media_data.longitude = data_item['location']['coordinates'][0]
+                            media_data.latitude = data_item['location']['coordinates'][1]
+                            session.add(media_data)
+                            item['data'].append({
+                                'id': media_data.id,
+                                'values': list(map(lambda x: None if math.isnan(x) else x, media_data.values)),
+                                'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                'address': media_data.address,
+                                'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                            })
 
-                    for data_item in data['data']:
-                        media_data = MediaData()
-                        media_data.id = int(data_item['id'])
-                        media_data.file_id = media_file.id
-                        media_data.value = data_item['value']
-                        media_data.time = datetime.fromisoformat(
-                            data_item['time'].replace('Z', '+00:00'))
-                        media_data.address = data_item['address'] if 'address' in data_item else ''
-                        media_data.longitude = data_item['location']['coordinates'][0]
-                        media_data.latitude = data_item['location']['coordinates'][1]
-                        session.add(media_data)
-                        item['data'].append({
-                            'id': media_data.id,
-                            'value': media_data.value,
-                            'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                            'address': media_data.address,
-                            'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
-                        })
+                        session.commit()
 
-                    session.commit()
+                    else:
+                        media_file = MediaFile()
+                        media_file.filename = media.url
+                        media_file.categories = categories
+                        media_file.description = description
+                        media_file.username = username
+                        media_file.created_at = created_at
+                        media_file.updated_at = created_at
+                        media_file.media_id = media.id
+
+                        session.add(media_file)
+                        session.commit()
+                        item['data'] = []
+
+                        for data_item in data['data']:
+                            media_data = MediaData()
+                            media_data.id = int(data_item['id'])
+                            media_data.file_id = media_file.id
+                            media_data.value = data_item['value']
+                            media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
+                            media_data.address = data_item['address'] if 'address' in data_item else ''
+                            media_data.longitude = data_item['location']['coordinates'][0]
+                            media_data.latitude = data_item['location']['coordinates'][1]
+                            session.add(media_data)
+                            item['data'].append({
+                                'id': media_data.id,
+                                'value': media_data.value,
+                                'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+                                'address': media_data.address,
+                                'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
+                            })
+
+                        session.commit()
 
                 return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
 
