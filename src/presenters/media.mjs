@@ -14,10 +14,11 @@ export class Media {
      * @param {!string} username - User name
      * @param {?Location} location - Location
      * @param {!string} createdAt - Updated date time (ISO 8601)
+     * @param {?Array<string>} dataTypes - Data types
      * @param {?object} data - Data
      * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(id, url, type, categories, description, username, location, createdAt, data = null, thumbnailUrl = null) {
+    constructor(id, url, type, categories, description, username, location, createdAt, dataTypes = null, data = null, thumbnailUrl = null) {
         this.id = id;
         this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
@@ -26,8 +27,13 @@ export class Media {
         this.username = username;
         this.location = location;
         this.createdAt = new Date(createdAt);
+        this.dataTypes = dataTypes;
         this.data = data;
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    get hasDataTypes() {
+        return this.dataTypes !== null;
     }
 
     get hasData() {
@@ -81,17 +87,26 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
 
         for (const item of await response.json()) {
             if (item.location.type === "Point") {
+                let mediaDataTypes = null;
                 let mediaData = null;
+
+                if ("data_types" in item) {
+                    mediaDataTypes = item.data_types;
+                }
 
                 if ("data" in item) {
                     mediaData = [];
 
                     for (const record of data) {
-                        mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                        if ("values" in record) {
+                            mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                        } else {
+                            mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                        }
                     }
                 }
 
-                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData));
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData));
             }
         }
 
@@ -123,17 +138,26 @@ export async function getMedium(id) {
             return null;
         }
 
+        let mediaDataTypes = null;
         let mediaData = null;
+
+        if ("data_types" in item) {
+            mediaDataTypes = item.data_types;
+        }
 
         if ("data" in item) {
             mediaData = [];
 
             for (const record of data) {
-                mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                if ("values" in record) {
+                    mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                } else {
+                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                }
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -150,10 +174,11 @@ export async function getMedium(id) {
  * @param {!string} username - User name
  * @param {!Location} location - Location
  * @param {?Date} createdAt - Created date time
+ * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function insertMedium(token, url, type, categories, description, username, location, createdAt = null, data = null) {
+export async function insertMedium(token, url, type, categories, description, username, location, createdAt = null, dataTypes = null, data = null) {
     const content = {
         url: url,
         type: type,
@@ -174,11 +199,20 @@ export async function insertMedium(token, url, type, categories, description, us
         content["created_at"] = createdAt.toISOString();
     }
 
+    if (dataTypes !== null) {
+        content["data_types"] = dataTypes;
+    }
+
     if (data !== null && Array.isArray(data)) {
         content["data"] = [];
 
         for (const record of data) {
-            const dataItem = {
+            const dataItem = "values" in record ? {
+                id: record.id, values: record.values, time: record.time.toISOString(), location: {
+                    type: "Point",
+                    coordinates: [record.location.longitude, record.location.latitude]
+                }
+            } : {
                 id: record.id, value: record.value, time: record.time.toISOString(), location: {
                     type: "Point",
                     coordinates: [record.location.longitude, record.location.latitude]
@@ -210,17 +244,26 @@ export async function insertMedium(token, url, type, categories, description, us
             return null;
         }
 
+        let mediaDataTypes = null;
         let mediaData = null;
+
+        if ("data_types" in item) {
+            mediaDataTypes = item.data_types;
+        }
 
         if ("data" in item) {
             mediaData = [];
 
             for (const record of item.data) {
-                mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                if ("values" in record) {
+                    mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                } else {
+                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                }
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -238,10 +281,11 @@ export async function insertMedium(token, url, type, categories, description, us
  * @param {!string} username - User name
  * @param {!Location} location - Location
  * @param {?Date} createdAt - Created date time
+ * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt = null, data = null) {
+export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt = null, dataTypes = null, data = null) {
     const content = {
         url: url,
         type: type,
@@ -262,11 +306,20 @@ export async function updateMedium(token, id, url, type, categories, description
         content["created_at"] = createdAt.toISOString();
     }
 
+    if (dataTypes !== null) {
+        content["data_types"] = dataTypes;
+    }
+
     if (data !== null && Array.isArray()) {
         content["data"] = [];
 
         for (const record of data) {
-            const dataItem = {
+            const dataItem = "values" in record ? {
+                id: record.id, values: record.values, time: record.time.toISOString(), location: {
+                    type: "Point",
+                    coordinates: [record.location.longitude, record.location.latitude]
+                }
+            } : {
                 id: record.id, value: record.value, time: record.time.toISOString(), location: {
                     type: "Point",
                     coordinates: [record.location.longitude, record.location.latitude]
@@ -298,17 +351,26 @@ export async function updateMedium(token, id, url, type, categories, description
             return null;
         }
 
+        let mediaDataTypes = null;
         let mediaData = null;
+
+        if ("data_types" in item) {
+            mediaDataTypes = item.data_types;
+        }
 
         if ("data" in item) {
             mediaData = [];
 
             for (const record of item.data) {
-                mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                if ("values" in record) {
+                    mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                } else {
+                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                }
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -338,17 +400,26 @@ export async function deleteMedium(token, id) {
             return null;
         }
 
+        let mediaDataTypes = null;
         let mediaData = null;
+
+        if ("data_types" in item) {
+            mediaDataTypes = item.data_types;
+        }
 
         if ("data" in item) {
             mediaData = [];
 
             for (const record of item.data) {
-                mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                if ("values" in record) {
+                    mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                } else {
+                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                }
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
