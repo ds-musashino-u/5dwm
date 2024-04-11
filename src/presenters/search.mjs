@@ -96,7 +96,11 @@ export async function search(token, keywords, categories, types, usernames, imag
                 mediaData = [];
 
                 for (const record of item.data) {
-                    mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                    if ("values" in record) {
+                        mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                    } else {
+                        mediaData.push({ id: record.id, value: record.value, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
+                    }
                 }
             }
 
