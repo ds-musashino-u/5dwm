@@ -1509,6 +1509,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
             top: 50%;
             transform-origin: 0% 0%;
             transform: translate(-50%, -50%);
+            color: var(--accent-color);
         }
     }
 
@@ -2107,6 +2108,18 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     border-radius: 0;
                     background: #ffffff;
                     padding: 0.5em 0.75em 0em 0.75em;
+
+                    p {
+                        color: var(--accent-color);
+                    }
+                }
+
+                >.modal-card-body {
+                    background: #ffffff !important;
+
+                    p {
+                        color: #000000;
+                    }
                 }
 
                 section {
