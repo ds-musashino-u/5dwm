@@ -233,7 +233,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         session.commit()
                         data_items = []
 
-                        for data_item in data['data']:
+                        for data_item in data['data']['items']:
                             media_data = MediaDataEx()
                             media_data.id = int(data_item['id'])
                             media_data.file_id = media_file.id
@@ -269,7 +269,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         session.commit()
                         data_items = []
 
-                        for data_item in data['data']:
+                        for data_item in data['data']['items']:
                             media_data = MediaData()
                             media_data.id = int(data_item['id'])
                             media_data.file_id = media_file.id
