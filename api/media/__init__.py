@@ -218,7 +218,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             session.commit()
 
                 elif media.type.endswith('csv') and 'data' in data:
-                    if 'types' in data['data']:
+                    if 'types' in data['data'] and len(data['data']['types']) > 0:
                         media_file = MediaFileEx()
                         media_file.filename = media.url
                         media_file.types = data['data']['types']
@@ -281,7 +281,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             session.add(media_data)
                             data_items.append({
                                 'id': media_data.id,
-                                'value': media_data.value,
+                                'values': [media_data.value],
                                 'time': media_data.time.strftime('%Y-%m-%dT%H:%M:%SZ'),
                                 'address': media_data.address,
                                 'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
