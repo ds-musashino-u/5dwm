@@ -90,14 +90,11 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
                 let mediaDataTypes = null;
                 let mediaData = null;
 
-                if ("data_types" in item) {
-                    mediaDataTypes = item.data_types;
-                }
-
                 if ("data" in item) {
+                    mediaDataTypes = item.data.types;
                     mediaData = [];
 
-                    for (const record of data) {
+                    for (const record of item.data.items) {
                         if ("values" in record) {
                             mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                         } else {
@@ -141,14 +138,11 @@ export async function getMedium(id) {
         let mediaDataTypes = null;
         let mediaData = null;
 
-        if ("data_types" in item) {
-            mediaDataTypes = item.data_types;
-        }
-
         if ("data" in item) {
+            mediaDataTypes = item.data.types;
             mediaData = [];
 
-            for (const record of data) {
+            for (const record of item.data.items) {
                 if ("values" in record) {
                     mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                 } else {
@@ -199,12 +193,8 @@ export async function insertMedium(token, url, type, categories, description, us
         content["created_at"] = createdAt.toISOString();
     }
 
-    if (dataTypes !== null) {
-        content["data_types"] = dataTypes;
-    }
-
     if (data !== null && Array.isArray(data)) {
-        content["data"] = [];
+        const dataItems = [];
 
         for (const record of data) {
             const dataItem = "values" in record ? {
@@ -223,8 +213,10 @@ export async function insertMedium(token, url, type, categories, description, us
                 dataItem["address"] = record.location.address;
             }
 
-            content["data"].push(dataItem);
+            dataItems.push(dataItem);
         }
+
+        content["data"] = {types: dataTypes === null ? [] : dataTypes, items: dataItems};
     }
 
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
@@ -247,14 +239,11 @@ export async function insertMedium(token, url, type, categories, description, us
         let mediaDataTypes = null;
         let mediaData = null;
 
-        if ("data_types" in item) {
-            mediaDataTypes = item.data_types;
-        }
-
         if ("data" in item) {
+            mediaDataTypes = item.data.types;
             mediaData = [];
 
-            for (const record of item.data) {
+            for (const record of item.data.items) {
                 if ("values" in record) {
                     mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                 } else {
@@ -306,12 +295,8 @@ export async function updateMedium(token, id, url, type, categories, description
         content["created_at"] = createdAt.toISOString();
     }
 
-    if (dataTypes !== null) {
-        content["data_types"] = dataTypes;
-    }
-
-    if (data !== null && Array.isArray()) {
-        content["data"] = [];
+    if (data !== null && Array.isArray(data)) {
+        const dataItems = [];
 
         for (const record of data) {
             const dataItem = "values" in record ? {
@@ -330,8 +315,10 @@ export async function updateMedium(token, id, url, type, categories, description
                 dataItem["address"] = record.location.address;
             }
 
-            content["data"].push(dataItem);
+            dataItems.push(dataItem);
         }
+
+        content["data"] = {types: dataTypes === null ? [] : dataTypes, items: dataItems};
     }
 
     const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
@@ -354,14 +341,11 @@ export async function updateMedium(token, id, url, type, categories, description
         let mediaDataTypes = null;
         let mediaData = null;
 
-        if ("data_types" in item) {
-            mediaDataTypes = item.data_types;
-        }
-
         if ("data" in item) {
+            mediaDataTypes = item.data.types;
             mediaData = [];
 
-            for (const record of item.data) {
+            for (const record of item.data.items) {
                 if ("values" in record) {
                     mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                 } else {
@@ -403,14 +387,11 @@ export async function deleteMedium(token, id) {
         let mediaDataTypes = null;
         let mediaData = null;
 
-        if ("data_types" in item) {
-            mediaDataTypes = item.data_types;
-        }
-
         if ("data" in item) {
+            mediaDataTypes = item.data.types;
             mediaData = [];
 
-            for (const record of item.data) {
+            for (const record of item.data.items) {
                 if ("values" in record) {
                     mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                 } else {
