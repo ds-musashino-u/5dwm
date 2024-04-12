@@ -93,14 +93,11 @@ export async function search(token, keywords, categories, types, usernames, imag
                 }
             }
 
-            if ("data_types" in item) {
-                mediaDataTypes = item.data_types;
-            }
-
             if ("data" in item) {
-                mediaData = [];
+                mediaDataTypes = item.data.types;
+                mediaData = []
 
-                for (const record of item.data) {
+                for (const record of item.data.items) {
                     if ("values" in record) {
                         mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
                     } else {
