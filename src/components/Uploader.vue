@@ -184,25 +184,67 @@ const toFormattedData = (data) => {
     const formattedDataTypes = [];
     const formattedData = [];
 
-    for (const row of data) {
-        if (row.length === 6) {
-            const id = parseInt(row[0]);
-            const value = parseFloat(row[1]);
-            const date = Date.parse(row[2]);
-            const latitude = parseFloat(row[4]);
-            const longitude = parseFloat(row[5]);
+    if (data[0].length > 4 && data[0][0] === "Date" && data[0][1] === "Location" && data[0][2] === "Latitude" && data[0][3] === "Longitude") {
+        let index = 0;
 
-            if (id === NaN || value === NaN || date === NaN || latitude === NaN || longitude === NaN) {
-                return null;
+        for (const row of data) {
+            if (index > 0) {
+                const date = Date.parse(row[0]);
+                const address = row[1];
+                const latitude = parseFloat(row[2]);
+                const longitude = parseFloat(row[3]);
+                const values = [];
+
+                if (date === NaN || latitude === NaN || longitude === NaN) {
+                    return null;
+                }
+
+                for (let i = 4; i < row.length; i++) {
+                    const value = parseFloat(row[i]);
+
+                    if (value === NaN) {
+                        return null;
+                    }
+
+                    values.push(value);
+                }
+
+                formattedData.push({ values: values, time: new Date(date), location: new Location(longitude, latitude, row[3]) });
+            } else {
+                for (let i = 4; i < row.length; i++) {
+                    formattedDataTypes.push(row[i]);
+                }
             }
 
-            formattedData.push({ id: id, values: [value], time: new Date(date), location: new Location(longitude, latitude, row[3]) });
-        } else {
-            return null;
+            index++;
         }
+
+        console.log(formattedDataTypes);
+        console.log(formattedData);
+    } else {
+        for (const row of data) {
+            if (row.length === 6) {
+                const id = parseInt(row[0]);
+                const value = parseFloat(row[1]);
+                const date = Date.parse(row[2]);
+                const latitude = parseFloat(row[4]);
+                const longitude = parseFloat(row[5]);
+
+                if (id === NaN || value === NaN || date === NaN || latitude === NaN || longitude === NaN) {
+                    return null;
+                }
+
+                formattedData.push({ id: id, values: [value], time: new Date(date), location: new Location(longitude, latitude, row[3]) });
+            } else {
+                return null;
+            }
+        }
+
+        console.log("single");
+        console.log(formattedData);
     }
 
-    return [formattedData, formattedDataTypes];
+    return [formattedDataTypes, formattedData];
 };
 const close = (event) => {
     emit("close");
@@ -296,7 +338,7 @@ const drop = async (event) => {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const [data, dataTypes] = toFormattedData(await new Promise(function (resolve, reject) {
+                    const result = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -308,12 +350,9 @@ const drop = async (event) => {
                         reader.readAsText(file);
                     }));
 
-                    if (dataTypes !== null) {
-                        mediaDataTypesRef.value = dataTypes;
-                    }
-
-                    if (data !== null) {
-                        mediaDataRef.value = data;
+                    if (result !== null) {
+                        mediaDataTypesRef.value = result[0];
+                        mediaDataRef.value = result[1];
                     }
                 }
 
@@ -430,7 +469,7 @@ const browse = async (event) => {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const [data, dataTypes] = toFormattedData(await new Promise(function (resolve, reject) {
+                    const result = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -442,12 +481,9 @@ const browse = async (event) => {
                         reader.readAsText(file);
                     }));
 
-                    if (dataTypes !== null) {
-                        mediaDataTypesRef.value = dataTypes;
-                    }
-
-                    if (data !== null) {
-                        mediaDataRef.value = data;
+                    if (result !== null) {
+                        mediaDataTypesRef.value = result[0];
+                        mediaDataRef.value = result[1];
                     }
                 }
 
@@ -1012,7 +1048,7 @@ onMounted(async () => {
             mediaDataRef.value = [];
 
             for (const mediaDataItem of media.data) {
-                mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+                mediaDataRef.value.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
             }
         }
     }
@@ -1040,7 +1076,7 @@ onActivated(async () => {
             mediaDataRef.value = [];
 
             for (const mediaDataItem of media.data) {
-                mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+                mediaDataRef.value.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
             }
         }
     }
