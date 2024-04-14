@@ -56,10 +56,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
 
                         if media_file is not None:
-                            limit = 100.0
+                            limit = 100
                             session.delete(media_file)
-                            query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
-                            count = query.count()
+                            query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id)
+                            count = float(query.count())
+                            query = query.limit(limit)
                             data_items = []
 
                             for i in range(math.ceil(count / limit)):
@@ -76,10 +77,11 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             item['data'] = {'types': media_file.types, 'items': data_items}
 
                     else:
-                        limit = 100.0
+                        limit = 100
                         session.delete(media_file)
-                        query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                        count = query.count()
+                        query = session.query(MediaData).filter(MediaData.file_id == media_file.id)
+                        count = float(query.count())
+                        query = query.limit(limit)
                         data_items = []
 
                         for i in range(math.ceil(count / limit)):
@@ -188,9 +190,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 session.commit()
 
-                                limit = 100.0
-                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
-                                count = query.count()
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id)
+                                count = float(query.count())
+                                query = query.limit(limit)
 
                                 for i in range(math.ceil(count / limit)):
                                     for media_data in query.offset(i * limit).all():
@@ -235,9 +238,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             
                             session.commit()
 
-                            limit = 100.0
-                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                            count = query.count()
+                            limit = 100
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id)
+                            count = float(query.count())
+                            query = query.limit(limit)
                             
                             for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
@@ -305,9 +309,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == id).one_or_none()
 
                             if media_file is not None:
-                                limit = 100.0
-                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
-                                count = query.count()
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id)
+                                count = float(query.count())
+                                query = query.limit(limit)
                                 data_items = []
                                 
                                 for i in range(math.ceil(count / limit)):
@@ -339,7 +344,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                         'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                     })
 
-                            item['data'] = {'count': count / limit, 'types': [], 'items': data_items}
+                            item['data'] = {'types': [], 'items': data_items}
 
                 return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 

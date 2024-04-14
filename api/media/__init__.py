@@ -99,9 +99,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             media_file = session.query(MediaFileEx).filter(MediaFileEx.media_id == item.id).one_or_none()
 
                             if media_file is not None:
-                                limit = 100.0
-                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id).limit(limit)
-                                count = query.count()
+                                limit = 100
+                                query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id)
+                                count = float(query.count())
+                                query = query.limit(limit)
                                 data_items = []
 
                                 for i in range(math.ceil(count / limit)):
@@ -117,9 +118,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 medium['data'] = {'types': media_file.types, 'items': data_items}
 
                         else:
-                            limit = 100.0
-                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
-                            count = query.count()
+                            limit = 100
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id)
+                            count = float(query.count())
+                            query = query.limit(limit)
                             data_items = []
                             
                             for i in range(math.ceil(count / limit)):
