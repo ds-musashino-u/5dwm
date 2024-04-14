@@ -7,7 +7,7 @@ import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { getTypes } from "../presenters/types.mjs";
 import { Location } from "../presenters/location.mjs";
-import { Media, insertMedium, updateMedium, deleteMedium } from "../presenters/media.mjs";
+import { Media, getMedium, insertMedium, updateMedium, deleteMedium } from "../presenters/media.mjs";
 import { upload as uploadMedia } from "../presenters/uploader.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { csv } from "csvtojson";
@@ -28,6 +28,7 @@ let map = null;
 let geocoder = null;
 const isInitializedRef = ref(false);
 const isDraggingRef = ref(false);
+const isFetchingRef = ref(false);
 const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
@@ -40,6 +41,7 @@ const mediaIsCollapsedRef = ref(false);
 const mediaFileRef = ref(null);
 const mediaPreviewRef = ref(null);
 const mediaUrlRef = ref("");
+const mediaDataTypesRef = ref(null);
 const mediaDataRef = ref(null);
 const descriptionRef = ref("");
 const latitudeRef = ref("");
@@ -83,6 +85,14 @@ if (props.media !== null) {
     longitudeRef.value = String(props.media.location.longitude);
     latitudeRef.value = String(props.media.location.latitude);
     typeRef.value = props.media.type;
+
+    if ("dataTypes" in props.media && props.media.dataTypes !== null) {
+        mediaDataTypesRef.value = [];
+        
+        for (const type of props.media.dataTypes) {
+            mediaDataTypesRef.value.push(type);
+        }
+    }
 
     if ("data" in props.media && props.media.data !== null) {
         mediaDataRef.value = [];
@@ -171,6 +181,7 @@ const resizeImage = async (dataURL, length) => {
     return null;
 };
 const toFormattedData = (data) => {
+    const formattedDataTypes = [];
     const formattedData = [];
 
     for (const row of data) {
@@ -185,13 +196,13 @@ const toFormattedData = (data) => {
                 return null;
             }
 
-            formattedData.push({ id: id, value: value, time: new Date(date), location: new Location(longitude, latitude, row[3]) });
+            formattedData.push({ id: id, values: [value], time: new Date(date), location: new Location(longitude, latitude, row[3]) });
         } else {
             return null;
         }
     }
 
-    return formattedData;
+    return [formattedData, formattedDataTypes];
 };
 const close = (event) => {
     emit("close");
@@ -278,13 +289,14 @@ const drop = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+            mediaDataTypesRef.value = null;
             mediaDataRef.value = null;
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const data = toFormattedData(await new Promise(function (resolve, reject) {
+                    const [data, dataTypes] = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -295,6 +307,10 @@ const drop = async (event) => {
                         });
                         reader.readAsText(file);
                     }));
+
+                    if (dataTypes !== null) {
+                        mediaDataTypesRef.value = dataTypes;
+                    }
 
                     if (data !== null) {
                         mediaDataRef.value = data;
@@ -407,13 +423,14 @@ const browse = async (event) => {
                     reader.readAsDataURL(file);
                 }),
             };
+            mediaDataTypesRef.value = null;
             mediaDataRef.value = null;
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
-                    const data = toFormattedData(await new Promise(function (resolve, reject) {
+                    const [data, dataTypes] = toFormattedData(await new Promise(function (resolve, reject) {
                         const reader = new FileReader();
 
                         reader.addEventListener("load", async (e) => {
@@ -424,6 +441,10 @@ const browse = async (event) => {
                         });
                         reader.readAsText(file);
                     }));
+
+                    if (dataTypes !== null) {
+                        mediaDataTypesRef.value = dataTypes;
+                    }
 
                     if (data !== null) {
                         mediaDataRef.value = data;
@@ -454,6 +475,7 @@ const browse = async (event) => {
 };
 const resetMedia = (event) => {
     mediaFileRef.value = null;
+    mediaDataTypesRef.value = null;
     mediaDataRef.value = null;
     mediaPreviewRef.value = null;
 
@@ -844,10 +866,10 @@ const upload = async (event, completed) => {
     } else {
         try {
             if (mediaIDRef.value === null) {
-                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate, null, mediaDataRef.value === null ? null : mediaDataRef.value)
+                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate, mediaDataTypesRef.value, mediaDataRef.value)
                 media.thumbnailUrl = thumbnailUrl;
             } else {
-                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, null, null, mediaDataRef.value === null ? null : mediaDataRef.value)
+                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, null, mediaDataTypesRef.value, mediaDataRef.value)
             }
 
             if (completed !== null) {
@@ -972,21 +994,62 @@ const initialize = async () => {
     }
 };
 
-onMounted(() => {
+onMounted(async () => {
     initialize();
+
+    if (mediaIDRef.value !== null) {
+        const media = await getMedium(mediaIDRef.value);
+
+        if ("dataTypes" in media && media.dataTypes !== null) {
+                mediaDataTypesRef.value = [];
+            
+            for (const type of media.dataTypes) {
+                mediaDataTypesRef.value.push(type);
+            }
+        }
+
+        if ("data" in media && media.data !== null) {
+            mediaDataRef.value = [];
+
+            for (const mediaDataItem of media.data) {
+                mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+            }
+        }
+    }
 });
 onUnmounted(() => {
     isInitializedRef.value = false;
 });
-onActivated(() => {
+onActivated(async () => {
     if (!isInitializedRef.value) {
         initialize();
+    }
+
+    if (mediaIDRef.value !== null) {
+        const media = await getMedium(mediaIDRef.value);
+
+        if ("dataTypes" in media && media.dataTypes !== null) {
+                mediaDataTypesRef.value = [];
+            
+            for (const type of media.dataTypes) {
+                mediaDataTypesRef.value.push(type);
+            }
+        }
+
+        if ("data" in media && media.data !== null) {
+            mediaDataRef.value = [];
+
+            for (const mediaDataItem of media.data) {
+                mediaDataRef.value.push({ id: mediaDataItem.id, value: mediaDataItem.value, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+            }
+        }
     }
 });
 onDeactivated(() => { });
 watch(mediaUrlRef, (currentValue, oldValue) => {
     if (currentValue !== null) {
         mediaFileRef.value = null;
+        mediaDataTypesRef.value = null;
         mediaDataRef.value = null;
     }
 });
@@ -1059,7 +1122,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                     class="file button is-circle has-text-weight-bold file-label">
                                                                     <input class="file-input" type="file" name="upload"
                                                                         style="pointer-events: none"
-                                                                        v-bind:disabled="isLoadingRef || typesIsLoadingRef"
+                                                                        v-bind:disabled="isFetchingRef || isLoadingRef || typesIsLoadingRef"
                                                                         @change="browse($event)" />
                                                                     <div class="file-cta_">
                                                                         <span class="icon">
@@ -1099,7 +1162,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                                             class="file button is-circle has-text-weight-bold file-label">
                                                                             <input class="file-input" type="file"
                                                                                 name="upload" style="pointer-events: none"
-                                                                                v-bind:disabled="isLoadingRef"
+                                                                                v-bind:disabled="isFetchingRef || isLoadingRef"
                                                                                 @change="browse($event)" />
                                                                             <div class="file-cta_">
                                                                                 <span class="icon">
