@@ -1026,7 +1026,7 @@ const initialize = async () => {
 onMounted(async () => {
     initialize();
 
-    if (mediaIDRef.value !== null) {
+    if (mediaIDRef.value !== null && mediaDataRef.value !== null) {
         const media = await getMedium(mediaIDRef.value);
 
         if ("dataTypes" in media && media.dataTypes !== null) {
@@ -1054,7 +1054,7 @@ onActivated(async () => {
         initialize();
     }
 
-    if (mediaIDRef.value !== null) {
+    if (mediaIDRef.value !== null && mediaDataRef.value !== null) {
         const media = await getMedium(mediaIDRef.value);
 
         if ("dataTypes" in media && media.dataTypes !== null) {
