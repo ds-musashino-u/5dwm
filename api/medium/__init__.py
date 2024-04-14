@@ -199,6 +199,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                     for media_data in query.offset(i * limit).all():
                                         session.delete(media_data)
 
+                                session.commit()
+
                                 data_items['data'] = []
 
                                 for data_item in data['data']['items']:
@@ -246,6 +248,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             for i in range(math.ceil(count / limit)):
                                 for media_data in query.offset(i * limit).all():
                                     session.delete(media_data)
+
+                            session.commit()
 
                             data_items = []
 
