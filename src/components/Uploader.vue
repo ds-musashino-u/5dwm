@@ -208,7 +208,7 @@ const toFormattedData = (data) => {
                     values.push(value);
                 }
 
-                formattedData.push({ values: values, time: new Date(date), location: new Location(longitude, latitude, row[1]) });
+                formattedData.push({ id: index - 1, values: values, time: new Date(date), location: new Location(longitude, latitude, row[1]) });
             } else {
                 for (let i = 4; i < row.length; i++) {
                     formattedDataTypes.push(row[i]);
