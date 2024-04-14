@@ -249,7 +249,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 media_data = MediaData()
                                 media_data.id = int(data_item['id'])
                                 media_data.file_id = media_file.id
-                                media_data.value = data_item['value']
+                                media_data.value = data_item['values'][0]
                                 media_data.time = datetime.fromisoformat(data_item['time'].replace('Z', '+00:00'))
                                 media_data.address = data_item['address'] if 'address' in data_item else ''
                                 media_data.longitude = data_item['location']['coordinates'][0]
