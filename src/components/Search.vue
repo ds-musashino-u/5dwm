@@ -104,7 +104,7 @@ const initialize = async () => {
     language: navigator.language,
   });
 
-  await loader.load();
+  await loader.importLibrary("maps");
 
   map = new google.maps.Map(mapRef.value, GoogleMapsConfig.MAP_OPTIONS);
   map.setOptions({ minZoom: 3, maxZoom: 20 });
