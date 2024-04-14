@@ -190,7 +190,6 @@ const toFormattedData = (data) => {
         for (const row of data) {
             if (index > 0) {
                 const date = Date.parse(row[0]);
-                const address = row[1];
                 const latitude = parseFloat(row[2]);
                 const longitude = parseFloat(row[3]);
                 const values = [];
@@ -209,7 +208,7 @@ const toFormattedData = (data) => {
                     values.push(value);
                 }
 
-                formattedData.push({ values: values, time: new Date(date), location: new Location(longitude, latitude, row[3]) });
+                formattedData.push({ values: values, time: new Date(date), location: new Location(longitude, latitude, row[1]) });
             } else {
                 for (let i = 4; i < row.length; i++) {
                     formattedDataTypes.push(row[i]);
