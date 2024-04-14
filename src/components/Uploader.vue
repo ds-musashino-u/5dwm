@@ -194,15 +194,15 @@ const toFormattedData = (data) => {
                 const longitude = parseFloat(row[3]);
                 const values = [];
 
-                if (date === NaN || latitude === NaN || longitude === NaN) {
+                if (Number.isNaN(date) || Number.isNaN(latitude) || Number.isNaN(longitude)) {
                     return null;
                 }
 
                 for (let i = 4; i < row.length; i++) {
-                    const value = parseFloat(row[i]);
+                    let value = parseFloat(row[i]);
 
-                    if (value === NaN) {
-                        return null;
+                    if (Number.isNaN(value)) {
+                        value = null;
                     }
 
                     values.push(value);
@@ -226,7 +226,7 @@ const toFormattedData = (data) => {
                 const latitude = parseFloat(row[4]);
                 const longitude = parseFloat(row[5]);
 
-                if (id === NaN || value === NaN || date === NaN || latitude === NaN || longitude === NaN) {
+                if (Number.isNaN(id) || Number.isNaN(value) || Number.isNaN(date) || Number.isNaN(latitude) || Number.isNaN(longitude)) {
                     return null;
                 }
 
