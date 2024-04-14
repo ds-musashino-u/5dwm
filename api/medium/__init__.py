@@ -201,7 +201,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 session.commit()
 
-                                data_items['data'] = []
+                                data_items = []
 
                                 for data_item in data['data']['items']:
                                     media_data = MediaDataEx()
