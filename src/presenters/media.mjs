@@ -131,6 +131,8 @@ export async function getMedium(id) {
             return null;
         }
 
+        console.log(item);
+
         let mediaDataTypes = null;
         let mediaData = null;
 
@@ -142,6 +144,8 @@ export async function getMedium(id) {
                 mediaData.push({ id: record.id, values: record.values, time: new Date(record.time), location: new Location(record.location.coordinates[0], record.location.coordinates[1], "address" in record ? record.address : null) });
             }
         }
+
+        console.log(mediaData.length);
 
         return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
     } else {
