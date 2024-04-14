@@ -203,7 +203,7 @@ export async function insertMedium(token, url, type, categories, description, us
             dataItems.push(dataItem);
         }
 
-        content["data"] = {types: dataTypes === null ? [] : dataTypes, items: dataItems};
+        content["data"] = { types: dataTypes === null ? [] : dataTypes, items: dataItems };
     }
 
     const response = await fetch(encodeURI(Endpoints.MEDIA_URL), {
@@ -243,7 +243,7 @@ export async function insertMedium(token, url, type, categories, description, us
 
 /**
  * /api/v1/media
- * @module insertMedium
+ * @module updateMedium
  * @param {!string} token - Access token
  * @param {!number} id - Identifier
  * @param {!string} url - URL 
@@ -296,7 +296,7 @@ export async function updateMedium(token, id, url, type, categories, description
             dataItems.push(dataItem);
         }
 
-        content["data"] = {types: dataTypes === null ? [] : dataTypes, items: dataItems};
+        content["data"] = { types: dataTypes === null ? [] : dataTypes, items: dataItems };
     }
 
     const response = await fetch(encodeURI(`${Endpoints.MEDIA_URL}/${id}`), {
