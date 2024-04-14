@@ -217,9 +217,6 @@ const toFormattedData = (data) => {
 
             index++;
         }
-
-        console.log(formattedDataTypes);
-        console.log(formattedData);
     } else {
         for (const row of data) {
             if (row.length === 6) {
@@ -238,9 +235,6 @@ const toFormattedData = (data) => {
                 return null;
             }
         }
-
-        console.log("single");
-        console.log(formattedData);
     }
 
     return [formattedDataTypes, formattedData];
