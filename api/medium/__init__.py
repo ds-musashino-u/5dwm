@@ -323,9 +323,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 item['data'] = {'types': media_file.types, 'items': data_items}
 
                         else:
-                            limit = 100.0
-                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id).limit(limit)
+                            limit = 100
+                            query = session.query(MediaData).filter(MediaData.file_id == media_file.id)
                             count = float(query.count())
+                            query = query.limit(limit)
                             data_items = []
 
                             for i in range(math.ceil(count / limit)):
@@ -338,7 +339,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                         'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                     })
 
-                            item['data'] = {'count': count, 'types': [], 'items': data_items}
+                            item['data'] = {'count': count / limit, 'types': [], 'items': data_items}
 
                 return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
 
