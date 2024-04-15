@@ -92,6 +92,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     id = str(uuid4())
                     path = id
                     
+                    file.stream.seek(0, os.SEEK_END)
+                    cotent_length = file.stream.tell()
+                    file.stream.seek(0)
+                    
                     #if len(decoded_data) >= UPLOAD_MAX_FILESIZE:
                     #    return func.HttpResponse(status_code=413, mimetype='', charset='')
                     
@@ -127,7 +131,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     container = database.get_container_client('Uploads')
                     container.upsert_item(item)
 
-                    item['content_length'] = file.content_length
+                    item['content_length'] = cotent_length
                     item["created_at"] = item["timestamp"]
 
                     del item["pk"]
