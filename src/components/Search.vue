@@ -1026,21 +1026,31 @@ const selectItem = async (index, item) => {
   );
 
   if ("data" in item.media && item.media.data !== null && item.media.data.length === 0) {
-    const media = await getMedium(item.media.id);
+    const result = searchResults.find(x => x.item.media.id === item.media.id);
 
-    if ("dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
-      item.media.dataTypes.splice(0);
-
-      for (const type of media.dataTypes) {
-        item.media.dataTypes.push(type);
+    if (result !== undefined && "data" in result.item.media && result.item.media.data !== null) {
+      const media = await getMedium(item.media.id);
+    
+      if ("dataTypes" in result.item.media && result.item.media.dataTypes !== null && "dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
+        result.item.media.dataTypes.splice(0);
+        item.media.dataTypes.splice(0);
+        
+        for (const type of media.dataTypes) {
+          result.item.media.dataTypes.push(type);
+          item.media.dataTypes.push(type);
+        }
       }
-    }
 
-    if ("data" in media && media.data !== null) {
-      item.media.data.splice(0);
+      if ("data" in media && media.data !== null) {
+        result.item.media.data.splice(0);
+        item.media.data.splice(0);
 
-      for (const mediaDataItem of media.data) {
-        item.media.data.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+        for (const mediaDataItem of media.data) {
+          const dataItem = { id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) };
+
+          result.item.media.data.push(dataItem);
+          item.media.data.push(dataItem);
+        }
       }
     }
   }
