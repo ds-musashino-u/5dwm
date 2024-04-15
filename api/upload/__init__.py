@@ -103,7 +103,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
                 container_client = blob_service_client.get_container_client(container_name)
                 
-                if file.content_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
+                if file.content_type.startswith('image/'):
                     thumbnail_path = f'thumbnails/{id}'
                     thumbnail_type = 'image/jpeg'
 
