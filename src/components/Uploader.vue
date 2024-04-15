@@ -257,6 +257,7 @@ const drop = async (event) => {
             mediaFileRef.value = {
                 filename: file.name,
                 type: file.type,
+                blob: new Blob([file], { type: file.type }),
                 dataURL: await new Promise(function (resolve, reject) {
                     const reader = new FileReader();
 
@@ -388,6 +389,7 @@ const browse = async (event) => {
             mediaFileRef.value = {
                 filename: file.name,
                 type: file.type,
+                blob: new Blob([file], { type: file.type }),
                 dataURL: await new Promise(function (resolve, reject) {
                     const reader = new FileReader();
 
@@ -858,7 +860,7 @@ const upload = async (event, completed) => {
         progressRef.value = 0.5;
 
         try {
-            const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.dataURL);
+            const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.blob);
 
             url = result.url;
 
