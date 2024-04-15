@@ -27,8 +27,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 return func.HttpResponse(status_code=401, mimetype='', charset='')
         else:
             return func.HttpResponse(status_code=401, mimetype='', charset='')
+        
+        content_type = req.headers.get('Content-Type')
 
-        if req.headers['Content-Type'] == 'application/json':
+        if content_type == 'application/json':
             json_data = req.get_json()
             match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", json_data['data'])
             
@@ -80,7 +82,60 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     del item["pk"]
                     del item["timestamp"]
 
-                    return func.HttpResponse(json.dumps(item), status_code=200, mimetype='application/json', charset='utf-8')
+                    return func.HttpResponse(json.dumps(item), status_code=201, mimetype='application/json', charset='utf-8')
+
+        elif content_type.startswith('multipart/form-data;'):
+                uploads = []
+                
+                for file in req.files.values():
+                    container_name = 'media'
+                    id = str(uuid4())
+                    path = id
+                    
+                    #if len(decoded_data) >= UPLOAD_MAX_FILESIZE:
+                    #    return func.HttpResponse(status_code=413, mimetype='', charset='')
+                    
+                    blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
+                    container_client = blob_service_client.get_container_client(container_name)
+                    
+                    if file.content_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
+                        thumbnail_path = f'thumbnails/{id}'
+                        thumbnail_type = 'image/jpeg'
+
+                        thumbnail_image = resize_image(Image.open(file.stream), 512).convert('RGB')
+                        thumbnail_bytes = BytesIO()
+                        thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
+                        file.stream.seek(0)
+                        
+                        blob_client = container_client.get_blob_client(thumbnail_path)
+                        blob_client.upload_blob(thumbnail_bytes.getvalue(), blob_type="BlockBlob", content_settings=ContentSettings(content_type=thumbnail_type))
+                        
+                        thumbnail = {'url': f'https://static.5dworldmap.com/{container_name}/{thumbnail_path}', 'type': thumbnail_type}
+                    else:
+                        thumbnail = None
+
+                    blob_client = container_client.get_blob_client(path)
+                    blob_client.upload_blob(file.stream, blob_type="BlockBlob", content_settings=ContentSettings(content_type=file.content_type))
+                    
+                    item = {'id': id, 'pk': id, 'url': f'https://static.5dworldmap.com/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
+                    
+                    if thumbnail is not None:
+                        item["thumbnail"] = thumbnail
+
+                    client = CosmosClient.from_connection_string(os.environ['AZURE_COSMOS_DB_CONNECTION_STRING'])
+                    database = client.get_database_client('5DWM')
+                    container = database.get_container_client('Uploads')
+                    container.upsert_item(item)
+
+                    item["created_at"] = item["timestamp"]
+
+                    del item["pk"]
+                    del item["timestamp"]
+
+                    uploads.append(item)
+                
+                if len(uploads) > 0:
+                    return func.HttpResponse(json.dumps(uploads[0] if len(uploads) == 1 else uploads), status_code=201, mimetype='application/json', charset='utf-8')
 
         return func.HttpResponse(status_code=400, mimetype='', charset='')
 
