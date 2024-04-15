@@ -132,7 +132,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 container = database.get_container_client('Uploads')
                 container.upsert_item(item)
 
-                item['content_length'] = cotent_length
                 item["created_at"] = item["timestamp"]
 
                 del item["pk"]
