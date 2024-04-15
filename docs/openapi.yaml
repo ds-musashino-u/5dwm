@@ -454,13 +454,10 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                data:
-                  type: string
-                  format: uri
-              required:
-                - data
+              type: array
+              items:
+                type: string
+                format: uri
       responses:
         201:
           description: Successful operation
