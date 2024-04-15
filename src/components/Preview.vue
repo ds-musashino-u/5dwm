@@ -91,34 +91,42 @@ const colorChanged = (event) => {
                 <span class="icon is-small has-text-dark">
                   <i class="fa-solid fa-chart-simple"></i>
                 </span>
-                <div class="control">
-                  <div class="tabs is-toggle">
-                    <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
-                      <li :class="{ 'is-active': !item.loaded }" >
-                        <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                          <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
-                        </a>
-                      </li>
-                      <li :class="{ 'is-active': item.loaded }">
-                        <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                          <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
-                        </a>
-                      </li>
-                    </ul>
+                <transition name="fade" mode="out-in">
+                  <div class="control" v-if="'data' in item.media && item.media.data !== null && item.media.data.length === 0" key="loading">
+                    <span class="icon">
+                      <i class="fas fa-spinner updating"></i>
+                    </span>
                   </div>
-                </div>
+                  <div class="control" v-else key ="loaded">
+                    <div class="tabs is-toggle">
+                      <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
+                        <li :class="{ 'is-active': !item.loaded }" >
+                          <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                            <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
+                          </a>
+                        </li>
+                        <li :class="{ 'is-active': item.loaded }">
+                          <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                            <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
+                          </a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </transition>
               </div>
               <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
-                <button class="button is-flat" type="button" @click="resetColor($event)">
+                <button class="button is-flat" type="button" v-bind:disabled="item.media.data.length === 0" @click="resetColor($event)">
                   <span class="icon is-small has-text-dark">
                     <i class="fa-solid fa-palette"></i>
                   </span>
                 </button>
               </div>
               <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
-                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-model="inputColorRef"
+                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-bind:disabled="item.media.data.length === 0" v-model="inputColorRef"
                     @input="colorChanged($event, item)" />
               </div>
+              
             </div>
             <div class="level-right">
               <div class="level-item">
