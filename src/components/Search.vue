@@ -6,8 +6,9 @@ import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "
 import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
+import { Location } from "../presenters/location.mjs";
 import { getTypes } from "../presenters/types.mjs";
-import { getMedia } from "../presenters/media.mjs";
+import { getMedium, getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
@@ -1014,7 +1015,7 @@ const back = (event) => {
     isRootedRef.value = true;
   }
 };
-const selectItem = (index, item) => {
+const selectItem = async (index, item) => {
   selectedItemRef.value = Object.assign({ index: index }, item);
 
   map.panTo(
@@ -1023,6 +1024,26 @@ const selectItem = (index, item) => {
       item.media.location.longitude
     )
   );
+
+  if ("data" in item.media && item.media.data !== null && item.media.data.length === 0) {
+    const media = await getMedium(item.media.id);
+
+    if ("dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
+      item.media.dataTypes.splice(0);
+
+      for (const type of media.dataTypes) {
+        item.media.dataTypes.push(type);
+      }
+    }
+
+    if ("data" in media && media.data !== null) {
+      item.media.data.splice(0);
+
+      for (const mediaDataItem of media.data) {
+        item.media.data.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
+      }
+    }
+  }
 };
 const loadItem = async (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
