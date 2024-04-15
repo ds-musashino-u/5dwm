@@ -86,17 +86,19 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
         elif content_type.startswith('multipart/form-data;'):
             uploads = []
-
-            if req.headers['Content-Length'] >= UPLOAD_MAX_FILESIZE:
-                return func.HttpResponse(status_code=413, mimetype='', charset='')
             
             for file in req.files.values():
                 container_name = 'media'
                 id = str(uuid4())
                 path = id
                 
-                cotent_length = req.headers['Content-Length']
-
+                file.stream.seek(0, os.SEEK_END)
+                cotent_length = file.stream.tell()
+                
+                if cotent_length >= UPLOAD_MAX_FILESIZE:
+                    return func.HttpResponse(status_code=413, mimetype='', charset='')
+                
+                file.stream.seek(0)
                 
                 blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
                 container_client = blob_service_client.get_container_client(container_name)
