@@ -29,6 +29,7 @@ let geocoder = null;
 const isInitializedRef = ref(false);
 const isDraggingRef = ref(false);
 const isFetchingRef = ref(false);
+const isDataFetchingRef = ref(false);
 const isLoadingRef = ref(false);
 const isLocatingRef = ref(false);
 const isUploadingRef = ref(false);
@@ -1029,6 +1030,8 @@ onMounted(async () => {
     initialize();
 
     if (mediaIDRef.value !== null && mediaDataRef.value !== null) {
+        isDataFetchingRef.value = true;
+
         const media = await getMedium(mediaIDRef.value);
 
         if ("dataTypes" in media && media.dataTypes !== null) {
@@ -1046,6 +1049,8 @@ onMounted(async () => {
                 mediaDataRef.value.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
             }
         }
+
+        isDataFetchingRef.value = false;
     }
 });
 onUnmounted(() => {
@@ -1057,6 +1062,8 @@ onActivated(async () => {
     }
 
     if (mediaIDRef.value !== null && mediaDataRef.value !== null) {
+        isDataFetchingRef.value = true;
+
         const media = await getMedium(mediaIDRef.value);
 
         if ("dataTypes" in media && media.dataTypes !== null) {
@@ -1074,6 +1081,8 @@ onActivated(async () => {
                 mediaDataRef.value.push({ id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) });
             }
         }
+
+        isDataFetchingRef.value = false;
     }
 });
 onDeactivated(() => { });
@@ -1447,7 +1456,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     <div class="panel-block">
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-primary" type="submit"
-                                v-bind:disabled="user === null || isUploadingRef || isDeletingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
+                                v-bind:disabled="user === null || isDataFetchingRef || isUploadingRef || isDeletingRef || mediaFileRef === null && (mediaUrlRef.length === 0 || !mediaUrlRef.toLowerCase().startsWith('https://')) || !typesItemsRef.some(x => x.checked) || longitudeRef.length === 0 || latitudeRef.length === 0"
                                 @click="upload($event, uploadCompleted)">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isUploadedRef" key="uploaded">
@@ -1467,7 +1476,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     <div class="panel-block" v-if="props.isDeletable">
                         <div class="control">
                             <button class="button is-rounded is-outlined is-fullwidth is-size-7 is-danger" type="submit"
-                                v-bind:disabled="user === null || isUploadingRef || isDeletingRef"
+                                v-bind:disabled="user === null || isDataFetchingRef || isUploadingRef || isDeletingRef"
                                 @click="requestDelete($event)" ref="deleteButtonRef">
                                 <transition name="fade" mode="out-in">
                                     <span class="icon" v-if="isDeletingRef" key="deleting">
