@@ -1026,7 +1026,27 @@ const selectItem = async (index, item) => {
   );
 
   if ("data" in item.media && item.media.data !== null && item.media.data.length === 0) {
-    const result = searchResults.find(x => x.item.media.id === item.media.id);
+    const media = await getMedium(item.media.id);
+    
+    if ("dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
+      item.media.dataTypes.splice(0);
+      
+      for (const type of media.dataTypes) {
+        item.media.dataTypes.push(type);
+      }
+    }
+
+    if ("data" in media && media.data !== null) {
+      item.media.data.splice(0);
+
+      for (const mediaDataItem of media.data) {
+        const dataItem = { id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) };
+
+        item.media.data.push(dataItem);
+      }
+    }
+
+    /*const result = searchResults.find(x => x.item.media.id === item.media.id);
 
     if (result !== undefined && "data" in result.item.media && result.item.media.data !== null) {
       const media = await getMedium(item.media.id);
@@ -1052,7 +1072,7 @@ const selectItem = async (index, item) => {
           item.media.data.push(dataItem);
         }
       }
-    }
+    }*/
   }
 };
 const loadItem = async (item) => {
@@ -1094,7 +1114,7 @@ const loadItem = async (item) => {
       let dataTypes = {};
       let dataTypeCount = 1;
 
-      if (result.item.media.dataTypes !== null) {
+      if (result.item.media.dataTypes !== null && result.item.media.dataTypes.length > 0) {
         for (let i = 0; i < result.item.media.dataTypes.length; i++) {
           dataTypes[i] = result.item.media.dataTypes[i];
         }
