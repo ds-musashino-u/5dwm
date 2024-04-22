@@ -1082,13 +1082,32 @@ const loadItem = async (item) => {
 
     if (result !== undefined) {
       const graph = [];
-      const min = result.item.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-      const max = result.item.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+      let min = result.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
+      const max = result.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
+
+      if (min === max) {
+        min = 0.0;
+      }
+
       const span = Math.abs(min) + max;
       const color = result.item.media.id in appearance ? appearance[result.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+      let dataTypes = {};
+
+      if (result.item.media.dataTypes !== null) {
+        for (let i = 0; i < result.item.media.dataTypes.length; i++) {
+          dataTypes[i] = result.item.media.dataTypes[i];
+        }
+      }
+
+      console.log(dataTypes);
 
       for (const dataItem of result.item.media.data) {
-        graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
+        let i = 0;
+
+        for (const value of dataItem.values) {
+          graph.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}: ${value}` : `${value}`, color));
+          i++;
+        }
       }
 
       pinnedItems.push({ item: result.item, graph: graph });
