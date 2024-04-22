@@ -1016,6 +1016,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                                 padding: 0.5em 0em;
                                                 background-color: transparent;
                                                 height: fit-content;
+                                                color: hsl(0deg, 0%, 21%);
                                                 backface-visibility: hidden;
                                                 transition: 0.5s;
 
