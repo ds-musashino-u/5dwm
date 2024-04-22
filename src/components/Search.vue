@@ -1092,19 +1092,23 @@ const loadItem = async (item) => {
       const span = Math.abs(min) + max;
       const color = result.item.media.id in appearance ? appearance[result.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
       let dataTypes = {};
+      let dataTypeCount = 1;
 
       if (result.item.media.dataTypes !== null) {
         for (let i = 0; i < result.item.media.dataTypes.length; i++) {
           dataTypes[i] = result.item.media.dataTypes[i];
         }
+
+        dataTypeCount = result.item.media.dataTypes.length;
       }
 
       for (const dataItem of result.item.media.data) {
-        let i = 0;
+        for (let i = 0; i < Math.min(dataTypeCount, dataItem.values.length); i++) {
+          const value = dataItem.values[i];
 
-        for (const value of dataItem.values) {
-          graph.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}: ${value}` : `${value}`, color));
-          i++;
+          if (value !== null) {
+            graph.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, color));
+          }
         }
       }
 
