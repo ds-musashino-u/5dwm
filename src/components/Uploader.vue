@@ -2095,6 +2095,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
 
                 >.select>select {
                     background: #ffffff;
+                    color: #000000;
                 }
 
                 >span {
