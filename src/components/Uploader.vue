@@ -199,7 +199,7 @@ const toFormattedData = (data) => {
                     return null;
                 }
 
-                for (let i = 4; i < row.length; i++) {
+                for (let i = 4; i < Math.min(4 + formattedDataTypes.length, row.length); i++) {
                     let value = parseFloat(row[i]);
 
                     if (Number.isNaN(value)) {
