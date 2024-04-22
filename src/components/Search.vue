@@ -1099,8 +1099,6 @@ const loadItem = async (item) => {
         }
       }
 
-      console.log(dataTypes);
-
       for (const dataItem of result.item.media.data) {
         let i = 0;
 
@@ -1775,7 +1773,7 @@ const colorChanged = (item, color) => {
 
     .field {
       width: 100%;
-      background: #ffffff;
+      background: transparent;
 
       .control {
         margin: 0;
@@ -1787,7 +1785,7 @@ const colorChanged = (item, color) => {
           margin: 0;
           border: 0px none transparent;
           padding: 16px 12px 16px 12px;
-          background-color: transparent;
+          background-color: #ffffff;
           box-shadow: none;
           backface-visibility: hidden;
           border: 1px solid hsl(0deg, 0%, 93%);
