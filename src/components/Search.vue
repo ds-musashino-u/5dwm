@@ -277,7 +277,7 @@ const markerClick = (event) => {
   );
 
   if (element === undefined) {
-    const pinnedItem = pinnedItems.find(x => x.graph.find(y => event.latLng.lat === y.position.lat && event.latLng.lng === y.position.lng) !== undefined);
+    const pinnedItem = pinnedItems.find(x => x.graph.find(y => y.find(z => z !== null && event.latLng.lat === z.position.lat && event.latLng.lng === z.position.lng) !== undefined) !== undefined);
 
     if (pinnedItem !== undefined) {
       const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === pinnedItem.item.media.id);
@@ -600,7 +600,7 @@ const createDataMarker = (location, value, label, color) => {
       strokeOpacity: 1,
       strokeWeight: 1,
       fillColor: color,
-      fillOpacity: .75
+      fillOpacity: .5
     },
     label: { text: label, fontWeight: "bold", color: "#ffffff" },
     map: map
@@ -758,17 +758,21 @@ const search = async (ignoreCache = true) => {
           }
         }
 
-        if (types.length > 0 && !types.some(x => x === 'csv')) {
-          for (const pinnedItem of pinnedItems) {
-            for (const marker of pinnedItem.graph) {
-              marker.setMap(null);
+        //if (types.length > 0 && !types.some(x => x === 'csv')) {
+        for (const pinnedItem of pinnedItems) {
+          for (const markers of pinnedItem.graph) {
+            for (const marker of markers) {
+              if (marker !== null) {
+                marker.setMap(null);
+              }
             }
-
-            pinnedItem.graph.splice(0);
           }
 
-          pinnedItems.splice(0);
+          pinnedItem.graph.splice(0);
         }
+
+        pinnedItems.splice(0);
+        //}
 
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
@@ -880,31 +884,68 @@ const search = async (ignoreCache = true) => {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
-                const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
+                resultItem["loading"] = false;
+                resultItem["loaded"] = false;
+                /*const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
 
                 resultItem["loading"] = false;
 
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
-                  const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-                  const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  let min = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
+                  const max = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
+
+                  if (min === max) {
+                    min = 0.0;
+                  }
+
                   const span = Math.abs(min) + max;
                   const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+                  const [r, g, b] = hexToRgb(color);
+                  const [h, s, l] = rgbToHsl(r, g, b);
+                  let dataTypes = {};
+                  let dataTypeCount = 1;
 
-                  for (const marker of pinnedItem.graph) {
-                    marker.setMap(null);
+                  if (resultItem.media.dataTypes !== null && resultItem.media.dataTypes.length > 0) {
+                    for (let i = 0; i < resultItem.media.dataTypes.length; i++) {
+                      dataTypes[i] = resultItem.media.dataTypes[i];
+                    }
+
+                    dataTypeCount = resultItem.media.dataTypes.length;
+                  }
+
+                  for (const markers of pinnedItem.graph) {
+                    for (const marker of markers) {
+                      if (marker !== null) {
+                        marker.setMap(null);
+                      }
+                    }
                   }
 
                   pinnedItem.item = resultItem;
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of resultItem.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
+                    const count = Math.min(dataTypeCount, dataItem.values.length);
+                    const step = 1.0 / count
+                    const markers = [];
+
+                    for (let i = 0; i < count; i++) {
+                      const value = dataItem.values[i];
+
+                      if (value === null) {
+                        markers.push(null);
+                      } else {
+                        markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
+                      }
+                    }
+
+                    pinnedItem.graph.push(markers);
                   }
 
                   resultItem["loaded"] = true;
-                }
+                }*/
               }
 
               cachedSearchResults[
@@ -920,31 +961,68 @@ const search = async (ignoreCache = true) => {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
-                const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
+                resultItem["loading"] = false;
+                resultItem["loaded"] = false;
+                /*const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
 
                 resultItem["loading"] = false;
 
                 if (pinnedItem === undefined) {
                   resultItem["loaded"] = false;
                 } else {
-                  const min = resultItem.media.data.reduce((x, y) => Math.min(x, y.value), 0.0);
-                  const max = resultItem.media.data.reduce((x, y) => Math.max(x, y.value), 0.0);
+                  let min = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
+                  const max = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
+
+                  if (min === max) {
+                    min = 0.0;
+                  }
+
                   const span = Math.abs(min) + max;
                   const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+                  const [r, g, b] = hexToRgb(color);
+                  const [h, s, l] = rgbToHsl(r, g, b);
+                  let dataTypes = {};
+                  let dataTypeCount = 1;
 
-                  for (const marker of pinnedItem.graph) {
-                    marker.setMap(null);
+                  if (resultItem.media.dataTypes !== null && resultItem.media.dataTypes.length > 0) {
+                    for (let i = 0; i < resultItem.media.dataTypes.length; i++) {
+                      dataTypes[i] = resultItem.media.dataTypes[i];
+                    }
+
+                    dataTypeCount = resultItem.media.dataTypes.length;
+                  }
+                  
+                  for (const markers of pinnedItem.graph) {
+                    for (const marker of markers) {
+                      if (marker !== null) {
+                        marker.setMap(null);
+                      }
+                    }
                   }
 
                   pinnedItem.item = resultItem;
                   pinnedItem.graph.splice(0);
 
                   for (const dataItem of resultItem.media.data) {
-                    pinnedItem.graph.push(createDataMarker(dataItem.location, (dataItem.value - min) / span * 32.0, String(dataItem.value), color));
+                    const count = Math.min(dataTypeCount, dataItem.values.length);
+                    const step = 1.0 / count
+                    const markers = [];
+
+                    for (let i = 0; i < count; i++) {
+                      const value = dataItem.values[i];
+
+                      if (value === null) {
+                        markers.push(null);
+                      } else {
+                        markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
+                      }
+                    }
+
+                    pinnedItem.graph.push(markers);
                   }
 
                   resultItem["loaded"] = true;
-                }
+                }*/
               }
 
               if (resultItem.media.location === null) {
@@ -1111,6 +1189,8 @@ const loadItem = async (item) => {
 
       const span = Math.abs(min) + max;
       const color = result.item.media.id in appearance ? appearance[result.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+      const [r, g, b] = hexToRgb(color);
+      const [h, s, l] = rgbToHsl(r, g, b);
       let dataTypes = {};
       let dataTypeCount = 1;
 
@@ -1123,63 +1203,27 @@ const loadItem = async (item) => {
       }
 
       for (const dataItem of result.item.media.data) {
-        for (let i = 0; i < Math.min(dataTypeCount, dataItem.values.length); i++) {
+        const count = Math.min(dataTypeCount, dataItem.values.length);
+        const step = 1.0 / count
+        const markers = [];
+
+        for (let i = 0; i < count; i++) {
           const value = dataItem.values[i];
 
-          if (value !== null) {
-            graph.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, color));
+          if (value === null) {
+            markers.push(null);
+          } else {
+            markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
           }
         }
+
+        graph.push(markers);
       }
 
       pinnedItems.push({ item: result.item, graph: graph });
       result.item.loaded = item.loaded = true;
     }
   }
-
-  /*item.layer.addListener("click", (event) => {
-    const content = event.featureData.infoWindowHtml;
-  });*/
-  /*try {
-    const response = await fetch(item.media.url, {
-      method: "GET",
-    });
-    
-    if (response.ok) {
-      item.layer = new google.maps.KmlLayer(
-        await new Promise(async (resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () => {
-            resolve(reader.result);
-          };
-          reader.onerror = () => {
-            reject(reader.error);
-          };
-          reader.readAsDataURL(await response.blob());
-        }),
-        {
-          suppressInfoWindows: true,
-          preserveViewport: false,
-          map: map,
-        }
-      );
-      item.layer.status_changed = () => {
-        if (google.maps.KmlLayerStatus.OK === item.layer.getStatus()) {
-          item.loaded = true;
-        } else {
-          shake(previewPanelRef.value);
-        }
-      };
-      item.layer.addListener("click", (event) => {
-        const content = event.featureData.infoWindowHtml;
-        console.log(event);
-      });
-    }
-  } catch (e) {
-    shake(previewPanelRef.value);
-    console.error(e);
-  }*/
 };
 const unloadItem = (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
@@ -1193,8 +1237,12 @@ const unloadItem = (item) => {
     const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
 
     if (index >= 0) {
-      for (const marker of pinnedItems[index].graph) {
-        marker.setMap(null);
+      for (const markers of pinnedItems[index].graph) {
+        for (const marker of markers) {
+          if (marker !== null) {
+            marker.setMap(null);
+          }
+        }
       }
 
       pinnedItems[index].graph.splice(0);
@@ -1215,20 +1263,56 @@ const previousResults = (index) => {
 };
 const colorChanged = (item, color) => {
   const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
+  const [r, g, b] = hexToRgb(color);
+  const [h, s, l] = rgbToHsl(r, g, b);
 
   appearance[item.media.id] = color;
 
   if (index >= 0) {
-    for (const marker of pinnedItems[index].graph) {
-      const icon = marker.getIcon();
+    for (const markers of pinnedItems[index].graph) {
+      const step = 1.0 / markers.length;
 
-      icon.strokeColor = color;
-      icon.fillColor = color;
+      for (let i = 0; i < markers.length; i++) {
+        const marker = markers[i];
 
-      marker.setIcon(null);
-      marker.setIcon(Object.assign({}, icon));
+        if (marker !== null) {
+          const icon = marker.getIcon();
+
+          icon.strokeColor = icon.fillColor = `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`;
+
+          marker.setIcon(null);
+          marker.setIcon(Object.assign({}, icon));
+        }
+      }
     }
   }
+};
+const hexToRgb = (hex) => {
+  const r = parseInt(hex.substr(1,2), 16);
+  const g = parseInt(hex.substr(3,2), 16);
+  const b = parseInt(hex.substr(5,2), 16);
+
+  return [r, g, b];
+};
+const rgbToHsl = (r, g, b) => {
+    r /= 255, g /= 255, b /= 255;
+    var max = Math.max(r, g, b), min = Math.min(r, g, b);
+    var h, s, l = (max + min) / 2;
+
+    if(max == min){
+        h = s = 0;
+    }else{
+        var d = max - min;
+        s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+        switch(max){
+            case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+            case g: h = (b - r) / d + 2; break;
+            case b: h = (r - g) / d + 4; break;
+        }
+        h /= 6;
+    }
+
+    return [h, s, l];
 };
 </script>
 
