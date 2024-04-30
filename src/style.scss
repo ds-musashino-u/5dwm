@@ -758,6 +758,81 @@ a:hover {
     -moz-appearance: textfield !important;
 }
 
+.gmp-chart {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: flex-start;
+    height: fit-content;
+
+    .gmp-caption {
+        padding: 0 0 0.5rem 0;
+        color: #000000;
+        font-size: 0.75rem;
+        font-weight: bold;
+        line-height: 0.75rem;
+        opacity: 0.75;
+        text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+    }
+
+    .gmp-bars {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content: flex-start;
+        max-width: 100px;
+
+        .bar-mark {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: flex-start;
+            background-color: transparent;
+
+            div.stack {
+                position: relative;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: flex-start;
+
+                div.bar {
+                    position: relative;
+                    height: 8px;
+                    width: 100px;
+                }
+
+                label {
+                    width: auto;
+                    color: #000000;
+                    font-size: 0.75rem;
+                    line-height: 0.75rem;
+                    font-weight: bold;
+                    text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+                }
+            }
+
+            div.captions {
+                position: relative;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+
+                label {
+                    width: auto;
+                    color: #000000;
+                    font-size: 0.75rem;
+                    line-height: 0.75rem;
+                    font-weight: bold;
+                    opacity: 0.75;
+                    text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+                }
+            }
+        }
+    }
+}
+
 @keyframes loading {
     0% {
         transform: rotate(0deg);
