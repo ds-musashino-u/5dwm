@@ -102,11 +102,12 @@ const initialize = async () => {
   const loader = new Loader({
     apiKey: GoogleMapsConfig.API_KEY,
     version: GoogleMapsConfig.VERSION,
+    libraries: ["marker"],
     language: navigator.language,
   });
 
   await loader.importLibrary("maps");
-
+  
   map = new google.maps.Map(mapRef.value, GoogleMapsConfig.MAP_OPTIONS);
   map.setOptions({ minZoom: 3, maxZoom: 20 });
 };
@@ -268,7 +269,41 @@ const resizeImage = async (dataURL, length) => {
 
   return null;
 };
-const markerClick = (event) => {
+const gmpMarkerClick = (event) => {
+  const element = searchResults.find(
+    x =>
+      x.marker !== null &&
+      event.target.position.lat === x.marker.position.lat &&
+      event.target.position.lng === x.marker.position.lng
+    );
+
+  if (element === undefined) {
+    const pinnedItem = pinnedItems.find(x => x.graph.find(y => y.find(z => z !== null && event.target.position.lat === z.position.lat && event.target.position.lng === z.position.lng) !== undefined) !== undefined);
+
+    if (pinnedItem !== undefined) {
+      const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === pinnedItem.item.media.id);
+
+      if (index === undefined) {
+        selectItem(null, pinnedItem.item);
+      } else {
+        selectItem(Number(index), pinnedItem.item);
+      }
+    }
+  } else {
+    const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === element.item.media.id);
+
+    if (index === undefined) {
+      selectItem(null, element.item);
+    } else {
+      selectItem(Number(index), element.item);
+    }
+
+    if ("infowindow" in element && element.item.media.description.length > 0) {
+      element.infowindow.open({ anchor: element.marker, map });
+    }
+  }
+};
+const markerClick = async (event) => {
   const element = searchResults.find(
     x =>
       x.marker !== null &&
@@ -283,21 +318,21 @@ const markerClick = (event) => {
       const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === pinnedItem.item.media.id);
 
       if (index === undefined) {
-        selectedItemRef.value = Object.assign({}, pinnedItem.item);
+        selectItem(null, pinnedItem.item);
       } else {
-        selectedItemRef.value = Object.assign({ index: Number(index) }, pinnedItem.item);
+        selectItem(Number(index), pinnedItem.item);
       }
     }
   } else {
     const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === element.item.media.id);
 
     if (index === undefined) {
-      selectedItemRef.value = Object.assign({}, element.item);
+      selectItem(null, element.item);
     } else {
-      selectedItemRef.value = Object.assign({ index: Number(index) }, element.item);
+      selectItem(Number(index), element.item);
     }
 
-    if ("infowindow" in element) {
+    if ("infowindow" in element && element.item.media.description.length > 0) {
       element.infowindow.open({ anchor: element.marker, map });
     }
   }
@@ -588,6 +623,7 @@ const shake = (element) => {
   );
 };
 const createDataMarker = (location, value, label, color) => {
+  const hslColor = `hsl(${color[0]}deg ${color[1]}% ${color[2]}%)`;
   const marker = new google.maps.Marker({
     position: {
       lat: location.latitude,
@@ -596,16 +632,84 @@ const createDataMarker = (location, value, label, color) => {
     icon: {
       path: google.maps.SymbolPath.CIRCLE,
       scale: value,
-      strokeColor: color,
+      strokeColor: hslColor,
       strokeOpacity: 1,
       strokeWeight: 1,
-      fillColor: color,
-      fillOpacity: .5
+      fillColor: hslColor,
+      fillOpacity: .75
     },
     label: { text: label, fontWeight: "bold", color: "#ffffff" },
     map: map
   });
   marker.addListener("click", markerClick);
+
+  return marker;
+};
+const createDataMarkerEx = (location, time, data) => {
+  const content = document.createElement("div");
+  const caption = document.createElement("span");
+  const bars = document.createElement("div");
+  
+  content.className = "gmp-chart";
+
+  caption.className = "gmp-caption";
+  caption.textContent = time.toLocaleString();
+
+  content.appendChild(caption);
+
+  bars.className = "gmp-bars";
+  bars.style.gridTemplateColumns = `repeat(${data.length}, 1fr)`;
+
+  content.appendChild(bars);
+
+  for (const dataItem of data) {
+    const [h, s, l] = dataItem[3];
+    const segment = document.createElement("div");
+    const wrapper = document.createElement("div");
+    const stack = document.createElement("div");
+    const label = document.createElement("label");
+    const bar = document.createElement("div");
+    
+    segment.className = "bar-mark";
+    wrapper.className = "captions";
+    stack.className = "stack";
+    
+    label.textContent = dataItem[0];
+    wrapper.appendChild(label);
+
+    bar.className = "bar";
+    bar.style.backgroundColor = `hsl(${h}deg ${s}% ${l}%)`;
+
+    if (dataItem[1] === null) {
+      bar.style.width = "0px";
+    } else {
+      bar.style.width = `${Math.ceil(100 * dataItem[1])}px`;
+    }
+
+    stack.appendChild(bar);
+
+    if (dataItem[2] !== null) {
+      const value = document.createElement("label");
+      
+      value.textContent = `${dataItem[2]}`;
+      stack.appendChild(value);
+    }
+
+    segment.appendChild(wrapper);
+    segment.appendChild(stack);
+    bars.appendChild(segment);
+  }
+  
+  const marker = new google.maps.marker.AdvancedMarkerElement({
+    position: {
+      lat: location.latitude,
+      lng: location.longitude,
+    },
+    content: content,
+    map: map
+  });
+  marker.gmpClickable = true;
+  marker.addEventListener("gmp-click", gmpMarkerClick);
 
   return marker;
 };
@@ -1094,7 +1198,13 @@ const back = (event) => {
   }
 };
 const selectItem = async (index, item) => {
-  selectedItemRef.value = Object.assign({ index: index }, item);
+  if (index === null) {
+    if (selectedItemRef.value === null || "index" in selectedItemRef.value || selectedItemRef.value.media.id !== item.media.id) {
+      selectedItemRef.value = Object.assign({}, item);
+    }
+  } else if (selectedItemRef.value === null || "index" in selectedItemRef.value === false || selectedItemRef.value.index !== index || selectedItemRef.value.media.id !== item.media.id) {
+    selectedItemRef.value = Object.assign({ index: index }, item);
+  }
 
   map.panTo(
     new google.maps.LatLng(
@@ -1103,26 +1213,27 @@ const selectItem = async (index, item) => {
     )
   );
 
-  if ("data" in item.media && item.media.data !== null && item.media.data.length === 0) {
+  if ("data" in selectedItemRef.value.media && selectedItemRef.value.media.data !== null && selectedItemRef.value.media.data.length === 0) {
     const media = await getMedium(item.media.id);
     
-    if ("dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
-      item.media.dataTypes.splice(0);
+    if ("dataTypes" in selectedItemRef.value.media && selectedItemRef.value.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
+      selectedItemRef.value.media.dataTypes.splice(0);
       
       for (const type of media.dataTypes) {
-        item.media.dataTypes.push(type);
+        selectedItemRef.value.media.dataTypes.push(type);
       }
     }
 
     if ("data" in media && media.data !== null) {
-      item.media.data.splice(0);
+      selectedItemRef.value.media.data.splice(0);
 
       for (const mediaDataItem of media.data) {
         const dataItem = { id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) };
 
-        item.media.data.push(dataItem);
+        selectedItemRef.value.media.data.push(dataItem);
       }
     }
+
 
     /*const result = searchResults.find(x => x.item.media.id === item.media.id);
 
@@ -1206,15 +1317,22 @@ const loadItem = async (item) => {
         const count = Math.min(dataTypeCount, dataItem.values.length);
         const step = 1.0 / count
         const markers = [];
-
+        const data = [];
+        
         for (let i = 0; i < count; i++) {
-          const value = dataItem.values[i];
-
-          if (value === null) {
-            markers.push(null);
-          } else {
-            markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
+          if (i in dataTypes) {
+            if (dataItem.values[i] === null) {
+              data.push([dataTypes[i], null, null, [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
+            } else {
+              data.push([dataTypes[i], (dataItem.values[i] - min) / span, String(dataItem.values[i]), [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
+            }
           }
+        }
+
+        if (count === 1) {
+          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, String(dataItem.values[0]), [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
+        } else {
+          markers.push(createDataMarkerEx(dataItem.location, dataItem.time, data));
         }
 
         graph.push(markers);
