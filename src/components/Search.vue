@@ -668,7 +668,7 @@ const updateDataItems = (fromDate, toDate) => {
         }
 
         if (count === 1) {
-          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, `${dataItem.values[0]} (${dataItem.time.toLocaleString()})`, [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
+          markers.push(createDataMarker(dataItem.location, dataItem.time, (dataItem.values[0] - min) / span * 100.0, String(dataItem.values[0]), [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
         } else {
           markers.push(createDataMarkerEx(dataItem.location, dataItem.time, data));
         }
@@ -678,26 +678,39 @@ const updateDataItems = (fromDate, toDate) => {
     }
   }
 };
-const createDataMarker = (location, value, label, color) => {
-  const hslColor = `hsl(${color[0]}deg ${color[1]}% ${color[2]}%)`;
-  const marker = new google.maps.Marker({
+const createDataMarker = (location, time, value, text, color) => {
+  const content = document.createElement("div");
+  const caption = document.createElement("span");
+  const wrapper = document.createElement("div");
+  const circle = document.createElement("div");
+  const label = document.createElement("label");
+  const [h, s, l] = color;
+
+  content.className = "gmp-chart";
+  wrapper.className = "gmp-circle";
+  circle.className = "circle";
+  circle.style.width = `${Math.ceil(value)}px`;
+  circle.style.borderColor = `hsl(${h}deg ${s}% ${l}%)`;
+  circle.style.backgroundColor = `hsla(${h}deg, ${s}%, ${l}%, 0.75)`;
+  label.textContent = text;
+  wrapper.appendChild(circle);
+  wrapper.appendChild(label);
+  caption.className = "gmp-caption";
+  caption.textContent = time.toLocaleString();
+  content.appendChild(wrapper);
+  content.appendChild(caption);
+  
+  const marker = new google.maps.marker.AdvancedMarkerElement({
     position: {
       lat: location.latitude,
       lng: location.longitude,
     },
-    icon: {
-      path: google.maps.SymbolPath.CIRCLE,
-      scale: value,
-      strokeColor: hslColor,
-      strokeOpacity: 1,
-      strokeWeight: 1,
-      fillColor: hslColor,
-      fillOpacity: .75
-    },
-    label: { text: label, fontWeight: "bold", color: "#000000" },
+    content: content,
     map: map
   });
-  marker.addListener("click", markerClick);
+
+  marker.gmpClickable = true;
+  marker.addEventListener("gmp-click", gmpMarkerClick);
 
   return marker;
 };
@@ -707,14 +720,7 @@ const createDataMarkerEx = (location, time, data) => {
   const bars = document.createElement("div");
   
   content.className = "gmp-chart";
-
-  caption.className = "gmp-caption";
-  caption.textContent = time.toLocaleString();
-
-  content.appendChild(caption);
-
   bars.className = "gmp-bars";
-  bars.style.gridTemplateColumns = `repeat(${data.length}, 1fr)`;
 
   content.appendChild(bars);
 
@@ -756,6 +762,11 @@ const createDataMarkerEx = (location, time, data) => {
     segment.appendChild(stack);
     bars.appendChild(segment);
   }
+
+  caption.className = "gmp-caption";
+  caption.textContent = time.toLocaleString();
+
+  content.appendChild(caption);
   
   const marker = new google.maps.marker.AdvancedMarkerElement({
     position: {
@@ -765,6 +776,7 @@ const createDataMarkerEx = (location, time, data) => {
     content: content,
     map: map
   });
+
   marker.gmpClickable = true;
   marker.addEventListener("gmp-click", gmpMarkerClick);
 
@@ -836,17 +848,24 @@ const search = async (ignoreCache = true) => {
         const item = cachedSearchResults[index];
 
         if (item.media.location !== null) {
-          const marker = new google.maps.Marker({
+          const glyph = document.createElement("span");
+
+          glyph.className = "gmp-glyph";
+          glyph.textContent = String(searchPageIndexRef.value * searchPageLength + index + 1);
+
+          const marker = new google.maps.marker.AdvancedMarkerElement({
             position: {
               lat: item.media.location.latitude,
-              lng: item.media.location.longitude,
+              lng: item.media.location.longitude
             },
-            map: map,
-            title: item.media.description,
-            label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
+            content: new google.maps.marker.PinView({
+              glyph: glyph
+            }).element,
+            map: map
           });
 
-          marker.addListener("click", markerClick);
+          marker.gmpClickable = true;
+          marker.addEventListener("gmp-click", gmpMarkerClick);
 
           if (-90 <= item.media.location.latitude && item.media.location.latitude <= 90 && -180 <= item.media.location.longitude && item.media.location.longitude <= 180) {
             bounds.extend(
@@ -991,17 +1010,24 @@ const search = async (ignoreCache = true) => {
                   searchPageIndexRef.value * searchPageLength + index
                 ] = resultItem;
               } else {
-                const marker = new google.maps.Marker({
+                const glyph = document.createElement("span");
+
+                glyph.className = "gmp-glyph";
+                glyph.textContent = String(searchPageIndexRef.value * searchPageLength + index + 1);
+
+                const marker = new google.maps.marker.AdvancedMarkerElement({
                   position: {
                     lat: resultItem.media.location.latitude,
-                    lng: resultItem.media.location.longitude,
+                    lng: resultItem.media.location.longitude
                   },
-                  map: map,
-                  title: resultItem.media.description,
-                  label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
+                  content: new google.maps.marker.PinView({
+                    glyph: glyph
+                  }).element,
+                  map: map
                 });
 
-                marker.addListener("click", markerClick);
+                marker.gmpClickable = true;
+                marker.addEventListener("gmp-click", gmpMarkerClick);
 
                 if (-90 <= resultItem.media.location.latitude && resultItem.media.location.latitude <= 90 && -180 <= resultItem.media.location.longitude && resultItem.media.location.longitude <= 180) {
                   bounds.extend(
@@ -1012,24 +1038,10 @@ const search = async (ignoreCache = true) => {
                   );
                 }
 
-                /*const circle = new google.maps.Circle({
-                  strokeColor: "#FF0000",
-                  strokeOpacity: 1.0,
-                  strokeWeight: 2,
-                  fillColor: "#FF0000",
-                  fillOpacity: 0.25,
-                  map,
-                  center: {
-                    lat: resultItem.media.location.latitude,
-                    lng: resultItem.media.location.longitude,
-                  },
-                  radius: 1000,
-                });*/
-
                 searchResults.push({ marker: marker, infowindow: new google.maps.InfoWindow({
                   content: resultItem.media.type.startsWith('image') && resultItem.media.url.startsWith('https://') ? "thumbnailUrl" in resultItem.media && resultItem.media.thumbnailUrl !== null ? `<img width="320px" src="${resultItem.media.thumbnailUrl}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : `<img width="320px" src="${resultItem.media.url}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : resultItem.media.description,
                   ariaLabel: String(searchPageIndexRef.value * searchPageLength + index + 1),
-                }), item: resultItem/*, graph: circle*/ });
+                }), item: resultItem });
                 searchResultsRef.value.push(resultItem);
                 cachedSearchResults[
                   searchPageIndexRef.value * searchPageLength + index
@@ -1048,66 +1060,6 @@ const search = async (ignoreCache = true) => {
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
-                /*const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
-
-                resultItem["loading"] = false;
-
-                if (pinnedItem === undefined) {
-                  resultItem["loaded"] = false;
-                } else {
-                  let min = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
-                  const max = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
-
-                  if (min === max) {
-                    min = 0.0;
-                  }
-
-                  const span = Math.abs(min) + max;
-                  const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
-                  const [r, g, b] = hexToRgb(color);
-                  const [h, s, l] = rgbToHsl(r, g, b);
-                  let dataTypes = {};
-                  let dataTypeCount = 1;
-
-                  if (resultItem.media.dataTypes !== null && resultItem.media.dataTypes.length > 0) {
-                    for (let i = 0; i < resultItem.media.dataTypes.length; i++) {
-                      dataTypes[i] = resultItem.media.dataTypes[i];
-                    }
-
-                    dataTypeCount = resultItem.media.dataTypes.length;
-                  }
-
-                  for (const markers of pinnedItem.graph) {
-                    for (const marker of markers) {
-                      if (marker !== null) {
-                        marker.setMap(null);
-                      }
-                    }
-                  }
-
-                  pinnedItem.item = resultItem;
-                  pinnedItem.graph.splice(0);
-
-                  for (const dataItem of resultItem.media.data) {
-                    const count = Math.min(dataTypeCount, dataItem.values.length);
-                    const step = 1.0 / count
-                    const markers = [];
-
-                    for (let i = 0; i < count; i++) {
-                      const value = dataItem.values[i];
-
-                      if (value === null) {
-                        markers.push(null);
-                      } else {
-                        markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
-                      }
-                    }
-
-                    pinnedItem.graph.push(markers);
-                  }
-
-                  resultItem["loaded"] = true;
-                }*/
               }
 
               cachedSearchResults[
@@ -1125,66 +1077,6 @@ const search = async (ignoreCache = true) => {
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
-                /*const pinnedItem = pinnedItems.find(x => x.item.media.id === resultItem.media.id);
-
-                resultItem["loading"] = false;
-
-                if (pinnedItem === undefined) {
-                  resultItem["loaded"] = false;
-                } else {
-                  let min = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
-                  const max = resultItem.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
-
-                  if (min === max) {
-                    min = 0.0;
-                  }
-
-                  const span = Math.abs(min) + max;
-                  const color = resultItem.media.id in appearance ? appearance[resultItem.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
-                  const [r, g, b] = hexToRgb(color);
-                  const [h, s, l] = rgbToHsl(r, g, b);
-                  let dataTypes = {};
-                  let dataTypeCount = 1;
-
-                  if (resultItem.media.dataTypes !== null && resultItem.media.dataTypes.length > 0) {
-                    for (let i = 0; i < resultItem.media.dataTypes.length; i++) {
-                      dataTypes[i] = resultItem.media.dataTypes[i];
-                    }
-
-                    dataTypeCount = resultItem.media.dataTypes.length;
-                  }
-                  
-                  for (const markers of pinnedItem.graph) {
-                    for (const marker of markers) {
-                      if (marker !== null) {
-                        marker.setMap(null);
-                      }
-                    }
-                  }
-
-                  pinnedItem.item = resultItem;
-                  pinnedItem.graph.splice(0);
-
-                  for (const dataItem of resultItem.media.data) {
-                    const count = Math.min(dataTypeCount, dataItem.values.length);
-                    const step = 1.0 / count
-                    const markers = [];
-
-                    for (let i = 0; i < count; i++) {
-                      const value = dataItem.values[i];
-
-                      if (value === null) {
-                        markers.push(null);
-                      } else {
-                        markers.push(createDataMarker(dataItem.location, (value - min) / span * 32.0, i in dataTypes ? `${dataTypes[i]}(${value})` : `${value}`, `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`));
-                      }
-                    }
-
-                    pinnedItem.graph.push(markers);
-                  }
-
-                  resultItem["loaded"] = true;
-                }*/
               }
 
               if (resultItem.media.location === null) {
@@ -1194,16 +1086,25 @@ const search = async (ignoreCache = true) => {
                   searchPageIndexRef.value * searchPageLength + index
                 ] = resultItem;
               } else {
-                const marker = new google.maps.Marker({
+                const glyph = document.createElement("span");
+
+                glyph.className = "gmp-glyph";
+                glyph.textContent = String(searchPageIndexRef.value * searchPageLength + index + 1);
+
+                const marker = new google.maps.marker.AdvancedMarkerElement({
                   position: {
                     lat: resultItem.media.location.latitude,
-                    lng: resultItem.media.location.longitude,
+                    lng: resultItem.media.location.longitude
                   },
-                  map: map,
-                  label: { text: String(searchPageIndexRef.value * searchPageLength + index + 1), fontWeight: "bold", color: "#ffffff" }
+                  content: new google.maps.marker.PinView({
+                    glyph: glyph
+                  }).element,
+                  map: map
                 });
-                marker.addListener("click", markerClick);
 
+                marker.gmpClickable = true;
+                marker.addEventListener("gmp-click", gmpMarkerClick);
+                
                 if (-90 <= resultItem.media.location.latitude && resultItem.media.location.latitude <= 90 && -180 <= resultItem.media.location.longitude && resultItem.media.location.longitude <= 180) {
                   bounds.extend(
                     new google.maps.LatLng(
@@ -1291,35 +1192,6 @@ const selectItem = async (index, item) => {
         selectedItemRef.value.media.data.push(dataItem);
       }
     }
-
-
-    /*const result = searchResults.find(x => x.item.media.id === item.media.id);
-
-    if (result !== undefined && "data" in result.item.media && result.item.media.data !== null) {
-      const media = await getMedium(item.media.id);
-    
-      if ("dataTypes" in result.item.media && result.item.media.dataTypes !== null && "dataTypes" in item.media && item.media.dataTypes !== null && "dataTypes" in media && media.dataTypes !== null) {
-        result.item.media.dataTypes.splice(0);
-        item.media.dataTypes.splice(0);
-        
-        for (const type of media.dataTypes) {
-          result.item.media.dataTypes.push(type);
-          item.media.dataTypes.push(type);
-        }
-      }
-
-      if ("data" in media && media.data !== null) {
-        result.item.media.data.splice(0);
-        item.media.data.splice(0);
-
-        for (const mediaDataItem of media.data) {
-          const dataItem = { id: mediaDataItem.id, values: mediaDataItem.values, time: mediaDataItem.time, location: new Location(mediaDataItem.location.longitude, mediaDataItem.location.latitude, mediaDataItem.location.address !== null && mediaDataItem.location.address.length > 0 ? mediaDataItem.location.address : null) };
-
-          result.item.media.data.push(dataItem);
-          item.media.data.push(dataItem);
-        }
-      }
-    }*/
   }
 };
 const loadItem = async (item) => {
@@ -1734,9 +1606,6 @@ const rgbToHsl = (r, g, b) => {
           background: transparent;
           border-radius: 4px;
           box-shadow: none;
-          /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
-          0 0px 0 1px rgb(10 10 10 / 2%);
-        overflow: hidden;*/
 
           .panel-block {
             padding: 0;
@@ -2009,9 +1878,6 @@ const rgbToHsl = (r, g, b) => {
           background: transparent;
           border-radius: 4px;
           box-shadow: none;
-          /*box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
-            0 0px 0 1px rgb(10 10 10 / 2%);
-          overflow: hidden;*/
 
           .panel-block {
             display: flex;
