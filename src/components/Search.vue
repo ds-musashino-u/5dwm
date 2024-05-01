@@ -54,6 +54,11 @@ const searchResultsRef = ref([]);
 const selectedItemRef = ref(null);
 const previewPanelRef = ref(null);
 const errorRef = ref(null);
+const dataFromDateRef = ref(new Date());
+const dataToDateRef = ref(new Date());
+const dataMinDateRef = ref(new Date("0001-01-01T00:00:00"));
+const dataMaxDateRef = ref(new Date());
+const pinnedMediaRef = ref([]);
 const props = defineProps({
   auth0: Object,
   user: Object,
@@ -121,64 +126,6 @@ onActivated(() => {
   if (!isInitializedRef.value) {
     initialize();
   }
-
-  try {
-    /*const categories = await getCategories();
-
-    console.log(categories);*/
-    /*console.log("insert");
-    const cat = await insertCategory("foobarbaz");
-
-    console.log(cat);
-
-    console.log(await getCategory(cat.id));
-
-    console.log("update");
-    const cat2 = await updateCategory(cat.id, "Hogehogehoge");
-
-    console.log(cat2);
-
-    console.log(await getCategory(cat2.id));
-
-    console.log("delete");
-
-    console.log(await deleteCategory(cat2.id));
-
-    console.log(await getCategory(cat2.id));*/
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    /*const media = await getMedia("image*", "created_at", "desc", 0, 10);
-
-    console.log(media);*/
-
-    /*console.log(await getMedium(media[0].id));
-
-    console.log("insert");
-    const m = await insertMedium("https://5dworldmap.com/foobar.png", "image/png", ["foo", "bar"], "foo bar baz", "foobar", new Location(105.85271637244875, 21.028344772352863, "foo"));
-
-    console.log(m);
-    console.log(await getMedium(m.id));
-
-    console.log("delete");
-
-    console.log(await deleteMedium(m.id));
-    console.log(await getMedium(m.id));*/
-  } catch (error) {
-    console.error(error);
-  }
-
-  try {
-    /*const users = await getUsers();
-
-    console.log(users);*/
-
-    //console.log(await getUser(users[0].username));
-  } catch (error) {
-    console.error(error);
-  }
 });
 onDeactivated(() => { });
 watch(imageUrlRef, (currentValue, oldValue) => {
@@ -188,6 +135,52 @@ watch(imageUrlRef, (currentValue, oldValue) => {
 });
 watch(selectedItemRef, (currentValue, oldValue) => {
     errorRef.value = null;
+});
+watch(() => pinnedMediaRef.value.length, (newValue, oldValue) => {
+  if (newValue > 0) {
+    let minDate = new Date();
+    let maxDate = new Date("0001-01-01T00:00:00");
+
+    for (const pinnedMedia of pinnedMediaRef.value) {
+      if ("data" in pinnedMedia && pinnedMedia !== null) {
+        for (const dataItem of pinnedMedia.data) {
+          if (dataItem.time.getTime() < minDate) {
+            minDate = dataItem.time;
+          }
+
+          if (dataItem.time.getTime() > maxDate) {
+            maxDate = dataItem.time;
+          }
+        }
+      }
+    }
+
+    minDate.setHours(0);
+    minDate.setMinutes(0);
+    minDate.setSeconds(0);
+    minDate.setMilliseconds(0);
+    maxDate.setHours(23);
+    maxDate.setMinutes(59);
+    maxDate.setSeconds(59);
+    maxDate.setMilliseconds(0);
+
+    if (oldValue === 0) {
+      const toDate = new Date(maxDate.getTime());
+      const fromDate = new Date(toDate.getTime());
+
+      fromDate.setHours(0);
+      fromDate.setMinutes(0);
+      fromDate.setSeconds(0);
+
+      dataToDateRef.value = toDate;
+      dataFromDateRef.value = fromDate;
+    }
+
+    dataMinDateRef.value = minDate;
+    dataMaxDateRef.value = maxDate;
+
+    updateDataItems(dataFromDateRef.value, dataToDateRef.value);
+  }
 });
 
 const sequenceEqual = (first, second) => {
@@ -347,6 +340,9 @@ const timeChanged = (fromDate, toDate) => {
   if (searchTotalCountRef.value !== null) {
     search(true);
   }
+};
+const dataTimeChanged = (fromDate, toDate) => {
+  updateDataItems(fromDate, toDate);
 };
 const dragover = (event) => {
   isDraggingRef.value = true;
@@ -622,6 +618,66 @@ const shake = (element) => {
     { duration: 1000, iterations: 1 }
   );
 };
+const updateDataItems = (fromDate, toDate) => {
+  for (const pinnedItem of pinnedItems) {
+    for (const markers of pinnedItem.graph) {
+      for (const marker of markers) {
+        if (marker !== null) {
+            marker.setMap(null);
+          }
+      }
+    }
+
+    let min = pinnedItem.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
+    const max = pinnedItem.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
+
+    if (min === max) {
+      min = 0.0;
+    }
+
+    const span = Math.abs(min) + max;
+    const color = pinnedItem.item.media.id in appearance ? appearance[pinnedItem.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
+    const [r, g, b] = hexToRgb(color);
+    const [h, s, l] = rgbToHsl(r, g, b);
+    let dataTypes = {};
+    let dataTypeCount = 1;
+
+    if (pinnedItem.item.media.dataTypes !== null && pinnedItem.item.media.dataTypes.length > 0) {
+      for (let i = 0; i < pinnedItem.item.media.dataTypes.length; i++) {
+        dataTypes[i] = pinnedItem.item.media.dataTypes[i];
+      }
+
+      dataTypeCount = pinnedItem.item.media.dataTypes.length;
+    }
+
+    for (const dataItem of pinnedItem.item.media.data) {
+      if (fromDate.getTime() <= dataItem.time.getTime() && dataItem.time.getTime() < toDate.getTime()) {
+        const count = Math.min(dataTypeCount, dataItem.values.length);
+        const step = 1.0 / count
+        const markers = [];
+        const data = [];
+        
+        for (let i = 0; i < count; i++) {
+          if (i in dataTypes) {
+            if (dataItem.values[i] === null) {
+              data.push([dataTypes[i], null, null, [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
+            } else {
+              data.push([dataTypes[i], (dataItem.values[i] - min) / span, String(dataItem.values[i]), [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
+            }
+          }
+        }
+
+        if (count === 1) {
+          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, String(dataItem.values[0]), [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
+        } else {
+          markers.push(createDataMarkerEx(dataItem.location, dataItem.time, data));
+        }
+
+        pinnedItem.graph.push(markers);
+      }
+    }
+  }
+};
 const createDataMarker = (location, value, label, color) => {
   const hslColor = `hsl(${color[0]}deg ${color[1]}% ${color[2]}%)`;
   const marker = new google.maps.Marker({
@@ -876,6 +932,7 @@ const search = async (ignoreCache = true) => {
         }
 
         pinnedItems.splice(0);
+        pinnedMediaRef.value.splice(0);
         //}
 
         searchResults.splice(0);
@@ -1290,55 +1347,8 @@ const loadItem = async (item) => {
     const result = searchResults.find(x => x.item.media.id === item.media.id);
 
     if (result !== undefined) {
-      const graph = [];
-      let min = result.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
-      const max = result.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
-
-      if (min === max) {
-        min = 0.0;
-      }
-
-      const span = Math.abs(min) + max;
-      const color = result.item.media.id in appearance ? appearance[result.item.media.id] : window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color");
-      const [r, g, b] = hexToRgb(color);
-      const [h, s, l] = rgbToHsl(r, g, b);
-      let dataTypes = {};
-      let dataTypeCount = 1;
-
-      if (result.item.media.dataTypes !== null && result.item.media.dataTypes.length > 0) {
-        for (let i = 0; i < result.item.media.dataTypes.length; i++) {
-          dataTypes[i] = result.item.media.dataTypes[i];
-        }
-
-        dataTypeCount = result.item.media.dataTypes.length;
-      }
-
-      for (const dataItem of result.item.media.data) {
-        const count = Math.min(dataTypeCount, dataItem.values.length);
-        const step = 1.0 / count
-        const markers = [];
-        const data = [];
-        
-        for (let i = 0; i < count; i++) {
-          if (i in dataTypes) {
-            if (dataItem.values[i] === null) {
-              data.push([dataTypes[i], null, null, [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
-            } else {
-              data.push([dataTypes[i], (dataItem.values[i] - min) / span, String(dataItem.values[i]), [Math.floor((h + step * i) * 360), Math.floor(s * 100), Math.floor(l * 100)]]);
-            }
-          }
-        }
-
-        if (count === 1) {
-          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, String(dataItem.values[0]), [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
-        } else {
-          markers.push(createDataMarkerEx(dataItem.location, dataItem.time, data));
-        }
-
-        graph.push(markers);
-      }
-
-      pinnedItems.push({ item: result.item, graph: graph });
+      pinnedItems.push({ item: result.item, graph: [] });
+      pinnedMediaRef.value.push(result.item.media);
       result.item.loaded = item.loaded = true;
     }
   }
@@ -1353,7 +1363,7 @@ const unloadItem = (item) => {
     }
   } else if ("data" in item.media && item.media.data !== null) {
     const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
-
+    
     if (index >= 0) {
       for (const markers of pinnedItems[index].graph) {
         for (const marker of markers) {
@@ -1366,6 +1376,7 @@ const unloadItem = (item) => {
       pinnedItems[index].graph.splice(0);
       pinnedItems[index].item.loaded = item.loaded = false;
       pinnedItems.splice(index, 1);
+      pinnedMediaRef.value.splice(index, 1);
     }
   }
 };
@@ -1630,9 +1641,9 @@ const rgbToHsl = (r, g, b) => {
     <div class="wrap">
       <div id="map" ref="mapRef"></div>
       <transition name="fade" mode="out-in">
-        <div class="right" v-show="true" key="panel">
+        <div class="right" v-if="pinnedMediaRef.some(x => 'data' in x && x.data !== null && x.data.some(y => y.values.length > 1))" key="panel">
           <div class="panel">
-            <Time name="Time" :isEnabled="true" :fromDate="fromDateRef" :toDate="toDateRef" :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @changed="timeChanged" :isCollapsed="false" :isBackwardEnabled="!isSearchingRef" :isForwardEnabled="!isSearchingRef" :isHeaderVisible="false" />
+            <Time name="Time" :isEnabled="true" :from-date="dataFromDateRef" :to-date="dataToDateRef" :min-date="dataMinDateRef" :max-date="dataMaxDateRef" :default-time-unit="2" @changed="dataTimeChanged" :isCollapsed="false" :isHeaderVisible="false" />
           </div>
         </div>
       </transition>
