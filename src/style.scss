@@ -758,16 +758,25 @@ a:hover {
     -moz-appearance: textfield !important;
 }
 
+.gmp-glyph {
+    font-family: #{$family-sans-serif};
+    font-size: 0.75rem;
+    font-weight: bold;
+    line-height: 0.75rem;
+    color: #ffffff;
+}
+
 .gmp-chart {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     justify-content: flex-start;
     height: fit-content;
 
     .gmp-caption {
-        padding: 0 0 0.5rem 0;
+        padding: 0.5rem 0 0 0;
         color: #000000;
+        font-family: #{$family-sans-serif};
         font-size: 0.75rem;
         font-weight: bold;
         line-height: 0.75rem;
@@ -775,12 +784,40 @@ a:hover {
         text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
     }
 
+    .gmp-circle {
+        position: relative;
+        display: flex;
+        width: fit-content;
+        height: fit-content;
+
+        .circle {
+            position: relative;
+            border-width: 1px;
+            border-style: solid;
+            border-radius: 290486px;
+            aspect-ratio: 1;
+        }
+
+        label {
+            position: absolute;
+            width: auto;
+            color: #000000;
+            font-family: #{$family-sans-serif};
+            font-size: 0.75rem;
+            line-height: 0.75rem;
+            font-weight: bold;
+            text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+    }
+
     .gmp-bars {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
         justify-content: flex-start;
-        max-width: 100px;
 
         .bar-mark {
             display: flex;
@@ -808,6 +845,7 @@ a:hover {
                     margin: 0 0 0 4px;
                     width: auto;
                     color: #000000;
+                    font-family: #{$family-sans-serif};
                     font-size: 0.75rem;
                     line-height: 0.75rem;
                     font-weight: bold;
@@ -827,6 +865,7 @@ a:hover {
                     color: #000000;
                     font-size: 0.75rem;
                     line-height: 0.75rem;
+                    font-family: #{$family-sans-serif};
                     font-weight: bold;
                     opacity: 0.75;
                     text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
