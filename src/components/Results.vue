@@ -460,7 +460,7 @@ const back = (event) => {
 
   .wrap {
     flex-basis: auto;
-    width: fit-content;
+    width: 320px;
     height: 100%;
     max-height: 100%;
     overflow-x: hidden;
