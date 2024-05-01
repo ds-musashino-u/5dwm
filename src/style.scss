@@ -772,7 +772,7 @@ a:hover {
         font-weight: bold;
         line-height: 0.75rem;
         opacity: 0.75;
-        text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+        text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
     }
 
     .gmp-bars {
@@ -808,7 +808,7 @@ a:hover {
                     font-size: 0.75rem;
                     line-height: 0.75rem;
                     font-weight: bold;
-                    text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+                    text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
                 }
             }
 
@@ -826,7 +826,7 @@ a:hover {
                     line-height: 0.75rem;
                     font-weight: bold;
                     opacity: 0.75;
-                    text-shadow:-1px -1px 3px rgba(255, 255, 255, 0.5);
+                    text-shadow: 0 4px 8px rgba(31, 38, 135, 0.1);
                 }
             }
         }
