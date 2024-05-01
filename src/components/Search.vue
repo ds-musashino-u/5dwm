@@ -1264,30 +1264,9 @@ const previousResults = (index) => {
   search(false);
 };
 const colorChanged = (item, color) => {
-  const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
-  const [r, g, b] = hexToRgb(color);
-  const [h, s, l] = rgbToHsl(r, g, b);
-
   appearance[item.media.id] = color;
 
-  if (index >= 0) {
-    for (const markers of pinnedItems[index].graph) {
-      const step = 1.0 / markers.length;
-
-      for (let i = 0; i < markers.length; i++) {
-        const marker = markers[i];
-
-        if (marker !== null) {
-          const icon = marker.getIcon();
-
-          icon.strokeColor = icon.fillColor = `hsl(${Math.floor((h + step * i) * 360)}deg ${Math.floor(s * 100)}% ${Math.floor(l * 100)}%)`;
-
-          marker.setIcon(null);
-          marker.setIcon(Object.assign({}, icon));
-        }
-      }
-    }
-  }
+  updateDataItems(dataFromDateRef.value, dataToDateRef.value);
 };
 const hexToRgb = (hex) => {
   const r = parseInt(hex.substr(1,2), 16);
