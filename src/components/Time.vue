@@ -8,11 +8,14 @@ const props = defineProps({
   isCollapsed: { type: Boolean, required: false, default: false },
   isForwardEnabled: { type: Boolean, required: false, default: true },
   isBackwardEnabled: { type: Boolean, required: false, default: true },
+  isHeaderVisible: { type: Boolean, required: false, default: true },
   item: { type: Object, required: false, default: null },
   fromDate: { type: Object, required: false, default: new Date() },
   toDate: { type: Object, required: false, default: new Date() },
   defaultFromDate: { type: Object, required: false, default: new Date() },
   defaultToDate: { type: Object, required: false, default: new Date() },
+  minDate: { type: Object, required: false, default: new Date("0001-01-01T00:00:00") },
+  maxDate: { type: Object, required: false, default: new Date() },
 });
 const emit = defineEmits(["enabled", "reset", "changed"]);
 const TimeUnits = {
@@ -22,7 +25,7 @@ const TimeUnits = {
 };
 const isEnabledRef = toRef(props, "isEnabled");
 const isCollapsedRef = ref(props.isCollapsed);
-const currentUnitRef = ref(TimeUnits.Year);
+const currentUnitRef = ref(TimeUnits.Month);
 const fromDateRef = ref(new Date(props.fromDate));
 const toDateRef = ref(new Date(props.toDate));
 const fromYearRef = ref(props.fromDate.getFullYear());
@@ -36,10 +39,6 @@ const toDayRef = ref(props.toDate.getDate());
 const toHoursRef = ref(props.toDate.getHours());
 const toMinutesRef = ref(props.toDate.getMinutes());
 const hasErrorRef = ref(false);
-const minDate = new Date(0, 0, 1, 0, 0, 0);
-const maxDate = new Date();
-
-minDate.setFullYear(1);
 
 const addTime = (date, unit, value) => {
   const d = new Date(date.getTime());
@@ -57,7 +56,7 @@ const addTime = (date, unit, value) => {
 const validateForward = (date) => {
   const time = date.getTime();
 
-  if (time <= maxDate.getTime()) {
+  if (time <= props.maxDate.getTime()) {
     return true;
   }
 
@@ -66,7 +65,7 @@ const validateForward = (date) => {
 const validateBackward = (date) => {
   const time = date.getTime();
 
-  if (minDate.getTime() < time) {
+  if (props.minDate.getTime() <= time) {
     return true;
   }
 
@@ -214,7 +213,7 @@ watch(toDateRef, (newValue, oldValue) => {
 
 <template>
   <div class="panel-block">
-    <nav class="level is-mobile">
+    <nav class="panel-header level is-mobile" v-if="isHeaderVisible">
       <div class="level-left" v-if="name !== null">
         <div class="level-item">
           <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold" v-text="name"></h3>
@@ -390,8 +389,26 @@ watch(toDateRef, (newValue, oldValue) => {
   align-items: flex-start;
   padding: 0;
 
-  >nav.level:first-child {
+  nav.level:nth-child(1):not(.panel-header) {
+    padding: 0.5em 0.75em 0.5em 0.75em !important;
+
+    .tabs.is-toggle>ul {
+      margin: 0;
+
+      >li>a {
+        padding: 0.5em 0.5em;
+        transition: 0.5s;
+      }
+
+      >li:not(.is-active)>a {
+        background: #ffffff;
+      }
+    }
+  }
+
+  >nav.panel-header {
     background: hsl(0, 0%, 96%);
+    padding: 0em 0.75em !important;
   }
 
   .level:first-child {
@@ -483,7 +500,7 @@ watch(toDateRef, (newValue, oldValue) => {
     }
   }
 
-  .level:nth-child(2) {
+  .panel-header+.level:nth-child(2) {
     border-top: 1px solid hsl(0deg, 0%, 93%);
     padding: 0.5em 0.75em 0.5em 0.75em !important;
 
@@ -493,16 +510,22 @@ watch(toDateRef, (newValue, oldValue) => {
       justify-content: center;
       align-items: center;
 
-      >.tabs>ul {
-        margin: 0;
+      >.tabs {
+        display: flex;
+        justify-content: center;
+        align-items: center;
 
-        >li>a {
-          padding: 0.5em 0.5em;
-          transition: 0.5s;
-        }
+        >ul {
+          margin: 0;
 
-        >li:not(.is-active)>a {
-          background: #ffffff;
+          >li>a {
+            padding: 0.5em 0.5em;
+            transition: 0.5s;
+          }
+
+          >li:not(.is-active)>a {
+            background: #ffffff;
+          }
         }
       }
     }
