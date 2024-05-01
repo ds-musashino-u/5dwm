@@ -198,18 +198,10 @@ const toMinutesChange = (event) => {
 onMounted(() => {
   updateFromDate(props.fromDate);
   updateToDate(props.toDate);
-
-  console.log("onMounted");
-  console.log(props.maxDate);
-  console.log(props.minDate);
 });
 onActivated(() => {
   updateFromDate(props.fromDate);
   updateToDate(props.toDate);
-
-  console.log("onActivated");
-  console.log(props.maxDate);
-  console.log(props.minDate);
 });
 watch(currentUnitRef, (newValue, oldValue) => {
   hasForward.value = validateForward(
