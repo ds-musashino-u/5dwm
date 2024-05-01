@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, toRef, watch } from "vue";
+import { ref, reactive, toRef, watch, onMounted, onActivated } from "vue";
 const props = defineProps({
   name: { type: String, required: false, default: null },
   isEnabled: { type: Boolean, required: false, default: true },
@@ -14,19 +14,20 @@ const props = defineProps({
   toDate: { type: Object, required: false, default: new Date() },
   defaultFromDate: { type: Object, required: false, default: new Date() },
   defaultToDate: { type: Object, required: false, default: new Date() },
+  defaultTimeUnit: { type: Number, required: false, default: 1 },
   minDate: { type: Object, required: false, default: new Date("0001-01-01T00:00:00") },
   maxDate: { type: Object, required: false, default: new Date(`${(Array(4).join('0') + new Date().getFullYear()).slice(-4)}-${(Array(2).join('0') + (new Date().getMonth() + 1)).slice(-2)}-${(Array(2).join('0') + new Date().getDate()).slice(-2)}T23:59:59`) },
 });
-const emit = defineEmits(["enabled", "reset", "changed"]);
 const TimeUnits = {
   Year: 0,
   Month: 1,
   Day: 2,
   Hour: 3,
 };
+const emit = defineEmits(["enabled", "reset", "changed"]);
 const isEnabledRef = toRef(props, "isEnabled");
 const isCollapsedRef = ref(props.isCollapsed);
-const currentUnitRef = ref(TimeUnits.Month);
+const currentUnitRef = ref(props.defaultTimeUnit);
 const fromDateRef = ref(new Date(props.fromDate));
 const toDateRef = ref(new Date(props.toDate));
 const fromYearRef = ref(props.fromDate.getFullYear());
@@ -194,6 +195,22 @@ const toMinutesChange = (event) => {
   emit("changed", fromDateRef.value, toDateRef.value);
 };
 
+onMounted(() => {
+  updateFromDate(props.fromDate);
+  updateToDate(props.toDate);
+
+  console.log("onMounted");
+  console.log(props.maxDate);
+  console.log(props.minDate);
+});
+onActivated(() => {
+  updateFromDate(props.fromDate);
+  updateToDate(props.toDate);
+
+  console.log("onActivated");
+  console.log(props.maxDate);
+  console.log(props.minDate);
+});
 watch(currentUnitRef, (newValue, oldValue) => {
   hasForward.value = validateForward(
     addTime(props.toDate, currentUnitRef.value, 1)
