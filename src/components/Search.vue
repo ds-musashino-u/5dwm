@@ -1627,7 +1627,16 @@ const rgbToHsl = (r, g, b) => {
         </transition>
       </div>
     </div>
-    <div id="map" ref="mapRef"></div>
+    <div class="wrap">
+      <div id="map" ref="mapRef"></div>
+      <transition name="fade" mode="out-in">
+        <div class="right" v-show="true" key="panel">
+          <div class="panel">
+            <Time name="Time" :isEnabled="true" :fromDate="fromDateRef" :toDate="toDateRef" :defaultFromDate="defaultFromDateRef" :defaultToDate="defaultToDateRef" @changed="timeChanged" :isCollapsed="false" :isBackwardEnabled="!isSearchingRef" :isForwardEnabled="!isSearchingRef" :isHeaderVisible="false" />
+          </div>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -1645,15 +1654,38 @@ const rgbToHsl = (r, g, b) => {
   justify-content: flex-start;
   background: transparent;
 
-  #map {
+  .wrap {
     display: block;
     position: relative;
     width: 100%;
     height: 100%;
-    background: #f5f5f5;
+    overflow: hidden;
 
-    button {
-      border-radius: 0 !important;
+    #map {
+      display: block;
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #f5f5f5;
+
+      button {
+        border-radius: 0 !important;
+      }
+    }
+    .right {
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin: 10px 0px 0px 0px;
+      padding: env(safe-area-inset-top, 0px) calc(env(safe-area-inset-right, 0px) + 10px) 0px 0px;
+      touch-action: none;
+
+      >.panel{
+        background: #ffffff;
+        border-radius: 2px;
+        box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 4px -1px;
+        overflow: hidden;
+      }
     }
   }
 
