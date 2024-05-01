@@ -952,6 +952,7 @@ const initialize = async () => {
     const loader = new Loader({
         apiKey: GoogleMapsConfig.API_KEY,
         version: GoogleMapsConfig.VERSION,
+        libraries: ["marker"],
         language: navigator.language,
     });
 
