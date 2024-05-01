@@ -798,6 +798,8 @@ a:hover {
 
                 div.bar {
                     position: relative;
+                    border-width: 1px;
+                    border-style: solid;
                     height: 8px;
                     width: 100px;
                 }
