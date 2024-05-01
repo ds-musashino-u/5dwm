@@ -651,7 +651,7 @@ const updateDataItems = (fromDate, toDate) => {
     }
 
     for (const dataItem of pinnedItem.item.media.data) {
-      if (fromDate.getTime() <= dataItem.time.getTime() && dataItem.time.getTime() < toDate.getTime()) {
+      if (dataItem.values.length === 1 || fromDate.getTime() <= dataItem.time.getTime() && dataItem.time.getTime() < toDate.getTime()) {
         const count = Math.min(dataTypeCount, dataItem.values.length);
         const step = 1.0 / count
         const markers = [];
@@ -668,7 +668,7 @@ const updateDataItems = (fromDate, toDate) => {
         }
 
         if (count === 1) {
-          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, String(dataItem.values[0]), [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
+          markers.push(createDataMarker(dataItem.location, (dataItem.values[0] - min) / span * 32.0, `${dataItem.values[0]} (${dataItem.time.toLocaleString()})`, [Math.floor(h * 360), Math.floor(s * 100), Math.floor(l * 100)]));
         } else {
           markers.push(createDataMarkerEx(dataItem.location, dataItem.time, data));
         }
@@ -694,7 +694,7 @@ const createDataMarker = (location, value, label, color) => {
       fillColor: hslColor,
       fillOpacity: .75
     },
-    label: { text: label, fontWeight: "bold", color: "#ffffff" },
+    label: { text: label, fontWeight: "bold", color: "#000000" },
     map: map
   });
   marker.addListener("click", markerClick);
@@ -734,7 +734,8 @@ const createDataMarkerEx = (location, time, data) => {
     wrapper.appendChild(label);
 
     bar.className = "bar";
-    bar.style.backgroundColor = `hsl(${h}deg ${s}% ${l}%)`;
+    bar.style.borderColor = `hsl(${h}deg ${s}% ${l}%)`;
+    bar.style.backgroundColor = `hsla(${h}deg, ${s}%, ${l}%, 0.75)`;
 
     if (dataItem[1] === null) {
       bar.style.width = "0px";
