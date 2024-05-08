@@ -142,14 +142,14 @@ watch(() => pinnedMediaRef.value.length, (newValue, oldValue) => {
     let maxDate = new Date("0001-01-01T00:00:00");
 
     for (const pinnedMedia of pinnedMediaRef.value) {
-      if ("data" in pinnedMedia && pinnedMedia !== null) {
+      if ("data" in pinnedMedia && pinnedMedia.data !== null) {
         for (const dataItem of pinnedMedia.data) {
-          if (dataItem.time.getTime() < minDate) {
-            minDate = dataItem.time;
+          if (dataItem.time.getTime() < minDate.getTime()) {
+            minDate.setTime(dataItem.time.getTime());
           }
 
-          if (dataItem.time.getTime() > maxDate) {
-            maxDate = dataItem.time;
+          if (dataItem.time.getTime() > maxDate.getTime()) {
+            maxDate.setTime(dataItem.time.getTime());
           }
         }
       }
@@ -342,7 +342,10 @@ const timeChanged = (fromDate, toDate) => {
   }
 };
 const dataTimeChanged = (fromDate, toDate) => {
-  updateDataItems(fromDate, toDate);
+  dataFromDateRef.value = fromDate;
+  dataToDateRef.value = toDate;
+
+  updateDataItems(dataFromDateRef.value, dataToDateRef.value);
 };
 const dragover = (event) => {
   isDraggingRef.value = true;
@@ -651,7 +654,7 @@ const updateDataItems = (fromDate, toDate) => {
     }
 
     for (const dataItem of pinnedItem.item.media.data) {
-      if (dataItem.values.length === 1 || fromDate.getTime() <= dataItem.time.getTime() && dataItem.time.getTime() < toDate.getTime()) {
+      if (fromDate.getTime() <= dataItem.time.getTime() && dataItem.time.getTime() < toDate.getTime()) {
         const count = Math.min(dataTypeCount, dataItem.values.length);
         const step = 1.0 / count
         const markers = [];
@@ -1493,7 +1496,7 @@ const rgbToHsl = (r, g, b) => {
     <div class="wrap">
       <div id="map" ref="mapRef"></div>
       <transition name="fade" mode="out-in">
-        <div class="right" v-if="pinnedMediaRef.some(x => 'data' in x && x.data !== null && x.data.some(y => y.values.length > 1))" key="panel">
+        <div class="right" v-if="pinnedMediaRef.some(x => 'data' in x && x.data !== null)" key="panel">
           <div class="panel">
             <Time name="Time" :isEnabled="true" :from-date="dataFromDateRef" :to-date="dataToDateRef" :min-date="dataMinDateRef" :max-date="dataMaxDateRef" :default-time-unit="2" @changed="dataTimeChanged" :isCollapsed="false" :isHeaderVisible="false" />
           </div>
