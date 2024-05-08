@@ -619,20 +619,20 @@ const shake = (element) => {
   );
 };
 const updateDataItems = (fromDate, toDate) => {
+  let min = pinnedItems.reduce((acc, cur) => Math.min(acc, cur.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE)), Number.MAX_VALUE);
+  const max = pinnedItems.reduce((acc, cur) => Math.max(acc, cur.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0)), 0.0);
+
+  if (0.0 < min) {
+    min = 0.0;
+  }
+
   for (const pinnedItem of pinnedItems) {
     for (const markers of pinnedItem.graph) {
       for (const marker of markers) {
         if (marker !== null) {
-            marker.setMap(null);
-          }
+          marker.setMap(null);
+        }
       }
-    }
-
-    let min = pinnedItem.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.min(a, b), x), Number.MAX_VALUE);
-    const max = pinnedItem.item.media.data.reduce((x, y) => y.values.reduce((a, b) => Math.max(a, b), x), 0.0);
-
-    if (min === max) {
-      min = 0.0;
     }
 
     const span = Math.abs(min) + max;
