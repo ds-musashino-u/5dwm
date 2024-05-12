@@ -31,6 +31,7 @@ const isDeletingRef = ref(false);
 const deleteButtonRef = ref(null);
 const deleteConfirmation = reactive({ visible: false, dismiss: false });
 let updatedTime = 0;
+let searchTimestamp = 0;
 const props = defineProps({
     auth0: Object,
     user: Object,
@@ -111,7 +112,7 @@ const selectItem = (event, index) => {
 };
 const update = async (event, reset = false) => {
     const dataSource = dataSourcesRef.value.find(x => x.checked).name;
-
+    
     if (reset) {
         pageIndexRef.value = 0;
         totalCountRef.value = 0;
@@ -119,8 +120,11 @@ const update = async (event, reset = false) => {
     }
 
     isFetchingRef.value = true;
-
+    
     if (dataSource === "Media") {
+        const updateTimestamp = new Date().getTime();
+
+        searchTimestamp = updateTimestamp;
         dataItemsRef.value.splice(0);
 
         try {
@@ -133,13 +137,17 @@ const update = async (event, reset = false) => {
                 return x;
             }, []), [], [], props.isAdmin ? [] : [props.user.email], null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
 
-            if (dataSourcesRef.value.find(x => x.checked).name === "Media" && query === queryRef.value) {
-                for (const resultItem of resultItems) {
-                    dataItemsRef.value.push({ data: Object.assign(resultItem.media, { longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address }), checked: false });
+            if (searchTimestamp === updateTimestamp) {
+                if (dataSourcesRef.value.find(x => x.checked).name === "Media" && query === queryRef.value) {
+                    for (const resultItem of resultItems) {
+                        dataItemsRef.value.push({ data: Object.assign(resultItem.media, { longitude: resultItem.media.location.longitude, latitude: resultItem.media.location.latitude, address: resultItem.media.location.address }), checked: false });
+                    }
+
+                    totalCountRef.value = totalCount;
+                    lastUpdatedRef.value = timestamp;
                 }
 
-                totalCountRef.value = totalCount;
-                lastUpdatedRef.value = timestamp;
+                isFetchingRef.value = false;
             }
         } catch (error) {
             shake(dataPanelRef.value);
@@ -172,9 +180,9 @@ const update = async (event, reset = false) => {
             shake(dataPanelRef.value);
             console.error(error);
         }
-    }
 
-    isFetchingRef.value = false;
+        isFetchingRef.value = false;
+    }
 };
 const next = async () => {
     if (isContinuousRef.value || pageIndexRef.value <= ~~Math.ceil(totalCountRef.value / pageLengthRef.value)) {
