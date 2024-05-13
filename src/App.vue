@@ -10,6 +10,7 @@ import Uploader from "./components/Uploader.vue";
 import { Auth0Config } from "./presenters/auth0-config.mjs";
 import { createAuth0Client } from "@auth0/auth0-spa-js";
 import { jwtDecode } from "jwt-decode";
+import { Endpoints } from "./presenters/endpoints.mjs";
 
 export default {
   components: {
@@ -63,6 +64,20 @@ export default {
     const isAdmin = ref(false);
 
     onMounted(async () => {
+      new Promise(async (resolve) => {
+        try {
+          const response = await fetch(Endpoints.NOW_URL);
+
+          if (response.ok) {
+            await response.json();
+          }
+        } catch (error) {
+          console.error(error);
+        }
+        
+        resolve();
+      });
+
       const callbackUrl = new URL(window.location.origin);
 
       callbackUrl.pathname = "/callback/";
