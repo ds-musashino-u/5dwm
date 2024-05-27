@@ -8,6 +8,7 @@ import { Media, getMedia } from "../presenters/media.mjs";
 import { Category, getCategories, insertCategory, updateCategory, deleteCategory } from "../presenters/categories.mjs";
 import Uploader from "./Uploader.vue";
 
+const mediaListRef = ref(null);
 const isInitializedRef = ref(false);
 const isEnabledRef = ref(true);
 const isFetchingUsersRef = ref(false);
@@ -183,6 +184,8 @@ const update = async (event, reset = false) => {
 
         isFetchingRef.value = false;
     }
+
+    mediaListRef.value.scrollTop = 0;
 };
 const next = async () => {
     if (isContinuousRef.value || pageIndexRef.value <= ~~Math.ceil(totalCountRef.value / pageLengthRef.value)) {
@@ -439,7 +442,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             </div>
         </div>
         <div id="media">
-            <div class="wrap">
+            <div class="wrap" ref="mediaListRef">
                 <div class="block">
                     <nav class="panel">
                         <div class="panel-block">
