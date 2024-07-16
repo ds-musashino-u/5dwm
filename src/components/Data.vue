@@ -1443,6 +1443,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     #media {
         display: flex;
         position: relative;
+        border: 0px none transparent;
         width: 100%;
         height: 100%;
 
