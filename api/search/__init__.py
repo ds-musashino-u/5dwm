@@ -117,6 +117,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             try:
                 media = []
+                media_ids = []
                 query = session.query(Media)
                 filters = []
                 subquery = None
@@ -268,6 +269,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         }
 
                         if item.type.endswith('csv'):
+                            media_ids.append(item.id)
+                            '''
                             media_file = session.query(MediaFile).filter(MediaFile.media_id == item.id).one_or_none()
                             
                             if media_file is None:
@@ -276,7 +279,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 if media_file is not None:
                                     medium['data'] = {'types': media_file.types, 'items': []}
 
-                                    '''
                                     limit = 100
                                     query = session.query(MediaDataEx).filter(MediaDataEx.file_id == media_file.id, MediaDataEx.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
@@ -297,12 +299,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                                 'address': media_data.address,
                                                 'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]}
                                             })
-                                    '''
 
                             else:
                                 medium['data'] = {'types': [], 'items': []}
 
-                                '''
                                 limit = 100
                                 query = session.query(MediaData).filter(MediaData.file_id == media_file.id, MediaData.time >= (datetime(MINYEAR, 1, 1, 0, 0, 0, 0) if from_datetime is None else datetime.fromisoformat(from_datetime.replace('Z', '+00:00'))))
                             
@@ -322,7 +322,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                             'location': {'type': 'Point', 'coordinates': [media_data.longitude, media_data.latitude]},
                                             'value': media_data.value
                                         })
-                                '''
+                            '''
                         
                         media.append(medium)
 
@@ -334,6 +334,29 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if histogram is not None:
                     total_count = min(total_count, MAX_IMAGE_SEARCH_RESULTS)
+
+                if len(media_ids) > 0:
+                    media_types = {}
+                    limit = 100
+                    subquery = session.query(MediaFile).filter(MediaFile.media_id.in_(media_ids))
+                    count = subquery.count()
+                    subquery = subquery.limit(limit)
+
+                    for index in range(math.ceil(count / limit)):
+                        for media_file in subquery.offset(index * limit).all():
+                            media_types[media_file.media_id] = []
+
+                    subquery = session.query(MediaFileEx).filter(MediaFileEx.media_id.in_(media_ids))
+                    count = subquery.count()
+                    subquery = subquery.limit(limit)
+
+                    for index in range(math.ceil(count / limit)):
+                        for media_file in subquery.offset(index * limit).all():
+                            media_types[media_file.media_id] = media_file.types
+
+                    for medium in media:
+                        if medium['id'] in media_types:
+                            medium['data'] = {'types': media_types[medium['id']], 'items': []}
 
                 end_time = datetime.now(timezone.utc).timestamp()
 
