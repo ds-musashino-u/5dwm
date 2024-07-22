@@ -1945,6 +1945,12 @@ const rgbToHsl = (r, g, b) => {
     }
   }
 
+  .flyout-left>.wrap>.block>.panel>.panel-block:nth-of-type(1) {
+    z-index: 2;
+    position: sticky;
+    top: 0;
+  }
+
   .flyout-right {
     position: absolute !important;
     right: 0px !important;
