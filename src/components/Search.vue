@@ -880,7 +880,7 @@ const search = async (ignoreCache = true) => {
           }
 
           searchResults.push({ marker: marker, infowindow: new google.maps.InfoWindow({
-            content: item.media.type.startsWith('image') && item.media.url.startsWith('https://') ? "thumbnailUrl" in item.media && item.media.thumbnailUrl !== null ? `<img width="320px" src="${item.media.thumbnailUrl}" alt="${item.media.description}"><p>${item.media.description}</p>` : `<img width="320px" src="${item.media.url}" alt="${item.media.description}"><p>${item.media.description}</p>` : item.media.description,
+            content: item.media.type.startsWith('image') && item.media.url.startsWith('https://') ? "thumbnailUrl" in item.media && item.media.thumbnailUrl !== null ? `<img width="320px" src="${item.media.thumbnailUrl}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : `<img width="320px" src="${item.media.url}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : item.media.description,
             ariaLabel: String(searchPageIndexRef.value * searchPageLength + index + 1),
           }), item: item });
         } else {
@@ -1042,7 +1042,7 @@ const search = async (ignoreCache = true) => {
                 }
 
                 searchResults.push({ marker: marker, infowindow: new google.maps.InfoWindow({
-                  content: resultItem.media.type.startsWith('image') && resultItem.media.url.startsWith('https://') ? "thumbnailUrl" in resultItem.media && resultItem.media.thumbnailUrl !== null ? `<img width="320px" src="${resultItem.media.thumbnailUrl}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : `<img width="320px" src="${resultItem.media.url}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : resultItem.media.description,
+                  content: resultItem.media.type.startsWith('image') && resultItem.media.url.startsWith('https://') ? "thumbnailUrl" in resultItem.media && resultItem.media.thumbnailUrl !== null ? `<img width="320px" src="${resultItem.media.thumbnailUrl}" alt="${resultItem.media.description}"><p class="has-text-black">${resultItem.media.description}</p>` : `<img width="320px" src="${resultItem.media.url}" alt="${resultItem.media.description}"><p class="has-text-black">${resultItem.media.description}</p>` : resultItem.media.description,
                   ariaLabel: String(searchPageIndexRef.value * searchPageLength + index + 1),
                 }), item: resultItem });
                 searchResultsRef.value.push(resultItem);
@@ -1118,7 +1118,7 @@ const search = async (ignoreCache = true) => {
                 }
 
                 searchResults.push({ marker: marker, infowindow: new google.maps.InfoWindow({
-                  content: resultItem.media.type.startsWith('image') && resultItem.media.url.startsWith('https://') ? "thumbnailUrl" in resultItem.media && resultItem.media.thumbnailUrl !== null ? `<img width="320px" src="${resultItem.media.thumbnailUrl}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : `<img width="320px" src="${resultItem.media.url}" alt="${resultItem.media.description}"><p>${resultItem.media.description}</p>` : resultItem.media.description,
+                  content: resultItem.media.type.startsWith('image') && resultItem.media.url.startsWith('https://') ? "thumbnailUrl" in resultItem.media && resultItem.media.thumbnailUrl !== null ? `<img width="320px" src="${resultItem.media.thumbnailUrl}" alt="${resultItem.media.description}"><p class="has-text-black">${resultItem.media.description}</p>` : `<img width="320px" src="${resultItem.media.url}" alt="${resultItem.media.description}"><p class="has-text-black">${resultItem.media.description}</p>` : resultItem.media.description,
                   ariaLabel: String(searchPageIndexRef.value * searchPageLength + index + 1),
                 }), item: resultItem });
                 searchResultsRef.value.push(resultItem);
