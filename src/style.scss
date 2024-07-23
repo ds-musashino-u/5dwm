@@ -93,6 +93,10 @@ a:hover {
     transition: 0.5s;
 }
 
+[class*=is-color-black], [class*=has-text-black] {
+    color: #000000 !important;
+}
+
 .tabs.is-toggle li a {
     border: 1px solid hsl(0deg, 0%, 93%);
 }
