@@ -44,6 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             types = data.get('types', None)
             usernames = data.get('usernames', None)
             image = data.get('image', None)
+            location = data.get('location', None)
             from_datetime = data.get('from', None)
             to_datetime = data.get('to', None)
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
@@ -121,7 +122,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 query = session.query(Media)
                 filters = []
                 subquery = None
-                subquery_ex = None
+                #subquery_ex = None
                 
                 if sort == 'created_at':
                     if order is None:
@@ -186,6 +187,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 '''
                 if usernames is not None and len(usernames) > 0:
                     filters.append(or_(*list(map(lambda username: Media.username == username, usernames))))
+
+                if location is not None and 'type' in location and location['type'] == 'Point' and 'coordinates' in location and isinstance(location['coordinates'], list):
+                    filters.append(Media.longitude == location['coordinates'][0])
+                    filters.append(Media.latitude == location['coordinates'][1])
 
                 if subquery is None:
                     if from_datetime is None:
