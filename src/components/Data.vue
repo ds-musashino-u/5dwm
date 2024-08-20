@@ -1043,12 +1043,12 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                         }
 
                                         li.is-active {
+                                            border-bottom: 2px solid var(--accent-color);
+                                            transition: 0.5s;
+
                                             a {
                                                 color: hsl(0deg, 0%, 21%);
                                             }
-
-                                            border-bottom: 2px solid var(--accent-color);
-                                            transition: 0.5s;
                                         }
                                     }
                                 }
