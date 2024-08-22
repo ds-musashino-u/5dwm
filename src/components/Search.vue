@@ -1628,12 +1628,12 @@ const rgbToHsl = (r, g, b) => {
 
                   button.toggle {
                     >span {
-                      transform: rotate(180deg);
+                      transform: rotate(0deg);
                     }
 
                     >span.collapsed {
                       transition: transform 0.5s ease;
-                      transform: rotate(0deg);
+                      transform: rotate(180deg);
                     }
                   }
                 }
