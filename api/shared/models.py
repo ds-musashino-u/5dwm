@@ -24,6 +24,7 @@ class Media(Base):
     latitude = Column('lat', Float())
     longitude = Column('lng', Float())
     created_at = Column('datetaken', DateTime())
+    collection = Column('collection', String(256), default=None, nullable=True)
     vector = relationship('ImageVector', uselist=True)
 
 
