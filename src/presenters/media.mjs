@@ -13,12 +13,13 @@ export class Media {
      * @param {!string} description - Description
      * @param {!string} username - User name
      * @param {?Location} location - Location
+     * @param {?string} collection - Collection
      * @param {!string} createdAt - Updated date time (ISO 8601)
      * @param {?Array<string>} dataTypes - Data types
      * @param {?object} data - Data
      * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(id, url, type, categories, description, username, location, createdAt, dataTypes = null, data = null, thumbnailUrl = null) {
+    constructor(id, url, type, categories, description, username, location, createdAt, collection, dataTypes = null, data = null, thumbnailUrl = null) {
         this.id = id;
         this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
@@ -26,6 +27,7 @@ export class Media {
         this.description = description;
         this.username = username;
         this.location = location;
+        this.collection = collection;
         this.createdAt = new Date(createdAt);
         this.dataTypes = dataTypes;
         this.data = data;
@@ -99,7 +101,7 @@ export async function getMedia(type = null, sort = null, order = null, offset = 
                     }
                 }
 
-                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData));
+                media.push(new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData));
             }
         }
 
@@ -143,7 +145,7 @@ export async function getMedium(id) {
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -159,12 +161,13 @@ export async function getMedium(id) {
  * @param {!string} description - Description
  * @param {!string} username - User name
  * @param {!Location} location - Location
+ * @param {?string} collection - Collection
  * @param {?Date} createdAt - Created date time
  * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function insertMedium(token, url, type, categories, description, username, location, createdAt = null, dataTypes = null, data = null) {
+export async function insertMedium(token, url, type, categories, description, username, location, collection, createdAt = null, dataTypes = null, data = null) {
     const content = {
         url: url,
         type: type,
@@ -174,7 +177,8 @@ export async function insertMedium(token, url, type, categories, description, us
         location: {
             type: "Point",
             coordinates: [location.longitude, location.latitude]
-        }
+        },
+        collection: collection
     };
 
     if (location.hasAddress) {
@@ -235,7 +239,7 @@ export async function insertMedium(token, url, type, categories, description, us
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -252,12 +256,13 @@ export async function insertMedium(token, url, type, categories, description, us
  * @param {!string} description - Description
  * @param {!string} username - User name
  * @param {!Location} location - Location
+ * @param {?string} collection - Collection
  * @param {?Date} createdAt - Created date time
  * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
  * @return {?Media} - Media item
  */
-export async function updateMedium(token, id, url, type, categories, description, username, location, createdAt = null, dataTypes = null, data = null) {
+export async function updateMedium(token, id, url, type, categories, description, username, location, collection, createdAt = null, dataTypes = null, data = null) {
     const content = {
         url: url,
         type: type,
@@ -267,7 +272,8 @@ export async function updateMedium(token, id, url, type, categories, description
         location: {
             type: "Point",
             coordinates: [location.longitude, location.latitude]
-        }
+        },
+        collection: collection
     };
 
     if (location.hasAddress) {
@@ -328,7 +334,7 @@ export async function updateMedium(token, id, url, type, categories, description
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
@@ -370,7 +376,7 @@ export async function deleteMedium(token, id) {
             }
         }
 
-        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData);
+        return new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData);
     } else {
         throw new Error(response.statusText);
     }
