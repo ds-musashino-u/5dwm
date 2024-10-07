@@ -971,6 +971,7 @@ const search = async (ignoreCache = true) => {
             categories,
             types,
             users,
+            null,
             image,
             time.from,
             time.to,
