@@ -14,5 +14,12 @@ export default defineConfig({
     cssCodeSplit: false,
     chunkSizeWarningLimit: 60000,
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: 'modern-compiler'
+      }
+    }
+  },
   plugins: [vue()]
 })
