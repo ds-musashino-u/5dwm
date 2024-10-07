@@ -87,7 +87,7 @@ if (props.media !== null) {
     longitudeRef.value = String(props.media.location.longitude);
     latitudeRef.value = String(props.media.location.latitude);
     typeRef.value = props.media.type;
-    collectionRef.value = props.media.collection;
+    collectionRef.value = props.media.collection ?? "";
 
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
@@ -1303,6 +1303,15 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     <div class="control">
                                         <textarea class="textarea is-small" placeholder="Enter a description"
                                             v-model="descriptionRef"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="block">
+                                <div class="field has-addons">
+                                    <div class="control">
+                                        <input class="input is-size-7 has-text-weight-bold" type="text"
+                                                placeholder="Collection (Optional)"
+                                                v-model="collectionRef" />
                                     </div>
                                 </div>
                             </div>
