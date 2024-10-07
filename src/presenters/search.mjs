@@ -28,6 +28,7 @@ export class ResultItem {
  * @param {!Array<string>} categories - Categories
  * @param {!Array<string>} types - Types
  * @param {!Array<string>} usernames - Usernames
+ * @param {?string} collection - Collection
  * @param {?string} image - Data URL of Image
  * @param {?string} sort - Sort
  * @param {?string} order - Order (asc or desc)
@@ -35,7 +36,7 @@ export class ResultItem {
  * @param {?number} limit - Limit
  * @return {Array<ResultItem>} - Array of result items
  */
-export async function search(token, keywords, categories, types, usernames, image = null, from = null, to = null, sort = null, order = null, offset = 0, limit = null) {
+export async function search(token, keywords, categories, types, usernames, collection = null, image = null, from = null, to = null, sort = null, order = null, offset = 0, limit = null) {
     const data = {
         keywords: keywords,
         categories: categories,
@@ -44,6 +45,10 @@ export async function search(token, keywords, categories, types, usernames, imag
         offset: offset,
         limit: limit
     };
+
+    if (collection !== null) {
+        data["collection"] = collection;
+    }
 
     if (image !== null) {
         data["image"] = image;
@@ -107,9 +112,9 @@ export async function search(token, keywords, categories, types, usernames, imag
             }
 
             if (item.location !== null && item.location.type === "Point" && typeof (item.location.coordinates[0]) === "number" && typeof (item.location.coordinates[1]) === "number") {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, new Location(item.location.coordinates[0], item.location.coordinates[1], item.address), item.collection, item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
             } else {
-                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
+                resultItems.push(new ResultItem(item.score, new Media(item.id, item.url, item.type, item.categories, item.description, item.username, null, item.collection, item.created_at, mediaDataTypes, mediaData, thumbnailUrl)));
             }
         }
 
