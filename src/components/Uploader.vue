@@ -70,6 +70,7 @@ const typesIsCollapsedRef = ref(false);
 const typesIsContinuousRef = ref(false);
 const typesItemsRef = ref([]);
 const typesPageIndexRef = ref(0);
+const collectionRef = ref("");
 const progressRef = ref(0);
 
 if (props.media !== null) {
@@ -86,6 +87,7 @@ if (props.media !== null) {
     longitudeRef.value = String(props.media.location.longitude);
     latitudeRef.value = String(props.media.location.latitude);
     typeRef.value = props.media.type;
+    collectionRef.value = props.media.collection;
 
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
@@ -878,6 +880,7 @@ const upload = async (event, completed) => {
     }
 
     let location = null;
+    let collection = null;
     let createdDate = null;
     let media = null;
 
@@ -889,6 +892,10 @@ const upload = async (event, completed) => {
         }
     }
 
+    if (collectionRef.value.length > 0) {
+        collection = collectionRef.value;
+    }
+
     if (isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
         createdDate = new Date(Number(timeYearRef.value), Number(timeMonthRef.value), Number(timeDayRef.value), Number(timeHoursRef.value), Number(timeMinutesRef.value), Number(timeSecondsRef.value));
     }
@@ -898,10 +905,10 @@ const upload = async (event, completed) => {
     } else {
         try {
             if (mediaIDRef.value === null) {
-                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, createdDate, mediaDataTypesRef.value, mediaDataRef.value)
+                media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, collection, createdDate, mediaDataTypesRef.value, mediaDataRef.value)
                 media.thumbnailUrl = thumbnailUrl;
             } else {
-                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, null, mediaDataTypesRef.value, mediaDataRef.value)
+                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, collection, null, mediaDataTypesRef.value, mediaDataRef.value)
             }
 
             if (completed !== null) {
