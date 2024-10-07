@@ -45,6 +45,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             usernames = data.get('usernames', None)
             image = data.get('image', None)
             location = data.get('location', None)
+            collection = data.get('collection', None)
             from_datetime = data.get('from', None)
             to_datetime = data.get('to', None)
             sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'created_at'
@@ -192,6 +193,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     filters.append(Media.longitude == location['coordinates'][0])
                     filters.append(Media.latitude == location['coordinates'][1])
 
+                if collection is not None and len(collection) > 0:
+                    filters.append(Media.collection == collection)
+
                 if subquery is None:
                     if from_datetime is None:
                         filters.append(Media.created_at >= datetime(MINYEAR, 1, 1, 0, 0, 0, 0))
@@ -269,6 +273,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             'description': item.description,
                             'username': item.username,
                             'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]} if item.longitude is not None and item.latitude is not None else None,
+                            'collection': item.collection,
                             'score': score,
                             'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                         }
