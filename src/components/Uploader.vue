@@ -89,6 +89,8 @@ if (props.media !== null) {
     typeRef.value = props.media.type;
     collectionRef.value = props.media.collection ?? "";
 
+    console.log(props.media.collection);
+
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
         
@@ -1307,7 +1309,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                 </div>
                             </div>
                             <div class="block">
-                                <div class="field has-addons">
+                                <div class="field has-border">
                                     <div class="control">
                                         <input class="input is-size-7 has-text-weight-bold" type="text"
                                                 placeholder="Collection (Optional)"
@@ -2129,6 +2131,12 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                     padding: 4px 2px 4px 2px;
                 }
             }
+        }
+
+        .has-border {
+            margin: 0;
+            border: 1px solid hsl(0deg, 0%, 93%);
+            border-radius: 4px;
         }
 
         .has-addons {
