@@ -782,6 +782,12 @@ const previousTypes = async (pageIndex) => {
     typesIsContinuousRef.value = true;
     typesPageIndexRef.value = pageIndex;
 };
+const generateHash = () => {
+    collectionRef.value = self.crypto.randomUUID();
+};
+const clearCollection = () => {
+    collectionRef.value = "";
+};
 const shake = (element) => {
     element.animate(
         [
@@ -1308,15 +1314,6 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                     </div>
                                 </div>
                             </div>
-                            <div class="block">
-                                <div class="field has-border">
-                                    <div class="control">
-                                        <input class="input is-size-7 has-text-weight-bold" type="text"
-                                                placeholder="Collection (Optional)"
-                                                v-model="collectionRef" />
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                         <ListBox name="Types" :page-length="maxTypesLength" :is-enabled="user !== null && isInitializedRef"
                             :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
@@ -1458,6 +1455,40 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                                                     v-bind:selected="i === timeSecondsRef" v-text="i"></option>
                                             </select>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel-block">
+                            <nav class="level is-mobile">
+                                <div class="level-left">
+                                    <div class="level-item">
+                                        <h3 class="panel-heading is-uppercase is-size-7 has-text-weight-bold">
+                                            Collection
+                                        </h3>
+                                    </div>
+                                </div>
+                                <div class="level-right">
+                                    <div class="level-item">
+                                        <button class="button is-rounded" @click="generateHash">
+                                            <span class="icon is-small">
+                                                <i class="fa-solid fa-hashtag"></i>
+                                            </span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </nav>
+                            <div class="block">
+                                <div class="field has-addons">
+                                    <div class="control is-expanded">
+                                        <input class="input is-size-7 has-text-weight-bold" type="text" placeholder="Optional" v-model="collectionRef" />
+                                    </div>
+                                    <div class="control">
+                                        <button type="button" class="button" v-bind:disabled="collectionRef.length === 0" @click="clearCollection($event)">
+                                            <span class="icon is-small has-text-danger">
+                                                <i class="fa-solid fa-xmark"></i>
+                                            </span>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -1674,6 +1705,17 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         }
 
         >.panel-block:nth-of-type(2) {
+            >nav.level {
+                background: hsl(0, 0%, 96%);
+            }
+
+            .block:nth-of-type(1) {
+                border-top: 1px solid hsl(0deg, 0%, 93%);
+                padding-top: 0.5em !important;
+            }
+        }
+
+        >.panel-block:nth-of-type(3) {
             >nav.level {
                 background: hsl(0, 0%, 96%);
             }
