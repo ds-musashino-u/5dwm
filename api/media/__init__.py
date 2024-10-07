@@ -159,6 +159,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             username = data['username']
             longitude = data['location']['coordinates'][0]
             latitude = data['location']['coordinates'][1]
+            collection = data['collection']
             created_at = datetime.fromisoformat(data['created_at'].replace(
                 'Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
 
@@ -178,6 +179,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 media.username = username
                 media.latitude = latitude
                 media.longitude = longitude
+                media.collection = collection
                 media.created_at = created_at
 
                 session.add(media)
@@ -191,6 +193,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'description': media.description,
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                    'collection': media.collection,
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 

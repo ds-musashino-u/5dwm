@@ -40,6 +40,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'description': media.description,
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                    'collection': media.collection,
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 
@@ -125,6 +126,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 address = data.get('address')
                 description = data.get('description')
                 location = data.get('location')
+                collection = data.get('collection')
                 created_at = data.get('created_at')
 
                 try:
@@ -149,6 +151,9 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media.longitude = location['coordinates'][0]
                         media.latitude = location['coordinates'][1]
 
+                    if collection is not None:
+                        media.collection = collection
+
                     if created_at is not None:
                         media.created_at = datetime.fromisoformat(
                             created_at.replace('Z', '+00:00'))
@@ -163,6 +168,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': media.description,
                         'username': media.username,
                         'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                        'collection': media.collection,
                         'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     }
 
@@ -302,6 +308,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': media.description,
                         'username': media.username,
                         'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
+                        'collection': media.collection,
                         'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     }
 
