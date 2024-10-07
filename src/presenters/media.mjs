@@ -19,7 +19,7 @@ export class Media {
      * @param {?object} data - Data
      * @param {?string} previewImageUrl - Preview image URL
      */
-    constructor(id, url, type, categories, description, username, location, createdAt, collection, dataTypes = null, data = null, thumbnailUrl = null) {
+    constructor(id, url, type, categories, description, username, location, collection, createdAt, dataTypes = null, data = null, thumbnailUrl = null) {
         this.id = id;
         this.url = url.replace(/^http:\/\//, "https://");
         this.type = type;
@@ -177,12 +177,15 @@ export async function insertMedium(token, url, type, categories, description, us
         location: {
             type: "Point",
             coordinates: [location.longitude, location.latitude]
-        },
-        collection: collection
+        }
     };
 
     if (location.hasAddress) {
         content["address"] = location.address;
+    }
+
+    if (collection !== null) {
+        content["collection"] = collection;
     }
 
     if (createdAt !== null) {
@@ -272,12 +275,15 @@ export async function updateMedium(token, id, url, type, categories, description
         location: {
             type: "Point",
             coordinates: [location.longitude, location.latitude]
-        },
-        collection: collection
+        }
     };
 
     if (location.hasAddress) {
         content["address"] = location.address;
+    }
+
+    if (collection !== null) {
+        content["collection"] = collection;
     }
 
     if (createdAt !== null) {
