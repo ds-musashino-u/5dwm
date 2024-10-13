@@ -1,12 +1,13 @@
 import colorsys
 import numpy as np
-from PIL import Image
+from PIL import Image, ImageOps
 
 MULT_FCTR = 40
 DIV_FCTR = 8
 
 
 def resize_image(image, max_image_length=512):
+    image = ImageOps.exif_transpose(image)
     width, height = image.size
 
     if width > height:
