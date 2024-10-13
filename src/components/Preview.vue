@@ -308,6 +308,22 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
+          <div class="panel-block" v-if="!isCollapsed && item.media.collection !== null" key="collapse">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Collection</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.collection"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in">
           <div class="panel-block" v-if="!isCollapsed && item.media.categories.length > 0" key="collapse">
             <div class="level">
               <div class="level-left">
