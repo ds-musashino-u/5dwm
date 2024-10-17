@@ -534,7 +534,7 @@ components:
           type: string
         username:
           type: string
-          maxLength: 20
+          maxLength: 254
         location:
           type: object
           properties:
@@ -547,6 +547,10 @@ components:
                 type: number
                 format: double
               example: [105.85271637244875, 21.028344772352863]
+        collection:
+          type: string
+          nullable: true
+          maxLength: 256
         created_at:
           type: string
           format: date-time
