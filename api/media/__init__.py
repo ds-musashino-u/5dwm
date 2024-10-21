@@ -159,7 +159,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             username = data['username']
             longitude = data['location']['coordinates'][0]
             latitude = data['location']['coordinates'][1]
-            collection = data['collection']
+            collection = data.get('collection')
             created_at = datetime.fromisoformat(data['created_at'].replace(
                 'Z', '+00:00')) if 'created_at' in data else datetime.now(timezone.utc)
 
