@@ -916,7 +916,7 @@ const upload = async (event, completed) => {
                 media = await insertMedium(await getAccessToken(props.auth0), url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, collection, createdDate, mediaDataTypesRef.value, mediaDataRef.value)
                 media.thumbnailUrl = thumbnailUrl;
             } else {
-                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, collection, null, mediaDataTypesRef.value, mediaDataRef.value)
+                media = await updateMedium(await getAccessToken(props.auth0), mediaIDRef.value, url, typeRef.value, categoriesRef.value, descriptionRef.value, props.user.email/*props.user.sub*/, location, collection, createdDate, mediaDataTypesRef.value, mediaDataRef.value)
             }
 
             if (completed !== null) {
