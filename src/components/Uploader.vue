@@ -89,8 +89,6 @@ if (props.media !== null) {
     typeRef.value = props.media.type;
     collectionRef.value = props.media.collection ?? "";
 
-    console.log(props.media.collection);
-
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
         
@@ -633,6 +631,13 @@ const timeDateChange = (event) => {
         timeRef.value.setFullYear(date.getFullYear());
         timeRef.value.setMonth(date.getMonth());
         timeRef.value.setDate(date.getDate());
+
+        timeYearRef.value = timeRef.value.getFullYear();
+        timeMonthRef.value = timeRef.value.getMonth();
+        timeDayRef.value = timeRef.value.getDate();
+        timeHoursRef.value = timeRef.value.getHours();
+        timeMinutesRef.value = timeRef.value.getMinutes();
+        timeSecondsRef.value = timeRef.value.getSeconds();
     }
 };
 const timeMonthChange = (event) => {
