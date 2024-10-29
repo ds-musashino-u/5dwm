@@ -180,7 +180,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 media.username = username
                 media.latitude = latitude
                 media.longitude = longitude
-                media.collection = collection
+                media.collection = None if collection is None else collection['name']
                 media.created_at = created_at
 
                 session.add(media)

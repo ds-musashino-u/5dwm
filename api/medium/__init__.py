@@ -40,7 +40,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'description': media.description,
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
-                    'collection': media.collection,
+                    'collection': None if media.collection is None else {'name': media.collection, 'items': []},
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 
@@ -152,7 +152,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media.latitude = location['coordinates'][1]
 
                     if collection is not None:
-                        media.collection = collection
+                        media.collection = None if collection is None else collection['name']
 
                     if created_at is not None:
                         media.created_at = datetime.fromisoformat(
