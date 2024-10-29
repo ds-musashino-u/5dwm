@@ -151,8 +151,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         media.longitude = location['coordinates'][0]
                         media.latitude = location['coordinates'][1]
 
-                    if collection is not None:
-                        media.collection = None if collection is None else collection['name']
+                    media.collection = None if collection is None else collection['name']
 
                     if created_at is not None:
                         media.created_at = datetime.fromisoformat(
