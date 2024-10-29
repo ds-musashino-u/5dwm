@@ -906,7 +906,7 @@ const upload = async (event, completed) => {
     }
 
     if (collectionRef.value.length > 0) {
-        collection = collectionRef.value;
+        collection = {name: collectionRef.value};
     }
 
     if (isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
