@@ -41,6 +41,8 @@ paths:
                   type: array
                   items:
                     type: string
+                collection:
+                  type: string
                 image:
                   type: string
                   format: uri
