@@ -451,15 +451,16 @@ paths:
       security:
         - bearerAuth: []
       requestBody:
-        description: Media data
+        description: Media file
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              type: array
-              items:
-                type: string
-                format: uri
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
       responses:
         201:
           description: Successful operation
