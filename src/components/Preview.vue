@@ -317,7 +317,7 @@ const colorChanged = (event) => {
               </div>
               <div class="level-right">
                 <div class="level-item">
-                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.collection"></span>
+                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.collection.name"></span>
                 </div>
               </div>
             </div>
