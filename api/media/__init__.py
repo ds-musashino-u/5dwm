@@ -89,7 +89,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         'description': item.description,
                         'username': item.username,
                         'location': {'type': 'Point', 'coordinates': [item.longitude, item.latitude]},
-                        'collection': None if item.collection is None else {'name': item.collection, 'items': []},
+                        'collection': item.collection,
                         'created_at': item.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                     }
 
@@ -180,7 +180,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 media.username = username
                 media.latitude = latitude
                 media.longitude = longitude
-                media.collection = None if collection is None else collection['name']
+                media.collection = collection
                 media.created_at = created_at
 
                 session.add(media)
@@ -194,7 +194,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     'description': media.description,
                     'username': media.username,
                     'location': {'type': 'Point', 'coordinates': [media.longitude, media.latitude]},
-                    'collection': None if media.collection is None else {'name': media.collection, 'items': []},
+                    'collection': media.collection,
                     'created_at': media.created_at.strftime('%Y-%m-%dT%H:%M:%SZ')
                 }
 
