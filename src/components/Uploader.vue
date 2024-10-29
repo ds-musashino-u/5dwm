@@ -87,7 +87,10 @@ if (props.media !== null) {
     longitudeRef.value = String(props.media.location.longitude);
     latitudeRef.value = String(props.media.location.latitude);
     typeRef.value = props.media.type;
-    collectionRef.value = props.media.collection ?? "";
+
+    if (props.media.collection !== null) {
+        collectionRef.value = props.media.collection.name;
+    }
 
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
