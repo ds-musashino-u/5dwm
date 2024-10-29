@@ -87,10 +87,7 @@ if (props.media !== null) {
     longitudeRef.value = String(props.media.location.longitude);
     latitudeRef.value = String(props.media.location.latitude);
     typeRef.value = props.media.type;
-
-    if (props.media.collection !== null) {
-        collectionRef.value = props.media.collection.name;
-    }
+    collectionRef.value = props.media.collection ?? "";
 
     if ("dataTypes" in props.media && props.media.dataTypes !== null) {
         mediaDataTypesRef.value = [];
@@ -909,7 +906,7 @@ const upload = async (event, completed) => {
     }
 
     if (collectionRef.value.length > 0) {
-        collection = {name: collectionRef.value};
+        collection = collectionRef.value;
     }
 
     if (isFinite(timeYearRef.value) && isFinite(timeMonthRef.value) && isFinite(timeDayRef.value) && isFinite(timeHoursRef.value) && isFinite(timeMinutesRef.value) && isFinite(timeSecondsRef.value)) {
