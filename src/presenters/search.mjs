@@ -28,7 +28,7 @@ export class ResultItem {
  * @param {!Array<string>} categories - Categories
  * @param {!Array<string>} types - Types
  * @param {!Array<string>} usernames - Usernames
- * @param {?object} collection - Collection
+ * @param {?string} collection - Collection
  * @param {?string} image - Data URL of Image
  * @param {?string} sort - Sort
  * @param {?string} order - Order (asc or desc)
