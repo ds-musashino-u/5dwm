@@ -161,7 +161,7 @@ export async function getMedium(id) {
  * @param {!string} description - Description
  * @param {!string} username - User name
  * @param {!Location} location - Location
- * @param {?object} collection - Collection
+ * @param {?string} collection - Collection
  * @param {?Date} createdAt - Created date time
  * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
@@ -259,7 +259,7 @@ export async function insertMedium(token, url, type, categories, description, us
  * @param {!string} description - Description
  * @param {!string} username - User name
  * @param {!Location} location - Location
- * @param {?object} collection - Collection
+ * @param {?string} collection - Collection
  * @param {?Date} createdAt - Created date time
  * @param {?Array<string>} dataTypes - Data types
  * @param {?object} data - Data
