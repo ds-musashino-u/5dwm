@@ -64,7 +64,7 @@ export default {
     const isAdmin = ref(false);
 
     onMounted(async () => {
-      new Promise(async (resolve) => {
+      /*new Promise(async (resolve) => {
         try {
           const response = await fetch(Endpoints.NOW_URL);
 
@@ -76,7 +76,7 @@ export default {
         }
         
         resolve();
-      });
+      });*/
 
       const callbackUrl = new URL(window.location.origin);
 
