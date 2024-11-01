@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.1.0
 info:
   title: 5D World Map API
   description: 5D World Map API specification
@@ -54,10 +54,10 @@ paths:
                   enum: [asc, desc]
                 offset:
                   type: integer
-                  example: 0
+                  examples: [0]
                 limit:
                   type: integer
-                  example: 10
+                  examples: [10]
               required:
                 - keywords
                 - categories
@@ -73,11 +73,11 @@ paths:
                 properties:
                   count:
                     type: integer
-                    example: 1
+                    examples: [1]
                   took:
                     type: number
                     format: double
-                    example: 0.123
+                    examples: [0.123]
                   items:
                     type: array
                     items:
@@ -96,14 +96,14 @@ paths:
         required: false
         schema:
           type: integer
-          example: 0
+          examples: [0]
       - name: limit
         in: query
         description: Limit
         required: false
         schema:
           type: integer
-          example: 10
+          examples: [10]
       responses:
         200:
           description: Successful operation
@@ -235,14 +235,14 @@ paths:
         required: false
         schema:
           type: integer
-          example: 0
+          examples: [0]
       - name: limit
         in: query
         description: Limit
         required: false
         schema:
           type: integer
-          example: 10
+          examples: [10]
       responses:
         200:
           description: Successful operation
@@ -285,14 +285,14 @@ paths:
         required: false
         schema:
           type: integer
-          example: 0
+          examples: [0]
       - name: limit
         in: query
         description: Limit
         required: false
         schema:
           type: integer
-          example: 10
+          examples: [10]
       responses:
         200:
           description: Successful operation
@@ -405,14 +405,14 @@ paths:
         required: false
         schema:
           type: integer
-          example: 0
+          examples: [0]
       - name: limit
         in: query
         description: Limit
         required: false
         schema:
           type: integer
-          example: 10
+          examples: [10]
       responses:
         200:
           description: Successful operation
@@ -474,11 +474,11 @@ paths:
                     format: uri
                   type:
                     type: string
-                    example: "image/png"
+                    examples: ["image/png"]
                   took:
                     type: number
                     format: double
-                    example: 0.123
+                    examples: [0.123]
                   thumbnail:
                     type: object
                     properties:
@@ -487,7 +487,7 @@ paths:
                         format: uri
                       type:
                         type: string
-                        example: "image/png"
+                        examples: ["image/png"]
                   created_at:
                     type: string
                     format: date-time
@@ -543,16 +543,15 @@ components:
           properties:
             type:
               type: string
-              example: Point
+              examples: ["Point"]
             coordinates:
               type: array
               items:
                 type: number
                 format: double
-              example: [105.85271637244875, 21.028344772352863]
+              examples: [[105.85271637244875, 21.028344772352863]]
         collection:
-          type: string
-          nullable: true
+          type: ["string", "null"]
           maxLength: 256
         created_at:
           type: string
@@ -585,9 +584,8 @@ components:
           format: date-time
           readOnly: true
         email:
-          type: string
+          type: ["string", "null"]
           format: email
-          nullable: true
           maxLength: 128
       required:
         - username
