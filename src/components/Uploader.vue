@@ -1499,7 +1499,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             </div>
                         </div>
                         <ListBox name="Categories" :page-length="maxCategoriesLength"
-                            :is-enabled="user !== null && isInitializedRef" :is-collapsed="categoriesIsCollapsedRef"
+                            :is-enabled="user !== null && isInitializedRef && typesItemsRef.length > 0" :is-collapsed="categoriesIsCollapsedRef"
                             :is-continuous="categoriesIsContinuousRef" :items="categoriesItemsRef"
                             :page-index="categoriesPageIndexRef" @collapse="collapseCategories" @clear="clearCategories"
                             @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
