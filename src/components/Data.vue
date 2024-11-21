@@ -517,7 +517,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     <tbody v-if="!isFetchingRef">
                                         <tr v-for="(item, index) in dataItemsRef" v-bind:key="item"
                                             :class="{ 'is-selected': item.checked }" @click="selectItem($event, index)">
-                                            <template v-for="(column, i) in dataSourcesRef.find(x => x.checked).columns"
+                                            <template v-for="column in dataSourcesRef.find(x => x.checked).columns"
                                                 :key="column">
                                                 <td class="is-size-7 has-text-weight-bold"
                                                     :style="{ width: 'width' in column ? column.width : 'auto' }"

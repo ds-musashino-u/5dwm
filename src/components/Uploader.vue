@@ -2349,8 +2349,4 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
         background-position: 100% 0%, 0% 100%, 0% 0%, 100% 100%;
     }
 }
-
-::-webkit-full-page-media, :future, :root .class_name{
-    /* ここに書く */
-}
 </style>
