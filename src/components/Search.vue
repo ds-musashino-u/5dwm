@@ -1433,7 +1433,7 @@ const rgbToHsl = (r, g, b) => {
               :is-collapsed="typesIsCollapsedRef" :is-continuous="typesIsContinuousRef" :items="typesItemsRef"
               :page-index="typesPageIndexRef" @collapse="collapseTypes" @clear="clearTypes" @select="selectType"
               @next="nextTypes" @previous="previousTypes" />
-            <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null"
+            <ListBox name="Categories" :page-length="maxCategoriesLength" :is-enabled="user !== null && typesItemsRef.length > 0"
               :is-collapsed="categoriesIsCollapsedRef" :is-continuous="categoriesIsContinuousRef"
               :items="categoriesItemsRef" :page-index="categoriesPageIndexRef" @collapse="collapseCategories"
               @clear="clearCategories" @select="selectCategory" @next="nextCategories" @previous="previousCategories" />
