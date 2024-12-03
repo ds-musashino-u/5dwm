@@ -876,7 +876,7 @@ const upload = async (event, completed) => {
         progressRef.value = 0.5;
 
         try {
-            const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.blob);
+            const result = await uploadMedia(await getAccessToken(props.auth0), mediaFileRef.value.blob, mediaFileRef.value.filename);
 
             url = result.url;
 
