@@ -1347,7 +1347,16 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
 
   collectionIsFetchingRef.value = false;
 };
-
+const selectCollectionItem = (collection) => {
+  map.panTo(new google.maps.LatLng(collection.item.media.location.latitude, collection.item.media.location.longitude));
+};
+const disposeCollection = (collectionItemsRef) => {
+  for (const collectionItem of collectionItemsRef.value) {
+    if ("disposable" in collectionItem.item && collectionItem.item.disposable && collectionItem.marker !== null) {
+      collectionItem.marker.setMap(null);
+    }
+  }
+};
 const hexToRgb = (hex) => {
   const r = parseInt(hex.substr(1,2), 16);
   const g = parseInt(hex.substr(3,2), 16);
@@ -1556,9 +1565,9 @@ const rgbToHsl = (r, g, b) => {
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
             <Preview :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
-              @unload="unloadItem" @back="back" @colorChanged="colorChanged" @fetchCollection="fetchCollection" v-if="selectedItemRef.media.id in appearance" />
+              @unload="unloadItem" @back="back" @colorChanged="colorChanged" @fetchCollection="fetchCollection" @selectCollectionItem="selectCollectionItem" @disposeCollection="disposeCollection" v-if="selectedItemRef.media.id in appearance" />
             <Preview :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
-              @colorChanged="colorChanged" @fetchCollection="fetchCollection" />
+              @colorChanged="colorChanged" @fetchCollection="fetchCollection" @selectCollectionItem="selectCollectionItem" @disposeCollection="disposeCollection" />
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
