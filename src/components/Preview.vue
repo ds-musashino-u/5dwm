@@ -44,11 +44,11 @@ const colorChanged = (event) => {
 const loadCollection = () => {
   emit("fetchCollection", props.item.media.collection, collectionPageIndexRef, collectionItemsRef, collectionIsFetchingRef);
 };
-const selectCollectionItem = (event, index, item) => {
-  if (props.item.media.id === item.media.id) {
+const selectCollectionItem = (event, index, collection) => {
+  if (props.item.media.id === collection.item.media.id) {
     selectCollectionItemRef.value = null;
   } else {
-    selectCollectionItemRef.value = item;
+    selectCollectionItemRef.value = collection.item;
   }
 };
 const initialize = async () => {
@@ -64,13 +64,25 @@ onMounted(() => {
 });
 onUnmounted(() => {
   isInitializedRef.value = false;
+
+  for (const collectionItem of collectionItemsRef.value) {
+    if ("disposable" in collectionItem.item && collectionItem.item.disposable && collectionItem.marker !== null) {
+      collectionItem.marker.setMap(null);
+    }
+  }
 });
 onActivated(() => {
   if (!isInitializedRef.value) {
     initialize();
   }
 });
-onDeactivated(() => { });
+onDeactivated(() => {
+  for (const collectionItem of collectionItemsRef.value) {
+    if (collectionItem.item.index === null && collectionItem.marker !== null) {
+      collectionItem.marker.setMap(null);
+    }
+  }
+});
 </script>
 
 <template>
@@ -140,8 +152,8 @@ onDeactivated(() => { });
                 </div>
               </transition>
               <transition name="fade" mode="out-in">
-                <div class="level-item" v-if="selectCollectionItemRef !== null && 'index' in selectCollectionItemRef && selectCollectionItemRef.index !== null" key="alt">
-                  <span class="icon is-small">
+                <div class="level-item" v-if="selectCollectionItemRef !== null && 'index' in selectCollectionItemRef" key="alt">
+                  <span class="icon is-small" v-if="selectCollectionItemRef.index !== null">
                     <span class="is-size-7 is-uppercase has-text-weight-bold">{{ selectCollectionItemRef.index + 1 }}</span>
                   </span>
                 </div>
@@ -362,24 +374,24 @@ onDeactivated(() => { });
                 <article class="media gallery-list-item" v-for="(collectionItem, index) in collectionItemsRef" v-bind:key="index">
                   <div class="media-content">
                     <div class="stack">
-                      <button class="button image is-64x64" :class="{ 'is-selected': selectCollectionItemRef === null ? item.media.id === collectionItem.media.id : selectCollectionItemRef.media.id === collectionItem.media.id }" type="button"
+                      <button class="button image is-64x64" :class="{ 'is-selected': selectCollectionItemRef === null ? item.media.id === collectionItem.item.media.id : selectCollectionItemRef.media.id === collectionItem.item.media.id }" type="button"
                         @click="selectCollectionItem($event, index, collectionItem)">
                         <picture class="image" v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')">
-                          <img v-bind:src="'thumbnailUrl' in collectionItem.media && collectionItem.media.thumbnailUrl !== null ? collectionItem.media.thumbnailUrl : collectionItem.media.url" v-bind:alt="String(index)" />
+                          <img v-bind:src="'thumbnailUrl' in collectionItem.item.media && collectionItem.item.media.thumbnailUrl !== null ? collectionItem.item.media.thumbnailUrl : collectionItem.item.media.url" v-bind:alt="String(index)" />
                         </picture>
-                        <span class="icon" v-if="'data' in collectionItem.media && collectionItem.media.data !== null">
+                        <span class="icon" v-if="'data' in collectionItem.item.media && collectionItem.item.media.data !== null">
                           <i class="fa-solid fa-table fa-lg"></i>
                         </span>
-                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('image')">
+                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('image')">
                           <i class="fa-solid fa-file-image fa-lg"></i>
                         </span>
-                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('video')">
+                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('video')">
                           <i class="fa-solid fa-file-video fa-lg"></i>
                         </span>
-                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('audio')">
+                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('audio')">
                           <i class="fa-solid fa-file-audio fa-lg"></i>
                         </span>
-                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('text')">
+                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('text')">
                           <i class="fa-solid fa-file-lines fa-lg"></i>
                         </span>
                         <span class="icon" v-else>

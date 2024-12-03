@@ -1279,14 +1279,56 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
   try {
     const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], collection, null, null, null, "created_at", "desc", collectionPageIndexRef.value * collectionPageLength, collectionPageLength + 1);
     
-    for (const resultItem of resultItems.slice(0, collectionPageLength)) {
-      collectionItemsRef.value.push(resultItem);
+    for (const item of resultItems.slice(0, collectionPageLength)) {
+      const result = searchResults.find(x => x.item.media.id === item.media.id);
+
+      if (result === undefined) {
+        if (item.media.location !== null) {
+          const glyph = document.createElement("span");
+
+          glyph.className = "gmp-glyph";
+
+          const marker = new google.maps.marker.AdvancedMarkerElement({
+            position: {
+              lat: item.media.location.latitude,
+              lng: item.media.location.longitude
+            },
+            content: new google.maps.marker.PinView({
+              glyph: glyph
+            }).element,
+            map: map
+          });
+
+          marker.gmpClickable = true;
+          marker.addEventListener("gmp-click", gmpMarkerClick);
+
+          collectionItemsRef.value.push({ marker: marker, infowindow: new google.maps.InfoWindow({
+            content: item.media.type.startsWith('image') && item.media.url.startsWith('https://') ? "thumbnailUrl" in item.media && item.media.thumbnailUrl !== null ? `<img width="320px" src="${item.media.thumbnailUrl}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : `<img width="320px" src="${item.media.url}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : item.media.description,
+          }), item: Object.assign({ index: null, disposable: true }, item) });
+        } else {
+          collectionItemsRef.value.push({ marker: null, item: item });
+        }
+      } else {
+        const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === item.media.id);
+
+        if (index === undefined) {
+          collectionItemsRef.value.push(result);
+        } else {
+          collectionItemsRef.value.push({ marker: result.marker, infowindow: result.infowindow, item: Object.assign({ index: Number(index) }, result.item)});
+        }
+      }
     }
 
     if (totalCount < (collectionPageIndexRef.value + 1) * collectionPageLength + 1) {
       collectionPageIndexRef.value = null;
     } else {
       collectionPageIndexRef.value += 1; 
+    }
+
+    for (result of searchResults) {
+      if (result.item.media.collection === collection) {
+        resultI["collection"] = collectionItemsRef.value;
+      }
     }
   } catch (error) {
     shake(previewPanelRef.value);
