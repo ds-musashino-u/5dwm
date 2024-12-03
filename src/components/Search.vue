@@ -274,7 +274,19 @@ const gmpMarkerClick = (event) => {
   if (element === undefined) {
     const pinnedItem = pinnedItems.find(x => x.graph.find(y => y.find(z => z !== null && event.target.position.lat === z.position.lat && event.target.position.lng === z.position.lng) !== undefined) !== undefined);
 
-    if (pinnedItem !== undefined) {
+    if (pinnedItem === undefined) {
+      console.log("IN");
+      for (const result of searchResults) {
+        if ("collection" in result) {
+          const collectionElement = result.collection.find(x => x.marker !== null && event.target.position.lat === x.marker.position.lat && event.target.position.lng === x.marker.position.lng);
+        
+          if (collectionElement !== undefined && "infowindow" in collectionElement && collectionElement.item.media.description.length > 0) {
+              collectionElement.infowindow.open({ anchor: collectionElement.marker, map });
+          }
+        }
+      }
+
+    } else {
       const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === pinnedItem.item.media.id);
 
       if (index === undefined) {
@@ -1325,9 +1337,9 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
       collectionPageIndexRef.value += 1; 
     }
 
-    for (result of searchResults) {
+    for (const result of searchResults) {
       if (result.item.media.collection === collection) {
-        resultI["collection"] = collectionItemsRef.value;
+        result["collection"] = collectionItemsRef.value;
       }
     }
   } catch (error) {
