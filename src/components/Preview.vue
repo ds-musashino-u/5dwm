@@ -2,21 +2,16 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref, onMounted, onUnmounted, onActivated, onDeactivated, reactive, toRef, watch } from "vue";
-import { getAccessToken } from "../presenters/auth.mjs";
-import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 
 const props = defineProps({
-  auth0: Object,
   isCollapsed: { type: Boolean, required: false, default: false },
   isExpandable: { type: Boolean, required: false, default: false },
   item: { type: Object, required: false, default: null },
   canBack: { type: Boolean, required: false, default: true },
   color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") },
-  error: { type: Object, required: false, default: null },
-  collectionPageLength: { type: Number, required: false, default: 10 }
+  error: { type: Object, required: false, default: null }
 });
-const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
-const previewPanelRef = ref(null);
+const emit = defineEmits(["load", "unload", "back", "colorChanged", "fetchCollection"]);
 const isInitializedRef = ref(false);
 const inputColorRef = ref(props.color);
 const selectedColorRef = ref(props.color);
@@ -46,52 +41,8 @@ const colorChanged = (event) => {
     emit("colorChanged", props.item, selectedColorRef.value);
   }
 };
-const shake = (element) => {
-  element.animate(
-    [
-      { transform: "translate3d(0, 0, 0)" },
-      { transform: "translate3d(8px, 0, 0)" },
-      { transform: "translate3d(-8px, 0, 0)" },
-      { transform: "translate3d(7px, 0, 0)" },
-      { transform: "translate3d(-7px, 0, 0)" },
-      { transform: "translate3d(6px, 0, 0)" },
-      { transform: "translate3d(-6px, 0, 0)" },
-      { transform: "translate3d(5px, 0, 0)" },
-      { transform: "translate3d(-5px, 0, 0)" },
-      { transform: "translate3d(4px, 0, 0)" },
-      { transform: "translate3d(-4px, 0, 0)" },
-      { transform: "translate3d(3px, 0, 0)" },
-      { transform: "translate3d(-3px, 0, 0)" },
-      { transform: "translate3d(2px, 0, 0)" },
-      { transform: "translate3d(-2px, 0, 0)" },
-      { transform: "translate3d(1px, 0, 0)" },
-      { transform: "translate3d(-1px, 0, 0)" },
-      { transform: "translate3d(0, 0, 0)" },
-    ],
-    { duration: 1000, iterations: 1 }
-  );
-};
-const loadCollection = async () => {
-  collectionIsFetchingRef.value = true;
-  
-  try {
-    const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], props.item.media.collection, null, null, null, "created_at", "desc", collectionPageIndexRef.value * props.collectionPageLength, props.collectionPageLength + 1);
-    
-    for (const resultItem of resultItems.slice(0, props.collectionPageLength)) {
-      collectionItemsRef.value.push(resultItem);
-    }
-
-    if (totalCount < (collectionPageIndexRef.value + 1) * props.collectionPageLength + 1) {
-      collectionPageIndexRef.value = null;
-    } else {
-      collectionPageIndexRef.value += 1; 
-    }
-  } catch (error) {
-    shake(previewPanelRef.value);
-    console.error(error);
-  }
-
-  collectionIsFetchingRef.value = false;
+const loadCollection = () => {
+  emit("fetchCollection", props.item.media.collection, collectionPageIndexRef, collectionItemsRef, collectionIsFetchingRef);
 };
 const selectCollectionItem = (event, index, item) => {
   if (props.item.media.id === item.media.id) {
@@ -142,7 +93,7 @@ onDeactivated(() => { });
       </div>
     </div>
     <div class="wrap">
-      <div class="panel" ref="previewPanelRef">
+      <div class="panel">
         <div class="panel-block">
           <nav class="level is-mobile">
             <div class="level-left">

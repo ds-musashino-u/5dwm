@@ -79,6 +79,7 @@ const searchcCriteria = {
 const cachedSearchResults = {};
 const pinnedItems = [];
 const appearance = {};
+const collectionPageLength = 10;
 
 fromDateRef.value.setFullYear(fromDateRef.value.getFullYear() - 1);
 fromDateRef.value.setHours(0);
@@ -1272,6 +1273,29 @@ const colorChanged = (item, color) => {
 
   updateDataItems(dataFromDateRef.value, dataToDateRef.value);
 };
+const fetchCollection = async (collection, collectionPageIndexRef, collectionItemsRef, collectionIsFetchingRef) => {
+  collectionIsFetchingRef.value = true;
+  
+  try {
+    const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], collection, null, null, null, "created_at", "desc", collectionPageIndexRef.value * collectionPageLength, collectionPageLength + 1);
+    
+    for (const resultItem of resultItems.slice(0, collectionPageLength)) {
+      collectionItemsRef.value.push(resultItem);
+    }
+
+    if (totalCount < (collectionPageIndexRef.value + 1) * collectionPageLength + 1) {
+      collectionPageIndexRef.value = null;
+    } else {
+      collectionPageIndexRef.value += 1; 
+    }
+  } catch (error) {
+    shake(previewPanelRef.value);
+    console.error(error);
+  }
+
+  collectionIsFetchingRef.value = false;
+};
+
 const hexToRgb = (hex) => {
   const r = parseInt(hex.substr(1,2), 16);
   const g = parseInt(hex.substr(3,2), 16);
@@ -1479,11 +1503,10 @@ const rgbToHsl = (r, g, b) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :auth0="auth0" :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
-              @unload="unloadItem" @back="back" @colorChanged="colorChanged"
-              v-if="selectedItemRef.media.id in appearance" />
-            <Preview :auth0="auth0" :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
-              @colorChanged="colorChanged" />
+            <Preview :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
+              @unload="unloadItem" @back="back" @colorChanged="colorChanged" @fetchCollection="fetchCollection" v-if="selectedItemRef.media.id in appearance" />
+            <Preview :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
+              @colorChanged="colorChanged" @fetchCollection="fetchCollection" />
           </nav>
           <nav class="panel" v-else key="results">
             <Results :is-fetching="isSearchingRef" :items="searchResultsRef" :count="searchTotalCountRef"
