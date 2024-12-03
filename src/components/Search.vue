@@ -1211,7 +1211,11 @@ const selectItem = async (index, item) => {
 };
 const loadItem = async (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    const result = searchResults.find(x => x.item.media.id === item.media.id);
+    let result = searchResults.find(x => x.item.media.id === item.media.id);
+
+    if (result === undefined && "disposable" in item) {
+      result = item;
+    }
 
     if (result !== undefined) {
       result.item.loading = item.loading = true;
@@ -1244,6 +1248,10 @@ const loadItem = async (item) => {
 const unloadItem = (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
     const result = searchResults.find(x => x.item.media.id === item.media.id);
+
+    if (result === undefined && "disposable" in item) {
+      result = item;
+    }
 
     if (result !== undefined) {
       result.item.layer.setMap(null);
@@ -1352,8 +1360,32 @@ const selectCollectionItem = (collection) => {
 };
 const disposeCollection = (collectionItemsRef) => {
   for (const collectionItem of collectionItemsRef.value) {
-    if ("disposable" in collectionItem.item && collectionItem.item.disposable && collectionItem.marker !== null) {
-      collectionItem.marker.setMap(null);
+    if ("disposable" in collectionItem.item && collectionItem.item.disposable) {
+      if (collectionItem.marker !== null) {
+        collectionItem.marker.setMap(null);
+      }
+
+      if ("layer" in collectionItem.item) {
+        collectionItem.item.layer.setMap(null);
+        collectionItem.item.loaded = item.loaded = false;
+      }
+
+      const index = pinnedItems.findIndex(x => x.item.media.id === collectionItem.item.media.id);
+    
+      if (index >= 0) {
+        for (const markers of pinnedItems[index].graph) {
+          for (const marker of markers) {
+            if (marker !== null) {
+              marker.setMap(null);
+            }
+          }
+        }
+
+        pinnedItems[index].graph.splice(0);
+        pinnedItems[index].item.loaded = collectionItem.item.loaded = false;
+        pinnedItems.splice(index, 1);
+        pinnedMediaRef.value.splice(index, 1);
+      }
     }
   }
 };
