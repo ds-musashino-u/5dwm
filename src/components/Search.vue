@@ -1479,10 +1479,10 @@ const rgbToHsl = (r, g, b) => {
       <div class="block" ref="previewPanelRef">
         <transition name="slide" mode="out-in">
           <nav class="panel" v-if="selectedItemRef !== null" :key="selectedItemRef">
-            <Preview :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
+            <Preview :auth0="auth0" :item="selectedItemRef" :error="errorRef" :color="appearance[selectedItemRef.media.id]" @load="loadItem"
               @unload="unloadItem" @back="back" @colorChanged="colorChanged"
               v-if="selectedItemRef.media.id in appearance" />
-            <Preview :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
+            <Preview :auth0="auth0" :item="selectedItemRef" :error="errorRef" @load="loadItem" @unload="unloadItem" @back="back"
               @colorChanged="colorChanged" />
           </nav>
           <nav class="panel" v-else key="results">

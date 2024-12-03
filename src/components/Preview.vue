@@ -1,19 +1,29 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, reactive, toRef, watch } from "vue";
+import { ref, onMounted, onUnmounted, onActivated, onDeactivated, reactive, toRef, watch } from "vue";
+import { getAccessToken } from "../presenters/auth.mjs";
+import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
 
 const props = defineProps({
+  auth0: Object,
   isCollapsed: { type: Boolean, required: false, default: false },
   isExpandable: { type: Boolean, required: false, default: false },
   item: { type: Object, required: false, default: null },
   canBack: { type: Boolean, required: false, default: true },
   color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") },
-  error: { type: Object, required: false, default: null }
+  error: { type: Object, required: false, default: null },
+  collectionPageLength: { type: Number, required: false, default: 10 }
 });
 const emit = defineEmits(["load", "unload", "back", "colorChanged"]);
+const previewPanelRef = ref(null);
+const isInitializedRef = ref(false);
 const inputColorRef = ref(props.color);
 const selectedColorRef = ref(props.color);
+const collectionPageIndexRef = ref(0);
+const collectionIsFetchingRef = ref(false);
+const collectionItemsRef = ref([]);
+const selectCollectionItemRef = ref(null);
 
 const load = (event, item) => {
   emit("load", item);
@@ -36,6 +46,80 @@ const colorChanged = (event) => {
     emit("colorChanged", props.item, selectedColorRef.value);
   }
 };
+const shake = (element) => {
+  element.animate(
+    [
+      { transform: "translate3d(0, 0, 0)" },
+      { transform: "translate3d(8px, 0, 0)" },
+      { transform: "translate3d(-8px, 0, 0)" },
+      { transform: "translate3d(7px, 0, 0)" },
+      { transform: "translate3d(-7px, 0, 0)" },
+      { transform: "translate3d(6px, 0, 0)" },
+      { transform: "translate3d(-6px, 0, 0)" },
+      { transform: "translate3d(5px, 0, 0)" },
+      { transform: "translate3d(-5px, 0, 0)" },
+      { transform: "translate3d(4px, 0, 0)" },
+      { transform: "translate3d(-4px, 0, 0)" },
+      { transform: "translate3d(3px, 0, 0)" },
+      { transform: "translate3d(-3px, 0, 0)" },
+      { transform: "translate3d(2px, 0, 0)" },
+      { transform: "translate3d(-2px, 0, 0)" },
+      { transform: "translate3d(1px, 0, 0)" },
+      { transform: "translate3d(-1px, 0, 0)" },
+      { transform: "translate3d(0, 0, 0)" },
+    ],
+    { duration: 1000, iterations: 1 }
+  );
+};
+const loadCollection = async () => {
+  collectionIsFetchingRef.value = true;
+  
+  try {
+    const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], props.item.media.collection, null, null, null, "created_at", "desc", collectionPageIndexRef.value * props.collectionPageLength, props.collectionPageLength + 1);
+    
+    for (const resultItem of resultItems.slice(0, props.collectionPageLength)) {
+      collectionItemsRef.value.push(resultItem);
+    }
+
+    if (totalCount < (collectionPageIndexRef.value + 1) * props.collectionPageLength + 1) {
+      collectionPageIndexRef.value = null;
+    } else {
+      collectionPageIndexRef.value += 1; 
+    }
+  } catch (error) {
+    shake(previewPanelRef.value);
+    console.error(error);
+  }
+
+  collectionIsFetchingRef.value = false;
+};
+const selectCollectionItem = (event, index, item) => {
+  if (props.item.media.id === item.media.id) {
+    selectCollectionItemRef.value = null;
+  } else {
+    selectCollectionItemRef.value = item;
+  }
+};
+const initialize = async () => {
+  isInitializedRef.value = true;
+
+  if (props.item.media.collection !== null) {
+    await loadCollection();
+  }
+};
+
+onMounted(() => {
+  initialize();
+});
+onUnmounted(() => {
+  isInitializedRef.value = false;
+});
+onActivated(() => {
+  if (!isInitializedRef.value) {
+    initialize();
+  }
+});
+onDeactivated(() => { });
 </script>
 
 <template>
@@ -58,80 +142,152 @@ const colorChanged = (event) => {
       </div>
     </div>
     <div class="wrap">
-      <div class="panel">
+      <div class="panel" ref="previewPanelRef">
         <div class="panel-block">
           <nav class="level is-mobile">
             <div class="level-left">
-              <div class="level-item">
-                <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
-                  <i class="fa-solid fa-table"></i>
-                </span>
-                <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
-                  <i class="fa-solid fa-file-image"></i>
-                </span>
-                <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
-                  <i class="fa-solid fa-file-video"></i>
-                </span>
-                <span class="icon is-small" v-else-if="item.media.type.startsWith('audio')">
-                  <i class="fa-solid fa-file-audio"></i>
-                </span>
-                <span class="icon is-small" v-else-if="item.media.type.startsWith('text')">
-                  <i class="fa-solid fa-file-lines"></i>
-                </span>
-                <span class="icon is-small" v-else>
-                  <i class="fa-solid fa-file"></i>
-                </span>
-              </div>
-              <div class="level-item" v-if="'index' in item && item.index !== null">
-                <span class="icon is-small">
-                  <span class="is-size-7 is-uppercase has-text-weight-bold">{{ item.index + 1 }}</span>
-                </span>
-              </div>
-              <div class="level-item" v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null">
-                <span class="icon is-small has-text-dark">
-                  <i class="fa-solid fa-chart-simple"></i>
-                </span>
-                <transition name="fade" mode="out-in">
-                  <div class="control" v-if="'data' in item.media && item.media.data !== null && item.media.data.length === 0" key="loading">
-                    <span class="icon">
-                      <i class="fas fa-spinner updating"></i>
-                    </span>
-                  </div>
-                  <div class="control" v-else key ="loaded">
-                    <div class="tabs is-toggle">
-                      <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
-                        <li :class="{ 'is-active': !item.loaded }" >
-                          <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                            <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
-                          </a>
-                        </li>
-                        <li :class="{ 'is-active': item.loaded }">
-                          <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                            <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </div>
-                </transition>
-              </div>
-              <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
-                <button class="button is-flat" type="button" v-bind:disabled="item.media.data.length === 0" @click="resetColor($event)">
-                  <span class="icon is-small has-text-dark">
-                    <i class="fa-solid fa-palette"></i>
+              <transition name="fade" mode="out-in">
+                <div class="level-item" v-if="selectCollectionItemRef === null" key="alt">
+                  <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
+                    <i class="fa-solid fa-table"></i>
                   </span>
-                </button>
-              </div>
-              <div class="level-item" v-if="'data' in item.media && item.media.data !== null">
-                <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-bind:disabled="item.media.data.length === 0" v-model="inputColorRef"
-                    @input="colorChanged($event, item)" />
-              </div>
-              
+                  <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
+                    <i class="fa-solid fa-file-image"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
+                    <i class="fa-solid fa-file-video"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="item.media.type.startsWith('audio')">
+                    <i class="fa-solid fa-file-audio"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="item.media.type.startsWith('text')">
+                    <i class="fa-solid fa-file-lines"></i>
+                  </span>
+                  <span class="icon is-small" v-else>
+                    <i class="fa-solid fa-file"></i>
+                  </span>
+                </div>
+                <div class="level-item" v-else key="default">
+                  <span class="icon is-small" v-if="'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null">
+                    <i class="fa-solid fa-table"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('image')">
+                    <i class="fa-solid fa-file-image"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('video')">
+                    <i class="fa-solid fa-file-video"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('audio')">
+                    <i class="fa-solid fa-file-audio"></i>
+                  </span>
+                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('text')">
+                    <i class="fa-solid fa-file-lines"></i>
+                  </span>
+                  <span class="icon is-small" v-else>
+                    <i class="fa-solid fa-file"></i>
+                  </span>
+                </div>
+              </transition>
+              <transition name="fade" mode="out-in">
+                <div class="level-item" v-if="selectCollectionItemRef !== null && 'index' in selectCollectionItemRef && selectCollectionItemRef.index !== null" key="alt">
+                  <span class="icon is-small">
+                    <span class="is-size-7 is-uppercase has-text-weight-bold">{{ selectCollectionItemRef.index + 1 }}</span>
+                  </span>
+                </div>
+                <div class="level-item" v-else-if="'index' in item && item.index !== null" key="default">
+                  <span class="icon is-small">
+                    <span class="is-size-7 is-uppercase has-text-weight-bold">{{ item.index + 1 }}</span>
+                  </span>
+                </div>
+              </transition>
+              <transition name="fade" mode="out-in">
+                <div class="level-item" v-if="selectCollectionItemRef !== null && (selectCollectionItemRef.media.type.startsWith('kml') || selectCollectionItemRef.media.type.startsWith('kmz') || 'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null)" key="alt">
+                  <span class="icon is-small has-text-dark">
+                    <i class="fa-solid fa-chart-simple"></i>
+                  </span>
+                  <transition name="fade" mode="out-in">
+                    <div class="control" v-if="'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null && selectCollectionItemRef.media.data.length === 0" key="loading">
+                      <span class="icon">
+                        <i class="fas fa-spinner updating"></i>
+                      </span>
+                    </div>
+                    <div class="control" v-else key ="loaded">
+                      <div class="tabs is-toggle">
+                        <ul :style="{ pointerEvents: selectCollectionItemRef.loading ? 'none' : 'auto' }">
+                          <li :class="{ 'is-active': !selectCollectionItemRef.loaded }" >
+                            <a @click="selectCollectionItemRef.loaded ? unload($event, selectCollectionItemRef) : load($event, selectCollectionItemRef)">
+                              <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
+                            </a>
+                          </li>
+                          <li :class="{ 'is-active': selectCollectionItemRef.loaded }">
+                            <a @click="selectCollectionItemRef.loaded ? unload($event, selectCollectionItemRef) : load($event, selectCollectionItemRef)">
+                              <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+                <div class="level-item" v-else-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null" key="default">
+                  <span class="icon is-small has-text-dark">
+                    <i class="fa-solid fa-chart-simple"></i>
+                  </span>
+                  <transition name="fade" mode="out-in">
+                    <div class="control" v-if="'data' in item.media && item.media.data !== null && item.media.data.length === 0" key="loading">
+                      <span class="icon">
+                        <i class="fas fa-spinner updating"></i>
+                      </span>
+                    </div>
+                    <div class="control" v-else key ="loaded">
+                      <div class="tabs is-toggle">
+                        <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
+                          <li :class="{ 'is-active': !item.loaded }" >
+                            <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                              <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
+                            </a>
+                          </li>
+                          <li :class="{ 'is-active': item.loaded }">
+                            <a @click="item.loaded ? unload($event, item) : load($event, item)">
+                              <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+              </transition>
+              <transition name="fade" mode="out-in">
+                <div class="level-item" v-if="selectCollectionItemRef !== null && 'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null" key="alt">
+                  <button class="button is-flat" type="button" v-bind:disabled="selectCollectionItemRef.media.data.length === 0" @click="resetColor($event)">
+                    <span class="icon is-small has-text-dark">
+                      <i class="fa-solid fa-palette"></i>
+                    </span>
+                  </button>
+                </div>
+                <div class="level-item" v-else-if="'data' in item.media && item.media.data !== null" key="default">
+                  <button class="button is-flat" type="button" v-bind:disabled="item.media.data.length === 0" @click="resetColor($event)">
+                    <span class="icon is-small has-text-dark">
+                      <i class="fa-solid fa-palette"></i>
+                    </span>
+                  </button>
+                </div>
+              </transition>
+              <transition name="fade" mode="out-in">
+                <div class="level-item" v-if="selectCollectionItemRef !== null && 'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null" key="alt">
+                  <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-bind:disabled="selectCollectionItemRef.media.data.length === 0" v-model="inputColorRef"
+                      @input="colorChanged($event, selectCollectionItemRef)" />
+                </div>
+                <div class="level-item" v-else-if="'data' in item.media && item.media.data !== null" alt="default">
+                  <input class="input is-outlined is-size-7 has-text-weight-bold" type="color" v-bind:disabled="item.media.data.length === 0" v-model="inputColorRef"
+                      @input="colorChanged($event, item)" />
+                </div>
+              </transition>
             </div>
             <div class="level-right">
               <div class="level-item">
-                <a class="button is-rounded" target="_blank" v-bind:href="item.media.url"><span class="icon is-small"><i
-                      class="fa-solid fa-link"></i></span></a>
+                <a class="button is-rounded" target="_blank" v-bind:href="selectCollectionItemRef === null ? item.media.url : selectCollectionItemRef.media.url"><span class="icon is-small"><i class="fa-solid fa-link"></i></span></a>
               </div>
               <div class="level-item" v-if="isExpandable">
                 <button class="button toggle is-rounded" @click="isCollapsed = !isCollapsed">
@@ -160,10 +316,20 @@ const colorChanged = (event) => {
             </div>
           </transition>
           <transition name="fade" mode="out-in">
-            <div class="control" v-if="!isCollapsed &&
-              item.media.type.startsWith('image') &&
-              item.media.url.startsWith('https://')
-              " key="collapse">
+            <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.type.startsWith('image') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
+              <nav class="level">
+                <div class="level-item">
+                  <article class="media">
+                    <div class="media-content">
+                      <picture class="image">
+                        <img v-bind:src="'thumbnailUrl' in selectCollectionItemRef.media && selectCollectionItemRef.media.thumbnailUrl !== null ? selectCollectionItemRef.media.thumbnailUrl : selectCollectionItemRef.media.url" v-bind:alt="selectCollectionItemRef.media.id" />
+                      </picture>
+                    </div>
+                  </article>
+                </div>
+              </nav>
+            </div>
+            <div class="control" v-else-if="!isCollapsed && item.media.type.startsWith('image') && item.media.url.startsWith('https://')" key="default">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -178,10 +344,18 @@ const colorChanged = (event) => {
             </div>
           </transition>
           <transition name="fade" mode="out-in">
-            <div class="control" v-if="!isCollapsed &&
-              item.media.type.startsWith('video') &&
-              item.media.url.startsWith('https://')
-              " key="collapse">
+            <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.type.startsWith('video') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
+              <nav class="level">
+                <div class="level-item">
+                  <article class="media">
+                    <div class="media-content">
+                      <video controls :src="selectCollectionItemRef.media.url"></video>
+                    </div>
+                  </article>
+                </div>
+              </nav>
+            </div>
+            <div class="control" v-else-if="!isCollapsed && item.media.type.startsWith('video') && item.media.url.startsWith('https://')" key="default">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -194,10 +368,18 @@ const colorChanged = (event) => {
             </div>
           </transition>
           <transition name="fade" mode="out-in">
-            <div class="control" v-if="!isCollapsed &&
-              item.media.type.startsWith('audio') &&
-              item.media.url.startsWith('https://')
-              " key="collapse">
+            <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.type.startsWith('audio') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
+              <nav class="level">
+                <div class="level-item">
+                  <article class="media">
+                    <div class="media-content">
+                      <audio controls :src="selectCollectionItemRef.media.url"></audio>
+                    </div>
+                  </article>
+                </div>
+              </nav>
+            </div>
+            <div class="control" v-else-if="!isCollapsed && item.media.type.startsWith('audio') && item.media.url.startsWith('https://')" key="default">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -210,22 +392,121 @@ const colorChanged = (event) => {
             </div>
           </transition>
         </div>
-        <div class="panel-block">
-          <div class="level">
-            <div class="level-left">
-              <div class="level-item">
-                <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">ID</span>
+        <transition name="fade" mode="out-in">
+          <div class="panel-block" v-if="!isCollapsed && item.media.collection !== null" key="collapse">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Collection</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.collection"></span>
+                </div>
               </div>
             </div>
-            <div class="level-right">
-              <div class="level-item">
-                <span class="is-size-7 has-text-weight-bold" v-text="item.media.id"></span>
+            <div class="control">
+              <transition-group name="gallery-list" class="gallery" tag="div" v-cloak>
+                <article class="media gallery-list-item" v-for="(collectionItem, index) in collectionItemsRef" v-bind:key="index">
+                  <div class="media-content">
+                    <div class="stack">
+                      <button class="button image is-64x64" :class="{ 'is-selected': selectCollectionItemRef === null ? item.media.id === collectionItem.media.id : selectCollectionItemRef.media.id === collectionItem.media.id }" type="button"
+                        @click="selectCollectionItem($event, index, collectionItem)">
+                        <picture class="image" v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')">
+                          <img v-bind:src="'thumbnailUrl' in collectionItem.media && collectionItem.media.thumbnailUrl !== null ? collectionItem.media.thumbnailUrl : collectionItem.media.url" v-bind:alt="String(index)" />
+                        </picture>
+                        <span class="icon" v-if="'data' in collectionItem.media && collectionItem.media.data !== null">
+                          <i class="fa-solid fa-table fa-lg"></i>
+                        </span>
+                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('image')">
+                          <i class="fa-solid fa-file-image fa-lg"></i>
+                        </span>
+                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('video')">
+                          <i class="fa-solid fa-file-video fa-lg"></i>
+                        </span>
+                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('audio')">
+                          <i class="fa-solid fa-file-audio fa-lg"></i>
+                        </span>
+                        <span class="icon" v-else-if="collectionItem.media.type.startsWith('text')">
+                          <i class="fa-solid fa-file-lines fa-lg"></i>
+                        </span>
+                        <span class="icon" v-else>
+                          <i class="fa-solid fa-file fa-lg"></i>
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+                </article>
+              </transition-group>
+            </div>
+            <transition name="fade" mode="out-in">
+              <div class="level" v-if="collectionIsFetchingRef" key="fetching">
+                <div class="level-item">
+                  <span class="icon">
+                    <i class="fas fa-spinner updating"></i>
+                  </span>
+                </div>
+              </div>
+              <div class="level" v-else-if="collectionPageIndexRef !== null" key="more">
+                <div class="level-item">
+                  <button class="button is-size-7" @click="loadCollection($event)">
+                    <span class="icon is-small">
+                      <i class="fa-solid fa-plus"></i>
+                    </span>
+                    <span class="is-uppercase has-text-weight-bold">More</span>
+                  </button>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </transition>
+        <transition name="fade" mode="out-in">
+          <div class="panel-block" v-if="selectCollectionItemRef === null" key="default">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">ID</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.id"></span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+          <div class="panel-block" v-else key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">ID</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.media.id"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed && item.hasScore" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.hasScore" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Score</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.score"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed && item.hasScore" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -241,7 +522,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed && item.media.location !== null" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.location !== null" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Longitude</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="String(selectCollectionItemRef.media.location.longitude)"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed && item.media.location !== null" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -257,7 +552,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed && item.media.location !== null" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.location !== null" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Latitude</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="String(selectCollectionItemRef.media.location.latitude)"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed && item.media.location !== null" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -273,10 +582,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed &&
-            item.media.location !== null &&
-            item.media.location.hasAddress
-            " key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.location !== null && selectCollectionItemRef.media.location.hasAddress" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Address</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <p class="is-size-7 has-text-weight-bold has-text-right" v-text="selectCollectionItemRef.media.location.address"></p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed && item.media.location !== null && item.media.location.hasAddress" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -292,7 +612,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Time</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.media.createdAt.toLocaleString()"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -308,23 +642,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed && item.media.collection !== null" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.categories.length > 0" key="alt">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
-                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Collection</span>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Categories</span>
                 </div>
               </div>
               <div class="level-right">
-                <div class="level-item">
-                  <span class="is-size-7 has-text-weight-bold" v-text="item.media.collection"></span>
+                <div class="level-item" v-for="category in selectCollectionItemRef.media.categories" v-bind:key="category">
+                  <span class="is-size-7 has-text-weight-bold" v-text="category"></span>
                 </div>
               </div>
             </div>
           </div>
-        </transition>
-        <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed && item.media.categories.length > 0" key="collapse">
+          <div class="panel-block" v-else-if="!isCollapsed && item.media.categories.length > 0" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -340,7 +672,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Type</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.media.type"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -356,7 +702,21 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed" key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null" key="alt">
+            <div class="level">
+              <div class="level-left">
+                <div class="level-item">
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">User</span>
+                </div>
+              </div>
+              <div class="level-right">
+                <div class="level-item">
+                  <span class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.media.username"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed" key="default">
             <div class="level">
               <div class="level-left">
                 <div class="level-item">
@@ -372,10 +732,13 @@ const colorChanged = (event) => {
           </div>
         </transition>
         <transition name="fade" mode="out-in">
-          <div class="panel-block" v-if="!isCollapsed &&
-            item.media.description !== null &&
-            item.media.description.length > 0
-            " key="collapse">
+          <div class="panel-block" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.description !== null && selectCollectionItemRef.media.description.length > 0" key="alt">
+            <div class="content">
+              <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Description</span>
+              <p class="is-size-7 has-text-weight-bold" v-text="selectCollectionItemRef.media.description"></p>
+            </div>
+          </div>
+          <div class="panel-block" v-else-if="!isCollapsed && item.media.description !== null && item.media.description.length > 0" key="default">
             <div class="content">
               <span class="is-size-7 is-uppercase has-text-weight-bold has-text-grey">Description</span>
               <p class="is-size-7 has-text-weight-bold" v-text="item.media.description"></p>
@@ -442,6 +805,184 @@ const colorChanged = (event) => {
 
         input[type="color"]::-webkit-color-swatch {
           border: none;
+        }
+
+        .control {
+          display: flex;
+          flex-direction: column;
+          justify-content: flex-start;
+          align-items: center;
+          padding: 0em 0.75em;
+          width: 320px;
+          height: fit-content;
+
+          .gallery {
+            display: flex;
+            flex-shrink: 0;
+            margin: -4px -2px 0px -2px;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: start;
+            align-items: flex-start;
+            width: calc(100% + 4px);
+
+            .media {
+              display: inline-block;
+              margin: 4px 2px 0px 2px;
+              border: 0px none transparent !important;
+              padding: 0;
+              width: calc(20% - 4px);
+
+              .media-content {
+                border-radius: 0px;
+                width: 100%;
+                background: hsl(0deg, 0%, 93%);
+                overflow: hidden;
+
+                .stack {
+                  position: relative;
+                  width: 100%;
+                  aspect-ratio: 1 / 1;
+
+                  button::after {
+                      pointer-events: none;
+                      position: absolute;
+                      border: 2px var(--accent-color) solid;
+                      opacity: 1;
+                      background: transparent;
+                      width: 100%;
+                      min-height: 100%;
+                      content: "";
+                      opacity: 0;
+                      transition: 0.5s;
+                  }
+
+                  button.is-selected::after {
+                      opacity: 1;
+                      transition: 0.5s;
+                  }
+
+                  button:not(.toggle) {
+                    z-index: 1;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    width: 100%;
+                    aspect-ratio: 1 / 1;
+                    border-radius: 0px;
+                    box-shadow: none !important;
+                    overflow: hidden;
+                    background: transparent !important;
+
+                    picture {
+                      margin: 0;
+                      padding: 0;
+                      width: 100%;
+                      height: 100%;
+
+                      img {
+                        object-fit: cover;
+                        width: 100%;
+                        height: 100%;
+                      }
+                    }
+
+                    .icon {
+                      position: absolute;
+                      top: 100%;
+                      left: 100%;
+                      margin: 0 !important;
+                      width: 1rem !important;
+                      height: 1rem !important;
+                      transform: translate(-100%, -100%);
+                      padding: 0px 8px 8px 0px;
+                    }
+
+                    .badge {
+                      position: absolute;
+                      top: 0%;
+                      left: 0%;
+                      margin: 0 !important;
+                      border-radius: 0px 0px 0px 0px;
+                      padding: 8px 12px 8px 12px;
+                      background: var(--accent-color);
+                      color: #ffffff;
+                    }
+                  }
+
+                  .heading {
+                    z-index: 1;
+                    position: absolute;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: flex-start;
+                    align-items: center;
+                    top: 0%;
+                    left: 0%;
+                    margin: 0;
+                    padding: 0;
+                    background: var(--accent-color);
+
+                    .badge {
+                      position: relative !important;
+                      margin: 0 !important;
+                      border-radius: 0px 0px 0px 0px;
+                      padding: 4px 8px 4px 8px;
+                      color: #ffffff;
+                    }
+                  }
+
+                  .heading.is-selected {
+                    background: #ffffff;
+
+                    .badge {
+                      color: var(--accent-color);
+                    }
+                  }
+
+                  button.toggle {
+                    position: relative;
+                    z-index: 1;
+                    top: 0%;
+                    left: 0%;
+                    margin: 0 !important;
+                    padding: 2px 8px 2px 8px !important;
+                    width: fit-content !important;
+                    height: fit-content !important;
+                    box-shadow: none !important;
+                    line-height: 1.5rem !important;
+                    background: transparent !important;
+
+                    >span.icon {
+                      margin: 0 !important;
+                      width: 1.5rem !important;
+                      height: 1.5rem !important;
+                      font-size: 1.5rem !important;
+                      line-height: 1.5rem !important;
+
+                      >i {
+                        color: #ffffff !important;
+                      }
+                    }
+                  }
+                }
+              }
+
+              figure {
+                margin: 0;
+                padding: 0;
+
+                .image {
+                  overflow: hidden;
+
+                  img {
+                    object-fit: cover;
+                    width: 100%;
+                    height: 100%;
+                  }
+                }
+              }
+            }
+          }
         }
       }
     }
