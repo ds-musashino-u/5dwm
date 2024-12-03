@@ -121,7 +121,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 blob_client = container_client.get_blob_client(path)
                 blob_client.upload_blob(file.stream, blob_type="BlockBlob", content_settings=ContentSettings(content_type=file.content_type))
-                
+                metadata = blob_client.get_blob_properties().metadata
+                metadata.update({'filename': file.filename})
+                blob_client.set_blob_metadata(metadata=metadata)
+                    
                 item = {'id': id, 'pk': id, 'url': f'https://static.5dworldmap.com/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
                 
                 if thumbnail is not None:
