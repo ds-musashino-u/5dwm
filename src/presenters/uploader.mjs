@@ -5,12 +5,17 @@ import { Endpoints } from "./endpoints.mjs";
  * @module upload
  * @param {!string} token - Instance of Auth0
  * @param {!object} blob - BLOB
+ * @param {?string} filename - Filename
  * @return {!object} - Result item
  */
-export async function upload(token, blob) {
+export async function upload(token, blob, filename = null) {
     const formData = new FormData();
 
-    formData.append("file", blob);
+    if (filename === null) {
+        formData.append("file", blob);
+    } else {
+        formData.append("file", blob, filename);
+    }
 
     const response = await fetch(
         Endpoints.UPLOAD_URL,
