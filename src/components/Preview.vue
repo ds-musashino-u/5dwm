@@ -11,7 +11,7 @@ const props = defineProps({
   color: { type: String, required: false, default: window.getComputedStyle(document.documentElement).getPropertyValue("--accent-color") },
   error: { type: Object, required: false, default: null }
 });
-const emit = defineEmits(["load", "unload", "back", "colorChanged", "fetchCollection"]);
+const emit = defineEmits(["load", "unload", "back", "colorChanged", "fetchCollection", "selectCollectionItem", "disposeCollection"]);
 const isInitializedRef = ref(false);
 const inputColorRef = ref(props.color);
 const selectedColorRef = ref(props.color);
@@ -50,6 +50,8 @@ const selectCollectionItem = (event, index, collection) => {
   } else {
     selectCollectionItemRef.value = collection.item;
   }
+
+  emit("selectCollectionItem", collection);
 };
 const initialize = async () => {
   isInitializedRef.value = true;
@@ -65,11 +67,7 @@ onMounted(() => {
 onUnmounted(() => {
   isInitializedRef.value = false;
 
-  for (const collectionItem of collectionItemsRef.value) {
-    if ("disposable" in collectionItem.item && collectionItem.item.disposable && collectionItem.marker !== null) {
-      collectionItem.marker.setMap(null);
-    }
-  }
+  emit("disposeCollection", collectionItemsRef);
 });
 onActivated(() => {
   if (!isInitializedRef.value) {
@@ -77,11 +75,7 @@ onActivated(() => {
   }
 });
 onDeactivated(() => {
-  for (const collectionItem of collectionItemsRef.value) {
-    if (collectionItem.item.index === null && collectionItem.marker !== null) {
-      collectionItem.marker.setMap(null);
-    }
-  }
+  emit("disposeCollection", collectionItemsRef);
 });
 </script>
 
@@ -1139,6 +1133,10 @@ onDeactivated(() => {
             >span+input {
               margin: 0px 0px 0px 4px;
             }
+          }
+
+          span {
+            text-align: right;
           }
         }
       }
