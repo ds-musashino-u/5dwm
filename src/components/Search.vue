@@ -1696,13 +1696,14 @@ const rgbToHsl = (r, g, b) => {
       max-height: 100%;
       overflow-x: hidden;
       overflow-y: auto;
+      background: hsl(0, 0%, 96%);
 
       >.block {
         width: 320px;
         height: fit-content;
 
         .panel {
-          background: transparent;
+          background: #ffffff;
           border-radius: 4px;
           box-shadow: none;
 
