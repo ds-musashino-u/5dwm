@@ -392,60 +392,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Media'
-  /users:
-    get:
-      tags:
-        - Users
-      summary: Get users
-      description: Get users.
-      parameters:
-      - name: offset
-        in: query
-        description: Offset
-        required: false
-        schema:
-          type: integer
-          examples: [0]
-      - name: limit
-        in: query
-        description: Limit
-        required: false
-        schema:
-          type: integer
-          examples: [10]
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
-  /users/{username}:
-    get:
-      tags:
-        - Users
-      summary: Get user
-      description: Get user by user name.
-      parameters:
-      - name: username
-        in: path
-        description: User name
-        required: true
-        schema:
-          type: string
-      responses:
-        200:
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
   /upload:
     post:
       tags:
-        - Upload
+        - Media
       summary: Upload media
       description: Upload media.
       security:
@@ -491,6 +441,58 @@ paths:
                   created_at:
                     type: string
                     format: date-time
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get users
+      description: Get users.
+      deprecated: true
+      parameters:
+      - name: offset
+        in: query
+        description: Offset
+        required: false
+        schema:
+          type: integer
+          examples: [0]
+      - name: limit
+        in: query
+        description: Limit
+        required: false
+        schema:
+          type: integer
+          examples: [10]
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+  /users/{username}:
+    get:
+      tags:
+        - Users
+      summary: Get user
+      description: Get user by user name.
+      deprecated: true
+      parameters:
+      - name: username
+        in: path
+        description: User name
+        required: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
 components:
   securitySchemes:
     bearerAuth:
@@ -601,4 +603,3 @@ tags:
   - name: Types
   - name: Media
   - name: Users
-  - name: Upload
