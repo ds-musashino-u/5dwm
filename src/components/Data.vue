@@ -136,7 +136,7 @@ const update = async (event, reset = false) => {
                 }
 
                 return x;
-            }, []), [], [], props.isAdmin ? [] : [props.user.email], null, null, null, null, "created_at", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
+            }, []), [], [], props.isAdmin ? [] : [props.user.email], null, null, null, null, "id", "desc", pageIndexRef.value * pageLengthRef.value, pageLengthRef.value);
 
             if (searchTimestamp === updateTimestamp) {
                 if (dataSourcesRef.value.find(x => x.checked).name === "Media" && query === queryRef.value) {
