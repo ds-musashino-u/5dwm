@@ -143,7 +143,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     else:
                         if order == 'asc':
-                            query = query.order_by(Media.created_at)
+                            query = query.order_by(Media.id)
                         elif order == 'desc':
                             query = query.order_by(desc(Media.id))
                         else:
