@@ -66,6 +66,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             query = query.order_by(desc(Media.created_at))
                         else:
                             return func.HttpResponse(status_code=400, mimetype='', charset='')
+                        
+                if sort == 'id':
+                    if order is None:
+                        query = query.order_by(desc(Media.id))
+
+                    else:
+                        if order == 'asc':
+                            query = query.order_by(Media.id)
+                        elif order == 'desc':
+                            query = query.order_by(desc(Media.id))
+                        else:
+                            return func.HttpResponse(status_code=400, mimetype='', charset='')
 
                 else:
                     return func.HttpResponse(status_code=400, mimetype='', charset='')
