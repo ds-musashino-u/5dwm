@@ -769,10 +769,6 @@ watch(isEnabledRef, (newValue, oldValue) => {
         background: #ffffff;
         transition: 0.5s;
 
-        .wrap>.block .panel>.panel-block:first-of-type {
-            background: hsl(0, 0%, 96%);
-        }
-
         .wrap>.block .panel>.panel-block:not(:first-of-type) {
             .level {
                 display: flex;
@@ -806,11 +802,18 @@ watch(isEnabledRef, (newValue, oldValue) => {
         }
     }
     
-    #media>.wrap>.block .panel>.panel-block {
-        background: hsl(0, 0%, 96%);
+    #media>.wrap>.block{
+        width: 100% !important;
+        height: 100% !important;
+        background: #ffffff;
 
-        nav.level {
-            padding: 0em 0em 0em 0.75em !important;
+        .panel>.panel-block {
+            background: hsl(0, 0%, 96%);
+            width: 100%;
+
+            nav.level {
+                padding: 0em 0em 0em 0.75em !important;
+            }
         }
     }
 
@@ -839,6 +842,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             max-height: 100%;
             overflow-x: hidden;
             overflow-y: auto;
+            background: hsl(0, 0%, 96%);
 
             >.block {
                 width: 320px;
@@ -1489,6 +1493,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                         }
 
                         tbody {
+                            background: transparent;
+
                             >tr {
                                 height: calc(1.5em + calc(0.75rem * 1.5));
                                 background-color: transparent;
