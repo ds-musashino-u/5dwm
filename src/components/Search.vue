@@ -123,9 +123,13 @@ onMounted(() => {
 onUnmounted(() => {
   isInitializedRef.value = false;
 });
-onActivated(() => {
+onActivated(async () => {
   if (!isInitializedRef.value) {
-    initialize();
+    await initialize(); 
+  }
+
+  if (searchcCriteria.keywords.length > 0 || searchcCriteria.categories.length > 0 || searchcCriteria.types.length > 0 || searchcCriteria.users.length > 0 || searchcCriteria.image !== null || searchcCriteria.time !== null) {
+    search(false);
   }
 });
 onDeactivated(() => { });
