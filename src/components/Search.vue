@@ -129,7 +129,10 @@ onActivated(async () => {
   }
 
   if (searchcCriteria.keywords.length > 0 || searchcCriteria.categories.length > 0 || searchcCriteria.types.length > 0 || searchcCriteria.users.length > 0 || searchcCriteria.image !== null || searchcCriteria.time !== null) {
-    search(false);
+    const tempSelectedItem = selectedItemRef.value;
+    
+    await search(false);
+    selectedItemRef.value = tempSelectedItem;
   }
 });
 onDeactivated(() => { });
