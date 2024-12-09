@@ -952,7 +952,6 @@ const search = async (ignoreCache = true) => {
           }
         }
 
-        //if (types.length > 0 && !types.some(x => x === 'csv')) {
         for (const pinnedItem of pinnedItems) {
           for (const markers of pinnedItem.graph) {
             for (const marker of markers) {
@@ -967,7 +966,6 @@ const search = async (ignoreCache = true) => {
 
         pinnedItems.splice(0);
         pinnedMediaRef.value.splice(0);
-        //}
 
         searchResults.splice(0);
         searchResultsRef.value.splice(0);
