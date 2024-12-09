@@ -132,7 +132,51 @@ onActivated(async () => {
     const tempSelectedItem = selectedItemRef.value;
     
     await search(false);
+
+    for (const result of searchResults) {
+      if (result.item.loading || result.item.loaded) {
+        loadItem(result.item);
+      }
+    }
+
     selectedItemRef.value = tempSelectedItem;
+
+    if (selectedItemRef.value !== null) {
+      map.panTo(new google.maps.LatLng(selectedItemRef.value.media.location.latitude, selectedItemRef.value.media.location.longitude));
+    }
+
+    if (pinnedMediaRef.value.length > 0) {
+      let minDate = new Date();
+      let maxDate = new Date("0001-01-01T00:00:00");
+
+      for (const pinnedMedia of pinnedMediaRef.value) {
+        if ("data" in pinnedMedia && pinnedMedia.data !== null) {
+          for (const dataItem of pinnedMedia.data) {
+            if (dataItem.time.getTime() < minDate.getTime()) {
+              minDate.setTime(dataItem.time.getTime());
+            }
+
+            if (dataItem.time.getTime() > maxDate.getTime()) {
+              maxDate.setTime(dataItem.time.getTime());
+            }
+          }
+        }
+      }
+
+      minDate.setHours(0);
+      minDate.setMinutes(0);
+      minDate.setSeconds(0);
+      minDate.setMilliseconds(0);
+      maxDate.setHours(23);
+      maxDate.setMinutes(59);
+      maxDate.setSeconds(59);
+      maxDate.setMilliseconds(0);
+
+      dataMinDateRef.value = minDate;
+      dataMaxDateRef.value = maxDate;
+
+      updateDataItems(dataFromDateRef.value, dataToDateRef.value);
+    }
   }
 });
 onDeactivated(() => { });
@@ -1244,6 +1288,26 @@ const loadItem = async (item) => {
     let result = searchResults.find(x => x.item.media.id === item.media.id);
 
     if (result !== undefined) {
+      let index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
+
+      if (index >= 0) {
+        for (const markers of pinnedItems[index].graph) {
+          for (const marker of markers) {
+            if (marker !== null) {
+              marker.setMap(null);
+            }
+          }
+        }
+
+        pinnedItems.splice(index, 1);
+      }
+
+      index = pinnedMediaRef.value.findIndex(x => x.id === item.media.id);
+
+      if (index >= 0) {
+        pinnedMediaRef.value.splice(index, 1);
+      }
+
       pinnedItems.push({ item: result.item, graph: [] });
       pinnedMediaRef.value.push(result.item.media);
       result.item.loaded = item.loaded = true;
