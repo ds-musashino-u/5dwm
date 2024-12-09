@@ -1295,7 +1295,7 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
   collectionIsFetchingRef.value = true;
   
   try {
-    const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], collection, null, null, null, "created_at", "desc", collectionPageIndexRef.value * collectionPageLength, collectionPageLength + 1);
+    const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], collection, null, null, null, "created_at", "asc", collectionPageIndexRef.value * collectionPageLength, collectionPageLength + 1);
     
     for (const item of resultItems.slice(0, collectionPageLength)) {
       const result = searchResults.find(x => x.item.media.id === item.media.id);
