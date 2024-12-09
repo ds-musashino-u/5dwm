@@ -67,7 +67,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         else:
                             return func.HttpResponse(status_code=400, mimetype='', charset='')
                         
-                if sort == 'id':
+                elif sort == 'id':
                     if order is None:
                         query = query.order_by(desc(Media.id))
 
