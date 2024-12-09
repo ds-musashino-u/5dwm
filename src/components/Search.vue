@@ -1236,7 +1236,7 @@ const loadItem = async (item) => {
       };
     }
   } else if ("data" in item.media && item.media.data !== null) {
-    const result = searchResults.find(x => x.item.media.id === item.media.id);
+    result = searchResults.find(x => x.item.media.id === item.media.id);
 
     if (result !== undefined) {
       pinnedItems.push({ item: result.item, graph: [] });
