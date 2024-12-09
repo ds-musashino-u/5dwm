@@ -97,13 +97,19 @@ a:hover {
     color: #000000 !important;
 }
 
-.tabs.is-toggle li a {
-    border: 1px solid hsl(0deg, 0%, 93%);
+.tabs {
+    --bulma-tabs-toggle-link-border-width: 0px;
 }
 
-.tabs.is-toggle li.is-active a {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
+.tabs.is-toggle {
+    li a {
+        border: 1px solid hsl(0deg, 0%, 93%) !important;
+    }
+
+    li.is-active a {
+        background-color: var(--accent-color) !important;
+        border-color: var(--accent-color) !important;
+    }
 }
 
 .select:not(.is-multiple) {
