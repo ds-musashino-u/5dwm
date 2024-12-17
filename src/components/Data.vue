@@ -605,7 +605,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             </div>
                                         </div>
                                         <div class="level-right">
-                                            <div class="level-item">
+                                            <div class="level-item is-invisible">
                                                 <button class="button toggle is-rounded" @click="close()">
                                                     <span class="icon is-small">
                                                         <i class="fa-solid fa-xmark"></i>
@@ -685,6 +685,16 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             </span>
                                         </transition>
                                         <span class="is-uppercase has-text-weight-bold">Delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="panel-block">
+                                <div class="control">
+                                    <button class="button is-rounded is-outlined is-fullwidth is-size-7" type="submit" @click="close($event)">
+                                        <span class="icon">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </span>
+                                        <span class="is-uppercase has-text-weight-bold">Close</span>
                                     </button>
                                 </div>
                             </div>
@@ -799,6 +809,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
             .panel-heading {
                 padding: 0.5em 0em;
             }
+        }
+
+        >.flyout-left>.wrap>.block>.panel>.panel-block:first-child {
+            background: hsl(0, 0%, 96%);
         }
     }
     
@@ -1027,9 +1041,9 @@ watch(isEnabledRef, (newValue, oldValue) => {
 
                                             a {
                                                 margin: 0;
-                                                border: 0px none transparent;
+                                                border: 0px none transparent !important;
                                                 padding: 0.5em 0em;
-                                                background-color: transparent;
+                                                background-color: transparent !important;
                                                 height: fit-content;
                                                 color: hsl(0deg, 0%, 21%);
                                                 backface-visibility: hidden;
@@ -1611,10 +1625,15 @@ watch(isEnabledRef, (newValue, oldValue) => {
                     border-radius: 0;
                     background: #ffffff;
                     padding: 0.5em 0.75em 0em 0.75em;
+                    box-shadow: none;
                 }
 
                 section {
                     padding: 0.5em 0.75em;
+                }
+
+                >.modal-card-body {
+                    background: #ffffff;
                 }
 
                 >.modal-card-foot {
