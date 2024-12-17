@@ -1051,6 +1051,8 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                             transition: 0.5s;
 
                                             a {
+                                                background-color: transparent !important;
+                                                border-color: transparent !important;
                                                 color: hsl(0deg, 0%, 21%);
                                             }
                                         }
