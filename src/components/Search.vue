@@ -1316,7 +1316,7 @@ const loadItem = async (item) => {
 };
 const unloadItem = (item) => {
   if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    const result = searchResults.find(x => x.item.media.id === item.media.id);
+    let result = searchResults.find(x => x.item.media.id === item.media.id);
 
     if (result === undefined && "disposable" in item) {
       result = item;
