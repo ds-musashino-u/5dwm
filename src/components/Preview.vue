@@ -731,8 +731,14 @@ onDeactivated(() => {
       width: fit-content;
       box-shadow: none !important;
 
-      >.panel-block:nth-of-type(1)>nav.level:first-child {
-        background: hsl(0, 0%, 96%);
+      >.panel-block:nth-of-type(1) {
+        >nav.level:first-child {
+          background: hsl(0, 0%, 96%);
+        }
+
+        .control {
+          padding: 0 !important;
+        }
       }
 
       >.panel-block {
@@ -769,7 +775,7 @@ onDeactivated(() => {
           flex-direction: column;
           justify-content: flex-start;
           align-items: center;
-          padding: 0em 0.75em;
+          padding: 0em 0.75em !important;
           width: 320px;
           height: fit-content;
 
