@@ -855,7 +855,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
             height: 100%;
             max-height: 100%;
             overflow-x: hidden;
-            overflow-y: auto;
+            overflow-y: scroll;
             background: #ffffff;
 
             >.block {

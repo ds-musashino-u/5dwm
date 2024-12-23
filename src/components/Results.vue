@@ -462,7 +462,7 @@ const back = (event) => {
     height: 100%;
     max-height: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
+    overflow-y: scroll;
   }
 
   .top {
