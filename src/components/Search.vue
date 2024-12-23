@@ -1764,7 +1764,7 @@ const rgbToHsl = (r, g, b) => {
       height: 100%;
       max-height: 100%;
       overflow-x: hidden;
-      overflow-y: scroll;
+      overflow-y: auto;
       background: #ffffff;
 
       >.block {
