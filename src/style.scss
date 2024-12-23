@@ -743,23 +743,6 @@ a:hover {
     transform: translate3d(0.5, 0.5, 1);
 }
 
-/*::-webkit-scrollbar {
-    appearance: none;
-    width: 4px;
-    overflow-x: hidden;
-}
-
-::-webkit-scrollbar-thumb {
-    background-color: hsl(0deg, 0%, 0%);
-    border: 0px solid transparent;
-    box-shadow: 0 0 0px rgba(255, 255, 255, 0.5);
-    box-sizing: border-box;
-}
-
-::-webkit-scrollbar-track {
-    background-color: hsl(0deg, 0%, 96%);
-}*/
-
 .no-spin::-webkit-inner-spin-button,
 .no-spin::-webkit-outer-spin-button {
     margin: 0 !important;
