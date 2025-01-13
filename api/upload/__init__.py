@@ -65,6 +65,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         thumbnail = None
 
                     blob_client = container_client.get_blob_client(path)
+
+                    if blob_client.exists():
+                        return func.HttpResponse(status_code=409, mimetype='', charset='')
+                    
                     blob_client.upload_blob(decoded_data, blob_type="BlockBlob", content_settings=ContentSettings(content_type=mime_type))
                     
                     item = {'id': id, 'pk': id, 'url': f'https://static.5dworldmap.com/{container_name}/{path}', 'type': blob_client.get_blob_properties().content_settings.content_type, 'timestamp': datetime.fromtimestamp(time.time(), timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ') }
@@ -120,6 +124,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     thumbnail = None
 
                 blob_client = container_client.get_blob_client(path)
+
+                if blob_client.exists():
+                    return func.HttpResponse(status_code=409, mimetype='', charset='')
+                
                 blob_client.upload_blob(file.stream, blob_type="BlockBlob", content_settings=ContentSettings(content_type=file.content_type))
                 metadata = blob_client.get_blob_properties().metadata
                 metadata.update({'filename': file.filename})
