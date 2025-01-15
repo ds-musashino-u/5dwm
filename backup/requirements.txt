@@ -1,0 +1,6 @@
+tqdm
+python-dotenv
+Pillow
+psycopg2-binary
+SQLAlchemy
+azure-storage-blob
