@@ -24,6 +24,7 @@ const props = defineProps({
     media: { type: Object, required: false, default: null },
 });
 const mapRef = ref(null);
+const dropRef = ref(null);
 let map = null;
 let geocoder = null;
 const isInitializedRef = ref(false);
@@ -336,6 +337,8 @@ const drop = async (event) => {
 
                 if (mediaPreviewRef.value === null) {
                     mediaFileRef.value = null;
+
+                    shake(dropRef.value);
                 }
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
@@ -472,6 +475,8 @@ const browse = async (event) => {
 
                 if (mediaPreviewRef.value === null) {
                     mediaFileRef.value = null;
+
+                    shake(dropRef.value);
                 }
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
@@ -1177,7 +1182,7 @@ watch(mediaUrlRef, (currentValue, oldValue) => {
                             <template v-if="mediaIDRef === null">
                                 <transition name="fade" mode="out-in">
                                     <div class="block" v-show="!mediaIsCollapsedRef" key="collapse">
-                                        <div class="control">
+                                        <div class="control" ref="dropRef">
                                             <div class="drop"
                                                 v-bind:style="{ animationPlayState: isDraggingRef ? 'running' : 'paused', pointerEvents: typesIsLoadingRef ? 'none' : 'auto' }"
                                                 @dragover.prevent="dragover($event)"
