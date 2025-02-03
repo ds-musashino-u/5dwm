@@ -66,7 +66,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
                         temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                            Image.open(BytesIO(b64decode(data))).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
@@ -81,7 +81,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 if response.getcode() == 200:
                                     temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                        Image.open(BytesIO(response.read())), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                                        Image.open(BytesIO(response.read())).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
@@ -100,7 +100,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                                 if bytes.getbuffer().nbytes < UPLOAD_MAX_FILESIZE:
                                     temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(
-                                        resize_image(Image.open(bytes), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                                        resize_image(Image.open(bytes).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
