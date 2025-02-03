@@ -61,7 +61,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         else:
                             image = Image.open(stream)
 
-                        thumbnail_image = resize_image(image, 512).convert('RGB')
+                        thumbnail_image = resize_image(image.convert('RGBA'), 512).convert('RGB')
                         thumbnail_bytes = BytesIO()
                         thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                         
@@ -125,7 +125,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     else:
                         image = Image.open(file.stream)
 
-                    thumbnail_image = resize_image(image, 512).convert('RGB')
+                    thumbnail_image = resize_image(image.convert('RGBA'), 512).convert('RGB')
                     thumbnail_bytes = BytesIO()
                     thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                     file.stream.seek(0)
