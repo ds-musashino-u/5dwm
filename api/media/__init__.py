@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import numpy as np
+import pillow_heif
 from io import BytesIO
 from datetime import datetime, timezone, MINYEAR
 from base64 import b64decode
@@ -211,10 +212,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 }
 
                 if media.type.startswith('image'):
+                    content_type = None
+
                     try:
                         response = urlopen(Request(media.url))
 
                         if response.getcode() == 200:
+                            content_type = response.headers.get('Content-Type')
                             image_data = BytesIO(response.read())
                         else:
                             image_data = None
@@ -223,8 +227,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         image_data = None
 
                     if image_data is not None:
-                        histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(Image.open(
-                            image_data), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                        if content_type == 'image/heic' or content_type == 'image/heif':
+                            heif_file = pillow_heif.read_heif(image_data)
+                            image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                        else:
+                            image = Image.open(image_data)
+
+                        histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image, MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         for index, value in histogram:
                             image_vector = ImageVector()
