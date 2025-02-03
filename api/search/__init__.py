@@ -44,7 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             categories = data.get('categories', None)
             types = data.get('types', None)
             usernames = data.get('usernames', None)
-            image = data.get('image', None)
+            image_url = data.get('image', None)
             location = data.get('location', None)
             collection = data.get('collection', None)
             from_datetime = data.get('from', None)
@@ -59,8 +59,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             Session = sessionmaker(bind=engine)
             session = Session()
 
-            if image is not None:
-                match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", image)
+            if image_url is not None:
+                match = re.match("data:([\\w/\\-\\.]+);(\\w+),(.+)", image_url)
 
                 if match:
                     mime_type, encoding, data = match.groups()
@@ -77,13 +77,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
 
-                elif image.startswith('https://'):
-                    response = urlopen(Request(image, method='HEAD'))
+                elif image_url.startswith('https://'):
+                    response = urlopen(Request(image_url, method='HEAD'))
 
                     if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif']:
                         if 'Content-Length' in response.headers:
                             if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
-                                response = urlopen(Request(image))
+                                response = urlopen(Request(image_url))
 
                                 if response.getcode() == 200:
                                     content_type = response.headers.get('Content-Type')
@@ -106,7 +106,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                                 return func.HttpResponse(status_code=413, mimetype='', charset='')
 
                         else:
-                            response = urlopen(Request(image))
+                            response = urlopen(Request(image_url))
 
                             if response.getcode() == 200:
                                 content_type = response.headers.get('Content-Type')
