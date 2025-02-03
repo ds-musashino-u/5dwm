@@ -5,6 +5,7 @@ import logging
 import os
 import ssl
 import numpy as np
+import pillow_heif
 from io import BytesIO
 from datetime import datetime, timezone, MINYEAR
 from base64 import b64decode
@@ -64,9 +65,14 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if match:
                     mime_type, encoding, data = match.groups()
 
-                    if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp'] and encoding == 'base64':
-                        temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                            Image.open(BytesIO(b64decode(data))).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                    if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif'] and encoding == 'base64':
+                        if mime_type == 'image/heic' or mime_type == 'image/heif':
+                            heif_file = pillow_heif.read_heif(BytesIO(b64decode(data)))
+                            image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                        else:
+                            image = Image.open(BytesIO(b64decode(data)))
+                        
+                        temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image.convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         if len(temp_histogram) > 0:
                             histogram = temp_histogram
@@ -74,14 +80,21 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 elif image.startswith('https://'):
                     response = urlopen(Request(image, method='HEAD'))
 
-                    if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
+                    if response.getcode() == 200 and response.headers['Content-Type'] in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif']:
                         if 'Content-Length' in response.headers:
                             if int(response.headers['Content-Length']) < UPLOAD_MAX_FILESIZE:
                                 response = urlopen(Request(image))
 
                                 if response.getcode() == 200:
-                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(
-                                        Image.open(BytesIO(response.read())).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                                    content_type = response.headers.get('Content-Type')
+
+                                    if content_type == 'image/heic' or content_type == 'image/heif':
+                                        heif_file = pillow_heif.read_heif(BytesIO(response.read()))
+                                        image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                                    else:
+                                        image = Image.open(BytesIO(response.read()))
+
+                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image.convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
@@ -96,11 +109,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                             response = urlopen(Request(image))
 
                             if response.getcode() == 200:
-                                bytes = BytesIO(response.read())
+                                content_type = response.headers.get('Content-Type')
+                                bytes_io = BytesIO(response.read())
 
-                                if bytes.getbuffer().nbytes < UPLOAD_MAX_FILESIZE:
-                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(
-                                        resize_image(Image.open(bytes).convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                                if bytes_io.getbuffer().nbytes < UPLOAD_MAX_FILESIZE:
+                                    if content_type == 'image/heic' or content_type == 'image/heif':
+                                        heif_file = pillow_heif.read_heif(bytes_io)
+                                        image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                                    else:
+                                        image = Image.open(bytes_io)
+
+                                    temp_histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image.convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                                     if len(temp_histogram) > 0:
                                         histogram = temp_histogram
