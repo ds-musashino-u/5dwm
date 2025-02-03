@@ -161,7 +161,7 @@ const back = (event) => {
     </div>
     <div class="bottom">
       <transition name="fade">
-        <div class="control" v-show="!isCollapsed && count > pageLength">
+        <div class="control" v-show="!isCollapsed">
           <nav class="level is-mobile">
             <div class="level-left">
               <div class="level-item">
