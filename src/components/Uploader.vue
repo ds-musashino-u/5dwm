@@ -333,6 +333,10 @@ const drop = async (event) => {
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
+
+                if (mediaPreviewRef.value === null) {
+                    mediaFileRef.value = null;
+                }
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
                     const result = toFormattedData(await new Promise(function (resolve, reject) {
@@ -465,6 +469,10 @@ const browse = async (event) => {
 
             if (mediaFileRef.value.type.startsWith('image/')) {
                 mediaPreviewRef.value = await resizeImage(mediaFileRef.value.dataURL, 512);
+
+                if (mediaPreviewRef.value === null) {
+                    mediaFileRef.value = null;
+                }
             } else {
                 if (mediaFileRef.value.type === "text/csv") {
                     const result = toFormattedData(await new Promise(function (resolve, reject) {
