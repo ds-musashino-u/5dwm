@@ -50,7 +50,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     blob_service_client = BlobServiceClient.from_connection_string(os.environ['AZURE_STORAGE_CONNECTION_STRING'])
                     container_client = blob_service_client.get_container_client(container_name)
                     
-                    if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
+                    if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp', 'image/heic', 'image/heif']:
                         thumbnail_path = f'thumbnails/{id}'
                         thumbnail_type = 'image/jpeg'
                         stream = BytesIO(decoded_data)
@@ -119,9 +119,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     thumbnail_path = f'thumbnails/{id}'
                     thumbnail_type = 'image/jpeg'
 
+                    if mime_type.startswith('image/heic') or mime_type.startswith('image/heif'):
+                        heif_file = pillow_heif.read_heif(file.stream)
+                        image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                    else:
+                        image = Image.open(file.stream)
 
-
-                    thumbnail_image = resize_image(Image.open(file.stream), 512).convert('RGB')
+                    thumbnail_image = resize_image(image, 512).convert('RGB')
                     thumbnail_bytes = BytesIO()
                     thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                     file.stream.seek(0)
