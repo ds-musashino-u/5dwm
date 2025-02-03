@@ -3,6 +3,7 @@ import re
 import json
 import logging
 import os
+import pillow_heif
 from io import BytesIO
 from datetime import datetime, timezone
 from uuid import uuid4
@@ -52,8 +53,15 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     if mime_type in ['image/apng', 'image/gif', 'image/png', 'image/jpeg', 'image/webp']:
                         thumbnail_path = f'thumbnails/{id}'
                         thumbnail_type = 'image/jpeg'
+                        stream = BytesIO(decoded_data)
 
-                        thumbnail_image = resize_image(Image.open(BytesIO(decoded_data)), 512).convert('RGB')
+                        if content_type.startswith('image/heic') or content_type.startswith('image/heif'):
+                            heif_file = pillow_heif.read_heif(stream)
+                            image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
+                        else:
+                            image = Image.open(stream)
+
+                        thumbnail_image = resize_image(image, 512).convert('RGB')
                         thumbnail_bytes = BytesIO()
                         thumbnail_image.save(thumbnail_bytes, format='JPEG', quality=75)
                         
@@ -110,6 +118,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 if file.content_type.startswith('image/'):
                     thumbnail_path = f'thumbnails/{id}'
                     thumbnail_type = 'image/jpeg'
+
+
 
                     thumbnail_image = resize_image(Image.open(file.stream), 512).convert('RGB')
                     thumbnail_bytes = BytesIO()
