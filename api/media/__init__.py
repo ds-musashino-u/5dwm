@@ -233,7 +233,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         else:
                             image = Image.open(image_data)
 
-                        histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image, MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
+                        histogram = list(filter(lambda x: x[1] > 0.0, top_k(compute_histogram(np.array(resize_image(image.convert('RGBA'), MAX_IMAGE_RESOLUTION).convert('RGB')), normalize='l1') * 100, IMAGE_HISTOGRAM_TOP_K)))
 
                         for index, value in histogram:
                             image_vector = ImageVector()
