@@ -27,7 +27,7 @@ os.makedirs(media_data_directory, exist_ok=True)
 
 
 def download(url, container_name = 'media'):
-    path =  os.path.basename(urlparse(item['url']).path)
+    path =  os.path.basename(urlparse(url).path)
     blob_service_client = BlobServiceClient.from_connection_string(AZURE_STORAGE_CONNECTION_STRING)
     container_client = blob_service_client.get_container_client(container_name)
     blob_client = container_client.get_blob_client(path)
