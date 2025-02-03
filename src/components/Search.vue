@@ -21,6 +21,7 @@ const isInitializedRef = ref(false);
 const isRootedRef = ref(true);
 const mapRef = ref(null);
 const searchPanelRef = ref(null);
+const dropRef = ref(null);
 const queryRef = ref("");
 const isDraggingRef = ref(false);
 const isLoadingRef = ref(false);
@@ -424,7 +425,9 @@ const drop = async (event) => {
       name.endsWith(".png") ||
       name.endsWith(".jpg") ||
       name.endsWith(".jpeg") ||
-      name.endsWith(".webp")
+      name.endsWith(".webp") ||
+      name.endsWith(".heic") ||
+      name.endsWith(".heif")
     ) {
       isLoadingRef.value = true;
 
@@ -448,6 +451,7 @@ const drop = async (event) => {
           ),
         };
       } catch (error) {
+        shake(dropRef.value);
         console.error(error);
       }
 
@@ -490,6 +494,7 @@ const browse = async (event) => {
           ),
         };
       } catch (error) {
+        shake(dropRef.value);
         console.error(error);
       }
 
@@ -1533,7 +1538,7 @@ const rgbToHsl = (r, g, b) => {
               </div>
               <transition name="fade" mode="out-in">
                 <div class="block" v-show="!imageIsCollapsedRef" key="collapse">
-                  <div class="control">
+                  <div class="control" ref="dropRef">
                     <div class="drop" v-bind:style="{
                       animationPlayState: isDraggingRef ? 'running' : 'paused',
                     }" @dragover.prevent="dragover($event)" @dragleave.prevent="isDraggingRef = false"
