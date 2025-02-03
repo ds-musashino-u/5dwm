@@ -55,7 +55,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                         thumbnail_type = 'image/jpeg'
                         stream = BytesIO(decoded_data)
 
-                        if content_type.startswith('image/heic') or content_type.startswith('image/heif'):
+                        if mime_type.startswith('image/heic') or mime_type.startswith('image/heif'):
                             heif_file = pillow_heif.read_heif(stream)
                             image = Image.frombytes(heif_file.mode, heif_file.size, heif_file.data, 'raw', heif_file.mode, heif_file.stride)
                         else:
