@@ -90,6 +90,13 @@ paths:
       summary: Get categories
       description: Get categories.
       parameters:
+      - name: order
+        in: query
+        description: Order
+        required: false
+        schema:
+          type: string
+          enum: [asc, desc]
       - name: offset
         in: query
         description: Offset
