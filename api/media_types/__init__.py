@@ -40,13 +40,13 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
                 sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'type'
-                order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
+                order = data['order'] if 'order' in data and data['order'] is not None else None
                 offset = data.get('offset')
                 limit = data.get('limit')
 
             else:
                 sort = req.params['sort'] if 'sort' in req.params else 'type'
-                order = req.params['order'] if 'order' in req.params else 'desc'
+                order = req.params['order'] if 'order' in req.params else None
                 offset = int(req.params['offset']) if 'offset' in req.params else None
                 limit = int(req.params['limit']) if 'limit' in req.params else None
 
