@@ -108,7 +108,7 @@ onDeactivated(() => {
                   <span class="icon is-small" v-if="'data' in item.media && item.media.data !== null">
                     <i class="fa-solid fa-table"></i>
                   </span>
-                  <span class="icon is-small" v-else-if="item.media.type.startsWith('image') || item.media.type === 'gif'">
+                  <span class="icon is-small" v-else-if="item.media.type.startsWith('image')">
                     <i class="fa-solid fa-file-image"></i>
                   </span>
                   <span class="icon is-small" v-else-if="item.media.type.startsWith('video')">
@@ -128,7 +128,7 @@ onDeactivated(() => {
                   <span class="icon is-small" v-if="'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null">
                     <i class="fa-solid fa-table"></i>
                   </span>
-                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('image') || selectCollectionItemRef.media.type === 'gif'">
+                  <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('image')">
                     <i class="fa-solid fa-file-image"></i>
                   </span>
                   <span class="icon is-small" v-else-if="selectCollectionItemRef.media.type.startsWith('video')">
@@ -273,7 +273,7 @@ onDeactivated(() => {
             </div>
           </transition>
           <transition name="fade" mode="out-in">
-            <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && (selectCollectionItemRef.media.type.startsWith('image') || selectCollectionItemRef.media.type === 'gif') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
+            <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.type.startsWith('image') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -286,7 +286,7 @@ onDeactivated(() => {
                 </div>
               </nav>
             </div>
-            <div class="control" v-else-if="!isCollapsed && (item.media.type.startsWith('image') || item.media.type === 'gif') && item.media.url.startsWith('https://')" key="default">
+            <div class="control" v-else-if="!isCollapsed && item.media.type.startsWith('image') && item.media.url.startsWith('https://')" key="default">
               <nav class="level">
                 <div class="level-item">
                   <article class="media">
@@ -370,13 +370,13 @@ onDeactivated(() => {
                     <div class="stack">
                       <button class="button image is-64x64" :class="{ 'is-selected': selectCollectionItemRef === null ? item.media.id === collectionItem.item.media.id : selectCollectionItemRef.media.id === collectionItem.item.media.id }" type="button"
                         @click="selectCollectionItem($event, index, collectionItem)">
-                        <picture class="image" v-if="(item.media.type.startsWith('image') || item.media.type === 'gif') && item.media.url.startsWith('https://')">
+                        <picture class="image" v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')">
                           <img v-bind:src="'thumbnailUrl' in collectionItem.item.media && collectionItem.item.media.thumbnailUrl !== null ? collectionItem.item.media.thumbnailUrl : collectionItem.item.media.url" v-bind:alt="String(index)" />
                         </picture>
                         <span class="icon" v-if="'data' in collectionItem.item.media && collectionItem.item.media.data !== null">
                           <i class="fa-solid fa-table fa-lg"></i>
                         </span>
-                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('image') || collectionItem.item.media.type === 'gif'">
+                        <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('image')">
                           <i class="fa-solid fa-file-image fa-lg"></i>
                         </span>
                         <span class="icon" v-else-if="collectionItem.item.media.type.startsWith('video')">
