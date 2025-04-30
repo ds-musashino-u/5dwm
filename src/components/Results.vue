@@ -100,13 +100,13 @@ const back = (event) => {
                 <div class="stack">
                   <button class="button image is-64x64" type="button"
                     @click="select($event, pageIndex * pageLength + index, item)">
-                    <picture class="image" v-if="(item.media.type.startsWith('image') || item.media.type === 'gif') && item.media.url.startsWith('https://')">
+                    <picture class="image" v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')">
                       <img v-bind:src="'thumbnailUrl' in item.media && item.media.thumbnailUrl !== null ? item.media.thumbnailUrl : item.media.url" v-bind:alt="String(index)" />
                     </picture>
                     <span class="icon" :style="{ color: item.media.id in appearance ? appearance[item.media.id] : false }" v-if="'data' in item.media && item.media.data !== null">
                       <i class="fa-solid fa-table fa-lg"></i>
                     </span>
-                    <span class="icon" v-else-if="item.media.type.startsWith('image') || item.media.type === 'gif'">
+                    <span class="icon" v-else-if="item.media.type.startsWith('image')">
                       <i class="fa-solid fa-file-image fa-lg"></i>
                     </span>
                     <span class="icon" v-else-if="item.media.type.startsWith('video')">
