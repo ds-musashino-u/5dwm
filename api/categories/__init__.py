@@ -3,7 +3,7 @@ import logging
 import os
 from datetime import datetime, timezone
 from urllib.request import urlopen, Request
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker
 from shared.auth import verify
 from shared.models import Category
@@ -20,21 +20,30 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if req.method == 'GET':
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
+                order = data['order'] if 'order' in data and data['order'] is not None else 'desc'
                 offset = data.get('offset')
                 limit = data.get('limit')
 
             else:
-                offset = int(req.params['offset']
-                             ) if 'offset' in req.params else None
-                limit = int(req.params['limit']
-                            ) if 'limit' in req.params else None
+                order = req.params['order'] if 'order' in req.params else 'desc'
+                offset = int(req.params['offset']) if 'offset' in req.params else None
+                limit = int(req.params['limit']) if 'limit' in req.params else None
 
             Session = sessionmaker(bind=engine)
             session = Session()
 
             try:
                 categories = []
-                query = session.query(Category).order_by(Category.name)
+                query = session.query(Category)
+
+                if order is None:
+                    query = query.order_by(Category.name)
+
+                else:
+                    if order == 'asc':
+                        query = query.order_by(Category.name)
+                    elif order == 'desc':
+                        query = query.order_by(desc(Category.name))
 
                 if limit is not None:
                     query = query.limit(limit)
