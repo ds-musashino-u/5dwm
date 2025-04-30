@@ -47,10 +47,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             else:
                 sort = req.params['sort'] if 'sort' in req.params else 'type'
                 order = req.params['order'] if 'order' in req.params else 'desc'
-                offset = int(req.params['offset']
-                             ) if 'offset' in req.params else None
-                limit = int(req.params['limit']
-                            ) if 'limit' in req.params else None
+                offset = int(req.params['offset']) if 'offset' in req.params else None
+                limit = int(req.params['limit']) if 'limit' in req.params else None
 
             Session = sessionmaker(bind=engine)
             session = Session()
@@ -61,7 +59,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
                 if sort == 'type':
                     if order is None:
-                        query = query.order_by(desc(Media.type))
+                        query = query.order_by(Media.type)
 
                     else:
                         if order == 'asc':
