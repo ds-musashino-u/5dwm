@@ -501,8 +501,16 @@ const browse = async (event) => {
                 mediaPreviewRef.value = null;
             }
 
+            let type;
+
+            if (mediaFileRef.value.type === "text/csv") {
+                type = "csv";
+            } else {
+                type = mediaFileRef.value.type;
+            }
+
             for (const item of typesItemsRef.value) {
-                if (mediaFileRef.value.type.startsWith(item.name)) {
+                if (type.startsWith(item.name)) {
                     item.checked = true;
                     typeRef.value = item.name;
                 } else {
