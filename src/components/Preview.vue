@@ -370,7 +370,7 @@ onDeactivated(() => {
                     <div class="stack">
                       <button class="button image is-64x64" :class="{ 'is-selected': selectCollectionItemRef === null ? item.media.id === collectionItem.item.media.id : selectCollectionItemRef.media.id === collectionItem.item.media.id }" type="button"
                         @click="selectCollectionItem($event, index, collectionItem)">
-                        <picture class="image" v-if="item.media.type.startsWith('image') && item.media.url.startsWith('https://')">
+                        <picture class="image" v-if="collectionItem.item.media.type.startsWith('image') && collectionItem.item.media.url.startsWith('https://')">
                           <img v-bind:src="'thumbnailUrl' in collectionItem.item.media && collectionItem.item.media.thumbnailUrl !== null ? collectionItem.item.media.thumbnailUrl : collectionItem.item.media.url" v-bind:alt="String(index)" />
                         </picture>
                         <span class="icon" v-if="'data' in collectionItem.item.media && collectionItem.item.media.data !== null">
