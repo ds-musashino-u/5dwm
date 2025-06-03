@@ -1571,6 +1571,10 @@ watch(isEnabledRef, (newValue, oldValue) => {
                                     }
                                 }
 
+                                >td:not(:first-child) {
+                                    cursor: default;
+                                }
+
                                 >td:last-of-type {
                                     padding-right: 0.75em;
                                 }
