@@ -8,7 +8,6 @@ from io import BytesIO
 from datetime import datetime, timezone
 from uuid import uuid4
 from base64 import b64decode
-from urllib.request import urlopen, Request
 from PIL import Image
 from shared.auth import verify
 from shared.imaging import resize_image
