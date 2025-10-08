@@ -233,7 +233,7 @@ watch(isEnabledRef, (newValue, oldValue) => {
     label input[type="checkbox"]+.custom:before,
     label input[type="radio"]+.custom:before {
       font-weight: 900;
-      font-family: "Font Awesome 6 Free";
+      font-family: "Font Awesome 7 Free";
       content: "\f00c";
       color: transparent;
       text-shadow: none;
