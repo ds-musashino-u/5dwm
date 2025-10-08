@@ -11,6 +11,10 @@ import { Auth0Config } from "./presenters/auth0-config.mjs";
 import { createAuth0Client } from "@auth0/auth0-spa-js";
 import { jwtDecode } from "jwt-decode";
 import { Endpoints } from "./presenters/endpoints.mjs";
+import { GoogleMapsConfig } from "./presenters/google-maps-config.mjs";
+import { setOptions } from "@googlemaps/js-api-loader";
+
+setOptions({ key: GoogleMapsConfig.API_KEY, v: GoogleMapsConfig.VERSION, language: navigator.language });
 
 export default {
   components: {

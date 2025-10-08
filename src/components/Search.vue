@@ -1,7 +1,7 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { Loader } from "@googlemaps/js-api-loader";
+import { importLibrary } from "@googlemaps/js-api-loader";
 import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { Endpoints } from "../presenters/endpoints.mjs";
 import { getAccessToken } from "../presenters/auth.mjs";
@@ -106,14 +106,9 @@ defaultToDateRef.value.setDate(toDateRef.value.getDate());
 const initialize = async () => {
   isInitializedRef.value = true;
 
-  const loader = new Loader({
-    apiKey: GoogleMapsConfig.API_KEY,
-    version: GoogleMapsConfig.VERSION,
-    libraries: ["marker"],
-    language: navigator.language,
-  });
-
-  await loader.importLibrary("maps");
+  await importLibrary("core");
+  await importLibrary("maps");
+  await importLibrary("marker");
   
   map = new google.maps.Map(mapRef.value, GoogleMapsConfig.MAP_OPTIONS);
   map.setOptions({ minZoom: 3, maxZoom: 20 });
@@ -928,7 +923,7 @@ const search = async (ignoreCache = true) => {
               lat: item.media.location.latitude,
               lng: item.media.location.longitude
             },
-            content: new google.maps.marker.PinView({
+            content: new google.maps.marker.PinElement({
               glyph: glyph
             }).element,
             map: map
@@ -1089,7 +1084,7 @@ const search = async (ignoreCache = true) => {
                     lat: resultItem.media.location.latitude,
                     lng: resultItem.media.location.longitude
                   },
-                  content: new google.maps.marker.PinView({
+                  content: new google.maps.marker.PinElement({
                     glyph: glyph
                   }).element,
                   map: map
@@ -1165,7 +1160,7 @@ const search = async (ignoreCache = true) => {
                     lat: resultItem.media.location.latitude,
                     lng: resultItem.media.location.longitude
                   },
-                  content: new google.maps.marker.PinView({
+                  content: new google.maps.marker.PinElement({
                     glyph: glyph
                   }).element,
                   map: map
@@ -1385,7 +1380,7 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
               lat: item.media.location.latitude,
               lng: item.media.location.longitude
             },
-            content: new google.maps.marker.PinView({
+            content: new google.maps.marker.PinElement({
               glyph: glyph
             }).element,
             map: map
