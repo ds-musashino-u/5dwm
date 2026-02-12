@@ -7,8 +7,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         entryFileNames: "[name].js",
-        manualChunks: undefined,
         assetFileNames: "assets/[name].[ext]",
+        inlineDynamicImports: true,
       },
     },
     cssCodeSplit: false,
