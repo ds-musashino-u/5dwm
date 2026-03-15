@@ -8,7 +8,7 @@ export default defineConfig({
       output: {
         entryFileNames: "[name].js",
         assetFileNames: "assets/[name].[ext]",
-        inlineDynamicImports: true,
+        codeSplitting: false
       },
     },
     cssCodeSplit: false,
