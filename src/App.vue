@@ -91,8 +91,8 @@ export default {
         auth0.value = await createAuth0Client({
           domain: Auth0Config.DOMAIN,
           clientId: Auth0Config.CLIENT_ID,
-          audience: Auth0Config.AUDIENCE,
           authorizationParams: {
+            audience: Auth0Config.AUDIENCE,
             redirect_uri: callbackUrl.toString()
           },
           cacheLocation: 'localstorage'
@@ -206,6 +206,7 @@ export default {
 
           await auth0.value.loginWithRedirect({
             authorizationParams: {
+              audience: Auth0Config.AUDIENCE,
               redirect_uri: callbackUrl.toString()
             }
           });
