@@ -10,7 +10,7 @@ from shared.models import Media
 import azure.functions as func
 
 
-#engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={'sslmode': 'require'}, pool_recycle=60)
+engine = create_engine(os.environ['POSTGRESQL_CONNECTION_URL'], connect_args={'sslmode': 'require'}, pool_recycle=60)
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -35,7 +35,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             pass
 
         if req.method == 'GET':
-            '''
             if req.headers.get('Content-Type') == 'application/json':
                 data = req.get_json()
                 sort = data['sort'] if 'sort' in data and data['sort'] is not None else 'type'
@@ -84,8 +83,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
             finally:
                 session.close()
-            '''
-            return func.HttpResponse(json.dumps([]), status_code=200, mimetype='application/json', charset='utf-8')
 
     except Exception as e:
         logging.error(f'{e}')

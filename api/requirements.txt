@@ -8,7 +8,7 @@ numpy
 pyjwt
 cryptography
 psycopg2-binary
-SQLAlchemy
+SQLAlchemy<2.1
 azure-functions
 azure-storage-blob
 azure-cosmos
