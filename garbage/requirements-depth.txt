@@ -1,0 +1,13 @@
+-r requirements.txt
+torch>=2,<3
+torchvision
+numpy<2
+opencv-python<4.12
+pillow
+einops>=0.6
+huggingface_hub
+safetensors>=0.4.3
+omegaconf
+addict
+evo
+matplotlib
