@@ -1,7 +1,7 @@
 # Garbage Density
 
 写真内のゴミ個数・曖昧候補・推定面積・Garbage Density（個/m²）をJSONで出力します。
-Density = ゴミ個数 ÷ 推定面積。既定モデルは `gpt-5.6-luna`、reasoning effort は `high`。
+Density = ゴミ個数 ÷ 推定面積。
 
 ## セットアップ
 
