@@ -1,44 +1,226 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>5D WORLD MAP SYSTEM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#f5f5f5">
+    <title>Videos | 5D World Map</title>
+    <link rel="icon" href="/favicon.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;700&amp;family=Noto+Sans+JP:wght@400;700&amp;display=swap" rel="stylesheet">
     <style>
+      :root {
+        font-family: "Barlow", "Hiragino Kaku Gothic ProN", "Hiragino Sans", "Noto Sans JP", BlinkMacSystemFont, -apple-system, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+        color: #000000;
+        background: hsl(0, 0%, 96%);
+        --panel-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%), 0 0 0 1px rgb(10 10 10 / 2%);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
-        background-color: #f3f3f2;
         margin: 0;
-        font-family: "Arial";
+        min-height: 100vh;
+        line-height: 1.5;
+      }
+
+      .page {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+
+      .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 24px;
+        border-radius: 4px;
+        background: #ffffff;
+        box-shadow: var(--panel-shadow);
+      }
+
+      .brand {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .brand img {
+        display: block;
+        width: 160px;
+        height: 64px;
+      }
+
+      .brand span {
+        margin-top: 6px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .button {
+        display: inline-flex;
+        flex-shrink: 0;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        border: 0;
+        border-radius: 4px;
+        color: #000000;
+        background: #ffffff;
+        box-shadow: var(--panel-shadow);
+        font-size: 12px;
+        font-weight: 700;
+        text-decoration: none;
+        text-transform: uppercase;
+      }
+
+      .button svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .button:hover {
+        background: hsl(0, 0%, 98%);
+      }
+
+      a:focus-visible {
+        outline: 2px solid #ff8138;
+        outline-offset: 4px;
+      }
+
+      h1, h2 {
+        margin: 0;
+        font-weight: 700;
       }
 
       h1 {
-        font: 24px Verdana, Arial, Helvetica, sans-serif;
-        color: #FFF;
-        background-color: #2a83a2;
-        margin: 0;
-        padding: 8px 16px;
+        margin: 24px 0 16px;
+        font-size: 24px;
+        text-transform: uppercase;
       }
 
-      div {
-        padding: 8px;
+      .video-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
       }
 
-      video, iframe {
-        width: 320px;
-        height: 180px;
-        margin: 8px;
-        padding: 0;
+      .video-panel {
+        min-width: 0;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #ffffff;
+        box-shadow: var(--panel-shadow);
+      }
+
+      .video-frame {
+        position: relative;
+        aspect-ratio: 16 / 9;
+        background: hsl(0, 0%, 93%);
+      }
+
+      .video-frame iframe {
+        position: absolute;
+        inset: 0;
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+      }
+
+      .video-panel h2 {
+        padding: 16px;
+        border-top: 1px solid hsl(0, 0%, 93%);
+        font-size: 14px;
+        overflow-wrap: anywhere;
+      }
+
+      @media (max-width: 1023px) {
+        .video-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .page {
+          padding: 16px;
+        }
+
+        .video-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-header {
+          flex-direction: column;
+          gap: 16px;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>5D WORLD MAP SYSTEM</h1>
-    <div>
-      <iframe src="https://drive.google.com/file/d/1koMkjIVWS1FQqB6YudnwH247WVqNL914/preview" title="5D World Map System video" frameborder="0" allow="autoplay" allowfullscreen></iframe>
-      <iframe src="https://drive.google.com/file/d/1eygWHF0i4d6yd59q4A2SNy4mI_N-Scx-/preview" title="Sensor tracking 5DWM.mp4" frameborder="0" allow="autoplay" allowfullscreen></iframe>
-      <iframe src="https://drive.google.com/file/d/1fv0uwQBkyTSG51RvVuU4Nq2Ti80_NJ8G/preview" title="earthquake mag+depth.mov" frameborder="0" allow="autoplay" allowfullscreen></iframe>
-      <iframe src="https://drive.google.com/file/d/1mNZW145vQ1hPm-8T-J6Nb2N3xe3rWHS_/preview" title="Drone+spectrum.mp4" frameborder="0" allow="autoplay" allowfullscreen></iframe>
-      <iframe src="https://drive.google.com/file/d/1cTDs-txRyY-j7WPNoMnfDKZR0teLqJSe/preview" title="5DWM_Disaster.mp4" frameborder="0" allow="autoplay" allowfullscreen></iframe>
-      <iframe src="https://drive.google.com/file/d/18o7AHjE4PEiStw0pM81IP4i3164riQI_/preview" title="5D World Map_COVID19.mp4" frameborder="0" allow="autoplay" allowfullscreen></iframe>
+    <div class="page">
+      <header class="page-header">
+        <a class="brand" href="/" aria-label="5D World Map home">
+          <img src="/images/logo.png" alt="5D World Map System" width="160" height="64">
+          <span>5dworldmap.com</span>
+        </a>
+        <a class="button" href="/">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m12 19-7-7 7-7M5 12h14" />
+          </svg>
+          <span>Back to map</span>
+        </a>
+      </header>
+      <main>
+        <h1>Videos</h1>
+        <div class="video-grid">
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/1koMkjIVWS1FQqB6YudnwH247WVqNL914/preview" title="5D World Map System" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>5D World Map System</h2>
+          </article>
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/1eygWHF0i4d6yd59q4A2SNy4mI_N-Scx-/preview" title="Sensor Tracking" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>Sensor Tracking</h2>
+          </article>
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/1fv0uwQBkyTSG51RvVuU4Nq2Ti80_NJ8G/preview" title="Earthquake Magnitude &amp; Depth" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>Earthquake Magnitude &amp; Depth</h2>
+          </article>
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/1mNZW145vQ1hPm-8T-J6Nb2N3xe3rWHS_/preview" title="Drone &amp; Spectrum" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>Drone &amp; Spectrum</h2>
+          </article>
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/1cTDs-txRyY-j7WPNoMnfDKZR0teLqJSe/preview" title="Disaster" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>Disaster</h2>
+          </article>
+          <article class="video-panel">
+            <div class="video-frame">
+              <iframe src="https://drive.google.com/file/d/18o7AHjE4PEiStw0pM81IP4i3164riQI_/preview" title="COVID-19" allow="autoplay" allowfullscreen></iframe>
+            </div>
+            <h2>COVID-19</h2>
+          </article>
+        </div>
+      </main>
     </div>
   </body>
 </html>
