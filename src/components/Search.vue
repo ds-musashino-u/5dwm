@@ -2,8 +2,7 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { importLibrary } from "@googlemaps/js-api-loader";
-import { ref, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
-import { Endpoints } from "../presenters/endpoints.mjs";
+import { ref, reactive, onMounted, onUnmounted, onActivated, onDeactivated, watch } from "vue";
 import { getAccessToken } from "../presenters/auth.mjs";
 import { getCategories } from "../presenters/categories.mjs";
 import { Location } from "../presenters/location.mjs";
@@ -12,6 +11,7 @@ import { getMedium, getMedia } from "../presenters/media.mjs";
 import { getUsers } from "../presenters/users.mjs";
 import { GoogleMapsConfig } from "../presenters/google-maps-config.mjs";
 import { search as searchWorldMap, ResultItem } from "../presenters/search.mjs";
+import { isKml, loadKml } from "../presenters/kml.mjs";
 import Time from "./Time.vue";
 import ListBox from "./ListBox.vue";
 import Results from "./Results.vue";
@@ -81,6 +81,43 @@ const cachedSearchResults = {};
 const pinnedItems = [];
 const appearance = {};
 const collectionPageLength = 10;
+const kmlItems = new Map();
+const disposedCollections = new WeakSet();
+
+const disposeKml = id => {
+  const entry = kmlItems.get(id);
+  if (!entry) return;
+  entry.controller?.abort();
+  entry.controller = null;
+  entry.layer?.dispose();
+  entry.state.loading = entry.state.loaded = false;
+  kmlItems.delete(id);
+};
+const clearKml = () => {
+  for (const id of kmlItems.keys()) disposeKml(id);
+};
+const registerKml = (item, owner = null) => {
+  if (!isKml(item.media.type)) return null;
+  let entry = kmlItems.get(item.media.id);
+  if (entry && entry.url !== item.media.url) {
+    disposeKml(item.media.id);
+    entry = null;
+  }
+  if (!entry) {
+    entry = { url: item.media.url, state: reactive({ loading: false, loaded: false, error: null, warning: null }), layer: null, controller: null, owners: new Set() };
+    kmlItems.set(item.media.id, entry);
+  }
+  if (owner !== null) entry.owners.add(owner);
+  item.kml = entry.state;
+  return entry;
+};
+const trimKmlCache = () => {
+  const hidden = [...kmlItems.values()].filter(entry => entry.layer && !entry.state.loaded);
+  for (const entry of hidden.slice(0, Math.max(0, hidden.length - 3))) {
+    entry.layer.dispose();
+    entry.layer = null;
+  }
+};
 
 fromDateRef.value.setFullYear(fromDateRef.value.getFullYear() - 1);
 fromDateRef.value.setHours(0);
@@ -117,6 +154,7 @@ onMounted(() => {
   initialize();
 });
 onUnmounted(() => {
+  clearKml();
   isInitializedRef.value = false;
 });
 onActivated(async () => {
@@ -130,14 +168,14 @@ onActivated(async () => {
     await search(false);
 
     for (const result of searchResults) {
-      if (result.item.loading || result.item.loaded) {
+      if (!isKml(result.item.media.type) && (result.item.loading || result.item.loaded)) {
         loadItem(result.item);
       }
     }
 
     selectedItemRef.value = tempSelectedItem;
 
-    if (selectedItemRef.value !== null) {
+    if (selectedItemRef.value?.media.location != null) {
       map.panTo(new google.maps.LatLng(selectedItemRef.value.media.location.latitude, selectedItemRef.value.media.location.longitude));
     }
 
@@ -176,6 +214,7 @@ onActivated(async () => {
   }
 });
 onDeactivated(() => { });
+watch(() => props.user?.sub, clearKml);
 watch(imageUrlRef, (currentValue, oldValue) => {
   if (currentValue !== null) {
     imageFileRef.value = null;
@@ -849,6 +888,7 @@ const createDataMarkerEx = (location, time, data) => {
 };
 const search = async (ignoreCache = true) => {
   if (ignoreCache) {
+    clearKml();
     searchcCriteria.keywords.splice(0);
     searchcCriteria.categories.splice(0);
     searchcCriteria.types.splice(0);
@@ -857,10 +897,6 @@ const search = async (ignoreCache = true) => {
     searchcCriteria.time = null;
 
     Object.keys(cachedSearchResults).forEach((key) => {
-      if ("layer" in cachedSearchResults[key]) {
-        cachedSearchResults[key].layer.setMap(null);
-      }
-
       delete cachedSearchResults[key];
     });
   }
@@ -996,6 +1032,8 @@ const search = async (ignoreCache = true) => {
         searchcCriteriaIsUpdated = true;
       }
 
+      if (searchcCriteriaIsUpdated) clearKml();
+
       if (searchcCriteriaIsUpdated || range.some(x => x in cachedSearchResults === false)) {
         for (const result of searchResults) {
           if (result.marker !== null) {
@@ -1043,13 +1081,10 @@ const search = async (ignoreCache = true) => {
           const bounds = new google.maps.LatLngBounds();
           let index = 0;
 
-          Object.keys(cachedSearchResults).forEach((key) => {
-            if ("layer" in cachedSearchResults[key]) {
-              cachedSearchResults[key].layer.setMap(null);
-            }
-
-            delete cachedSearchResults[key];
-          });
+          if (searchcCriteriaIsUpdated) {
+            Object.keys(cachedSearchResults).forEach(key => delete cachedSearchResults[key]);
+          }
+          for (const item of resultItems) registerKml(item, "search");
 
           isRootedRef.value = false;
           searchResults.splice(0);
@@ -1116,9 +1151,7 @@ const search = async (ignoreCache = true) => {
             }
 
             for (const resultItem of resultItems) {
-              if (
-                resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz")) {
+              if (isKml(resultItem.media.type)) {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
@@ -1133,9 +1166,7 @@ const search = async (ignoreCache = true) => {
             }
           } else {
             for (const resultItem of resultItems) {
-              if (
-                resultItem.media.type.startsWith("kml") ||
-                resultItem.media.type.startsWith("kmz")) {
+              if (isKml(resultItem.media.type)) {
                 resultItem["loading"] = false;
                 resultItem["loaded"] = false;
               } else if ("data" in resultItem.media && resultItem.media.data !== null) {
@@ -1229,7 +1260,7 @@ const selectItem = async (index, item) => {
     selectedItemRef.value = Object.assign({ index: index }, item);
   }
 
-  map.panTo(
+  if (item.media.location !== null) map.panTo(
     new google.maps.LatLng(
       item.media.location.latitude,
       item.media.location.longitude
@@ -1259,30 +1290,31 @@ const selectItem = async (index, item) => {
   }
 };
 const loadItem = async (item) => {
-  if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    let result = searchResults.find(x => x.item.media.id === item.media.id);
-
-    if (result === undefined && "disposable" in item) {
-      result = item;
-    }
-
-    if (result !== undefined) {
-      result.item.loading = item.loading = true;
-      result.item.layer = new google.maps.KmlLayer(`${Endpoints.TUNNEL_URL}?url=${result.item.media.url}`, {
-        suppressInfoWindows: false,
-        preserveViewport: false,
-        map: map
-      });
-      result.item.layer.status_changed = (e) => {
-        result.item.loading = item.loading = false;
-
-        if (google.maps.KmlLayerStatus.OK === result.item.layer.getStatus()) {
-          result.item.loaded = item.loaded = true;
-        } else {
-          errorRef.value = { message: result.item.layer.getStatus(), url: "https://developers.google.com/maps/documentation/javascript/kmllayer" };
-          shake(previewPanelRef.value);
-        }
-      };
+  if (isKml(item.media.type)) {
+    const entry = kmlItems.get(item.media.id);
+    if (!entry || entry.state.loading || entry.state.loaded || map === null) return;
+    const controller = new AbortController();
+    const selection = selectedItemRef.value;
+    entry.controller = controller;
+    entry.state.loading = true;
+    entry.state.error = null;
+    try {
+      const layer = entry.layer ?? await loadKml(entry.url, { signal: controller.signal });
+      if (entry.controller !== controller) { layer.dispose(); return; }
+      entry.layer = layer;
+      layer.setMap(map);
+      entry.state.loaded = true;
+      entry.state.warning = layer.warnings.length ? layer.warnings.join(" ") : null;
+      if (selectedItemRef.value === selection && !layer.bounds.isEmpty()) map.fitBounds(layer.bounds);
+    } catch (error) {
+      if (entry.controller === controller && error.name !== "AbortError") {
+        entry.state.error = { message: error.message };
+      }
+    } finally {
+      if (entry.controller === controller) {
+        entry.controller = null;
+        entry.state.loading = false;
+      }
     }
   } else if ("data" in item.media && item.media.data !== null) {
     let result = searchResults.find(x => x.item.media.id === item.media.id);
@@ -1315,17 +1347,17 @@ const loadItem = async (item) => {
   }
 };
 const unloadItem = (item) => {
-  if (item.media.type.startsWith("kml") || item.media.type.startsWith("kmz")) {
-    let result = searchResults.find(x => x.item.media.id === item.media.id);
-
-    if (result === undefined && "disposable" in item) {
-      result = item;
-    }
-
-    if (result !== undefined) {
-      result.item.layer.setMap(null);
-      result.item.loaded = item.loaded = false;
-    }
+  if (isKml(item.media.type)) {
+    const entry = kmlItems.get(item.media.id);
+    if (!entry) return;
+    entry.controller?.abort();
+    entry.controller = null;
+    entry.layer?.setMap(null);
+    entry.state.loading = entry.state.loaded = false;
+    // Move the recently hidden entry to the end for cache eviction.
+    kmlItems.delete(item.media.id);
+    kmlItems.set(item.media.id, entry);
+    trimKmlCache();
   } else if ("data" in item.media && item.media.data !== null) {
     const index = pinnedItems.findIndex(x => x.item.media.id === item.media.id);
     
@@ -1365,8 +1397,14 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
   
   try {
     const [resultItems, totalCount, timestamp] = await searchWorldMap(await getAccessToken(props.auth0), [], [], [], [], collection, null, null, null, "created_at", "asc", collectionPageIndexRef.value * collectionPageLength, collectionPageLength + 1);
+
+    if (disposedCollections.has(collectionItemsRef)) {
+      collectionIsFetchingRef.value = false;
+      return;
+    }
     
     for (const item of resultItems.slice(0, collectionPageLength)) {
+      registerKml(item, collectionItemsRef);
       const result = searchResults.find(x => x.item.media.id === item.media.id);
 
       if (result === undefined) {
@@ -1393,7 +1431,7 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
             content: item.media.type.startsWith('image') && item.media.url.startsWith('https://') ? "thumbnailUrl" in item.media && item.media.thumbnailUrl !== null ? `<img width="320px" src="${item.media.thumbnailUrl}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : `<img width="320px" src="${item.media.url}" alt="${item.media.description}"><p class="has-text-black">${item.media.description}</p>` : item.media.description,
           }), item: Object.assign({ index: null, disposable: true }, item) });
         } else {
-          collectionItemsRef.value.push({ marker: null, item: item });
+          collectionItemsRef.value.push({ marker: null, item: Object.assign({ index: null, disposable: true }, item) });
         }
       } else {
         const index = Object.keys(cachedSearchResults).find(x => cachedSearchResults[x].media.id === item.media.id);
@@ -1425,18 +1463,19 @@ const fetchCollection = async (collection, collectionPageIndexRef, collectionIte
   collectionIsFetchingRef.value = false;
 };
 const selectCollectionItem = (collection) => {
-  map.panTo(new google.maps.LatLng(collection.item.media.location.latitude, collection.item.media.location.longitude));
+  if (collection.item.media.location !== null) {
+    map.panTo(new google.maps.LatLng(collection.item.media.location.latitude, collection.item.media.location.longitude));
+  }
 };
 const disposeCollection = (collectionItemsRef) => {
+  disposedCollections.add(collectionItemsRef);
+  for (const [id, entry] of kmlItems) {
+    if (entry.owners.delete(collectionItemsRef) && entry.owners.size === 0) disposeKml(id);
+  }
   for (const collectionItem of collectionItemsRef.value) {
     if ("disposable" in collectionItem.item && collectionItem.item.disposable) {
       if (collectionItem.marker !== null) {
         collectionItem.marker.setMap(null);
-      }
-
-      if ("layer" in collectionItem.item) {
-        collectionItem.item.layer.setMap(null);
-        collectionItem.item.loaded = item.loaded = false;
       }
 
       const index = pinnedItems.findIndex(x => x.item.media.id === collectionItem.item.media.id);

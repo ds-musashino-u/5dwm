@@ -112,6 +112,89 @@ a:hover {
     }
 }
 
+.tabs.is-toggle.is-sliding {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    >ul {
+        position: relative;
+        flex: 0 0 auto;
+        margin: 0;
+        border: 1px solid hsl(0deg, 0%, 93%);
+        border-radius: var(--bulma-tabs-toggle-link-radius);
+        background: #ffffff;
+        overflow: hidden;
+
+        &::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto 0 0;
+            width: 50%;
+            border-radius: inherit;
+            background: var(--accent-color);
+            transform: translateX(0);
+            transition: transform 0.25s ease-in-out;
+        }
+
+        >li {
+            position: relative;
+            z-index: 1;
+            flex: 1 0 0;
+            margin: 0;
+        }
+
+        >li>:is(a, button) {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 2.75rem;
+            width: 100%;
+            padding: 0.25em 0.5em;
+            border: 0 !important;
+            background: transparent !important;
+            font: inherit;
+            cursor: pointer;
+        }
+
+        >li>:is(a, button),
+        >li>:is(a, button)>span {
+            color: var(--bulma-text) !important;
+            transition: color 0.25s ease-in-out;
+        }
+
+        >li>:is(a, button)>span {
+            -webkit-text-fill-color: currentColor;
+        }
+
+        >li.is-active>:is(a, button),
+        >li.is-active>:is(a, button)>span {
+            color: #ffffff !important;
+        }
+
+        >li>button:disabled {
+            cursor: not-allowed;
+        }
+    }
+
+    &:disabled {
+        opacity: 0.5;
+    }
+
+    &.is-on>ul::before {
+        transform: translateX(100%);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        >ul::before,
+        >ul>li>:is(a, button),
+        >ul>li>:is(a, button)>span {
+            transition: none;
+        }
+    }
+}
+
 .select:not(.is-multiple) {
     height: auto;
 }

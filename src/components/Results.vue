@@ -2,6 +2,9 @@
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import { ref } from "vue";
+import { isKml } from "../presenters/kml.mjs";
+
+const stateFor = item => item.kml ?? item;
 
 const props = defineProps({
   isCollapsable: { type: Boolean, required: false, default: false },
@@ -122,13 +125,13 @@ const back = (event) => {
                       <i class="fa-solid fa-file fa-lg"></i>
                     </span>
                   </button>
-                  <div class="heading" :class="{ 'is-selected': (item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null) && item.loaded }" style="pointer-events: none" v-if="item.media.id in appearance">
+                  <fieldset class="heading" :disabled="isKml(item.media.type)" :class="{ 'is-selected': (isKml(item.media.type) || 'data' in item.media && item.media.data !== null) && stateFor(item).loaded }" style="pointer-events: none" v-if="item.media.id in appearance">
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
-                      v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
-                      @click="item.loaded ? unload($event, item) : load($event, item)">
+                    <button class="button toggle is-hidden" type="button" v-bind:disabled="stateFor(item).loading && !isKml(item.media.type)"
+                      v-if="isKml(item.media.type) || 'data' in item.media && item.media.data !== null"
+                      @click="stateFor(item).loaded || stateFor(item).loading ? unload($event, item) : load($event, item)">
                       <transition name="fade" mode="out-in">
-                        <span class="icon" v-if="item.loaded" key="on">
+                        <span class="icon" v-if="stateFor(item).loaded" key="on">
                           <i class="fa-solid fa-toggle-on"></i>
                         </span>
                         <span class="icon" v-else key="off">
@@ -136,14 +139,14 @@ const back = (event) => {
                         </span>
                       </transition>
                     </button>
-                  </div>
-                  <div class="heading" :class="{ 'is-selected': (item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null) && item.loaded }" style="pointer-events: none" v-else>
+                  </fieldset>
+                  <fieldset class="heading" :disabled="isKml(item.media.type)" :class="{ 'is-selected': (isKml(item.media.type) || 'data' in item.media && item.media.data !== null) && stateFor(item).loaded }" style="pointer-events: none" v-else>
                     <span class="badge is-size-7 has-text-weight-bold">{{ pageIndex * pageLength + index + 1 }}</span>
-                    <button class="button toggle is-hidden" type="button" v-bind:disabled="item.loading"
-                      v-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null"
-                      @click="item.loaded ? unload($event, item) : load($event, item)">
+                    <button class="button toggle is-hidden" type="button" v-bind:disabled="stateFor(item).loading && !isKml(item.media.type)"
+                      v-if="isKml(item.media.type) || 'data' in item.media && item.media.data !== null"
+                      @click="stateFor(item).loaded || stateFor(item).loading ? unload($event, item) : load($event, item)">
                       <transition name="fade" mode="out-in">
-                        <span class="icon" v-if="item.loaded" key="on">
+                        <span class="icon" v-if="stateFor(item).loaded" key="on">
                           <i class="fa-solid fa-toggle-on"></i>
                         </span>
                         <span class="icon" v-else key="off">
@@ -151,7 +154,7 @@ const back = (event) => {
                         </span>
                       </transition>
                     </button>
-                  </div>
+                  </fieldset>
                 </div>
               </div>
             </article>

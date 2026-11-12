@@ -1,7 +1,10 @@
 <script setup>
 // This starter template is using Vue 3 <script setup> SFCs
 // Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
-import { ref, onMounted, onUnmounted, onActivated, onDeactivated, reactive, toRef, watch } from "vue";
+import { computed, ref, onMounted, onUnmounted, onActivated, onDeactivated, reactive, toRef, watch } from "vue";
+import { isKml } from "../presenters/kml.mjs";
+
+const stateFor = item => item.kml ?? item;
 
 const props = defineProps({
   isCollapsed: { type: Boolean, required: false, default: false },
@@ -19,9 +22,12 @@ const collectionPageIndexRef = ref(0);
 const collectionIsFetchingRef = ref(false);
 const collectionItemsRef = ref([]);
 const selectCollectionItemRef = ref(null);
+const activeItem = computed(() => selectCollectionItemRef.value ?? props.item);
+const activeState = computed(() => stateFor(activeItem.value));
+const activeError = computed(() => activeItem.value?.kml?.error ?? props.error);
 
 const load = (event, item) => {
-  emit("load", item);
+  if (!stateFor(item).loaded && !stateFor(item).loading) emit("load", item);
 };
 const unload = (event, item) => {
   emit("unload", item);
@@ -158,61 +164,34 @@ onDeactivated(() => {
                 </div>
               </transition>
               <transition name="fade" mode="out-in">
-                <div class="level-item" v-if="selectCollectionItemRef !== null && (selectCollectionItemRef.media.type.startsWith('kml') || selectCollectionItemRef.media.type.startsWith('kmz') || 'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null)" key="alt">
+                <div class="level-item" v-if="isKml(activeItem.media.type) || 'data' in activeItem.media && activeItem.media.data !== null">
                   <span class="icon is-small has-text-dark">
                     <i class="fa-solid fa-chart-simple"></i>
                   </span>
                   <transition name="fade" mode="out-in">
-                    <div class="control" v-if="'data' in selectCollectionItemRef.media && selectCollectionItemRef.media.data !== null && selectCollectionItemRef.media.data.length === 0" key="loading">
-                      <span class="icon">
-                        <i class="fas fa-spinner updating"></i>
-                      </span>
+                    <div class="control" v-if="'data' in activeItem.media && activeItem.media.data !== null && activeItem.media.data.length === 0" key="loading">
+                      <span class="icon"><i class="fas fa-spinner updating"></i></span>
                     </div>
-                    <div class="control" v-else key ="loaded">
-                      <div class="tabs is-toggle">
-                        <ul :style="{ pointerEvents: selectCollectionItemRef.loading ? 'none' : 'auto' }">
-                          <li :class="{ 'is-active': !selectCollectionItemRef.loaded }" >
-                            <a @click="selectCollectionItemRef.loaded ? unload($event, selectCollectionItemRef) : load($event, selectCollectionItemRef)">
+                    <div class="control" v-else key="loaded">
+                      <fieldset class="tabs is-toggle is-sliding" :disabled="isKml(activeItem.media.type)" :class="{ 'is-on': activeState.loaded || activeState.loading }">
+                        <ul>
+                          <li :class="{ 'is-active': !activeState.loaded && !activeState.loading }">
+                            <button type="button" :disabled="activeState.loading && !isKml(activeItem.media.type)" :aria-pressed="!activeState.loaded && !activeState.loading" @click="unload($event, activeItem)">
                               <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
-                            </a>
+                            </button>
                           </li>
-                          <li :class="{ 'is-active': selectCollectionItemRef.loaded }">
-                            <a @click="selectCollectionItemRef.loaded ? unload($event, selectCollectionItemRef) : load($event, selectCollectionItemRef)">
+                          <li :class="{ 'is-active': activeState.loaded || activeState.loading }">
+                            <button type="button" :disabled="activeState.loading && !isKml(activeItem.media.type)" :aria-pressed="activeState.loaded || activeState.loading" @click="load($event, activeItem)">
                               <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
-                            </a>
+                            </button>
                           </li>
                         </ul>
-                      </div>
+                      </fieldset>
                     </div>
                   </transition>
-                </div>
-                <div class="level-item" v-else-if="item.media.type.startsWith('kml') || item.media.type.startsWith('kmz') || 'data' in item.media && item.media.data !== null" key="default">
-                  <span class="icon is-small has-text-dark">
-                    <i class="fa-solid fa-chart-simple"></i>
+                  <span class="icon is-small ml-2" v-if="activeState.loading" role="status" aria-label="Loading">
+                    <i class="fas fa-spinner updating" aria-hidden="true"></i>
                   </span>
-                  <transition name="fade" mode="out-in">
-                    <div class="control" v-if="'data' in item.media && item.media.data !== null && item.media.data.length === 0" key="loading">
-                      <span class="icon">
-                        <i class="fas fa-spinner updating"></i>
-                      </span>
-                    </div>
-                    <div class="control" v-else key ="loaded">
-                      <div class="tabs is-toggle">
-                        <ul :style="{ pointerEvents: item.loading ? 'none' : 'auto' }">
-                          <li :class="{ 'is-active': !item.loaded }" >
-                            <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                              <span class="is-size-7 is-uppercase has-text-weight-bold">Off</span>
-                            </a>
-                          </li>
-                          <li :class="{ 'is-active': item.loaded }">
-                            <a @click="item.loaded ? unload($event, item) : load($event, item)">
-                              <span class="is-size-7 is-uppercase has-text-weight-bold">On</span>
-                            </a>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
-                  </transition>
                 </div>
               </transition>
               <transition name="fade" mode="out-in">
@@ -256,22 +235,27 @@ onDeactivated(() => {
             </div>
           </nav>
           <transition name="fade" mode="out-in">
-            <div class="level is-mobile has-background-danger" v-if="props.error !== null">
+            <div class="level is-mobile has-background-danger" v-if="activeError !== null">
               <div class="level-left">
                 <div class="level-item">
                   <span class="icon is-small has-text-white">
                     <i class="fa-solid fa-triangle-exclamation"></i>
                   </span>
                 </div>
-                <div class="level-item" v-if="'url' in props.error && props.error.url !== null">
-                  <a :href="props.error.url" target="_blank" class="is-size-7 is-uppercase is-underlined has-text-weight-bold has-text-white" :title="props.error.message">{{ props.error.message }}</a>
+                <div class="level-item" v-if="'url' in activeError && activeError.url !== null">
+                  <a :href="activeError.url" target="_blank" class="is-size-7 is-uppercase is-underlined has-text-weight-bold has-text-white" :title="activeError.message">{{ activeError.message }}</a>
                 </div>
                 <div class="level-item" v-else>
-                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-white">{{ props.error.message }}</span>
+                  <span class="is-size-7 is-uppercase has-text-weight-bold has-text-white">{{ activeError.message }}</span>
                 </div>
               </div>
             </div>
           </transition>
+          <div class="level is-mobile has-background-warning" v-if="activeState.warning">
+            <div class="level-item">
+              <span class="is-size-7 has-text-black">{{ activeState.warning }}</span>
+            </div>
+          </div>
           <transition name="fade" mode="out-in">
             <div class="control" v-if="!isCollapsed && selectCollectionItemRef !== null && selectCollectionItemRef.media.type.startsWith('image') && selectCollectionItemRef.media.url.startsWith('https://')" key="alt">
               <nav class="level">
@@ -1063,21 +1047,6 @@ onDeactivated(() => {
 
         .control {
           width: fit-content;
-
-          >.tabs.is-toggle {
-            ul {
-              margin: 0;
-
-              >li>a {
-                padding: 0.25em 0.5em;
-                transition: 0.5s;
-              }
-
-              >li:not(.is-active)>a {
-                background: #ffffff;
-              }
-            }
-          }
         }
 
         span.icon+.control {

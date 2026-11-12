@@ -1,6 +1,7 @@
 import { Endpoints } from "./endpoints.mjs";
 import { Media } from "./media.mjs";
 import { Location } from "./location.mjs";
+import { isKml } from "./kml.mjs";
 
 /**
  * @classdesc ResultItem
@@ -91,7 +92,7 @@ export async function search(token, keywords, categories, types, usernames, coll
             const thumbnailUrl = regex.test(item.url) ? item.url.replace(regex, "$1thumbnails/$2") : null;
 
             if (!/^https?:\/\//.test(item.url)) {
-                if (item.type.startsWith("kml") || item.type.startsWith("kmz")) {
+                if (isKml(item.type)) {
                     item.url = `https://www.5dwm.mydns.jp/5dtest/upload/kmlkmz/${item.url}`;
                 } else {
                     item.url = `https://www.5dwm.mydns.jp/5dtest/upload/images/${item.url}`;
