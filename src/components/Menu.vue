@@ -170,6 +170,22 @@ const signOut = (event) => {
                     </div>
                     <div class="panel-block">
                       <div class="control">
+                        <a href="/5d-video-list.html" target="_blank" rel="noopener" class="
+                                button
+                                is-rounded is-outlined is-fullwidth is-size-7
+                              ">
+                          <span class="icon">
+                            <i class="fa-solid fa-video" aria-hidden="true"></i>
+                          </span>
+                          <span class="is-uppercase has-text-weight-bold">Videos</span>
+                          <span class="icon">
+                            <i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>
+                          </span>
+                        </a>
+                      </div>
+                    </div>
+                    <div class="panel-block">
+                      <div class="control">
                         <button class="
                                 button
                                 is-rounded is-outlined is-fullwidth is-size-7
@@ -299,7 +315,8 @@ const signOut = (event) => {
             }
           }
 
-          button {
+          button,
+          a.button {
             border: 0px solid transparent !important;
             border-radius: 4px !important;
             box-shadow: 0 0.5em 1em -0.125em rgb(10 10 10 / 10%),
