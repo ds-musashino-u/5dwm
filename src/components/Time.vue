@@ -244,7 +244,7 @@ watch(toDateRef, (newValue, oldValue) => {
         </div>
         <div class="level-item">
           <div class="control">
-            <div class="tabs is-toggle">
+            <div class="tabs is-toggle is-sliding" :class="{ 'is-on': isEnabled }">
               <ul>
                 <li :class="{ 'is-active': !isEnabled }">
                   <a @click="isCollapsedRef = !isCollapsedRef; enabled();">
@@ -468,7 +468,7 @@ watch(toDateRef, (newValue, oldValue) => {
           }
         }
 
-        .control>.tabs.is-toggle {
+        .control>.tabs.is-toggle:not(.is-sliding) {
           ul {
             margin: 0;
 
